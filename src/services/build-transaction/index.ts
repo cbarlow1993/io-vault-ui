@@ -1,7 +1,9 @@
-import { UserInputError } from '@iofinnet/errors-sdk';
+import { InternalServerError, UserInputError } from '@iofinnet/errors-sdk';
 import {
+  type Chain,
   type ChainAlias,
   type EcoSystem,
+  type IWalletLike,
   EvmChainAliases,
   SvmChainAliases,
   TronChainAliases,
@@ -9,6 +11,8 @@ import {
   XrpChainAliases,
   SubstrateChainAliases,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { logger } from '@/utils/powertools.js';
+import { tryCatch } from '@/utils/try-catch.js';
 import type { BuildTransactionResult, BuilderKey } from './types.js';
 import type { WalletFactory } from './wallet-factory.js';
 import {
@@ -139,14 +143,24 @@ export async function routeNativeTransaction(
   const builder = nativeBuilders[builderKey];
 
   if (!builder) {
+    logger.warn('Unsupported ecosystem:chain combination', { ecosystem, chainAlias });
     throw new UserInputError(`Unsupported ecosystem:chain combination: ${ecosystem}:${chainAlias}`);
   }
 
-  const { wallet, chain } = await walletFactory.createWallet(
-    params.vaultId,
-    chainAlias,
-    params.derivationPath
+  const { data: walletResult, error: walletError } = await tryCatch(
+    walletFactory.createWallet(params.vaultId, chainAlias, params.derivationPath)
   );
+
+  if (walletError) {
+    logger.error('Error creating wallet', { error: walletError, vaultId: params.vaultId, chainAlias });
+    throw new InternalServerError('Failed to create wallet');
+  }
+
+  if (!walletResult) {
+    throw new InternalServerError('Wallet creation returned no result');
+  }
+
+  const { wallet, chain } = walletResult;
 
   // Build params based on ecosystem
   const buildParams = buildNativeParams(ecosystem, wallet, chain, params);
@@ -170,16 +184,27 @@ export async function routeTokenTransaction(
     // Check if this is a valid native chain that doesn't support tokens
     const nativeBuilder = nativeBuilders[builderKey];
     if (nativeBuilder) {
+      logger.warn('Token transactions not supported for chain', { ecosystem, chainAlias });
       throw new UserInputError(`Token transactions are not supported for ${ecosystem}:${chainAlias}`);
     }
+    logger.warn('Unsupported ecosystem:chain combination', { ecosystem, chainAlias });
     throw new UserInputError(`Unsupported ecosystem:chain combination: ${ecosystem}:${chainAlias}`);
   }
 
-  const { wallet, chain } = await walletFactory.createWallet(
-    params.vaultId,
-    chainAlias,
-    params.derivationPath
+  const { data: walletResult, error: walletError } = await tryCatch(
+    walletFactory.createWallet(params.vaultId, chainAlias, params.derivationPath)
   );
+
+  if (walletError) {
+    logger.error('Error creating wallet', { error: walletError, vaultId: params.vaultId, chainAlias });
+    throw new InternalServerError('Failed to create wallet');
+  }
+
+  if (!walletResult) {
+    throw new InternalServerError('Wallet creation returned no result');
+  }
+
+  const { wallet, chain } = walletResult;
 
   // Build params based on ecosystem
   const buildParams = buildTokenParams(ecosystem, wallet, chain, params);
@@ -192,8 +217,8 @@ export async function routeTokenTransaction(
  */
 function buildNativeParams(
   ecosystem: EcoSystem,
-  wallet: any,
-  chain: any,
+  wallet: IWalletLike,
+  chain: Chain,
   params: NativeTransactionParams
 ): EvmNativeParams | SvmNativeParams | UtxoNativeParams | TvmNativeParams | XrpNativeParams | SubstrateNativeParams {
   const baseParams = {
@@ -252,8 +277,8 @@ function buildNativeParams(
  */
 function buildTokenParams(
   ecosystem: EcoSystem,
-  wallet: any,
-  chain: any,
+  wallet: IWalletLike,
+  chain: Chain,
   params: TokenTransactionParams
 ): EvmTokenParams | SvmTokenParams | TvmTokenParams {
   const baseParams = {
@@ -288,6 +313,7 @@ function buildTokenParams(
       return baseParams as TvmTokenParams;
 
     default:
-      return baseParams as any;
+      // This should never be reached as ecosystem is validated before calling this function
+      return baseParams as EvmTokenParams;
   }
 }
