@@ -74,6 +74,16 @@ export interface Workflow {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+  // Denormalized fields from database
+  vaultId: string;
+  chainAlias: string;
+  marshalledHex: string;
+  organisationId: string;
+  createdBy: Record<string, unknown>;
+  txHash: string | null;
+  signature: string | null;
+  blockNumber: number | null;
+  completedAt: Date | null;
 }
 
 export interface WorkflowEventRecord {

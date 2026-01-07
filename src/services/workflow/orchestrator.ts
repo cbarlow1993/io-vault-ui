@@ -53,7 +53,9 @@ export class WorkflowOrchestrator {
     const fromState = workflow.state;
 
     // Use XState actor to compute the next state
+    // When rehydrating from a snapshot, we provide an empty input since context comes from snapshot
     const actor = createActor(transactionMachine, {
+      input: {},
       snapshot: transactionMachine.resolveState({
         value: fromState,
         context: workflow.context,
@@ -104,7 +106,7 @@ export class WorkflowOrchestrator {
       eventPayload,
       fromState,
       toState,
-      contextSnapshot: newContext as Record<string, unknown>,
+      contextSnapshot: newContext as unknown as Record<string, unknown>,
       triggeredBy,
     });
 

@@ -33,20 +33,17 @@ export async function signatureWebhookRoutes(server: FastifyInstance) {
       );
 
       if (isDuplicate) {
-        server.log.info('Duplicate webhook received, ignoring', {
-          workflowId,
-          requestId,
-        });
+        server.log.info({ workflowId, requestId }, 'Duplicate webhook received, ignoring');
         return reply.status(200).send({ received: true, duplicate: true });
       }
 
       // State check - use getById not get
       const workflow = await orchestrator.getById(workflowId);
       if (!workflow || workflow.state !== 'waiting_signature') {
-        server.log.warn('Webhook received for workflow not awaiting signature', {
-          workflowId,
-          currentState: workflow?.state,
-        });
+        server.log.warn(
+          { workflowId, currentState: workflow?.state },
+          'Webhook received for workflow not awaiting signature'
+        );
         return reply.status(200).send({ received: true, ignored: true });
       }
 

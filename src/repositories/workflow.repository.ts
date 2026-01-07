@@ -69,7 +69,7 @@ function mapRowToWorkflow(row: WorkflowRow): Workflow {
   return {
     id: row.id,
     state: row.state as Workflow['state'],
-    context: row.context as WorkflowContext,
+    context: row.context as unknown as WorkflowContext,
     version: row.version,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -82,16 +82,6 @@ function mapRowToWorkflow(row: WorkflowRow): Workflow {
     signature: row.signature,
     blockNumber: row.block_number,
     completedAt: row.completed_at,
-  } as Workflow & {
-    vaultId: string;
-    chainAlias: string;
-    marshalledHex: string;
-    organisationId: string;
-    createdBy: Record<string, unknown>;
-    txHash: string | null;
-    signature: string | null;
-    blockNumber: number | null;
-    completedAt: Date | null;
   };
 }
 
@@ -139,7 +129,7 @@ export class WorkflowRepository {
         organisation_id: input.organisationId,
         created_by: input.createdBy,
         state: 'created',
-        context: context,
+        context: context as unknown as Record<string, unknown>,
         tx_hash: null,
         signature: null,
         block_number: null,

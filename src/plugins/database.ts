@@ -36,6 +36,9 @@ import { VaultService } from '@/src/services/vaults/vault-service.js';
 import { WalletFactory } from '@/src/services/build-transaction/wallet-factory.js';
 import { EVMBalanceFetcher } from '@/src/services/balances/fetchers/evm.js';
 import { JsonRpcClient } from '@/src/lib/rpc/client.js';
+import { WorkflowRepository } from '@/src/repositories/workflow.repository.js';
+import { WorkflowEventsRepository } from '@/src/repositories/workflow-events.repository.js';
+import { WorkflowOrchestrator } from '@/src/services/workflow/orchestrator.js';
 
 // Configuration constants
 const PRICE_CACHE_TTL_SECONDS = 3600; // 1 hour
@@ -60,6 +63,8 @@ declare module 'fastify' {
       transactions: PostgresTransactionService;
       vault: VaultService;
       walletFactory: WalletFactory;
+      workflowOrchestrator: WorkflowOrchestrator;
+      workflowEventsRepo: WorkflowEventsRepository;
     };
   }
 }
@@ -120,6 +125,15 @@ async function databasePlugin(fastify: FastifyInstance) {
   const vaultService = new VaultService(vaultRepository);
   const walletFactory = new WalletFactory(vaultService);
 
+  // Workflow services
+  const workflowRepository = new WorkflowRepository(db);
+  const workflowEventsRepository = new WorkflowEventsRepository(db);
+  const workflowOrchestrator = new WorkflowOrchestrator(
+    workflowRepository,
+    workflowEventsRepository,
+    logger
+  );
+
   // Decorate Fastify instance
   fastify.decorate('db', db);
   fastify.decorate('vaultDb', vaultDb);
@@ -140,6 +154,8 @@ async function databasePlugin(fastify: FastifyInstance) {
     transactions: transactionService,
     vault: vaultService,
     walletFactory,
+    workflowOrchestrator,
+    workflowEventsRepo: workflowEventsRepository,
   });
 
   // Only close on container shutdown, not Lambda

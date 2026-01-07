@@ -13,6 +13,47 @@ import type {
   WorkflowEventRecord,
 } from '@/src/services/workflow/types.js';
 
+// Helper to create complete workflow objects for tests
+function createMockWorkflow(overrides: Partial<Workflow> = {}): Workflow {
+  const defaultContext: WorkflowContext = {
+    vaultId: 'vault-123',
+    chainAlias: 'ethereum',
+    marshalledHex: '0xabc',
+    organisationId: 'org-123',
+    createdBy: { id: 'user-123', type: 'User' },
+    skipReview: false,
+    approvers: [],
+    approvedBy: null,
+    signature: null,
+    txHash: null,
+    blockNumber: null,
+    broadcastAttempts: 0,
+    maxBroadcastAttempts: 3,
+    error: null,
+    failedAt: null,
+  };
+
+  const context = overrides.context ?? defaultContext;
+
+  return {
+    id: overrides.id ?? 'wf-123',
+    state: overrides.state ?? 'created',
+    context,
+    version: overrides.version ?? 1,
+    createdAt: overrides.createdAt ?? new Date(),
+    updatedAt: overrides.updatedAt ?? new Date(),
+    vaultId: 'vault-123',
+    chainAlias: 'ethereum',
+    marshalledHex: '0xabc',
+    organisationId: 'org-123',
+    createdBy: { id: 'user-123', type: 'User' },
+    txHash: null,
+    signature: null,
+    blockNumber: null,
+    completedAt: null,
+  };
+}
+
 describe('WorkflowOrchestrator', () => {
   let orchestrator: WorkflowOrchestrator;
   let workflowRepo: WorkflowRepository;
@@ -60,7 +101,12 @@ describe('WorkflowOrchestrator', () => {
       error: vi.fn(),
     };
 
-    orchestrator = new WorkflowOrchestrator(workflowRepo, eventsRepo, mockLogger);
+    // Cast logger to match expected interface
+    orchestrator = new WorkflowOrchestrator(
+      workflowRepo,
+      eventsRepo,
+      mockLogger as unknown as { info: (msg: string, meta?: Record<string, unknown>) => void; warn: (msg: string, meta?: Record<string, unknown>) => void; error: (msg: string, meta?: Record<string, unknown>) => void }
+    );
   });
 
   describe('create', () => {
@@ -74,14 +120,7 @@ describe('WorkflowOrchestrator', () => {
         skipReview: false,
       };
 
-      const createdWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const createdWorkflow = createMockWorkflow();
 
       vi.mocked(workflowRepo.create).mockResolvedValue(createdWorkflow);
 
@@ -109,14 +148,10 @@ describe('WorkflowOrchestrator', () => {
         skipReview: true,
       };
 
-      const createdWorkflow: Workflow = {
+      const createdWorkflow = createMockWorkflow({
         id: 'wf-456',
-        state: 'created',
-        context: { ...baseContext, ...input, skipReview: true },
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+        context: { ...baseContext, skipReview: true },
+      });
 
       vi.mocked(workflowRepo.create).mockResolvedValue(createdWorkflow);
 
@@ -133,20 +168,12 @@ describe('WorkflowOrchestrator', () => {
 
   describe('send', () => {
     it('transitions state and records event', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingWorkflow = createMockWorkflow();
 
-      const updatedWorkflow: Workflow = {
-        ...existingWorkflow,
+      const updatedWorkflow = createMockWorkflow({
         state: 'review',
         version: 2,
-      };
+      });
 
       const createdEvent: WorkflowEventRecord = {
         id: 'evt-1',
@@ -187,20 +214,15 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('skips review when skipReview is true', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
+      const existingWorkflow = createMockWorkflow({
         context: { ...baseContext, skipReview: true },
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
-      const updatedWorkflow: Workflow = {
-        ...existingWorkflow,
+      const updatedWorkflow = createMockWorkflow({
         state: 'evaluating_policies',
+        context: { ...baseContext, skipReview: true },
         version: 2,
-      };
+      });
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
       vi.mocked(workflowRepo.update).mockResolvedValue(updatedWorkflow);
@@ -221,24 +243,20 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('updates context with event payload data', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
+      const existingWorkflow = createMockWorkflow({
         state: 'evaluating_policies',
         context: { ...baseContext, skipReview: true },
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
-      const updatedWorkflow: Workflow = {
-        ...existingWorkflow,
+      const updatedWorkflow = createMockWorkflow({
         state: 'waiting_approval',
         context: {
-          ...existingWorkflow.context,
+          ...baseContext,
+          skipReview: true,
           approvers: ['approver-1', 'approver-2'],
         },
         version: 2,
-      };
+      });
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
       vi.mocked(workflowRepo.update).mockResolvedValue(updatedWorkflow);
@@ -275,14 +293,9 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('throws InvalidStateTransitionError for invalid event in current state', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
+      const existingWorkflow = createMockWorkflow({
         state: 'completed',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
 
@@ -295,14 +308,7 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('throws InvalidStateTransitionError when sending CONFIRM from wrong state', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingWorkflow = createMockWorkflow();
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
 
@@ -312,14 +318,7 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('throws ConcurrentModificationError on version conflict', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingWorkflow = createMockWorkflow();
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
       vi.mocked(workflowRepo.update).mockRejectedValue(
@@ -334,21 +333,12 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('logs state transition info', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingWorkflow = createMockWorkflow();
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(existingWorkflow);
-      vi.mocked(workflowRepo.update).mockResolvedValue({
-        ...existingWorkflow,
-        state: 'review',
-        version: 2,
-      });
+      vi.mocked(workflowRepo.update).mockResolvedValue(
+        createMockWorkflow({ state: 'review', version: 2 })
+      );
       vi.mocked(eventsRepo.create).mockResolvedValue({
         id: 'evt-1',
         workflowId: 'wf-123',
@@ -368,14 +358,7 @@ describe('WorkflowOrchestrator', () => {
 
   describe('getById', () => {
     it('returns workflow when found', async () => {
-      const existingWorkflow: Workflow = {
-        id: 'wf-123',
-        state: 'review',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const existingWorkflow = createMockWorkflow({ state: 'review' });
 
       vi.mocked(workflowRepo.findById).mockResolvedValue(existingWorkflow);
 
@@ -424,8 +407,8 @@ describe('WorkflowOrchestrator', () => {
       const result = await orchestrator.getHistory('wf-123');
 
       expect(result).toHaveLength(2);
-      expect(result[0].eventType).toBe('START');
-      expect(result[1].eventType).toBe('CONFIRM');
+      expect(result[0]!.eventType).toBe('START');
+      expect(result[1]!.eventType).toBe('CONFIRM');
       expect(eventsRepo.findByWorkflowId).toHaveBeenCalledWith('wf-123');
     });
 
@@ -444,14 +427,9 @@ describe('WorkflowOrchestrator', () => {
       // This test verifies the orchestrator can handle a complete workflow
       // through multiple state transitions
 
-      const workflow: Workflow = {
-        id: 'wf-123',
-        state: 'created',
+      const workflow = createMockWorkflow({
         context: { ...baseContext, skipReview: true },
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
       // Each transition updates the mock to return the next state
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(workflow);
@@ -459,12 +437,11 @@ describe('WorkflowOrchestrator', () => {
       let currentVersion = 1;
       vi.mocked(workflowRepo.update).mockImplementation(async (_id, _ver, input) => {
         currentVersion++;
-        return {
-          ...workflow,
+        return createMockWorkflow({
           state: input.state as Workflow['state'],
           context: input.context ?? workflow.context,
           version: currentVersion,
-        };
+        });
       });
 
       vi.mocked(eventsRepo.create).mockImplementation(async (input) => ({
@@ -486,26 +463,20 @@ describe('WorkflowOrchestrator', () => {
     });
 
     it('handles transition to failed state with error tracking', async () => {
-      const workflow: Workflow = {
-        id: 'wf-123',
-        state: 'review',
-        context: baseContext,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const workflow = createMockWorkflow({ state: 'review' });
 
       vi.mocked(workflowRepo.findByIdForUpdate).mockResolvedValue(workflow);
-      vi.mocked(workflowRepo.update).mockResolvedValue({
-        ...workflow,
-        state: 'failed',
-        context: {
-          ...workflow.context,
-          error: 'User cancelled',
-          failedAt: 'review',
-        },
-        version: 2,
-      });
+      vi.mocked(workflowRepo.update).mockResolvedValue(
+        createMockWorkflow({
+          state: 'failed',
+          context: {
+            ...baseContext,
+            error: 'User cancelled',
+            failedAt: 'review',
+          },
+          version: 2,
+        })
+      );
       vi.mocked(eventsRepo.create).mockResolvedValue({
         id: 'evt-1',
         workflowId: 'wf-123',
