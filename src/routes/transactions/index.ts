@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import chainValidationPlugin from '@/src/plugins/chain-validation.js';
+import buildTransactionRoutes from './build/index.js';
 import {
   createTransaction,
   getTransactionDetails,
@@ -111,6 +112,9 @@ export default async function transactionRoutes(fastify: FastifyInstance) {
 export async function vaultTransactionRoutes(fastify: FastifyInstance) {
   // Register chain validation plugin
   await fastify.register(chainValidationPlugin);
+
+  // Register build transaction routes
+  await fastify.register(buildTransactionRoutes);
 
   // ==================== Create Transaction ====================
 
