@@ -3,6 +3,7 @@ import {
   type Chain,
   type ChainAlias,
   type EcoSystem,
+  type EvmTransactionType,
   type IWalletLike,
   EvmChainAliases,
   SvmChainAliases,
@@ -109,7 +110,7 @@ export interface NativeTransactionParams {
   nonce?: number;
   maxFeePerGas?: string;
   maxPriorityFeePerGas?: string;
-  type?: number;
+  type?: EvmTransactionType;
   data?: string;
   // SVM-specific
   nonceAccount?: string;
@@ -268,7 +269,9 @@ function buildNativeParams(
       return baseParams as SubstrateNativeParams;
 
     default:
-      return baseParams;
+      // This should never be reached as ecosystem is validated before calling this function
+      // Default to TVM params as the most generic type
+      return baseParams as TvmNativeParams;
   }
 }
 

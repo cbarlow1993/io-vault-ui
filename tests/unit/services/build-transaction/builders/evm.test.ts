@@ -145,21 +145,24 @@ describe('EVM Builder', () => {
       expect(result.marshalledHex).toBe('0xabcd1234');
     });
 
-    it('should convert gasPrice from GWEI to WEI for token transactions', async () => {
+    it('should only pass amount, from, to, and tokenAddress to SDK (gas is auto-estimated)', async () => {
       await buildEvmTokenTransaction({
         wallet: mockWallet,
         chain: mockChain,
         amount: '100',
         to: '0xrecipient',
         tokenAddress: '0xtoken',
-        gasPrice: '20',
+        gasPrice: '20', // This should be ignored for token transactions
       });
 
-      expect(mockChain.TransactionBuilder.buildTokenTransaction).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gasPrice: '20000000000', // 20 GWEI = 20000000000 WEI
-        })
-      );
+      // The SDK's buildTokenTransaction only accepts amount, from, to, and tokenAddress
+      // Gas parameters are estimated automatically by the SDK
+      expect(mockChain.TransactionBuilder.buildTokenTransaction).toHaveBeenCalledWith({
+        amount: '100',
+        from: mockWallet,
+        to: '0xrecipient',
+        tokenAddress: '0xtoken',
+      });
     });
 
     it('should throw error when token transaction build fails', async () => {

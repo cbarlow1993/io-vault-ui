@@ -3,6 +3,7 @@ import type {
   Chain,
   EvmTransaction,
   EvmTransactionBuilder,
+  EvmTransactionType,
   EvmWallet,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { BigNumber } from 'bignumber.js';
@@ -246,7 +247,7 @@ export interface EvmNativeParams {
   nonce?: number;
   maxFeePerGas?: string;
   maxPriorityFeePerGas?: string;
-  type?: number;
+  type?: EvmTransactionType;
   data?: string;
 }
 
@@ -343,6 +344,8 @@ export async function buildEvmNativeTransaction(params: EvmNativeParams): Promis
 
 /**
  * Builds an unsigned EVM token (ERC20) transaction
+ * Note: The SDK's buildTokenTransaction only accepts amount, from, to, and tokenAddress.
+ * Gas parameters are estimated automatically by the SDK.
  */
 export async function buildEvmTokenTransaction(params: EvmTokenParams): Promise<BuildTransactionResult> {
   const {
@@ -351,16 +354,7 @@ export async function buildEvmTokenTransaction(params: EvmTokenParams): Promise<
     amount,
     to,
     tokenAddress,
-    gasPrice,
-    gasLimit,
-    nonce,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    type,
-    data,
   } = params;
-
-  const gasPriceWei = convertGweiToWei(gasPrice);
 
   const { data: tx, error: txError } = await tryCatch(
     (chain.TransactionBuilder as EvmTransactionBuilder).buildTokenTransaction({
@@ -368,13 +362,6 @@ export async function buildEvmTokenTransaction(params: EvmTokenParams): Promise<
       from: wallet,
       to: to as `0x${string}`,
       tokenAddress: tokenAddress as `0x${string}`,
-      gasPrice: gasPriceWei,
-      gasLimit,
-      nonce,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      type,
-      data: data as `0x${string}`,
     })
   );
 

@@ -1,4 +1,4 @@
-import { InternalServerError } from '@iofinnet/errors-sdk';
+import { InternalServerError, UserInputError } from '@iofinnet/errors-sdk';
 import type {
   Chain,
   SolanaTransaction,
@@ -296,6 +296,11 @@ export async function buildSvmNativeTransaction(params: SvmNativeParams): Promis
  */
 export async function buildSvmTokenTransaction(params: SvmTokenParams): Promise<BuildTransactionResult> {
   const { wallet, chain, amount, to, tokenAddress, decimals, nonceAccount } = params;
+
+  // SPL token transactions require decimals
+  if (decimals === undefined) {
+    throw new UserInputError('decimals is required for SPL token transactions');
+  }
 
   const { data: tx, error: txError } = await tryCatch(
     (chain.TransactionBuilder as SolanaTransactionBuilder).buildTokenTransaction({

@@ -116,12 +116,14 @@ describe('SVM Builder', () => {
         amount: '100',
         to: 'recipientPubkey',
         tokenAddress: 'mintAddress',
+        decimals: 9,
       });
 
       expect(mockChain.TransactionBuilder.buildTokenTransaction).toHaveBeenCalledWith(
         expect.objectContaining({
           amount: '100',
           tokenAddress: 'mintAddress',
+          decimals: 9,
         })
       );
       expect(result.marshalledHex).toBe('base64encodedtx');
@@ -134,6 +136,7 @@ describe('SVM Builder', () => {
         amount: '100',
         to: 'recipientPubkey',
         tokenAddress: 'mintAddress',
+        decimals: 6,
         nonceAccount: 'nonceAccountPubkey',
       });
 
@@ -173,6 +176,7 @@ describe('SVM Builder', () => {
           amount: '100',
           to: 'recipientPubkey',
           tokenAddress: 'mintAddress',
+          decimals: 6,
         })
       ).rejects.toThrow();
     });
@@ -189,8 +193,22 @@ describe('SVM Builder', () => {
           amount: '100',
           to: 'recipientPubkey',
           tokenAddress: 'mintAddress',
+          decimals: 9,
         })
       ).rejects.toThrow();
+    });
+
+    it('should throw error when decimals is not provided', async () => {
+      await expect(
+        buildSvmTokenTransaction({
+          wallet: mockWallet,
+          chain: mockChain,
+          amount: '100',
+          to: 'recipientPubkey',
+          tokenAddress: 'mintAddress',
+          // decimals intentionally omitted
+        })
+      ).rejects.toThrow('decimals is required for SPL token transactions');
     });
   });
 });
