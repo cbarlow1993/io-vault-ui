@@ -165,6 +165,21 @@ export class WorkflowRepository {
     return mapRowToWorkflow(row as unknown as WorkflowRow);
   }
 
+  async findByIdForUpdate(id: string): Promise<Workflow | null> {
+    const result = await this.db
+      .selectFrom('transaction_workflows')
+      .selectAll()
+      .where('id', '=', id)
+      .forUpdate()
+      .executeTakeFirst();
+
+    if (!result) {
+      return null;
+    }
+
+    return mapRowToWorkflow(result as unknown as WorkflowRow);
+  }
+
   async update(
     id: string,
     expectedVersion: number,
