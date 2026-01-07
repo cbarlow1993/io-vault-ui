@@ -62,22 +62,27 @@ export class WorkflowOrchestrator {
 
     actor.start();
 
-    // Check if the event can be sent from the current state
-    const nextSnapshot = actor.getSnapshot();
-    const canTransition = nextSnapshot.can(event);
+    let toState: WorkflowState;
+    let newContext: WorkflowContext;
 
-    if (!canTransition) {
+    try {
+      // Check if the event can be sent from the current state
+      const currentSnapshot = actor.getSnapshot();
+      const canTransition = currentSnapshot.can(event);
+
+      if (!canTransition) {
+        throw new InvalidStateTransitionError(workflowId, fromState, event.type);
+      }
+
+      // Send the event and get the new state
+      actor.send(event);
+      const newSnapshot = actor.getSnapshot();
+
+      toState = newSnapshot.value as WorkflowState;
+      newContext = newSnapshot.context;
+    } finally {
       actor.stop();
-      throw new InvalidStateTransitionError(workflowId, fromState, event.type);
     }
-
-    // Send the event and get the new state
-    actor.send(event);
-    const newSnapshot = actor.getSnapshot();
-    actor.stop();
-
-    const toState = newSnapshot.value as WorkflowState;
-    const newContext = newSnapshot.context;
 
     // Update the workflow in the database
     const updatedWorkflow = await this.workflowRepo.update(
