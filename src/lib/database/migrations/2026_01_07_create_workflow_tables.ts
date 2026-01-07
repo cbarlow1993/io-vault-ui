@@ -51,7 +51,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.primaryKey().defaultTo(sql`gen_random_uuid()`)
     )
     .addColumn('workflow_id', 'uuid', (col) =>
-      col.notNull().references('transaction_workflows.id')
+      col.notNull().references('transaction_workflows.id').onDelete('cascade')
     )
     .addColumn('event_type', 'varchar(100)', (col) => col.notNull())
     .addColumn('event_payload', 'jsonb', (col) => col.notNull().defaultTo('{}'))
