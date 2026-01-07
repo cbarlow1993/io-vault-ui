@@ -172,7 +172,7 @@ describe('SVM Durable Nonce Builder', () => {
     it('should throw error when fetchNonceAccountInfo fails', async () => {
       vi.mocked(DurableNonce.isNonceAccountInitialized).mockResolvedValue(true);
       vi.mocked(DurableNonce.fetchNonceAccountInfo).mockRejectedValue(
-        new Error('Failed to fetch nonce info')
+        new Error('Failed to fetch nonce account info')
       );
 
       await expect(
@@ -180,7 +180,7 @@ describe('SVM Durable Nonce Builder', () => {
           wallet: mockWallet,
           chain: mockChain,
         })
-      ).rejects.toThrow('Error fetching nonce account info');
+      ).rejects.toThrow('Failed to fetch nonce account information');
     });
   });
 });
