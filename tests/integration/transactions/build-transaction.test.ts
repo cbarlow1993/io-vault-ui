@@ -21,7 +21,7 @@ describe('Build Transaction Integration Tests ', () => {
     const getEndpoint = () =>
       buildVaultEndpoint(
         clients.CLIENT_1.user,
-        '/transactions/ecosystem/utxo/chain/mnee/build-transaction'
+        '/transactions/ecosystem/utxo/chain/mnee/build-native-transaction'
       );
 
     // Skipping as requires a funded wallet
@@ -201,6 +201,63 @@ describe('Build Transaction Integration Tests ', () => {
         }
       );
       // API returns generic "Bad Request" message
+      expectErrorResponse(response, 400);
+    });
+  });
+
+  // Solana durable nonce tests require funded wallets
+  describe('Solana Durable Nonce', () => {
+    const getBuildDurableNonceEndpoint = () =>
+      buildVaultEndpoint(
+        clients.CLIENT_1.user,
+        '/transactions/ecosystem/svm/chain/solana/build-durable-nonce-transaction'
+      );
+
+    const getDurableNonceEndpoint = () =>
+      buildVaultEndpoint(
+        clients.CLIENT_1.user,
+        '/transactions/ecosystem/svm/chain/solana/durable-nonce'
+      );
+
+    it.skip('should build a durable nonce transaction (requires funded wallet)', async () => {
+      const payload = {
+        nonceAccountAddress: TEST_ADDRESSES.solana.valid,
+      };
+
+      const response = await clients.CLIENT_1.client.post(getBuildDurableNonceEndpoint(), payload);
+
+      expectValidTransactionResponse(response);
+    });
+
+    it.skip('should get durable nonce info (requires funded wallet with nonce account)', async () => {
+      const response = await clients.CLIENT_1.client.get(getDurableNonceEndpoint(), {
+        params: {
+          nonceAccountAddress: TEST_ADDRESSES.solana.valid,
+        },
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('nonce');
+      expect(response.data).toHaveProperty('authority');
+    });
+
+    it('should reject build durable nonce without required params', async () => {
+      const response = await clients.CLIENT_1.client.post(
+        getBuildDurableNonceEndpoint(),
+        {},
+        {
+          validateStatus: () => true,
+        }
+      );
+
+      expectErrorResponse(response, 400);
+    });
+
+    it('should reject get durable nonce without required query params', async () => {
+      const response = await clients.CLIENT_1.client.get(getDurableNonceEndpoint(), {
+        validateStatus: () => true,
+      });
+
       expectErrorResponse(response, 400);
     });
   });
