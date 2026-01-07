@@ -6,6 +6,7 @@ import type {
   EvmWallet,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { BigNumber } from 'bignumber.js';
+import { logger } from '@/utils/powertools.js';
 import { tryCatch } from '@/utils/try-catch.js';
 import { buildTransactionErrorToHttpError } from '../error-utils.js';
 import type { BuildTransactionResult, KnownError } from '../types.js';
@@ -277,12 +278,18 @@ async function marshalTransaction(tx: EvmTransaction): Promise<BuildTransactionR
   );
 
   if (marshalError) {
+    logger.error('Error marshalling EVM transaction', { error: marshalError });
     throw new InternalServerError('Error marshalling transaction');
   }
 
-  const details = await tx.toEIP712Details();
+  const { data: details, error: detailsError } = await tryCatch(tx.toEIP712Details());
 
-  return { marshalledHex: marshalledHex!, details };
+  if (detailsError) {
+    logger.error('Error getting EIP712 details', { error: detailsError });
+    throw new InternalServerError('Error getting transaction details');
+  }
+
+  return { marshalledHex: marshalledHex!, details: details! };
 }
 
 /**
@@ -321,11 +328,13 @@ export async function buildEvmNativeTransaction(params: EvmNativeParams): Promis
   );
 
   if (txError) {
+    logger.error('Error building EVM native transaction', { error: txError });
     const errorMessage = (txError?.message || '').toLowerCase();
     buildTransactionErrorToHttpError(errorMessage, knownErrors);
   }
 
   if (!tx) {
+    logger.error('Failed to build EVM native transaction: no transaction returned');
     throw new InternalServerError('Failed to build transaction');
   }
 
@@ -370,11 +379,13 @@ export async function buildEvmTokenTransaction(params: EvmTokenParams): Promise<
   );
 
   if (txError) {
+    logger.error('Error building EVM token transaction', { error: txError });
     const errorMessage = (txError?.message || '').toLowerCase();
     buildTransactionErrorToHttpError(errorMessage, knownErrors);
   }
 
   if (!tx) {
+    logger.error('Failed to build EVM token transaction: no transaction returned');
     throw new InternalServerError('Failed to build transaction');
   }
 
