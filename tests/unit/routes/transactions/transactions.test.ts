@@ -66,9 +66,9 @@ vi.mock('@iofinnet/io-core-dapp-utils-chains-sdk', async () => {
   };
 });
 
-// Mock signedHttpLambdaRequest
-vi.mock('@iofinnet/io-core-cldsvc-sdk', () => ({
-  signedHttpLambdaRequest: vi.fn().mockResolvedValue({ id: 'test-sign-request-id' }),
+// Mock signedRequest
+vi.mock('@/src/lib/signed-request.js', () => ({
+  signedRequest: vi.fn().mockResolvedValue({ id: 'test-sign-request-id' }),
 }));
 
 // Mock getHooks
