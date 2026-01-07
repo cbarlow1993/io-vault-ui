@@ -13,8 +13,15 @@ import {
   APIConnectionTimeoutError,
 } from '@coingecko/coingecko-typescript';
 
-/** Helper to handle SDK errors with proper discrimination */
-function handleCoinGeckoError(
+/**
+ * Handle CoinGecko SDK errors with proper discrimination and logging.
+ * Uses appropriate log levels based on error severity and recoverability.
+ *
+ * @param error - The error caught from the SDK
+ * @param context - Additional context for logging (chain, address, coinIds, etc.)
+ * @returns Always returns null to indicate failure
+ */
+export function handleCoinGeckoError(
   error: unknown,
   context: Record<string, unknown>
 ): null {
@@ -24,7 +31,8 @@ function handleCoinGeckoError(
   }
 
   if (error instanceof RateLimitError) {
-    logger.error('CoinGecko rate limit exceeded', {
+    // Rate limits are temporary - use warn, not error
+    logger.warn('CoinGecko rate limit exceeded', {
       ...context,
       error: error instanceof Error ? error.message : error,
     });
@@ -55,9 +63,10 @@ function handleCoinGeckoError(
     return null;
   }
 
-  logger.warn('CoinGecko API error', {
+  logger.warn('Unexpected CoinGecko API error', {
     ...context,
     error: error instanceof Error ? error.message : error,
+    errorType: error?.constructor?.name ?? typeof error,
   });
   return null;
 }
@@ -68,12 +77,21 @@ type CoinData = Awaited<ReturnType<ReturnType<typeof getCoinGeckoClient>['coins'
 export type { CoinData };
 
 /**
- * Fetch token metadata by contract address
+ * Fetch token metadata by contract address.
+ *
+ * @param chain - The blockchain chain object
+ * @param address - The token contract address
+ * @returns Token metadata or null if not found/error
  */
 export async function fetchTokenMetadata(
   chain: Chain,
   address: string
 ): Promise<CoinData | null> {
+  if (!address || typeof address !== 'string' || address.trim().length === 0) {
+    logger.warn('Invalid address provided to fetchTokenMetadata', { chain: chain.Alias, address });
+    return null;
+  }
+
   const client = getCoinGeckoClient();
   const platform = mapChainAliasToCoinGeckoAssetPlatform(chain.Alias);
 
@@ -83,6 +101,7 @@ export async function fetchTokenMetadata(
   }
 
   try {
+    // CoinGecko API requires lowercase addresses for contract lookups
     return await client.coins.contract.get(address.toLowerCase(), { id: platform });
   } catch (error) {
     return handleCoinGeckoError(error, { chain: chain.Alias, address });
@@ -109,12 +128,21 @@ export async function fetchNativeTokenMetadata(chain: Chain): Promise<CoinData |
 }
 
 /**
- * Get USD price for a token by contract address
+ * Get USD price for a token by contract address.
+ *
+ * @param chain - The chain alias
+ * @param address - The token contract address
+ * @returns USD price or null if not found/error
  */
 export async function getTokenUsdPrice(
   chain: ChainAlias,
   address: string
 ): Promise<number | null> {
+  if (!address || typeof address !== 'string' || address.trim().length === 0) {
+    logger.warn('Invalid address provided to getTokenUsdPrice', { chain, address });
+    return null;
+  }
+
   const client = getCoinGeckoClient();
   const platform = mapChainAliasToCoinGeckoAssetPlatform(chain);
 
@@ -124,6 +152,7 @@ export async function getTokenUsdPrice(
   }
 
   try {
+    // CoinGecko API requires lowercase addresses for contract lookups
     const data = await client.coins.contract.get(address.toLowerCase(), { id: platform });
     return data.market_data?.current_price?.usd ?? null;
   } catch (error) {

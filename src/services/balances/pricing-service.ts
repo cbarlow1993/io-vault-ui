@@ -1,12 +1,7 @@
 import { logger } from '@/utils/powertools.js';
 import type { TokenPriceRepository, CreateTokenPriceInput } from '@/src/repositories/types.js';
 import { getCoinGeckoClient } from '@/src/services/coingecko/client.js';
-import {
-  RateLimitError,
-  AuthenticationError,
-  APIConnectionError,
-  APIConnectionTimeoutError,
-} from '@coingecko/coingecko-typescript';
+import { handleCoinGeckoError } from '@/src/services/coingecko/index.js';
 
 export interface TokenPriceInfo {
   coingeckoId: string;
@@ -27,6 +22,16 @@ export interface PricingServiceConfig {
   cacheTtlSeconds?: number;
 }
 
+/** CoinGecko API limit for IDs per request */
+const COINGECKO_MAX_IDS_PER_REQUEST = 250;
+
+/** Supported currencies for CoinGecko price lookups */
+const SUPPORTED_CURRENCIES = new Set(['usd', 'eur', 'gbp', 'jpy', 'btc', 'eth']);
+
+/**
+ * Service for fetching and caching token prices from CoinGecko.
+ * Implements caching with configurable TTL and stale fallback.
+ */
 export class PricingService {
   private readonly cacheTtlSeconds: number;
 
@@ -37,6 +42,21 @@ export class PricingService {
     this.cacheTtlSeconds = config.cacheTtlSeconds ?? 60;
   }
 
+  /**
+   * Parse a string price value to a number, returning null for empty/null values.
+   */
+  private parsePrice(value: string | null): number | null {
+    return value ? parseFloat(value) : null;
+  }
+
+  /**
+   * Get prices for multiple tokens by their CoinGecko IDs.
+   * Uses caching with configurable TTL and falls back to stale prices when needed.
+   *
+   * @param coingeckoIds - Array of CoinGecko token IDs
+   * @param currency - Currency for prices (default: 'usd')
+   * @returns Map of token ID to price info
+   */
   async getPrices(
     coingeckoIds: string[],
     currency: string = 'usd'
@@ -45,7 +65,21 @@ export class PricingService {
       return new Map();
     }
 
-    const uniqueIds = [...new Set(coingeckoIds)];
+    // Validate and normalize currency
+    const normalizedCurrency = currency.toLowerCase().trim();
+    if (!SUPPORTED_CURRENCIES.has(normalizedCurrency)) {
+      logger.warn('Unsupported currency provided, using default USD', { currency });
+      currency = 'usd';
+    } else {
+      currency = normalizedCurrency;
+    }
+
+    // Deduplicate and filter out empty/invalid IDs
+    const uniqueIds = [...new Set(coingeckoIds)].filter(id => id && id.trim().length > 0);
+    if (uniqueIds.length === 0) {
+      return new Map();
+    }
+
     const result = new Map<string, TokenPriceInfo>();
 
     // Check cache first
@@ -61,8 +95,8 @@ export class PricingService {
       result.set(cached.coingeckoId, {
         coingeckoId: cached.coingeckoId,
         price: parseFloat(cached.price),
-        priceChange24h: cached.priceChange24h ? parseFloat(cached.priceChange24h) : null,
-        marketCap: cached.marketCap ? parseFloat(cached.marketCap) : null,
+        priceChange24h: this.parsePrice(cached.priceChange24h),
+        marketCap: this.parsePrice(cached.marketCap),
         isStale: false,
       });
     }
@@ -88,6 +122,7 @@ export class PricingService {
       if (cacheInputs.length > 0) {
         try {
           await this.priceRepository.upsertMany(cacheInputs);
+          logger.debug('Successfully cached fresh prices', { count: cacheInputs.length });
         } catch (cacheError) {
           logger.warn('Failed to cache fresh prices', {
             error: cacheError instanceof Error ? cacheError.message : cacheError,
@@ -108,8 +143,8 @@ export class PricingService {
             result.set(stale.coingeckoId, {
               coingeckoId: stale.coingeckoId,
               price: parseFloat(stale.price),
-              priceChange24h: stale.priceChange24h ? parseFloat(stale.priceChange24h) : null,
-              marketCap: stale.marketCap ? parseFloat(stale.marketCap) : null,
+              priceChange24h: this.parsePrice(stale.priceChange24h),
+              marketCap: this.parsePrice(stale.marketCap),
               isStale: true,
             });
           }
@@ -134,6 +169,14 @@ export class PricingService {
     return result;
   }
 
+  /**
+   * Fetch prices from CoinGecko API for a batch of token IDs.
+   * Handles batching (max 250 per request) and partial failures.
+   *
+   * @param ids - Array of CoinGecko token IDs to fetch
+   * @param currency - Currency for prices
+   * @returns Object containing prices map and array of IDs that failed
+   */
   private async fetchFromCoinGecko(
     ids: string[],
     currency: string
@@ -142,8 +185,7 @@ export class PricingService {
     const notFoundIds: string[] = [];
     const client = getCoinGeckoClient();
 
-    // CoinGecko limits to 250 IDs per request
-    const batches = this.chunk(ids, 250);
+    const batches = this.chunk(ids, COINGECKO_MAX_IDS_PER_REQUEST);
 
     for (const batch of batches) {
       try {
@@ -162,8 +204,9 @@ export class PricingService {
           const priceData = data[id];
           if (priceData) {
             const price = priceData[currency];
-            // Only add if we got an actual price value (not undefined)
-            if (price !== undefined) {
+            // Only add if we got a valid positive price (not undefined, null, or zero)
+            // A price of 0 typically indicates a pricing error or unavailable data
+            if (price !== undefined && price > 0) {
               prices.set(id, {
                 coingeckoId: id,
                 price,
@@ -171,7 +214,11 @@ export class PricingService {
                 marketCap: priceData[`${currency}_market_cap`] ?? null,
               });
             } else {
-              logger.debug('CoinGecko returned token but without price', { coingeckoId: id, currency });
+              logger.debug('CoinGecko returned token but without valid price', {
+                coingeckoId: id,
+                currency,
+                price,
+              });
               notFoundIds.push(id);
             }
           } else {
@@ -181,21 +228,8 @@ export class PricingService {
           }
         }
       } catch (error) {
-        // Log batch-specific errors but continue with other batches
-        if (error instanceof RateLimitError) {
-          logger.error('CoinGecko rate limit exceeded during batch fetch', { batchSize: batch.length });
-        } else if (error instanceof AuthenticationError) {
-          logger.error('CoinGecko authentication failed - check API key');
-        } else if (error instanceof APIConnectionTimeoutError) {
-          logger.warn('CoinGecko batch request timed out', { batchSize: batch.length });
-        } else if (error instanceof APIConnectionError) {
-          logger.warn('CoinGecko connection error during batch fetch', { batchSize: batch.length });
-        } else {
-          logger.warn('CoinGecko batch fetch failed', {
-            batchSize: batch.length,
-            error: error instanceof Error ? error.message : error,
-          });
-        }
+        // Log batch-specific errors with coin IDs for debugging, continue with other batches
+        handleCoinGeckoError(error, { batchSize: batch.length, coinIds: batch });
         // Mark all IDs in this batch as failed
         notFoundIds.push(...batch);
       }
@@ -204,6 +238,13 @@ export class PricingService {
     return { prices, notFoundIds };
   }
 
+  /**
+   * Split an array into smaller chunks of specified size.
+   *
+   * @param arr - The array to split
+   * @param size - Maximum size of each chunk
+   * @returns Array of chunks
+   */
   private chunk<T>(arr: T[], size: number): T[][] {
     const chunks: T[][] = [];
     for (let i = 0; i < arr.length; i += size) {
