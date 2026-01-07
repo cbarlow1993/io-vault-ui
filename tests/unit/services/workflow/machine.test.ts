@@ -1,7 +1,7 @@
 import { createActor } from 'xstate';
 import { describe, it, expect } from 'vitest';
-import { transactionMachine } from '@/services/workflow/machine';
-import type { WorkflowContext } from '@/services/workflow/types';
+import { transactionMachine } from '@/src/services/workflow/machine';
+import type { WorkflowContext } from '@/src/services/workflow/types';
 
 const baseInput: Partial<WorkflowContext> = {
   vaultId: 'vault-123',
