@@ -10,8 +10,8 @@ Four endpoints registered under `vaultTransactionRoutes` (prefix: `/v1/vaults/:v
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/ecosystem/:ecosystem/chain/:chain/build-native-transaction` | Build native currency transfer (ETH, SOL, BTC, TRX, XRP, TAO) |
-| POST | `/ecosystem/:ecosystem/chain/:chain/build-token-transaction` | Build token transfer (ERC20, SPL, TRC20) - EVM, SVM, TVM only |
+| POST | `/ecosystem/:ecosystem/chain/:chainAlias/build-native-transaction` | Build native currency transfer (ETH, SOL, BTC, TRX, XRP, TAO) |
+| POST | `/ecosystem/:ecosystem/chain/:chainAlias/build-token-transaction` | Build token transfer (ERC20, SPL, TRC20) - EVM, SVM, TVM only |
 | POST | `/ecosystem/svm/chain/solana/build-durable-nonce-transaction` | Create Solana durable nonce account |
 | GET | `/ecosystem/svm/chain/solana/durable-nonce` | Get Solana durable nonce account info |
 
@@ -19,7 +19,7 @@ Four endpoints registered under `vaultTransactionRoutes` (prefix: `/v1/vaults/:v
 
 - `vaultId` - From parent prefix, validated as non-empty string
 - `ecosystem` - Enum: `evm`, `svm`, `utxo`, `tvm`, `xrp`, `substrate`
-- `chain` - Chain alias validated against ecosystem (e.g., `ethereum`, `polygon`, `solana`, `bitcoin`)
+- `chainAlias` - Chain alias validated against ecosystem (e.g., `ethereum`, `polygon`, `solana`, `bitcoin`)
 
 ### Authorization
 
