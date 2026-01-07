@@ -55,11 +55,10 @@ vi.mock('@/src/services/balances/metadata/metadata.js', () => ({
 
 // Mock CoinGecko service
 vi.mock('@/src/services/coingecko/index.js', () => ({
-  CoinGecko: {
-    getNativeTokenUsdValue: (...args: unknown[]) => mockGetNativeTokenUsdValue(...args),
-    getTokenUsdValue: vi.fn(),
-    fetchMetadata: (...args: unknown[]) => mockFetchMetadata(...args),
-  },
+  fetchNativeTokenMetadata: (...args: unknown[]) => mockFetchMetadata(...args),
+  getNativeTokenUsdPrice: (...args: unknown[]) => mockGetNativeTokenUsdValue(...args),
+  getTokenUsdPrice: vi.fn(),
+  fetchTokenMetadata: vi.fn(),
 }));
 
 // Mock addresses service
@@ -79,6 +78,7 @@ vi.mock('@iofinnet/io-core-dapp-utils-chains-sdk', async () => {
   return {
     ...actual,
     Chain: {
+      setAuthContext: vi.fn(),
       fromAlias: vi.fn().mockImplementation(() =>
         Promise.resolve({
           Alias: 'eth',
