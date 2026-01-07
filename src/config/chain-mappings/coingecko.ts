@@ -1,15 +1,19 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+
 /**
- * CoinGecko Platform Mapping
+ * CoinGecko Chain Mappings
  *
- * Maps chainAlias values to CoinGecko platform identifiers.
- * CoinGecko only supports EVM mainnets for token lookups - no testnets, no Solana tokens.
+ * Maps internal chain aliases to CoinGecko identifiers for:
+ * - Asset platforms (for token contract lookups)
+ * - Native coin IDs (for native token metadata/pricing)
  *
- * @see https://api.coingecko.com/api/v3/asset_platforms for the full list of platforms
+ * @see https://api.coingecko.com/api/v3/asset_platforms for platform list
+ * @see https://api.coingecko.com/api/v3/coins/list for coin IDs
  */
 
 /**
- * Maps chainAlias to CoinGecko platform identifier.
- * Only includes EVM mainnets - CoinGecko does not support testnets or non-EVM chains for token lookups.
+ * Maps chainAlias to CoinGecko asset platform identifier.
+ * Used for token contract lookups via /coins/{platform}/contract/{address}
  */
 export const COINGECKO_PLATFORM_MAP: Record<string, string> = {
   // Core EVM mainnets
@@ -37,26 +41,90 @@ export const COINGECKO_PLATFORM_MAP: Record<string, string> = {
   scroll: 'scroll',
   blast: 'blast',
 
-  // XRP has CoinGecko platform support
+  // Non-EVM chains with platform support
   xrp: 'xrp',
-
-  // TVM chain
   tron: 'tron',
 };
 
 /**
- * Gets the CoinGecko platform identifier for a chain.
+ * Maps chainAlias to CoinGecko native coin ID.
+ * Used for fetching native token metadata via /coins/{id}
+ */
+export const COINGECKO_NATIVE_COIN_MAP: Record<string, string> = {
+  // Core chains
+  eth: 'ethereum',
+  polygon: 'polygon-ecosystem-token',
+  arbitrum: 'ethereum',
+  'arbitrum-nova': 'ethereum',
+  optimism: 'ethereum',
+  base: 'ethereum',
+  'avalanche-c': 'avalanche-2',
+  bsc: 'binancecoin',
+
+  // L2s and sidechains (ETH-based)
+  'zksync-era': 'ethereum',
+  linea: 'ethereum',
+  scroll: 'weth',
+  blast: 'blast-old',
+  zora: 'weth',
+  abstract: 'ethereum',
+  ink: 'ethereum',
+  lightlink: 'ethereum',
+  'polygon-zkevm': 'ethereum',
+  rari: 'weth',
+  'manta-pacific': 'weth',
+  morph: 'weth',
+
+  // Alternative L1s
+  gnosis: 'xdai',
+  fantom: 'fantom',
+  cronos: 'crypto-com-chain',
+  fuse: 'fuse-network-token',
+  lukso: 'lukso-token-2',
+  sonic: 'sonic-3',
+  berachain: 'berachain-bera',
+
+  // Specialized chains
+  dfk: 'defi-kingdoms',
+  metis: 'metis-token',
+  fraxtal: 'fraxtal',
+  quai: 'quai-network',
+  xdc: 'xdce-crowd-sale',
+  degen: 'degen-base',
+  xai: 'xai-blockchain',
+  'flow-evm': 'flow',
+
+  // Non-EVM chains
+  xrp: 'ripple',
+  tron: 'tronix',
+  solana: 'solana',
+  bitcoin: 'bitcoin',
+
+  // Testnets (map to mainnet equivalents for metadata)
+  'sophon-testnet': 'sophon',
+  'superseed-sepolia': 'ethereum',
+};
+
+/**
+ * Gets the CoinGecko asset platform identifier for a chain.
+ * Used for token contract lookups.
  *
  * @param chainAlias - The internal chain alias (e.g., 'eth', 'polygon')
  * @returns The CoinGecko platform identifier, or undefined if not supported
- *
- * @example
- * getCoinGeckoPlatform('eth') // 'ethereum'
- * getCoinGeckoPlatform('polygon') // 'polygon-pos'
- * getCoinGeckoPlatform('solana') // undefined (not supported)
  */
 export function getCoinGeckoPlatform(chainAlias: string): string | undefined {
   return COINGECKO_PLATFORM_MAP[chainAlias];
+}
+
+/**
+ * Gets the CoinGecko native coin ID for a chain.
+ * Used for fetching native token metadata and pricing.
+ *
+ * @param chainAlias - The internal chain alias (e.g., 'eth', 'polygon')
+ * @returns The CoinGecko coin ID, or undefined if not mapped
+ */
+export function getCoinGeckoNativeCoinId(chainAlias: string): string | undefined {
+  return COINGECKO_NATIVE_COIN_MAP[chainAlias];
 }
 
 /**
@@ -64,11 +132,29 @@ export function getCoinGeckoPlatform(chainAlias: string): string | undefined {
  *
  * @param chainAlias - The internal chain alias
  * @returns true if CoinGecko supports token lookups for this chain
- *
- * @example
- * isCoinGeckoSupported('eth') // true
- * isCoinGeckoSupported('solana') // false
  */
 export function isCoinGeckoSupported(chainAlias: string): boolean {
   return chainAlias in COINGECKO_PLATFORM_MAP;
+}
+
+/**
+ * Maps ChainAlias enum to CoinGecko asset platform.
+ * Backwards-compatible function for existing consumers using ChainAlias enum.
+ *
+ * @param chain - The ChainAlias enum value
+ * @returns The CoinGecko platform identifier, or the chain alias if not mapped
+ */
+export function mapChainAliasToCoinGeckoAssetPlatform(chain: ChainAlias): string {
+  return COINGECKO_PLATFORM_MAP[chain] ?? chain;
+}
+
+/**
+ * Maps ChainAlias enum to CoinGecko native coin ID.
+ * Backwards-compatible function for existing consumers using ChainAlias enum.
+ *
+ * @param chain - The ChainAlias enum value
+ * @returns The CoinGecko coin ID, or the chain alias if not mapped
+ */
+export function mapChainAliasToCoinGeckoNativeCoinId(chain: ChainAlias): string {
+  return COINGECKO_NATIVE_COIN_MAP[chain] ?? chain;
 }

@@ -3,7 +3,7 @@ import { getCoinGeckoClient } from './client.js';
 import {
   mapChainAliasToCoinGeckoAssetPlatform,
   mapChainAliasToCoinGeckoNativeCoinId,
-} from '@/src/lib/chainAliasMapper.js';
+} from '@/src/config/chain-mappings/index.js';
 import { logger } from '@/utils/powertools.js';
 import {
   NotFoundError,

@@ -8,7 +8,7 @@
 import { InternalServerError, NotFoundError } from '@iofinnet/errors-sdk';
 import { Chain, type ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { mapChainAliasToCoinGeckoAssetPlatform } from '@/src/lib/chainAliasMapper.js';
+import { mapChainAliasToCoinGeckoAssetPlatform } from '@/src/config/chain-mappings/index.js';
 import { fetchNativeTokenMetadata } from '@/src/services/coingecko/index.js';
 import { logger } from '@/utils/powertools.js';
 import type {

@@ -13,7 +13,7 @@ vi.mock('@/src/services/coingecko/client.js', () => ({
   })),
 }));
 
-vi.mock('@/src/lib/chainAliasMapper.js', () => ({
+vi.mock('@/src/config/chain-mappings/index.js', () => ({
   mapChainAliasToCoinGeckoAssetPlatform: vi.fn((alias) => alias === ChainAlias.ETH ? 'ethereum' : null),
   mapChainAliasToCoinGeckoNativeCoinId: vi.fn((alias) => alias === ChainAlias.ETH ? 'ethereum' : null),
 }));
