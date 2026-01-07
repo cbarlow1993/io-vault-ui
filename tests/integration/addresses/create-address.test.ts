@@ -26,7 +26,7 @@ describe('Create Address Integration Tests ', () => {
     it.each(EVM_CHAINS)('should create an address for chain: $name', async ({ chain }) => {
       const endpoint = buildVaultEndpoint(
         clients.CLIENT_1.user,
-        `/addresses/ecosystem/${EcoSystem.EVM}/chainAlias/${chain.Alias}`
+        `/addresses/ecosystem/${EcoSystem.EVM}/chain/${chain.Alias}`
       );
 
       const payload = TEST_PAYLOADS.createAddress.evm(clients.CLIENT_1.user);
@@ -44,7 +44,7 @@ describe('Create Address Integration Tests ', () => {
     it('should create an address for SOLANA', async () => {
       const endpoint = buildVaultEndpoint(
         clients.CLIENT_1.user,
-        `/addresses/ecosystem/${EcoSystem.SVM}/chainAlias/${ChainAlias.SOLANA}`
+        `/addresses/ecosystem/${EcoSystem.SVM}/chain/${ChainAlias.SOLANA}`
       );
 
       const payload = TEST_PAYLOADS.createAddress.solana(clients.CLIENT_1.user);
@@ -60,7 +60,7 @@ describe('Create Address Integration Tests ', () => {
     it('should create an address for Tron', async () => {
       const endpoint = buildVaultEndpoint(
         clients.CLIENT_1.user,
-        `/addresses/ecosystem/${EcoSystem.TVM}/chainAlias/${ChainAlias.TRON}`
+        `/addresses/ecosystem/${EcoSystem.TVM}/chain/${ChainAlias.TRON}`
       );
 
       const payload = TEST_PAYLOADS.createAddress.tvm(clients.CLIENT_1.user);
@@ -76,7 +76,7 @@ describe('Create Address Integration Tests ', () => {
     it('should create an address for Bitcoin', async () => {
       const endpoint = buildVaultEndpoint(
         clients.CLIENT_1.user,
-        `/addresses/ecosystem/${EcoSystem.UTXO}/chainAlias/${ChainAlias.BITCOIN}`
+        `/addresses/ecosystem/${EcoSystem.UTXO}/chain/${ChainAlias.BITCOIN}`
       );
 
       const payload = TEST_PAYLOADS.createAddress.btc(clients.CLIENT_1.user);
@@ -91,7 +91,7 @@ describe('Create Address Integration Tests ', () => {
     it('should create an address for Ripple (XRP)', async () => {
       const endpoint = buildVaultEndpoint(
         clients.CLIENT_1.user,
-        `/addresses/ecosystem/${EcoSystem.XRP}/chainAlias/${ChainAlias.XRP}`
+        `/addresses/ecosystem/${EcoSystem.XRP}/chain/${ChainAlias.XRP}`
       );
 
       const payload = TEST_PAYLOADS.createAddress.xrp(clients.CLIENT_1.user);
