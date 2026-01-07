@@ -5,6 +5,62 @@ import {
   mapChainAliasToCoinGeckoNativeCoinId,
 } from '@/src/lib/chainAliasMapper.js';
 import { logger } from '@/utils/powertools.js';
+import {
+  NotFoundError,
+  RateLimitError,
+  AuthenticationError,
+  APIConnectionError,
+  APIConnectionTimeoutError,
+} from '@coingecko/coingecko-typescript';
+
+/** Helper to handle SDK errors with proper discrimination */
+function handleCoinGeckoError(
+  error: unknown,
+  context: Record<string, unknown>
+): null {
+  if (error instanceof NotFoundError) {
+    logger.debug('Token not found in CoinGecko', context);
+    return null;
+  }
+
+  if (error instanceof RateLimitError) {
+    logger.error('CoinGecko rate limit exceeded', {
+      ...context,
+      error: error instanceof Error ? error.message : error,
+    });
+    return null;
+  }
+
+  if (error instanceof AuthenticationError) {
+    logger.error('CoinGecko authentication failed - check API key', {
+      ...context,
+      error: error instanceof Error ? error.message : error,
+    });
+    return null;
+  }
+
+  if (error instanceof APIConnectionTimeoutError) {
+    logger.warn('CoinGecko request timed out', {
+      ...context,
+      error: error instanceof Error ? error.message : error,
+    });
+    return null;
+  }
+
+  if (error instanceof APIConnectionError) {
+    logger.warn('CoinGecko connection error', {
+      ...context,
+      error: error instanceof Error ? error.message : error,
+    });
+    return null;
+  }
+
+  logger.warn('CoinGecko API error', {
+    ...context,
+    error: error instanceof Error ? error.message : error,
+  });
+  return null;
+}
 
 /** SDK coin data type - inferred from SDK response */
 type CoinData = Awaited<ReturnType<ReturnType<typeof getCoinGeckoClient>['coins']['getID']>>;
@@ -27,14 +83,9 @@ export async function fetchTokenMetadata(
   }
 
   try {
-    return await client.coins.contract.get(address, { id: platform });
+    return await client.coins.contract.get(address.toLowerCase(), { id: platform });
   } catch (error) {
-    logger.warn('Failed to fetch token metadata from CoinGecko', {
-      chain: chain.Alias,
-      address,
-      error,
-    });
-    return null;
+    return handleCoinGeckoError(error, { chain: chain.Alias, address });
   }
 }
 
@@ -53,11 +104,7 @@ export async function fetchNativeTokenMetadata(chain: Chain): Promise<CoinData |
   try {
     return await client.coins.getID(coinId);
   } catch (error) {
-    logger.warn('Failed to fetch native token metadata from CoinGecko', {
-      chain: chain.Alias,
-      error,
-    });
-    return null;
+    return handleCoinGeckoError(error, { chain: chain.Alias, coinId });
   }
 }
 
@@ -72,18 +119,15 @@ export async function getTokenUsdPrice(
   const platform = mapChainAliasToCoinGeckoAssetPlatform(chain);
 
   if (!platform) {
+    logger.warn('Chain not supported by CoinGecko for price lookup', { chain });
     return null;
   }
 
   try {
-    const data = await client.coins.contract.get(address, { id: platform });
+    const data = await client.coins.contract.get(address.toLowerCase(), { id: platform });
     return data.market_data?.current_price?.usd ?? null;
   } catch (error) {
-    logger.warn('Failed to fetch token USD price from CoinGecko', {
-      chain,
-      address,
-      error,
-    });
+    handleCoinGeckoError(error, { chain, address });
     return null;
   }
 }
