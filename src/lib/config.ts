@@ -100,6 +100,12 @@ const configSchema = z.object({
       .optional()
       .transform((val) => val?.split(',').map((id) => id.trim()).filter(Boolean) ?? []),
   }),
+
+  webhooks: z.object({
+    signingService: z.object({
+      secret: z.string().optional(),
+    }),
+  }),
 });
 
 // Load and validate config
@@ -184,6 +190,11 @@ function loadConfig() {
     auth: {
       jwksUrl: process.env.AUTH_JWKS_URL,
       allowedClientIds: process.env.AUTH_ALLOWED_CLIENT_IDS,
+    },
+    webhooks: {
+      signingService: {
+        secret: process.env.WEBHOOK_SIGNING_SERVICE_SECRET,
+      },
     },
   });
 

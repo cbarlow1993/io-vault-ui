@@ -1,9 +1,15 @@
 import { z } from 'zod';
 
+// Regex for valid hex string (with optional 0x prefix)
+const hexStringRegex = /^(0x)?[a-fA-F0-9]+$/;
+
 export const createWorkflowBodySchema = z.object({
-  vaultId: z.string().min(1),
-  chainAlias: z.string().min(1),
-  marshalledHex: z.string().min(1),
+  vaultId: z.string().uuid(),
+  chainAlias: z.string().min(1).max(50),
+  marshalledHex: z
+    .string()
+    .min(1)
+    .regex(hexStringRegex, 'Must be a valid hex string'),
   skipReview: z.boolean().optional().default(false),
 });
 

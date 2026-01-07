@@ -7,6 +7,27 @@ import type {
   HistoryQuery,
 } from './schemas.js';
 
+/**
+ * Verifies that the authenticated user has access to the workflow.
+ * Throws OperationForbiddenError if the user's organisation doesn't match.
+ */
+async function verifyWorkflowAccess(
+  request: FastifyRequest<{ Params: WorkflowParams }>,
+  workflowId: string
+): Promise<void> {
+  const { organisationId } = request.auth!;
+  const orchestrator = request.server.services.workflowOrchestrator;
+
+  const workflow = await orchestrator.getById(workflowId);
+  if (!workflow) {
+    throw new NotFoundError('Workflow not found');
+  }
+
+  if (workflow.context.organisationId !== organisationId) {
+    throw new OperationForbiddenError('Not authorized to access this workflow');
+  }
+}
+
 export async function createWorkflowHandler(
   request: FastifyRequest<{ Body: CreateWorkflowBody }>,
   reply: FastifyReply
@@ -52,6 +73,9 @@ export async function confirmWorkflowHandler(
   const { userId } = request.auth!;
   const orchestrator = request.server.services.workflowOrchestrator;
 
+  // Verify organisation access
+  await verifyWorkflowAccess(request, id);
+
   const workflow = await orchestrator.send(
     id,
     { type: 'CONFIRM' },
@@ -69,8 +93,24 @@ export async function approveWorkflowHandler(
   reply: FastifyReply
 ) {
   const { id } = request.params;
-  const { userId } = request.auth!;
+  const { userId, organisationId } = request.auth!;
   const orchestrator = request.server.services.workflowOrchestrator;
+
+  // Fetch workflow and verify access
+  const existingWorkflow = await orchestrator.getById(id);
+  if (!existingWorkflow) {
+    throw new NotFoundError('Workflow not found');
+  }
+
+  if (existingWorkflow.context.organisationId !== organisationId) {
+    throw new OperationForbiddenError('Not authorized to access this workflow');
+  }
+
+  // Verify user is in the approvers list (if approvers are specified)
+  const { approvers } = existingWorkflow.context;
+  if (approvers.length > 0 && !approvers.includes(userId)) {
+    throw new OperationForbiddenError('User is not authorized to approve this workflow');
+  }
 
   const workflow = await orchestrator.send(
     id,
@@ -93,6 +133,9 @@ export async function rejectWorkflowHandler(
   const { userId } = request.auth!;
   const orchestrator = request.server.services.workflowOrchestrator;
 
+  // Verify organisation access
+  await verifyWorkflowAccess(request, id);
+
   const workflow = await orchestrator.send(
     id,
     { type: 'REJECT', rejectedBy: userId, reason },
@@ -110,11 +153,17 @@ export async function getWorkflowHandler(
   reply: FastifyReply
 ) {
   const { id } = request.params;
+  const { organisationId } = request.auth!;
   const orchestrator = request.server.services.workflowOrchestrator;
 
   const workflow = await orchestrator.getById(id);
   if (!workflow) {
     throw new NotFoundError('Workflow not found');
+  }
+
+  // Verify organisation access
+  if (workflow.context.organisationId !== organisationId) {
+    throw new OperationForbiddenError('Not authorized to access this workflow');
   }
 
   return reply.send({
@@ -142,26 +191,29 @@ export async function getWorkflowHistoryHandler(
 ) {
   const { id } = request.params;
   const { limit, cursor } = request.query;
+  const { organisationId } = request.auth!;
   const orchestrator = request.server.services.workflowOrchestrator;
+  const eventsRepo = request.server.services.workflowEventsRepo;
 
   const workflow = await orchestrator.getById(id);
   if (!workflow) {
     throw new NotFoundError('Workflow not found');
   }
 
-  const events = await orchestrator.getHistory(id);
+  // Verify organisation access
+  if (workflow.context.organisationId !== organisationId) {
+    throw new OperationForbiddenError('Not authorized to access this workflow');
+  }
 
-  // Simple pagination (could be optimized with cursor-based approach)
-  const startIndex = cursor
-    ? events.findIndex((e) => e.id === cursor) + 1
-    : 0;
-  const paginatedEvents = events.slice(startIndex, startIndex + limit);
-  const hasMore = startIndex + limit < events.length;
-  const nextCursor = hasMore ? paginatedEvents[paginatedEvents.length - 1]?.id ?? null : null;
+  // Use database-level pagination for efficiency
+  const { events, nextCursor } = await eventsRepo.findByWorkflowIdPaginated(id, {
+    limit,
+    cursor,
+  });
 
   return reply.send({
     workflowId: id,
-    history: paginatedEvents.map((e) => ({
+    history: events.map((e) => ({
       id: e.id,
       event: e.eventType,
       fromState: e.fromState,
@@ -171,7 +223,7 @@ export async function getWorkflowHistoryHandler(
     })),
     pagination: {
       nextCursor,
-      hasMore,
+      hasMore: nextCursor !== null,
     },
   });
 }
