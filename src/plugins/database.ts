@@ -33,6 +33,7 @@ import { BalanceService } from '@/src/services/balances/balance-service.js';
 import { PricingService } from '@/src/services/balances/pricing-service.js';
 import { PostgresTransactionService } from '@/src/services/transactions/postgres-service.js';
 import { VaultService } from '@/src/services/vaults/vault-service.js';
+import { WalletFactory } from '@/src/services/build-transaction/wallet-factory.js';
 import { EVMBalanceFetcher } from '@/src/services/balances/fetchers/evm.js';
 import { JsonRpcClient } from '@/src/lib/rpc/client.js';
 
@@ -58,6 +59,7 @@ declare module 'fastify' {
       pricing: PricingService;
       transactions: PostgresTransactionService;
       vault: VaultService;
+      walletFactory: WalletFactory;
     };
   }
 }
@@ -116,6 +118,7 @@ async function databasePlugin(fastify: FastifyInstance) {
   });
   const addressService = new PostgresAddressService({ addressRepository });
   const vaultService = new VaultService(vaultRepository);
+  const walletFactory = new WalletFactory(vaultService);
 
   // Decorate Fastify instance
   fastify.decorate('db', db);
@@ -136,6 +139,7 @@ async function databasePlugin(fastify: FastifyInstance) {
     pricing: pricingService,
     transactions: transactionService,
     vault: vaultService,
+    walletFactory,
   });
 
   // Only close on container shutdown, not Lambda
