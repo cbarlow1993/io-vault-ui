@@ -84,6 +84,16 @@ const configSchema = z.object({
     }),
   }),
 
+  tokenClassification: z.object({
+    scheduler: z.object({
+      enabled: booleanFromString.default(true),
+      cronSchedule: z.string().default('*/15 * * * *'),
+      batchSize: z.coerce.number().default(50),
+      maxAttempts: z.coerce.number().default(5),
+    }),
+    ttlHours: z.coerce.number().default(720),
+  }),
+
   services: z.object({
     internalTransactionRouterUrl: z.string().optional(),
     slackErrorReportWebhookUrl: z.string().optional(),
@@ -179,6 +189,15 @@ function loadConfig() {
         enabled: process.env.RECONCILIATION_SCHEDULER_ENABLED,
         cronSchedule: process.env.RECONCILIATION_CRON_SCHEDULE,
       },
+    },
+    tokenClassification: {
+      scheduler: {
+        enabled: process.env.TOKEN_CLASSIFICATION_SCHEDULER_ENABLED,
+        cronSchedule: process.env.TOKEN_CLASSIFICATION_CRON_SCHEDULE,
+        batchSize: process.env.TOKEN_CLASSIFICATION_BATCH_SIZE,
+        maxAttempts: process.env.TOKEN_CLASSIFICATION_MAX_ATTEMPTS,
+      },
+      ttlHours: process.env.TOKEN_CLASSIFICATION_TTL_HOURS,
     },
     services: {
       internalTransactionRouterUrl: process.env.INTERNAL_TRANSACTION_ROUTER_URL,
