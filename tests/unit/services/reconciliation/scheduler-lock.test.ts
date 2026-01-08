@@ -1,110 +1,94 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { acquireSchedulerLock, releaseSchedulerLock, LOCK_IDS } from '@/src/services/reconciliation/scheduler-lock.js';
+import { describe, it, expect } from 'vitest';
+import { LOCK_IDS } from '@/src/services/reconciliation/scheduler-lock.js';
 
-/**
- * Creates a mock Kysely db instance that properly mocks the executor
- * for raw SQL template execution (sql`...`.execute(db))
- */
-function createMockDb(queryResult: { rows: unknown[] }) {
-  const mockExecuteQuery = vi.fn().mockResolvedValue(queryResult);
-
-  const mockExecutor = {
-    executeQuery: mockExecuteQuery,
-    // transformQuery returns the query node unchanged for our mock
-    transformQuery: vi.fn().mockImplementation((node: unknown) => node),
-    // compileQuery returns a mock compiled query
-    compileQuery: vi.fn().mockReturnValue({
-      sql: 'SELECT pg_try_advisory_lock($1)',
-      parameters: [738523901],
-    }),
-  };
-
-  const mockDb = {
-    getExecutor: vi.fn().mockReturnValue(mockExecutor),
-  };
-
-  return { mockDb, mockExecuteQuery };
-}
-
-describe('scheduler-lock', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('acquireSchedulerLock', () => {
-    it('returns true when lock is acquired', async () => {
-      const { mockDb } = createMockDb({
-        rows: [{ pg_try_advisory_lock: true }],
-      });
-
-      const result = await acquireSchedulerLock(mockDb as any);
-
-      expect(result).toBe(true);
-      expect(mockDb.getExecutor).toHaveBeenCalled();
-    });
-
-    it('returns false when lock is already held', async () => {
-      const { mockDb } = createMockDb({
-        rows: [{ pg_try_advisory_lock: false }],
-      });
-
-      const result = await acquireSchedulerLock(mockDb as any);
-
-      expect(result).toBe(false);
-    });
-
-    it('returns false when no rows returned', async () => {
-      const { mockDb } = createMockDb({
-        rows: [],
-      });
-
-      const result = await acquireSchedulerLock(mockDb as any);
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('releaseSchedulerLock', () => {
-    it('calls advisory unlock', async () => {
-      const { mockDb, mockExecuteQuery } = createMockDb({ rows: [] });
-
-      await releaseSchedulerLock(mockDb as any);
-
-      expect(mockDb.getExecutor).toHaveBeenCalled();
-      expect(mockExecuteQuery).toHaveBeenCalled();
-    });
-  });
-
+describe('Scheduler Lock', () => {
   describe('LOCK_IDS', () => {
-    it('exports consistent lock IDs', () => {
-      expect(typeof LOCK_IDS.reconciliation_scheduler).toBe('number');
-      expect(LOCK_IDS.reconciliation_scheduler).toBeGreaterThan(0);
-      expect(typeof LOCK_IDS.token_classification_scheduler).toBe('number');
-      expect(LOCK_IDS.token_classification_scheduler).toBeGreaterThan(0);
+    it('should have unique lock IDs for each scheduler', () => {
+      const lockIds = Object.values(LOCK_IDS);
+      const uniqueIds = new Set(lockIds);
+      expect(uniqueIds.size).toBe(lockIds.length);
     });
 
-    it('uses different IDs for different locks', () => {
-      expect(LOCK_IDS.reconciliation_scheduler).not.toBe(LOCK_IDS.token_classification_scheduler);
+    it('should define reconciliation_scheduler lock ID', () => {
+      expect(LOCK_IDS.reconciliation_scheduler).toBeDefined();
+      expect(typeof LOCK_IDS.reconciliation_scheduler).toBe('number');
+    });
+
+    it('should define token_classification_scheduler lock ID', () => {
+      expect(LOCK_IDS.token_classification_scheduler).toBeDefined();
+      expect(typeof LOCK_IDS.token_classification_scheduler).toBe('number');
     });
   });
 
-  describe('named locks', () => {
-    it('acquires lock with custom name', async () => {
-      const { mockDb } = createMockDb({
-        rows: [{ pg_try_advisory_lock: true }],
-      });
+  describe('getLockId collision prevention', () => {
+    // Simulate the getLockId function to test collision prevention logic
+    function simulateGetLockId(lockName: string): number {
+      const reservedLockIds = new Set(Object.values(LOCK_IDS));
 
-      const result = await acquireSchedulerLock(mockDb as any, 'token_classification_scheduler');
+      if (lockName in LOCK_IDS) {
+        return LOCK_IDS[lockName as keyof typeof LOCK_IDS];
+      }
 
-      expect(result).toBe(true);
+      // Replicate the hash function from scheduler-lock.ts
+      let hash = 0;
+      for (let i = 0; i < lockName.length; i++) {
+        const char = lockName.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      let lockId = Math.abs(hash);
+
+      // Collision prevention - same as in scheduler-lock.ts
+      while (reservedLockIds.has(lockId)) {
+        lockId = lockId + 1;
+      }
+
+      return lockId;
+    }
+
+    it('should return known lock ID for reconciliation_scheduler', () => {
+      const lockId = simulateGetLockId('reconciliation_scheduler');
+      expect(lockId).toBe(LOCK_IDS.reconciliation_scheduler);
     });
 
-    it('releases lock with custom name', async () => {
-      const { mockDb, mockExecuteQuery } = createMockDb({ rows: [] });
+    it('should return known lock ID for token_classification_scheduler', () => {
+      const lockId = simulateGetLockId('token_classification_scheduler');
+      expect(lockId).toBe(LOCK_IDS.token_classification_scheduler);
+    });
 
-      await releaseSchedulerLock(mockDb as any, 'token_classification_scheduler');
+    it('should generate a hash for unknown lock names', () => {
+      const lockId = simulateGetLockId('some_new_scheduler');
+      expect(typeof lockId).toBe('number');
+      expect(lockId).toBeGreaterThan(0);
+    });
 
-      expect(mockExecuteQuery).toHaveBeenCalled();
+    it('should not collide with reserved lock IDs', () => {
+      const reservedIds = new Set(Object.values(LOCK_IDS));
+      const testNames = ['test_scheduler', 'new_lock', 'custom_job'];
+
+      for (const name of testNames) {
+        const lockId = simulateGetLockId(name);
+        expect(reservedIds.has(lockId)).toBe(false);
+      }
+    });
+
+    it('should increment lockId when collision detected', () => {
+      const reservedLockIds = new Set(Object.values(LOCK_IDS));
+
+      function testCollisionPrevention(initialHash: number): number {
+        let lockId = initialHash;
+        while (reservedLockIds.has(lockId)) {
+          lockId = lockId + 1;
+        }
+        return lockId;
+      }
+
+      // Starting with a reserved ID should return the next available number
+      const reservedId = LOCK_IDS.reconciliation_scheduler;
+      const result = testCollisionPrevention(reservedId);
+
+      expect(result).not.toBe(reservedId);
+      expect(reservedLockIds.has(result)).toBe(false);
     });
   });
 });

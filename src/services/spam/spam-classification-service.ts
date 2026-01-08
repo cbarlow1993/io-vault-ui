@@ -45,7 +45,10 @@ export class SpamClassificationService {
     const classifications = await Promise.all(classificationPromises);
 
     tokens.forEach((token, index) => {
-      results.set(token.address.toLowerCase(), classifications[index]!);
+      const classification = classifications[index];
+      if (classification) {
+        results.set(token.address.toLowerCase(), classification);
+      }
     });
 
     return results;

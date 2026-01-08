@@ -16,9 +16,13 @@ export const LOCK_IDS: Record<string, number> = {
  */
 const DEFAULT_LOCK_NAME = 'reconciliation_scheduler';
 
+// Reserved lock IDs that generated hashes must not collide with
+const RESERVED_LOCK_IDS = new Set(Object.values(LOCK_IDS));
+
 /**
  * Gets the numeric lock ID for a given lock name.
  * Falls back to a hash of the name for unknown locks.
+ * Ensures generated hashes don't collide with reserved lock IDs.
  */
 function getLockId(lockName: string): number {
   if (lockName in LOCK_IDS) {
@@ -31,7 +35,14 @@ function getLockId(lockName: string): number {
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32bit integer
   }
-  return Math.abs(hash);
+  let lockId = Math.abs(hash);
+
+  // Ensure generated hash doesn't collide with reserved lock IDs
+  while (RESERVED_LOCK_IDS.has(lockId)) {
+    lockId = lockId + 1;
+  }
+
+  return lockId;
 }
 
 /**
