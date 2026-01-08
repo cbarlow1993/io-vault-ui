@@ -55,7 +55,7 @@ describe('Interfaces', () => {
       from: '0xSender',
       to: '0xRecipient',
       value: '1000000000000000000',
-      overrides: { gasLimit: '21000' },
+      overrides: { gasLimit: 21000n },
     };
     expect(params.from).toBeDefined();
     expect(params.to).toBeDefined();
@@ -69,7 +69,7 @@ describe('Interfaces', () => {
       to: '0xRecipient',
       value: '1000000',
       contractAddress: '0xToken',
-      overrides: { gasLimit: '50000' },
+      overrides: { gasLimit: 50000n },
     };
     expect(params.contractAddress).toBe('0xToken');
     expect(params.overrides).toBeDefined();
@@ -99,7 +99,7 @@ describe('Interfaces', () => {
       contractAddress: '0xContract',
       data: '0xa9059cbb',
       value: '0',
-      overrides: { gasLimit: '100000' },
+      overrides: { gasLimit: 100000n },
     };
     expect(params.from).toBe('0xCaller');
     expect(params.contractAddress).toBe('0xContract');
@@ -113,7 +113,7 @@ describe('Interfaces', () => {
       bytecode: '0x608060405234801561001057600080fd5b50',
       constructorArgs: '0x000000000000000000000000000000000000000000000000000000000000000a',
       value: '0',
-      overrides: { gasLimit: '1000000' },
+      overrides: { gasLimit: 1000000n },
     };
     expect(params.from).toBe('0xDeployer');
     expect(params.bytecode).toBeDefined();
@@ -296,8 +296,8 @@ describe('Interfaces', () => {
 
   it('IBalanceFetcher does not have getTokenBalances method', () => {
     const mockFetcher: IBalanceFetcher = {
-      getNativeBalance: async () => ({ value: '1000000000000000000', formattedValue: '1.0', symbol: 'ETH', decimals: 18 }),
-      getTokenBalance: async () => ({ contractAddress: '0x', value: '1000000', formattedValue: '1.0', symbol: 'USDC', decimals: 6 }),
+      getNativeBalance: async () => ({ balance: '1000000000000000000', formattedBalance: '1.0', symbol: 'ETH', decimals: 18, isNative: true as const }),
+      getTokenBalance: async () => ({ contractAddress: '0x', balance: '1000000', formattedBalance: '1.0', symbol: 'USDC', decimals: 6 }),
     };
     expect(typeof mockFetcher.getNativeBalance).toBe('function');
     expect(typeof mockFetcher.getTokenBalance).toBe('function');
