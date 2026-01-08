@@ -124,53 +124,60 @@ export interface FeeEstimate {
 
 // ============ Transaction Override Types ============
 
+// EVM overrides
 export interface EvmTransactionOverrides {
+  gasPrice?: bigint;
+  gasLimit?: bigint;
+  maxFeePerGas?: bigint;
+  maxPriorityFeePerGas?: bigint;
   nonce?: number;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
-  gasLimit?: string;
+  type?: 0 | 2;
+  data?: `0x${string}`;
 }
 
+// SVM (Solana) overrides
 export interface SvmTransactionOverrides {
-  recentBlockhash?: string;
-  computeUnitLimit?: number;
   computeUnitPrice?: number;
+  computeUnitLimit?: number;
+  skipPreflight?: boolean;
+  nonceAccount?: string;
 }
 
+// UTXO overrides
 export interface UtxoTransactionOverrides {
   feeRate?: number;
+  utxos?: Array<{ txid: string; vout: number; value: number }>;
 }
 
+// TVM (Tron) overrides
 export interface TvmTransactionOverrides {
   feeLimit?: number;
-  expiration?: number;
+  permission_id?: number;
 }
 
+// XRP overrides
 export interface XrpTransactionOverrides {
-  sequence?: number;
   fee?: string;
-  lastLedgerSequence?: number;
+  sequence?: number;
+  maxLedgerVersionOffset?: number;
 }
 
+// Substrate overrides
 export interface SubstrateTransactionOverrides {
-  tip?: string;
+  tip?: bigint;
   nonce?: number;
   era?: number;
 }
 
-export interface EcosystemOverridesMap {
+// Map ecosystem to its override type
+export type EcosystemOverridesMap = {
   evm: EvmTransactionOverrides;
   svm: SvmTransactionOverrides;
   utxo: UtxoTransactionOverrides;
   tvm: TvmTransactionOverrides;
   xrp: XrpTransactionOverrides;
   substrate: SubstrateTransactionOverrides;
-}
+};
 
-export type TransactionOverrides =
-  | EvmTransactionOverrides
-  | SvmTransactionOverrides
-  | UtxoTransactionOverrides
-  | TvmTransactionOverrides
-  | XrpTransactionOverrides
-  | SubstrateTransactionOverrides;
+// Union type for any ecosystem override
+export type TransactionOverrides = EcosystemOverridesMap[keyof EcosystemOverridesMap];
