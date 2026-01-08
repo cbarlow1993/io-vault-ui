@@ -75,25 +75,40 @@ All build transaction endpoints share these base fields:
 
 ```typescript
 {
-  amount: string,           // Numeric string or "MAX"
+  amount: string,           // Numeric string (in smallest unit) or "MAX"
   to: string,               // Recipient address
   derivationPath?: string   // Optional, e.g., "m/44/60/0/0/0"
 }
 ```
 
+#### Special "MAX" Amount Handling
+
+When `amount` is the literal string `"MAX"`, the builder calculates the maximum transferable amount:
+
+- **EVM**: `balance - (gasLimit * maxFeePerGas)` - reserves gas for transaction
+- **SVM**: `balance - rentExemptMinimum - transactionFee` - reserves rent exemption
+- **UTXO**: `sum(utxo_values) - (estimatedTxSize * feeRate)` - reserves fee
+- **TVM**: `balance - bandwidth/energy cost` - reserves network resources
+- **XRP**: `balance - reserveBase - transactionFee` - reserves account reserve
+
+The calculated amount is returned in the `details` array for UI confirmation.
+
 ### EVM-Specific Fields
 
 ```typescript
 {
-  gasPrice?: string,              // In GWEI (converted to WEI internally)
+  gasPrice?: string,              // In WEI (for consistency with chains package)
   gasLimit?: string,
   data?: string,                  // Hex calldata for contract interaction
   nonce?: number,
   type?: "legacy" | "eip1559",
-  maxFeePerGas?: string,
-  maxPriorityFeePerGas?: string
+  maxFeePerGas?: string,          // In WEI
+  maxPriorityFeePerGas?: string   // In WEI
 }
 ```
+
+> **Note**: All gas values are in WEI (not GWEI) for consistency with the chains package.
+> Use `parseGwei()` or multiply by 1e9 if converting from GWEI.
 
 ### SVM-Specific Fields
 

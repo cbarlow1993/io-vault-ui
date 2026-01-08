@@ -22,6 +22,7 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
       rpc-client.ts             # Generic JSON-RPC client wrapper
       registry.ts               # Chain registry and ecosystem mapping
       config.ts                 # RPC override configuration
+      provider-cache.ts         # Provider instance caching
     evm/
       index.ts                  # EVM chain provider factory
       balance.ts                # eth_getBalance, ERC20 balanceOf
@@ -38,7 +39,7 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
       index.ts                  # Bitcoin/UTXO provider factory
       balance.ts                # Blockbook balance
       transactions.ts           # UTXO transaction building
-      config.ts                 # UTXO chain configs
+      config.ts                 # UTXO chain configs (bitcoin, mnee)
     tvm/
       index.ts                  # TRON provider factory
       balance.ts                # TRX and TRC20 balance
@@ -50,6 +51,11 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
       balance.ts                # account_info balance
       transactions.ts           # XRP transaction building
       config.ts                 # XRP chain configs
+    substrate/
+      index.ts                  # Substrate provider factory
+      balance.ts                # system.account balance
+      transactions.ts           # Substrate transaction building
+      config.ts                 # Substrate chain configs (bittensor)
   tests/
     unit/
       core/
@@ -58,6 +64,7 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
       utxo/
       tvm/
       xrp/
+      substrate/
     mocks/
     fixtures/
 ```
@@ -67,14 +74,44 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
 ### Chain Aliases
 
 ```typescript
-export type EvmChainAlias = 'ethereum' | 'polygon' | 'arbitrum' | 'optimism' | 'base' | 'avalanche';
+export type EvmChainAlias = 'ethereum' | 'polygon' | 'arbitrum' | 'optimism' | 'base' | 'avalanche' | 'bsc';
 export type SvmChainAlias = 'solana' | 'solana-devnet';
-export type UtxoChainAlias = 'bitcoin' | 'bitcoin-testnet';
+export type UtxoChainAlias = 'bitcoin' | 'bitcoin-testnet' | 'mnee';
 export type TvmChainAlias = 'tron' | 'tron-testnet';
 export type XrpChainAlias = 'xrp' | 'xrp-testnet';
+export type SubstrateChainAlias = 'bittensor' | 'bittensor-testnet';
 
-export type ChainAlias = EvmChainAlias | SvmChainAlias | UtxoChainAlias | TvmChainAlias | XrpChainAlias;
-export type Ecosystem = 'evm' | 'svm' | 'utxo' | 'tvm' | 'xrp';
+export type ChainAlias =
+  | EvmChainAlias
+  | SvmChainAlias
+  | UtxoChainAlias
+  | TvmChainAlias
+  | XrpChainAlias
+  | SubstrateChainAlias;
+
+export type Ecosystem = 'evm' | 'svm' | 'utxo' | 'tvm' | 'xrp' | 'substrate';
+
+// Mapping from chain alias to ecosystem (for type inference)
+export const CHAIN_ECOSYSTEM_MAP: Record<ChainAlias, Ecosystem> = {
+  ethereum: 'evm',
+  polygon: 'evm',
+  arbitrum: 'evm',
+  optimism: 'evm',
+  base: 'evm',
+  avalanche: 'evm',
+  bsc: 'evm',
+  solana: 'svm',
+  'solana-devnet': 'svm',
+  bitcoin: 'utxo',
+  'bitcoin-testnet': 'utxo',
+  mnee: 'utxo',
+  tron: 'tvm',
+  'tron-testnet': 'tvm',
+  xrp: 'xrp',
+  'xrp-testnet': 'xrp',
+  bittensor: 'substrate',
+  'bittensor-testnet': 'substrate',
+} as const;
 ```
 
 ### Balance Types
@@ -120,11 +157,16 @@ export type TransactionType =
 /**
  * Normalised transaction for consistent cross-chain rendering.
  * All chains map to this structure regardless of their native format.
+ *
+ * Note: `from` is optional because:
+ * - Unsigned EVM transactions don't include the sender (recovered from signature)
+ * - UTXO transactions have multiple inputs, no single sender
+ * - For signed transactions, `from` will always be populated
  */
 export interface NormalisedTransaction {
   chainAlias: ChainAlias;
   hash?: string;
-  from: string;
+  from?: string;                        // Optional: empty for unsigned EVM, UTXO
   to: string | null;                    // null = contract deployment
   value: string;                        // Raw units (wei, lamports, satoshis)
   formattedValue: string;               // Human-readable with decimals
@@ -140,10 +182,10 @@ export interface NormalisedTransaction {
     from: string;
     to: string;
     value: string;
-    formattedValue?: string;
-    symbol?: string;
-    decimals?: number;
-    tokenId?: string;                   // For NFTs
+    formattedValue: string;             // Required for UI rendering
+    symbol: string;                     // Required for UI rendering
+    decimals: number;                   // Required for formatting
+    tokenId?: string;                   // For NFTs (ERC721, ERC1155)
   };
   contractCall?: {
     contractAddress: string;
@@ -159,6 +201,12 @@ export interface NormalisedTransaction {
     inputCount?: number;                // UTXO
     outputCount?: number;               // UTXO
   };
+  // UTXO-specific: all outputs for multi-recipient transactions
+  outputs?: Array<{
+    address: string | null;
+    value: string;
+    formattedValue: string;
+  }>;
 }
 
 // Union of all raw transaction types (see Transaction Decoding section)
@@ -226,8 +274,8 @@ export interface DeployedContract {
 // EVM - EIP-1559
 export interface EvmTransactionOverrides {
   nonce?: number;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
+  maxFeePerGas?: string;        // In WEI (not GWEI)
+  maxPriorityFeePerGas?: string; // In WEI (not GWEI)
   gasLimit?: string;
 }
 
@@ -251,15 +299,33 @@ export interface TvmTransactionOverrides {
 // XRP - Drops
 export interface XrpTransactionOverrides {
   sequence?: number;
-  fee?: string;
+  fee?: string;   // In drops
 }
 
+// Substrate - Weight
+export interface SubstrateTransactionOverrides {
+  tip?: string;
+  nonce?: number;
+}
+
+// Mapping from ecosystem to override type (for type-safe params)
+export interface EcosystemOverridesMap {
+  evm: EvmTransactionOverrides;
+  svm: SvmTransactionOverrides;
+  utxo: UtxoTransactionOverrides;
+  tvm: TvmTransactionOverrides;
+  xrp: XrpTransactionOverrides;
+  substrate: SubstrateTransactionOverrides;
+}
+
+// Union type for runtime use
 export type TransactionOverrides =
   | EvmTransactionOverrides
   | SvmTransactionOverrides
   | UtxoTransactionOverrides
   | TvmTransactionOverrides
-  | XrpTransactionOverrides;
+  | XrpTransactionOverrides
+  | SubstrateTransactionOverrides;
 ```
 
 ### Chain Config
@@ -285,10 +351,15 @@ export interface IBalanceFetcher {
 export interface ITransactionBuilder {
   buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction>;
   buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction>;
+  /**
+   * Decode a serialized transaction (synchronous - no network required).
+   */
   decode<F extends DecodeFormat>(
     serialized: string,
     format: F
-  ): Promise<F extends 'raw' ? RawTransaction : NormalisedTransaction>;
+  ): F extends 'raw' ? RawTransaction : NormalisedTransaction;
+  estimateFee(): Promise<FeeEstimate>;
+  estimateGas(params: ContractCallParams): Promise<string>;
 }
 
 export interface IContractInteraction {
@@ -312,6 +383,11 @@ export function configure(config: ChainProviderConfig): void;
 // Provider factory
 export function getChainProvider(chainAlias: ChainAlias, rpcUrl?: string): IChainProvider;
 
+// Utility functions
+export function getEcosystem(chainAlias: ChainAlias): Ecosystem;
+export function isValidChainAlias(value: string): value is ChainAlias;
+export function isValidEcosystem(value: string): value is Ecosystem;
+
 // Balance convenience functions
 export async function getNativeBalance(chainAlias: ChainAlias, address: string, rpcUrl?: string): Promise<NativeBalance>;
 export async function getTokenBalance(chainAlias: ChainAlias, address: string, contractAddress: string, rpcUrl?: string): Promise<TokenBalance>;
@@ -319,43 +395,174 @@ export async function getTokenBalance(chainAlias: ChainAlias, address: string, c
 // Transaction convenience functions
 export async function buildNativeTransfer(chainAlias: ChainAlias, params: NativeTransferParams, rpcUrl?: string): Promise<UnsignedTransaction>;
 export async function buildTokenTransfer(chainAlias: ChainAlias, params: TokenTransferParams, rpcUrl?: string): Promise<UnsignedTransaction>;
-export async function decodeTransaction<F extends DecodeFormat>(
+
+/**
+ * Decode a serialized transaction.
+ * Note: No rpcUrl needed - decoding is an offline operation.
+ */
+export function decodeTransaction<F extends DecodeFormat>(
   chainAlias: ChainAlias,
   serialized: string,
-  format: F,
-  rpcUrl?: string
-): Promise<F extends 'raw' ? RawTransaction : NormalisedTransaction>;
+  format: F
+): F extends 'raw' ? RawTransaction : NormalisedTransaction;
+
+// Fee estimation
+export interface FeeEstimate {
+  slow: { fee: string; formattedFee: string };
+  standard: { fee: string; formattedFee: string };
+  fast: { fee: string; formattedFee: string };
+}
+
+export async function estimateFee(chainAlias: ChainAlias, rpcUrl?: string): Promise<FeeEstimate>;
+export async function estimateGas(chainAlias: ChainAlias, params: ContractCallParams, rpcUrl?: string): Promise<string>;
+
+// Account info (EVM/XRP)
+export async function getTransactionCount(chainAlias: ChainAlias, address: string, rpcUrl?: string): Promise<number>;
 
 // Contract convenience functions
 export async function contractRead(chainAlias: ChainAlias, params: ContractReadParams, rpcUrl?: string): Promise<ContractReadResult>;
 export async function contractCall(chainAlias: ChainAlias, params: ContractCallParams, rpcUrl?: string): Promise<UnsignedTransaction>;
 export async function contractDeploy(chainAlias: ChainAlias, params: ContractDeployParams, rpcUrl?: string): Promise<DeployedContract>;
 
+// Type guards for RawTransaction discrimination
+export function isEvmTransaction(tx: RawTransaction): tx is RawEvmTransaction;
+export function isSolanaTransaction(tx: RawTransaction): tx is RawSolanaTransaction;
+export function isUtxoTransaction(tx: RawTransaction): tx is RawUtxoTransaction;
+export function isTronTransaction(tx: RawTransaction): tx is RawTronTransaction;
+export function isXrpTransaction(tx: RawTransaction): tx is RawXrpTransaction;
+
 // Re-exports
-export type { NativeBalance, TokenBalance, BalanceInfo, ChainConfig, ChainAlias, ... };
+export type {
+  NativeBalance,
+  TokenBalance,
+  BalanceInfo,
+  ChainConfig,
+  ChainAlias,
+  Ecosystem,
+  UnsignedTransaction,
+  NormalisedTransaction,
+  RawTransaction,
+  RawEvmTransaction,
+  RawSolanaTransaction,
+  RawUtxoTransaction,
+  RawTronTransaction,
+  RawXrpTransaction,
+  TransactionOverrides,
+  EvmTransactionOverrides,
+  SvmTransactionOverrides,
+  UtxoTransactionOverrides,
+  TvmTransactionOverrides,
+  XrpTransactionOverrides,
+  SubstrateTransactionOverrides,
+  ContractReadParams,
+  ContractCallParams,
+  ContractDeployParams,
+  DeployedContract,
+  FeeEstimate,
+  DecodeFormat,
+  TransactionType,
+};
 ```
 
 ## Error Handling
 
 ```typescript
+// Base chain error
 export class ChainError extends Error {
-  constructor(message: string, public readonly chainAlias: ChainAlias, public readonly cause?: unknown);
+  constructor(
+    message: string,
+    public readonly chainAlias: ChainAlias,
+    public readonly cause?: unknown
+  ) {
+    super(message);
+    this.name = 'ChainError';
+  }
 }
 
+// RPC communication errors
 export class RpcError extends ChainError {
-  constructor(message: string, chainAlias: ChainAlias, public readonly code?: number, cause?: unknown);
+  constructor(
+    message: string,
+    chainAlias: ChainAlias,
+    public readonly code?: number,
+    cause?: unknown
+  ) {
+    super(message, chainAlias, cause);
+    this.name = 'RpcError';
+  }
 }
 
+export class RpcTimeoutError extends RpcError {
+  constructor(chainAlias: ChainAlias, timeoutMs: number) {
+    super(`RPC request timed out after ${timeoutMs}ms`, chainAlias);
+    this.name = 'RpcTimeoutError';
+  }
+}
+
+export class RateLimitError extends RpcError {
+  constructor(chainAlias: ChainAlias, retryAfterMs?: number) {
+    super(
+      retryAfterMs
+        ? `Rate limited, retry after ${retryAfterMs}ms`
+        : 'Rate limited by RPC provider',
+      chainAlias,
+      429
+    );
+    this.name = 'RateLimitError';
+  }
+}
+
+// Validation errors
 export class InvalidAddressError extends ChainError {
-  constructor(chainAlias: ChainAlias, address: string);
+  constructor(chainAlias: ChainAlias, public readonly address: string) {
+    super(`Invalid address: ${address}`, chainAlias);
+    this.name = 'InvalidAddressError';
+  }
 }
 
+export class InvalidTransactionError extends ChainError {
+  constructor(chainAlias: ChainAlias, reason: string) {
+    super(`Invalid transaction: ${reason}`, chainAlias);
+    this.name = 'InvalidTransactionError';
+  }
+}
+
+// Transaction errors
+export class InsufficientBalanceError extends ChainError {
+  constructor(
+    chainAlias: ChainAlias,
+    public readonly required: string,
+    public readonly available: string
+  ) {
+    super(`Insufficient balance: required ${required}, available ${available}`, chainAlias);
+    this.name = 'InsufficientBalanceError';
+  }
+}
+
+export class TransactionFailedError extends ChainError {
+  constructor(
+    chainAlias: ChainAlias,
+    public readonly txHash: string,
+    reason?: string
+  ) {
+    super(reason ? `Transaction failed: ${reason}` : 'Transaction failed', chainAlias);
+    this.name = 'TransactionFailedError';
+  }
+}
+
+// Configuration errors
 export class UnsupportedChainError extends Error {
-  constructor(public readonly chainAlias: string);
+  constructor(public readonly chainAlias: string) {
+    super(`Unsupported chain: ${chainAlias}`);
+    this.name = 'UnsupportedChainError';
+  }
 }
 
 export class UnsupportedOperationError extends ChainError {
-  constructor(chainAlias: ChainAlias, operation: string);
+  constructor(chainAlias: ChainAlias, operation: string) {
+    super(`Operation not supported: ${operation}`, chainAlias);
+    this.name = 'UnsupportedOperationError';
+  }
 }
 ```
 
@@ -396,18 +603,86 @@ export class UnsupportedOperationError extends ChainError {
 - **Transactions**: Standard XRP transaction format with sequence
 - **Contracts**: Not supported (throws `UnsupportedOperationError`)
 
+### Substrate (Bittensor)
+
+- **Balance**: `system.account` RPC query
+- **Transactions**: Substrate extrinsics with SCALE encoding
+- **Fee Estimation**: `payment.queryInfo` for weight-based fees
+- **Contracts**: Not supported (throws `UnsupportedOperationError`)
+
 ## Feature Support Matrix
 
-| Feature | EVM | SVM | UTXO | TVM | XRP |
-|---------|-----|-----|------|-----|-----|
-| getNativeBalance | ✅ | ✅ | ✅ | ✅ | ✅ |
-| getTokenBalance | ✅ | ✅ | ❌ | ✅ | ✅ |
-| buildNativeTransfer | ✅ | ✅ | ✅ | ✅ | ✅ |
-| buildTokenTransfer | ✅ | ✅ | ❌ | ✅ | ✅ |
-| decode | ✅ | ✅ | ✅ | ✅ | ✅ |
-| contractRead | ✅ | ✅ | ❌ | ✅ | ❌ |
-| contractCall | ✅ | ✅ | ❌ | ✅ | ❌ |
-| contractDeploy | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Feature | EVM | SVM | UTXO | TVM | XRP | Substrate |
+|---------|-----|-----|------|-----|-----|-----------|
+| getNativeBalance | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| getTokenBalance | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| buildNativeTransfer | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| buildTokenTransfer | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| decode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| contractRead | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| contractCall | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| contractDeploy | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
+| estimateFee | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| getTransactionCount | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
+
+## Provider Caching Strategy
+
+Providers are cached to avoid recreating connections for each operation.
+
+### Cache Implementation
+
+```typescript
+// core/provider-cache.ts
+interface CachedProvider {
+  provider: IChainProvider;
+  rpcUrl: string;
+  createdAt: number;
+}
+
+class ProviderCache {
+  private cache = new Map<string, CachedProvider>();
+  private readonly maxAge = 5 * 60 * 1000; // 5 minutes
+
+  getOrCreate(chainAlias: ChainAlias, rpcUrl: string): IChainProvider {
+    const key = `${chainAlias}:${rpcUrl}`;
+    const cached = this.cache.get(key);
+
+    if (cached && Date.now() - cached.createdAt < this.maxAge) {
+      return cached.provider;
+    }
+
+    const provider = createProvider(chainAlias, rpcUrl);
+    this.cache.set(key, {
+      provider,
+      rpcUrl,
+      createdAt: Date.now(),
+    });
+
+    return provider;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  clearChain(chainAlias: ChainAlias): void {
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(`${chainAlias}:`)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+}
+
+export const providerCache = new ProviderCache();
+```
+
+### Cache Behavior
+
+- Providers are cached per `chainAlias:rpcUrl` combination
+- Cache entries expire after 5 minutes (configurable)
+- Expired entries are replaced on next access
+- Cache can be cleared manually if needed
 
 ## RPC Configuration
 
@@ -824,11 +1099,23 @@ export function normaliseUtxoTransaction(
 ): NormalisedTransaction {
   const { symbol, decimals } = config.nativeCurrency;
   const totalOutput = raw.outputs.reduce((sum, out) => sum + BigInt(out.value), 0n);
-  const primaryOutput = raw.outputs[0];
+
+  // Include all outputs for UTXO multi-recipient transactions
+  const outputs = raw.outputs.map((out) => ({
+    address: out.address ?? null,
+    value: out.value,
+    formattedValue: formatUnits(BigInt(out.value), decimals),
+  }));
+
+  // Primary output is first non-change output (heuristic: largest output)
+  const sortedOutputs = [...outputs].sort(
+    (a, b) => Number(BigInt(b.value) - BigInt(a.value))
+  );
+  const primaryOutput = sortedOutputs[0];
 
   return {
     chainAlias: config.chainAlias,
-    from: '', // UTXO doesn't have single sender
+    from: undefined, // UTXO doesn't have single sender
     to: primaryOutput?.address ?? null,
     value: totalOutput.toString(),
     formattedValue: formatUnits(totalOutput, decimals),
@@ -839,6 +1126,7 @@ export function normaliseUtxoTransaction(
       inputCount: raw.inputs.length,
       outputCount: raw.outputs.length,
     },
+    outputs, // Include all outputs for UI rendering
   };
 }
 
