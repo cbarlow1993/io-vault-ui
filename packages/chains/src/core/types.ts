@@ -152,7 +152,7 @@ export interface UtxoTransactionOverrides {
 // TVM (Tron) overrides
 export interface TvmTransactionOverrides {
   feeLimit?: number;
-  permission_id?: number;
+  permissionId?: number;
 }
 
 // XRP overrides

@@ -63,10 +63,10 @@ describe('Transaction Overrides', () => {
   it('TvmTransactionOverrides accepts valid Tron override fields', () => {
     const overrides: TvmTransactionOverrides = {
       feeLimit: 100000000,
-      permission_id: 2,
+      permissionId: 2,
     };
     expect(overrides.feeLimit).toBe(100000000);
-    expect(overrides.permission_id).toBe(2);
+    expect(overrides.permissionId).toBe(2);
   });
 
   it('XrpTransactionOverrides accepts valid XRP override fields', () => {
