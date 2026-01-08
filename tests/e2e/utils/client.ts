@@ -1,23 +1,24 @@
-import axios, { type AxiosResponse } from 'axios';
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 
-interface ClientResponse<T> {
+export interface ClientResponse<T> {
   status: number;
   data: T;
 }
 
-interface PollOptions {
+export interface PollOptions {
   interval?: number;
   timeout?: number;
 }
 
 export class E2EClient {
-  constructor(
-    private baseUrl: string,
-    private authToken: string
-  ) {}
+  private client: AxiosInstance;
 
-  private get headers() {
-    return { Authorization: `Bearer ${this.authToken}` };
+  constructor(baseUrl: string, authToken: string) {
+    this.client = axios.create({
+      baseURL: baseUrl,
+      headers: { Authorization: `Bearer ${authToken}` },
+      validateStatus: () => true, // Don't throw on non-2xx status codes
+    });
   }
 
   private toResponse<T>(response: AxiosResponse<T>): ClientResponse<T> {
@@ -25,31 +26,22 @@ export class E2EClient {
   }
 
   async get<T>(path: string, params?: Record<string, unknown>): Promise<ClientResponse<T>> {
-    const response = await axios.get<T>(`${this.baseUrl}${path}`, {
-      headers: this.headers,
-      params,
-    });
+    const response = await this.client.get<T>(path, { params });
     return this.toResponse(response);
   }
 
   async post<T>(path: string, body?: unknown): Promise<ClientResponse<T>> {
-    const response = await axios.post<T>(`${this.baseUrl}${path}`, body, {
-      headers: this.headers,
-    });
+    const response = await this.client.post<T>(path, body);
     return this.toResponse(response);
   }
 
   async patch<T>(path: string, body?: unknown): Promise<ClientResponse<T>> {
-    const response = await axios.patch<T>(`${this.baseUrl}${path}`, body, {
-      headers: this.headers,
-    });
+    const response = await this.client.patch<T>(path, body);
     return this.toResponse(response);
   }
 
   async delete<T>(path: string): Promise<ClientResponse<T>> {
-    const response = await axios.delete<T>(`${this.baseUrl}${path}`, {
-      headers: this.headers,
-    });
+    const response = await this.client.delete<T>(path);
     return this.toResponse(response);
   }
 
