@@ -718,4 +718,37 @@ describe('PostgresTokenRepository', () => {
       expect(result).toBe(0);
     });
   });
+
+  describe('updateClassificationSuccess', () => {
+    it('should update token with classification result and reset flags', async () => {
+      const classification = {
+        blockaid: null,
+        coingecko: { isListed: true, marketCapRank: 100 },
+        heuristics: {
+          suspiciousName: false,
+          namePatterns: [],
+          isUnsolicited: false,
+          contractAgeDays: 365,
+          isNewContract: false,
+          holderDistribution: 'normal' as const,
+        },
+      };
+
+      mockDb.mockExecute.mockResolvedValue([]);
+
+      await repository.updateClassificationSuccess('token-uuid-1', classification);
+
+      expect(mockDb.mockDb.updateTable).toHaveBeenCalledWith('tokens');
+      expect(mockDb.chainable.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          spam_classification: JSON.stringify(classification),
+          needs_classification: false,
+          classification_attempts: 0,
+          classification_error: null,
+        })
+      );
+      expect(mockDb.chainable.where).toHaveBeenCalledWith('id', '=', 'token-uuid-1');
+      expect(mockDb.mockExecute).toHaveBeenCalled();
+    });
+  });
 });

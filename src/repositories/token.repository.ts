@@ -1,7 +1,7 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { type Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
-import type { Database, Token as TokenRow } from '@/src/lib/database/types.js';
+import type { Database, Token as TokenRow, SpamClassification } from '@/src/lib/database/types.js';
 import type { Token, CreateTokenMetadataInput, TokenRepository } from '@/src/repositories/types.js';
 
 /**
@@ -175,5 +175,23 @@ export class PostgresTokenRepository implements TokenRepository {
       .executeTakeFirst();
 
     return Number(result.numUpdatedRows ?? 0);
+  }
+
+  async updateClassificationSuccess(
+    tokenId: string,
+    classification: SpamClassification
+  ): Promise<void> {
+    await this.db
+      .updateTable('tokens')
+      .set({
+        spam_classification: JSON.stringify(classification),
+        classification_updated_at: new Date().toISOString(),
+        needs_classification: false,
+        classification_attempts: 0,
+        classification_error: null,
+        updated_at: new Date().toISOString(),
+      })
+      .where('id', '=', tokenId)
+      .execute();
   }
 }
