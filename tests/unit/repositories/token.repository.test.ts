@@ -751,4 +751,17 @@ describe('PostgresTokenRepository', () => {
       expect(mockDb.mockExecute).toHaveBeenCalled();
     });
   });
+
+  describe('updateClassificationFailure', () => {
+    it('should increment attempts and store error message', async () => {
+      mockDb.mockExecute.mockResolvedValue([]);
+
+      await repository.updateClassificationFailure('token-uuid-1', 'API timeout');
+
+      expect(mockDb.mockDb.updateTable).toHaveBeenCalledWith('tokens');
+      expect(mockDb.chainable.set).toHaveBeenCalled();
+      expect(mockDb.chainable.where).toHaveBeenCalledWith('id', '=', 'token-uuid-1');
+      expect(mockDb.mockExecute).toHaveBeenCalled();
+    });
+  });
 });

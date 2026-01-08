@@ -194,4 +194,19 @@ export class PostgresTokenRepository implements TokenRepository {
       .where('id', '=', tokenId)
       .execute();
   }
+
+  async updateClassificationFailure(
+    tokenId: string,
+    errorMessage: string
+  ): Promise<void> {
+    await this.db
+      .updateTable('tokens')
+      .set({
+        classification_attempts: sql`classification_attempts + 1`,
+        classification_error: errorMessage,
+        updated_at: new Date().toISOString(),
+      })
+      .where('id', '=', tokenId)
+      .execute();
+  }
 }
