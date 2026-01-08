@@ -11,6 +11,7 @@ import errorHandlerPlugin from '@/src/plugins/error-handler.js';
 import reconciliationCronPlugin from '@/src/plugins/reconciliation-cron.js';
 import reconciliationWorkerPlugin from '@/src/plugins/reconciliation-worker.js';
 import swaggerPlugin from '@/src/plugins/swagger.js';
+import tokenClassificationCronPlugin from '@/src/plugins/token-classification-cron.js';
 import { routes } from '@/src/routes/index.js';
 
 export interface BuildAppOptions {
@@ -55,6 +56,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
 
   // Reconciliation cron scheduler (optional, controlled by config)
   app.register(reconciliationCronPlugin);
+
+  // Token classification cron scheduler (optional, controlled by config)
+  app.register(tokenClassificationCronPlugin);
 
   // Health check (public)
   app.get('/health', async () => {
