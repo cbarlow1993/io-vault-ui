@@ -1,5 +1,21 @@
 export const VERSION = '0.0.1';
 
+// Re-export all error classes from core/errors
+export {
+  ChainError,
+  RpcError,
+  RpcTimeoutError,
+  RateLimitError,
+  InvalidAddressError,
+  InvalidTransactionError,
+  InsufficientBalanceError,
+  TransactionFailedError,
+  UnsupportedChainError,
+  UnsupportedOperationError,
+  BroadcastError,
+  type BroadcastErrorCode,
+} from './core/errors.js';
+
 // Re-export all types from core/types
 export {
   // Chain Alias Types
