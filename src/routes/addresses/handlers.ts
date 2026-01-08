@@ -250,22 +250,20 @@ export async function generateAddress(
     throw new OperationForbiddenError('Forbidden');
   }
 
-  // 3. Resolve chain configuration
-  const chain = await Chain.fromAlias(chainAlias);
-  const ecosystem = chain.Config.ecosystem;
-
-  // 4. Get vault curves
+  // 3. Get vault curves
   const vault = await request.server.services.vault.getVaultCurves(vaultId);
   if (!vault) {
     throw new NotFoundError(`No curves found for vault ${vaultId}`);
   }
 
-  // 5. Generate address
+  // 4. Resolve chain and generate address
+  const chain = await Chain.fromAlias(chainAlias);
   const wallet = chain.loadWallet(vault);
   const address = derivationPath
     ? wallet.deriveHDWallet({ derivationPath }).getAddress()
     : wallet.getAddress();
 
+  const ecosystem = chain.Config.ecosystem;
   logger.info('Generated address', { address, chainAlias, derivationPath });
 
   // 6. Check if address already exists
@@ -509,6 +507,7 @@ export async function createHDAddress(
   // Generate address with provided or default derivation path
   const resolvedDerivationPath = derivationPath ?? 'm/44/0/0/0';
   const getVaultCurves = request.server.services.vault.getVaultCurves.bind(request.server.services.vault);
+
   const address = await Address.generate({
     chainAlias,
     derivationPath: resolvedDerivationPath,
@@ -553,8 +552,8 @@ export async function bulkCreateHDAddresses(
   });
 
   const getVaultCurves = request.server.services.vault.getVaultCurves.bind(request.server.services.vault);
-  const addresses = [];
 
+  const addresses = [];
   for (let index = indexFrom; index <= indexTo; index++) {
     const derivedPath = `m/44/0/0/${index}`;
     const address = await Address.generate({

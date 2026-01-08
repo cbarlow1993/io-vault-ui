@@ -1,5 +1,22 @@
 import { z } from 'zod';
 
+/**
+ * Parse CHAIN_RPC_* environment variables into a chainAlias -> URL map.
+ * Format: CHAIN_RPC_<CHAIN_ALIAS> where chain alias is uppercased with hyphens as underscores.
+ * Example: CHAIN_RPC_AVALANCHE_C=https://api.avax.network/ext/bc/C/rpc -> { 'avalanche-c': 'https://...' }
+ */
+function parseChainRpcOverrides(): Record<string, string> {
+  const overrides: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key.startsWith('CHAIN_RPC_') && value) {
+      // CHAIN_RPC_AVALANCHE_C -> avalanche-c
+      const chainAlias = key.replace('CHAIN_RPC_', '').toLowerCase().replace(/_/g, '-');
+      overrides[chainAlias] = value;
+    }
+  }
+  return overrides;
+}
+
 // Helper to properly parse boolean strings from environment variables
 const booleanFromString = z
   .union([z.boolean(), z.string()])
@@ -65,6 +82,7 @@ const configSchema = z.object({
     iofinnetNodes: z.object({
       rpcUrl: z.string().optional(),
     }),
+    chainRpcOverrides: z.record(z.string(), z.string()).default({}),
     noves: z.object({
       apiKey: z.string().optional(),
       asyncJobs: z.object({
@@ -173,6 +191,7 @@ function loadConfig() {
       iofinnetNodes: {
         rpcUrl: process.env.IOFINNET_NODES_RPC_URL,
       },
+      chainRpcOverrides: parseChainRpcOverrides(),
       noves: {
         apiKey: process.env.NOVES_API_KEY,
         asyncJobs: {

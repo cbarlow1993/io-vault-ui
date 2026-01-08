@@ -9,7 +9,6 @@ import { NotFoundError, OperationForbiddenError } from '@iofinnet/errors-sdk';
 import { ChainAlias, type EcoSystem, type SolanaWallet } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { logger } from '@/utils/powertools.js';
-import { runWithChainAuth } from '@/src/lib/chain-auth-context.js';
 import {
   routeNativeTransaction,
   routeTokenTransaction,
@@ -75,14 +74,11 @@ export async function buildNativeTransaction(
     vaultId,
   };
 
-  // Run with request-scoped Chain SDK auth context
-  const result = await runWithChainAuth(request.auth?.token, () =>
-    routeNativeTransaction(
-      ecosystem as EcoSystem,
-      chainAlias,
-      params,
-      request.server.services.walletFactory
-    )
+  const result = await routeNativeTransaction(
+    ecosystem as EcoSystem,
+    chainAlias,
+    params,
+    request.server.services.walletFactory
   );
 
   return reply.status(201).send(result);
@@ -111,14 +107,11 @@ export async function buildTokenTransaction(
     vaultId,
   };
 
-  // Run with request-scoped Chain SDK auth context
-  const result = await runWithChainAuth(request.auth?.token, () =>
-    routeTokenTransaction(
-      ecosystem as EcoSystem,
-      chainAlias,
-      params,
-      request.server.services.walletFactory
-    )
+  const result = await routeTokenTransaction(
+    ecosystem as EcoSystem,
+    chainAlias,
+    params,
+    request.server.services.walletFactory
   );
 
   return reply.status(201).send(result);
@@ -142,17 +135,14 @@ export async function buildDurableNonceTransactionHandler(
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
 
-  // Run with request-scoped Chain SDK auth context
-  const result = await runWithChainAuth(request.auth?.token, async () => {
-    // Create wallet for Solana
-    const { wallet, chain } = await request.server.services.walletFactory.createWallet<SolanaWallet>(
-      vaultId,
-      ChainAlias.SOLANA,
-      derivationPath
-    );
+  // Create wallet for Solana
+  const { wallet, chain } = await request.server.services.walletFactory.createWallet<SolanaWallet>(
+    vaultId,
+    ChainAlias.SOLANA,
+    derivationPath
+  );
 
-    return buildDurableNonceTransaction({ wallet, chain });
-  });
+  const result = await buildDurableNonceTransaction({ wallet, chain });
 
   return reply.status(201).send(result);
 }
@@ -175,17 +165,14 @@ export async function getDurableNonceHandler(
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
 
-  // Run with request-scoped Chain SDK auth context
-  const result = await runWithChainAuth(request.auth?.token, async () => {
-    // Create wallet for Solana
-    const { wallet, chain } = await request.server.services.walletFactory.createWallet<SolanaWallet>(
-      vaultId,
-      ChainAlias.SOLANA,
-      derivationPath
-    );
+  // Create wallet for Solana
+  const { wallet, chain } = await request.server.services.walletFactory.createWallet<SolanaWallet>(
+    vaultId,
+    ChainAlias.SOLANA,
+    derivationPath
+  );
 
-    return getDurableNonceAccount({ wallet, chain });
-  });
+  const result = await getDurableNonceAccount({ wallet, chain });
 
   return reply.status(200).send(result);
 }

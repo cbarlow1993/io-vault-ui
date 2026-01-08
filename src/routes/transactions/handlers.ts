@@ -300,6 +300,7 @@ export async function createTransaction(
   const derivationPath = wallet.isHDWallet() ? (wallet as HDWallet).getDerivationPath() : undefined;
 
   const getVaultCurves = request.server.services.vault.getVaultCurves.bind(request.server.services.vault);
+
   const result = await createSignRequest({
     vaultId,
     chainAlias,

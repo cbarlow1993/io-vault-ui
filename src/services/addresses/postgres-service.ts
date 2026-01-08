@@ -2,15 +2,17 @@ import { NotFoundError } from '@iofinnet/errors-sdk';
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { AddressRepository, CreateAddressInput } from '@/src/repositories/types.js';
 import type { Addresses } from '@/src/types/address.js';
-import { formatAddressFromPostgres } from '@/src/services/addresses/postgres-formatter.js';
+import type { AddressListItem } from '@/src/routes/addresses/schemas.js';
+import { formatAddressFromPostgres, formatAddressForList } from '@/src/services/addresses/postgres-formatter.js';
 import { PAGINATION_DEFAULTS } from '@/src/lib/schemas/pagination-schema.js';
 
 /**
  * Cursor-paginated result returned by address list methods.
+ * Note: List items do not include tokens for performance reasons.
  * @see docs/requirements/common/001-cursor-pagination.md
  */
 export interface CursorPaginatedAddresses {
-  items: Addresses.Address[];
+  items: AddressListItem[];
   nextCursor: string | null;
   hasMore: boolean;
   total?: number;
@@ -59,6 +61,7 @@ export class PostgresAddressService {
 
   /**
    * Get all addresses for a vault with cursor-based pagination.
+   * Note: List results do not include tokens for performance reasons.
    * @see docs/requirements/api-addresses/002-list-vault-addresses.md
    */
   async getAllForVault({
@@ -78,12 +81,7 @@ export class PostgresAddressService {
       monitored,
     });
 
-    const items = await Promise.all(
-      result.data.map(async (addr) => {
-        const tokens = await this.deps.addressRepository.findTokensByAddressId(addr.id);
-        return formatAddressFromPostgres(addr, tokens);
-      })
-    );
+    const items = result.data.map(formatAddressForList);
 
     return {
       items,
@@ -95,6 +93,7 @@ export class PostgresAddressService {
 
   /**
    * Get all addresses for a vault and chain with cursor-based pagination.
+   * Note: List results do not include tokens for performance reasons.
    * @see docs/requirements/api-addresses/003-list-chain-addresses.md
    */
   async getAllForVaultAndChain({
@@ -116,12 +115,7 @@ export class PostgresAddressService {
       monitored,
     });
 
-    const items = await Promise.all(
-      result.data.map(async (addr) => {
-        const tokens = await this.deps.addressRepository.findTokensByAddressId(addr.id);
-        return formatAddressFromPostgres(addr, tokens);
-      })
-    );
+    const items = result.data.map(formatAddressForList);
 
     return {
       items,
@@ -133,6 +127,7 @@ export class PostgresAddressService {
 
   /**
    * Get HD addresses for a vault and chain with cursor-based pagination.
+   * Note: List results do not include tokens for performance reasons.
    * @see docs/requirements/api-addresses/007-list-hd-addresses.md
    */
   async getHDAddressesForVaultAndChain({
@@ -152,12 +147,7 @@ export class PostgresAddressService {
       { limit, cursor }
     );
 
-    const items = await Promise.all(
-      result.data.map(async (addr) => {
-        const tokens = await this.deps.addressRepository.findTokensByAddressId(addr.id);
-        return formatAddressFromPostgres(addr, tokens);
-      })
-    );
+    const items = result.data.map(formatAddressForList);
 
     return {
       items,

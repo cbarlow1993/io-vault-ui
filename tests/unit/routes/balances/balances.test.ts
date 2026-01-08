@@ -23,6 +23,7 @@ const {
   mockGetAddress,
   mockUpdateAddressTokens,
   mockExplorerGetBalance,
+  mockGetBalancesByChainAndAddress,
 } = vi.hoisted(() => ({
   mockTokenBalanceFetcher: vi.fn(),
   mockGetNativeTokenMetadata: vi.fn(),
@@ -32,6 +33,7 @@ const {
   mockGetAddress: vi.fn(),
   mockUpdateAddressTokens: vi.fn(),
   mockExplorerGetBalance: vi.fn(),
+  mockGetBalancesByChainAndAddress: vi.fn(),
 }));
 
 // Mock the balance services - using dynamic enum values
@@ -145,6 +147,13 @@ async function createTestApp() {
     request.auth = { organisationId: TEST_ORG_ID, userId: TEST_USER_ID, token: 'test-token' };
   });
 
+  // Mock services decorator for balance service
+  app.decorate('services', {
+    balances: {
+      getBalancesByChainAndAddress: mockGetBalancesByChainAndAddress,
+    },
+  });
+
   // Register balance routes
   await app.register(balanceRoutes, { prefix: '/v2/balances' });
   await app.ready();
@@ -234,24 +243,34 @@ describe('Balance Routes', () => {
   });
 
   describe('GET /v2/balances/ecosystem/:ecosystem/chain/:chain/address/:address/tokens', () => {
+    // Mock EnrichedBalance data for token balance tests
+    const mockEnrichedBalances = [
+      {
+        tokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        formattedBalance: '1000.00',
+        symbol: 'USDC',
+        decimals: 6,
+        name: 'USD Coin',
+        usdValue: 1000.0,
+        logoUri: 'https://example.com/usdc.png',
+        isNative: false,
+      },
+      {
+        tokenAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        formattedBalance: '500.00',
+        symbol: 'USDT',
+        decimals: 6,
+        name: 'Tether USD',
+        usdValue: 500.0,
+        logoUri: 'https://example.com/usdt.png',
+        isNative: false,
+      },
+    ];
+
     it('returns token balances for an address', async () => {
       const app = await createTestApp();
 
-      mockGetAddress.mockResolvedValueOnce({
-        address: TEST_ADDRESS,
-        chain: 'eth',
-        vaultId: 'vault-123',
-        workspaceId: 'workspace-123',
-        monitored: true,
-        tokens: [],
-        updatedAt: new Date().toISOString(),
-        subscriptionId: null,
-        alias: null,
-      });
-
-      mockTokenBalanceFetcher.mockResolvedValueOnce(mockTokenBalances);
-      mockFetchTokenMetadataBulk.mockResolvedValueOnce([]);
-      mockUpdateAddressTokens.mockResolvedValueOnce(undefined);
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
 
       const response = await app.inject({
         method: 'GET',
@@ -262,47 +281,21 @@ describe('Balance Routes', () => {
       const data = response.json();
       expect(data).toHaveProperty('data');
       expect(data).toHaveProperty('lastUpdated');
+      expect(data).toHaveProperty('pagination');
       expect(Array.isArray(data.data)).toBe(true);
+      expect(data.data).toHaveLength(2);
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: false }
+      );
     });
 
     it('filters hidden tokens by default', async () => {
       const app = await createTestApp();
 
-      const hiddenTokenAddress = '0xhidden';
-      mockGetAddress.mockResolvedValueOnce({
-        address: TEST_ADDRESS,
-        chain: 'eth',
-        vaultId: 'vault-123',
-        workspaceId: 'workspace-123',
-        monitored: true,
-        tokens: [
-          {
-            contractAddress: hiddenTokenAddress,
-            hidden: true,
-            symbol: 'HIDDEN',
-            decimals: 18,
-          },
-        ],
-        updatedAt: new Date().toISOString(),
-        subscriptionId: null,
-        alias: null,
-      });
-
-      const allTokens = [
-        ...mockTokenBalances,
-        {
-          address: hiddenTokenAddress,
-          balance: '100',
-          symbol: 'HIDDEN',
-          decimals: 18,
-          name: 'Hidden Token',
-          usdValue: null,
-        },
-      ];
-
-      mockTokenBalanceFetcher.mockResolvedValueOnce(allTokens);
-      mockFetchTokenMetadataBulk.mockResolvedValueOnce([]);
-      mockUpdateAddressTokens.mockResolvedValueOnce(undefined);
+      // Service returns only visible tokens when includeHidden is false
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
 
       const response = await app.inject({
         method: 'GET',
@@ -311,49 +304,35 @@ describe('Balance Routes', () => {
 
       expect(response.statusCode).toBe(200);
       const data = response.json();
-      // Hidden token should be filtered out
-      const hiddenToken = data.data.find((t: any) => t.address === hiddenTokenAddress);
-      expect(hiddenToken).toBeUndefined();
+      // Verify service was called with includeHidden: false
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: false }
+      );
+      // Only visible tokens returned
+      expect(data.data).toHaveLength(2);
     });
 
     it('shows hidden tokens when showHiddenTokens=true', async () => {
       const app = await createTestApp();
 
       const hiddenTokenAddress = '0xhidden';
-      mockGetAddress.mockResolvedValueOnce({
-        address: TEST_ADDRESS,
-        chain: 'eth',
-        vaultId: 'vault-123',
-        workspaceId: 'workspace-123',
-        monitored: true,
-        tokens: [
-          {
-            contractAddress: hiddenTokenAddress,
-            hidden: true,
-            symbol: 'HIDDEN',
-            decimals: 18,
-          },
-        ],
-        updatedAt: new Date().toISOString(),
-        subscriptionId: null,
-        alias: null,
-      });
-
-      const allTokens = [
-        ...mockTokenBalances,
+      const balancesWithHidden = [
+        ...mockEnrichedBalances,
         {
-          address: hiddenTokenAddress,
-          balance: '100',
+          tokenAddress: hiddenTokenAddress,
+          formattedBalance: '100',
           symbol: 'HIDDEN',
           decimals: 18,
           name: 'Hidden Token',
           usdValue: null,
+          logoUri: null,
+          isNative: false,
         },
       ];
 
-      mockTokenBalanceFetcher.mockResolvedValueOnce(allTokens);
-      mockFetchTokenMetadataBulk.mockResolvedValueOnce([]);
-      mockUpdateAddressTokens.mockResolvedValueOnce(undefined);
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(balancesWithHidden);
 
       const response = await app.inject({
         method: 'GET',
@@ -362,6 +341,12 @@ describe('Balance Routes', () => {
 
       expect(response.statusCode).toBe(200);
       const data = response.json();
+      // Verify service was called with includeHidden: true
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: true }
+      );
       // Hidden token should be included
       const hiddenToken = data.data.find((t: any) => t.address === hiddenTokenAddress);
       expect(hiddenToken).toBeDefined();

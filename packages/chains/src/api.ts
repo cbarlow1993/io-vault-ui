@@ -63,27 +63,35 @@ export function getChainProvider(chainAlias: ChainAlias, rpcUrl?: string): IChai
   }
 
   const ecosystem = getEcosystem(chainAlias);
-  const effectiveRpcUrl = rpcUrl ?? globalConfig.rpcOverrides?.[chainAlias];
+  const overrideRpcUrl = rpcUrl ?? globalConfig.rpcOverrides?.[chainAlias];
+
+  // Get the effective RPC URL (override or default from config)
+  const effectiveRpcUrl = overrideRpcUrl ?? getDefaultRpcUrl(ecosystem, chainAlias);
 
   // Check cache first
-  if (effectiveRpcUrl) {
-    const cached = providerCache.get(chainAlias, effectiveRpcUrl);
-    if (cached) {
-      return cached;
-    }
+  const cached = providerCache.get(chainAlias, effectiveRpcUrl);
+  if (cached) {
+    return cached;
   }
 
   // Create provider based on ecosystem
-  const provider = createProviderForEcosystem(ecosystem, chainAlias, effectiveRpcUrl);
+  const provider = createProviderForEcosystem(ecosystem, chainAlias, overrideRpcUrl);
 
-  // Cache the provider
-  if (effectiveRpcUrl) {
-    providerCache.set(chainAlias, effectiveRpcUrl, provider);
-  } else {
-    providerCache.set(chainAlias, provider.config.rpcUrl, provider);
-  }
+  // Cache the provider with the effective RPC URL
+  providerCache.set(chainAlias, effectiveRpcUrl, provider);
 
   return provider;
+}
+
+function getDefaultRpcUrl(ecosystem: Ecosystem, chainAlias: ChainAlias): string {
+  switch (ecosystem) {
+    case 'evm':
+      return getEvmChainConfig(chainAlias as EvmChainAlias).rpcUrl;
+    default:
+      // For unimplemented ecosystems, use a placeholder
+      // This will be replaced when the ecosystem is implemented
+      return `default-${chainAlias}`;
+  }
 }
 
 function createProviderForEcosystem(
@@ -191,7 +199,12 @@ export function parseTransaction(
 
   switch (ecosystem) {
     case 'evm': {
-      const txData = JSON.parse(serialized);
+      let txData;
+      try {
+        txData = JSON.parse(serialized);
+      } catch {
+        throw new ChainError('Invalid transaction data: malformed JSON', chainAlias);
+      }
       const config = getEvmChainConfig(chainAlias as EvmChainAlias, rpcUrl);
       return new UnsignedEvmTransaction(config, txData);
     }
@@ -242,9 +255,9 @@ export async function getTransactionCount(
   rpcUrl?: string
 ): Promise<number> {
   const provider = getChainProvider(chainAlias, rpcUrl);
-  // The provider may have a getTransactionCount method
-  if ('getTransactionCount' in provider && typeof provider.getTransactionCount === 'function') {
-    return (provider as any).getTransactionCount(address);
+  // EVM providers have getTransactionCount method
+  if (provider instanceof EvmChainProvider) {
+    return provider.getTransactionCount(address);
   }
   throw new ChainError('getTransactionCount not supported for this chain', chainAlias);
 }

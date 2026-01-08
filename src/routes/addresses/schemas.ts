@@ -107,34 +107,47 @@ export const tokenSchema = z.object({
 });
 
 /**
- * Schema for a single address response
+ * Base address fields shared between list and detail responses
+ */
+const baseAddressFields = {
+  address: z.string(),
+  chainAlias: z.string(),
+  vaultId: vaultIdSchema,
+  workspaceId: z.string(),
+  derivationPath: simpleDerivationPathSchema.nullish(),
+  subscriptionId: z.string().nullable(),
+  monitored: z.boolean(),
+  monitoredAt: z.iso.datetime({ offset: true }).optional(),
+  unmonitoredAt: z.iso.datetime({ offset: true }).optional(),
+  updatedAt: z.iso.datetime(),
+  alias: z.string().nullable(),
+  lastReconciledBlock: z.number().nullable(),
+};
+
+/**
+ * Schema for address items in list responses (excludes tokens for performance)
+ */
+export const addressListItemSchema = z.object(baseAddressFields).passthrough();
+
+/**
+ * Schema for a single address response (includes tokens)
  */
 export const addressResponseSchema = z
   .object({
-    address: z.string(),
-    chainAlias: z.string(),
-    vaultId: vaultIdSchema,
-    workspaceId: z.string(),
-    derivationPath: simpleDerivationPathSchema.nullish(),
-    subscriptionId: z.string().nullable(),
-    monitored: z.boolean(),
-    monitoredAt: z.iso.datetime({ offset: true }).optional(),
-    unmonitoredAt: z.iso.datetime({ offset: true }).optional(),
-    updatedAt: z.iso.datetime(),
+    ...baseAddressFields,
     tokens: z.array(tokenSchema),
-    alias: z.string().nullable(),
-    lastReconciledBlock: z.number().nullable(),
   })
   .passthrough();
 
 /**
  * Schema for paginated address list response.
  * Uses cursor-based pagination as per requirements documents.
+ * Note: List items do not include tokens for performance reasons.
  *
  * @see docs/requirements/api-addresses/002-list-vault-addresses.md
  */
 export const addressListResponseSchema = z.object({
-  data: z.array(addressResponseSchema),
+  data: z.array(addressListItemSchema),
   pagination: paginationInfoSchema,
 });
 
@@ -207,6 +220,7 @@ export type CreateAddressBody = z.infer<typeof createAddressBodySchema>;
 export type GenerateAddressBody = z.infer<typeof generateAddressBodySchema>;
 export type UpdateAddressBody = z.infer<typeof updateAddressBodySchema>;
 export type AddressResponse = z.infer<typeof addressResponseSchema>;
+export type AddressListItem = z.infer<typeof addressListItemSchema>;
 export type AddressListResponse = z.infer<typeof addressListResponseSchema>;
 export type CreateHDAddressBody = z.infer<typeof createHDAddressBodySchema>;
 export type BulkCreateHDAddressBody = z.infer<typeof bulkCreateHDAddressBodySchema>;

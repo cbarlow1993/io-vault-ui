@@ -1,5 +1,4 @@
 import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import { jsonSchemaTransform } from 'fastify-type-provider-zod';
@@ -15,6 +14,7 @@ async function swaggerPlugin(fastify: FastifyInstance) {
         description: 'Core service for multi-chain vault management',
       },
       servers: [
+        { url: `http://localhost:${config.server.port}`, description: 'Local' },
         { url: 'https://api.dev.iodevnet.com', description: 'Development' },
         { url: 'https://api.staging.iodevnet.com', description: 'Staging' },
         { url: 'https://api.iofinnet.com', description: 'Production' },
@@ -34,8 +34,11 @@ async function swaggerPlugin(fastify: FastifyInstance) {
   });
 
   if (config.server.stage !== 'prod') {
-    await fastify.register(fastifySwaggerUi, {
+    await fastify.register(import('@scalar/fastify-api-reference'), {
       routePrefix: '/docs',
+      configuration: {
+        title: 'io-vault Multi-Chain Core API',
+      },
     });
   }
 }

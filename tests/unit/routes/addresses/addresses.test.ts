@@ -26,9 +26,10 @@ const TEST_ORG_ID = 'org-123';
 const TEST_USER_ID = 'user-123';
 const TEST_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 
-const mockAddress = {
+// Mock address for list responses (no tokens)
+const mockAddressListItem = {
   address: TEST_ADDRESS,
-  chain: 'eth',
+  chainAlias: 'eth',
   vaultId: TEST_VAULT_ID,
   workspaceId: 'workspace-123',
   derivationPath: null,
@@ -36,8 +37,14 @@ const mockAddress = {
   monitored: true,
   monitoredAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
-  tokens: [],
   alias: null,
+  lastReconciledBlock: 0,
+};
+
+// Mock address for single address responses (includes tokens)
+const mockAddress = {
+  ...mockAddressListItem,
+  tokens: [],
 };
 
 async function createTestApp() {
@@ -96,9 +103,9 @@ describe('Address Routes', () => {
     it('returns paginated list of addresses for vault', async () => {
       const app = await createTestApp();
 
-      // Mock the PostgreSQL service response
+      // Mock the PostgreSQL service response (list items don't include tokens)
       (app.services as any).addresses.getAllForVault.mockResolvedValueOnce({
-        items: [mockAddress],
+        items: [mockAddressListItem],
         total: 1,
         hasMore: false,
       });
@@ -111,7 +118,7 @@ describe('Address Routes', () => {
       expect(response.statusCode).toBe(200);
       const data = response.json();
       expect(data).toHaveProperty('data');
-      expect(data).toHaveProperty('pageInfo');
+      expect(data).toHaveProperty('pagination');
       expect(Array.isArray(data.data)).toBe(true);
     });
 
@@ -142,9 +149,9 @@ describe('Address Routes', () => {
     it('returns addresses filtered by chain', async () => {
       const app = await createTestApp();
 
-      // Mock the PostgreSQL service response
+      // Mock the PostgreSQL service response (list items don't include tokens)
       (app.services as any).addresses.getAllForVaultAndChain.mockResolvedValueOnce({
-        items: [mockAddress],
+        items: [mockAddressListItem],
         total: 1,
         hasMore: false,
       });
@@ -157,7 +164,7 @@ describe('Address Routes', () => {
       expect(response.statusCode).toBe(200);
       const data = response.json();
       expect(data).toHaveProperty('data');
-      expect(data).toHaveProperty('pageInfo');
+      expect(data).toHaveProperty('pagination');
     });
 
     it('validates ecosystem and chain parameters', async () => {

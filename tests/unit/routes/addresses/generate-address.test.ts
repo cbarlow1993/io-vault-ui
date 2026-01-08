@@ -17,6 +17,19 @@ vi.mock('@iofinnet/io-core-dapp-utils-chains-sdk', async () => {
   return {
     ...actual,
     Chain: {
+      setAuthContext: vi.fn(),
+      getAuthContext: vi.fn().mockReturnValue({
+        apiBearerToken: 'test-token',
+        rpcBearerToken: 'test-token',
+        iofinnetApiEndpoint: 'https://api.test.com',
+        iofinnetRpcApiEndpoint: 'https://rpc.test.com',
+      }),
+      requireAuthContext: vi.fn().mockReturnValue({
+        apiBearerToken: 'test-token',
+        rpcBearerToken: 'test-token',
+        iofinnetApiEndpoint: 'https://api.test.com',
+        iofinnetRpcApiEndpoint: 'https://rpc.test.com',
+      }),
       fromAlias: vi.fn(),
     },
   };

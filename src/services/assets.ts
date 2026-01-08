@@ -1,5 +1,6 @@
-import { config } from '@/src/lib/config.js';
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { getRpcUrl } from '@/src/lib/chains.js';
 
 export const iofinnetRpcUrl = ({ chain }: { chain: string }) => {
-  return `${config.apis.iofinnetNodes.rpcUrl}/${chain}`;
+  return getRpcUrl(chain as ChainAlias);
 };

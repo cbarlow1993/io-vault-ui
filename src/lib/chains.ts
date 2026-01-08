@@ -14,6 +14,7 @@ import {
   XrpChainAliases,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { z } from 'zod';
+import { config } from '@/src/lib/config.js';
 
 export enum ChainFeatures {
   OVERALL_STATUS = 'overall-status',
@@ -1557,16 +1558,27 @@ export const supportedChains = z.enum(
 );
 
 /**
- * Get the iofinnet RPC URL for a chain alias.
- * Uses the pattern: https://nodes.iofinnet.com/internal/{chainAlias}
+ * Get the RPC URL for a chain alias.
+ * Priority:
+ * 1. Chain-specific override from CHAIN_RPC_<CHAIN_ALIAS> env var
+ * 2. Default iofinnet nodes URL: {IOFINNET_NODES_RPC_URL}/{chainAlias}
+ * Returns null if no RPC URL is configured.
  */
-export function getRpcUrl(chainAlias: ChainAlias): string {
-  return `https://nodes.iofinnet.com/internal/${chainAlias}`;
+export function getRpcUrl(chainAlias: ChainAlias): string | null {
+  // Check for chain-specific override
+  const override = config.apis.chainRpcOverrides[chainAlias];
+  if (override) return override;
+
+  // Fall back to default iofinnet nodes URL
+  const baseUrl = config.apis.iofinnetNodes.rpcUrl;
+  if (!baseUrl) return null;
+
+  return `${baseUrl}/${chainAlias}`;
 }
 
 /**
  * Get RPC URLs for all active EVM chains.
- * Returns a map of chainAlias -> RPC URL
+ * Returns a map of chainAlias -> RPC URL (only includes chains with configured RPC)
  */
 export function getEvmRpcUrls(): Record<string, string> {
   const evmAliases = Object.keys(evmChainWithFeatures) as EvmChainAlias[];
@@ -1576,7 +1588,8 @@ export function getEvmRpcUrls(): Record<string, string> {
 
   return activeEvmChains.reduce(
     (acc, alias) => {
-      acc[alias] = getRpcUrl(alias);
+      const url = getRpcUrl(alias);
+      if (url) acc[alias] = url;
       return acc;
     },
     {} as Record<string, string>
@@ -1585,7 +1598,7 @@ export function getEvmRpcUrls(): Record<string, string> {
 
 /**
  * Get RPC URLs for all active SVM chains.
- * Returns a map of chainAlias -> RPC URL
+ * Returns a map of chainAlias -> RPC URL (only includes chains with configured RPC)
  */
 export function getSvmRpcUrls(): Record<string, string> {
   const svmAliases = Object.keys(svmChainWithFeatures) as SvmChainAlias[];
@@ -1595,7 +1608,8 @@ export function getSvmRpcUrls(): Record<string, string> {
 
   return activeSvmChains.reduce(
     (acc, alias) => {
-      acc[alias] = getRpcUrl(alias);
+      const url = getRpcUrl(alias);
+      if (url) acc[alias] = url;
       return acc;
     },
     {} as Record<string, string>

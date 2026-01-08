@@ -455,6 +455,9 @@ export class NovesProvider implements TransactionProvider {
 
     try {
       const rpcUrl = getRpcUrl(chainAlias);
+      if (!rpcUrl) {
+        throw new Error(`No RPC URL configured for chain: ${chainAlias}`);
+      }
       const provider = new JsonRpcProvider(rpcUrl);
       const blockNumber = await provider.getBlockNumber();
 

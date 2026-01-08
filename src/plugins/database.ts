@@ -25,6 +25,8 @@ import type {
   TokenHoldingRepository,
 } from '@/src/repositories/types.js';
 import { config } from '@/src/lib/config.js';
+import { getRpcUrl } from '@/src/lib/chains.js';
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { PostgresAddressService } from '@/src/services/addresses/postgres-service.js';
 import { logger } from '@/utils/powertools.js';
 
@@ -101,10 +103,8 @@ async function databasePlugin(fastify: FastifyInstance) {
   });
 
   const fetcherFactory = (chain: string, network: string) => {
-    const baseRpcUrl = config.apis.iofinnetNodes.rpcUrl;
-    if (!baseRpcUrl) return null;
-    // Append chain to base RPC URL (e.g., https://rpc.example.com/polygon)
-    const rpcUrl = `${baseRpcUrl}/${chain}`;
+    const rpcUrl = getRpcUrl(chain as ChainAlias);
+    if (!rpcUrl) return null;
     const rpc = new JsonRpcClient({ chain, network, url: rpcUrl, timeoutMs: RPC_TIMEOUT_MS });
     return new EVMBalanceFetcher(rpc, chain, network);
   };
