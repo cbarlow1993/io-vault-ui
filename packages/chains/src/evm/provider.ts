@@ -144,7 +144,12 @@ export class EvmChainProvider implements IChainProvider {
     serialized: string,
     format: F
   ): F extends 'raw' ? RawEvmTransaction : NormalisedTransaction {
-    const txData = JSON.parse(serialized) as EvmTransactionData;
+    let txData: EvmTransactionData;
+    try {
+      txData = JSON.parse(serialized) as EvmTransactionData;
+    } catch {
+      throw new RpcError('Invalid transaction data: malformed JSON', this.chainAlias);
+    }
     const tx = new UnsignedEvmTransaction(this.config, txData);
 
     if (format === 'raw') {
@@ -337,6 +342,9 @@ export class EvmChainProvider implements IChainProvider {
       ]);
 
       const block = typeof blockResult === 'string' ? JSON.parse(blockResult) : blockResult;
+      if (!block.baseFeePerGas) {
+        throw new RpcError('Block does not contain baseFeePerGas (pre-London hardfork?)', this.chainAlias);
+      }
       const baseFee = BigInt(block.baseFeePerGas);
       const priorityFee = BigInt(priorityFeeResult);
 

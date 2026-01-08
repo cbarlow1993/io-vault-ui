@@ -10,7 +10,7 @@ export { EVM_CHAIN_CONFIGS, getEvmChainConfig, type EvmChainConfig } from './con
 export { EvmBalanceFetcher } from './balance.js';
 
 // Transaction
-export { UnsignedEvmTransaction, type EvmTransactionData } from './transaction-builder.js';
+export { UnsignedEvmTransaction } from './transaction-builder.js';
 export { SignedEvmTransaction } from './signed-transaction.js';
 
 // Utils
