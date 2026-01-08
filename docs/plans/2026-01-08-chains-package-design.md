@@ -18,53 +18,79 @@ Internal package (`/packages/chains`) providing a unified interface for blockcha
     core/
       types.ts                  # Shared types
       interfaces.ts             # IBalanceFetcher, ITransactionBuilder, IContractInteraction
-      errors.ts                 # ChainError, RpcError, etc.
+      errors.ts                 # ChainError, RpcError, BroadcastError, etc.
       rpc-client.ts             # Generic JSON-RPC client wrapper
       registry.ts               # Chain registry and ecosystem mapping
       config.ts                 # RPC override configuration
       provider-cache.ts         # Provider instance caching
+      transaction-parser.ts     # parseTransaction() - offline tx reconstruction
     evm/
       index.ts                  # EVM chain provider factory
       balance.ts                # eth_getBalance, ERC20 balanceOf
       transactions.ts           # EIP-1559 transaction building
+      transaction-builder.ts    # UnsignedEvmTransaction class
+      broadcast.ts              # eth_sendRawTransaction
       contracts.ts              # Contract read/call/deploy
       config.ts                 # EVM chain configs
     svm/
       index.ts                  # Solana provider factory
       balance.ts                # getBalance, getTokenAccountBalance
       transactions.ts           # Solana transaction building
+      transaction-builder.ts    # UnsignedSolanaTransaction class
+      broadcast.ts              # sendTransaction
       contracts.ts              # Program interaction
       config.ts                 # SVM chain configs
     utxo/
       index.ts                  # Bitcoin/UTXO provider factory
       balance.ts                # Blockbook balance
       transactions.ts           # UTXO transaction building
+      transaction-builder.ts    # UnsignedUtxoTransaction class
+      broadcast.ts              # Blockbook sendtx
       config.ts                 # UTXO chain configs (bitcoin, mnee)
     tvm/
       index.ts                  # TRON provider factory
       balance.ts                # TRX and TRC20 balance
       transactions.ts           # TRON transaction building
+      transaction-builder.ts    # UnsignedTronTransaction class
+      broadcast.ts              # /wallet/broadcasttransaction
       contracts.ts              # TVM contract interaction
       config.ts                 # TVM chain configs
     xrp/
       index.ts                  # XRP Ledger provider factory
       balance.ts                # account_info balance
       transactions.ts           # XRP transaction building
+      transaction-builder.ts    # UnsignedXrpTransaction class
+      broadcast.ts              # submit
       config.ts                 # XRP chain configs
     substrate/
       index.ts                  # Substrate provider factory
       balance.ts                # system.account balance
       transactions.ts           # Substrate transaction building
+      transaction-builder.ts    # UnsignedSubstrateTransaction class
+      broadcast.ts              # author_submitExtrinsic
       config.ts                 # Substrate chain configs (bittensor)
   tests/
     unit/
       core/
+        transaction-parser.test.ts
       evm/
+        transaction-builder.test.ts
+        broadcast.test.ts
       svm/
+        transaction-builder.test.ts
+        broadcast.test.ts
       utxo/
+        transaction-builder.test.ts
+        broadcast.test.ts
       tvm/
+        transaction-builder.test.ts
+        broadcast.test.ts
       xrp/
+        transaction-builder.test.ts
+        broadcast.test.ts
       substrate/
+        transaction-builder.test.ts
+        broadcast.test.ts
     mocks/
     fixtures/
 ```
@@ -137,10 +163,58 @@ export interface TokenBalance extends BalanceInfo {
 
 ```typescript
 export interface UnsignedTransaction {
+  readonly chainAlias: ChainAlias;
+  readonly raw: unknown;              // Chain-specific raw transaction
+  readonly serialized: string;        // Hex/base58 encoded
+
+  /**
+   * Rebuild transaction with updated mutable parameters.
+   * Returns a new UnsignedTransaction - original is not modified.
+   */
+  rebuild(overrides: TransactionOverrides): UnsignedTransaction;
+
+  /**
+   * Get the data that needs to be signed.
+   * For EVM: RLP-encoded transaction hash
+   * For SVM: Message bytes
+   * For UTXO: Sighash per input
+   */
+  getSigningPayload(): SigningPayload;
+
+  /**
+   * Apply signature(s) to create a signed transaction.
+   * Signatures array must match length of getSigningPayload().data
+   */
+  applySignature(signatures: string[]): SignedTransaction;
+
+  /**
+   * Decode to normalised format for display.
+   */
+  toNormalised(): NormalisedTransaction;
+}
+
+export interface SigningPayload {
   chainAlias: ChainAlias;
-  raw: unknown;              // Chain-specific raw transaction
-  serialized: string;        // Hex/base58 encoded
-  hash?: string;
+  data: string[];              // Always array, even if single item
+  algorithm: 'secp256k1' | 'ed25519';
+}
+
+export interface SignedTransaction {
+  readonly chainAlias: ChainAlias;
+  readonly serialized: string;
+  readonly hash: string;           // Known before broadcast
+
+  /**
+   * Broadcast transaction to the network.
+   * Returns immediately after node accepts - does not wait for confirmation.
+   */
+  broadcast(rpcUrl?: string): Promise<BroadcastResult>;
+}
+
+export interface BroadcastResult {
+  hash: string;
+  success: boolean;
+  error?: string;
 }
 
 export type DecodeFormat = 'raw' | 'normalised';
@@ -406,6 +480,27 @@ export function decodeTransaction<F extends DecodeFormat>(
   format: F
 ): F extends 'raw' ? RawTransaction : NormalisedTransaction;
 
+/**
+ * Parse a stored serialized transaction back into an UnsignedTransaction object.
+ * Offline operation - reconstructs full object with rebuild/sign methods.
+ *
+ * Use case: Retrieve serialized tx from database, reconstruct object, then rebuild with new nonce.
+ */
+export function parseTransaction(
+  chainAlias: ChainAlias,
+  serialized: string
+): UnsignedTransaction;
+
+/**
+ * Broadcast a signed transaction to the network.
+ * Convenience function - equivalent to signedTx.broadcast(rpcUrl)
+ */
+export async function broadcastTransaction(
+  chainAlias: ChainAlias,
+  signedSerialized: string,
+  rpcUrl?: string
+): Promise<BroadcastResult>;
+
 // Fee estimation
 export interface FeeEstimate {
   slow: { fee: string; formattedFee: string };
@@ -440,6 +535,9 @@ export type {
   ChainAlias,
   Ecosystem,
   UnsignedTransaction,
+  SignedTransaction,
+  SigningPayload,
+  BroadcastResult,
   NormalisedTransaction,
   RawTransaction,
   RawEvmTransaction,
@@ -562,6 +660,29 @@ export class UnsupportedOperationError extends ChainError {
   constructor(chainAlias: ChainAlias, operation: string) {
     super(`Operation not supported: ${operation}`, chainAlias);
     this.name = 'UnsupportedOperationError';
+  }
+}
+
+// Broadcast errors
+export type BroadcastErrorCode =
+  | 'ALREADY_KNOWN'        // Transaction already in mempool
+  | 'NONCE_TOO_LOW'        // Nonce already used (EVM)
+  | 'SEQUENCE_TOO_LOW'     // Sequence already used (XRP)
+  | 'INSUFFICIENT_FUNDS'   // Can't pay gas/fee
+  | 'UNDERPRICED'          // Gas price too low
+  | 'EXPIRED'              // Blockhash/ledger expired
+  | 'REJECTED'             // Node rejected (various reasons)
+  | 'NETWORK_ERROR';       // RPC communication failure
+
+export class BroadcastError extends ChainError {
+  constructor(
+    message: string,
+    chainAlias: ChainAlias,
+    public readonly code: BroadcastErrorCode,
+    cause?: unknown
+  ) {
+    super(message, chainAlias, cause);
+    this.name = 'BroadcastError';
   }
 }
 ```
@@ -1187,3 +1308,257 @@ const normalisedBitcoin = await decodeTransaction('bitcoin', '0200...', 'normali
 // All return NormalisedTransaction with same structure:
 // { chainAlias, from, to, value, formattedValue, symbol, type, tokenTransfer?, ... }
 ```
+
+## Transaction Lifecycle
+
+The chains package supports the full transaction lifecycle from building through signing and broadcast.
+
+### Flow Overview
+
+```
+1. BUILD
+   buildNativeTransfer() / buildTokenTransfer()
+   → UnsignedTransaction
+
+2. STORE (optional)
+   tx.serialized → database
+
+3. RETRIEVE & RECONSTRUCT (optional)
+   parseTransaction(chainAlias, serialized) → UnsignedTransaction
+
+4. REBUILD (optional)
+   tx.rebuild({ nonce: newNonce }) → new UnsignedTransaction
+
+5. SIGN
+   tx.getSigningPayload() → SigningPayload
+   → External MPC/Vault signs payload.data[]
+   tx.applySignature(signatures) → SignedTransaction
+
+6. BROADCAST
+   signedTx.broadcast() → BroadcastResult
+```
+
+### Usage Example
+
+```typescript
+import {
+  buildNativeTransfer,
+  parseTransaction,
+  broadcastTransaction,
+} from '@/packages/chains';
+
+// 1. Build transaction
+const unsignedTx = await buildNativeTransfer('ethereum', {
+  from: '0xSender',
+  to: '0xRecipient',
+  value: '1000000000000000000',
+});
+
+// 2. Store serialized tx in database
+await db.signRequests.create({
+  serialized: unsignedTx.serialized,
+  chainAlias: unsignedTx.chainAlias,
+});
+
+// ... later, when ready to sign ...
+
+// 3. Retrieve and reconstruct
+const stored = await db.signRequests.findById(requestId);
+const reconstructedTx = parseTransaction(stored.chainAlias, stored.serialized);
+
+// 4. Rebuild with fresh nonce (if needed)
+const currentNonce = await getTransactionCount('ethereum', '0xSender');
+const freshTx = reconstructedTx.rebuild({ nonce: currentNonce });
+
+// 5. Get signing payload and sign externally
+const payload = freshTx.getSigningPayload();
+// payload.data is always string[] - even single items
+// payload.algorithm tells you which curve ('secp256k1' or 'ed25519')
+
+// External signing (MPC, hardware wallet, etc.)
+const signatures = await externalSigner.sign(payload.data, payload.algorithm);
+
+// 6. Apply signature to create signed transaction
+const signedTx = freshTx.applySignature(signatures);
+
+// 7. Broadcast
+const result = await signedTx.broadcast();
+// or: const result = await broadcastTransaction(chainAlias, signedTx.serialized);
+
+if (result.success) {
+  console.log('Transaction hash:', result.hash);
+} else {
+  console.error('Broadcast failed:', result.error);
+}
+```
+
+### Rebuild Parameters Per Ecosystem
+
+Each ecosystem has different mutable parameters that can be updated via `rebuild()`:
+
+| Ecosystem | Mutable Parameters | Notes |
+|-----------|-------------------|-------|
+| EVM | `nonce`, `maxFeePerGas`, `maxPriorityFeePerGas`, `gasLimit` | All gas values in WEI |
+| SVM | `recentBlockhash`, `computeUnitLimit`, `computeUnitPrice` | Blockhash expires ~2 minutes |
+| UTXO | `feeRate` | May require re-selecting UTXOs |
+| TVM | `feeLimit`, `expiration` | Expiration is unix timestamp |
+| XRP | `sequence`, `fee`, `lastLedgerSequence` | Fee in drops |
+| Substrate | `nonce`, `tip`, `era` | Era for mortality period |
+
+```typescript
+// EVM example - update nonce and gas
+const rebuilt = tx.rebuild({
+  nonce: 42,
+  maxFeePerGas: '50000000000',
+  maxPriorityFeePerGas: '2000000000',
+});
+
+// SVM example - refresh blockhash
+const rebuilt = tx.rebuild({
+  recentBlockhash: await getRecentBlockhash(),
+});
+
+// UTXO example - increase fee rate for faster confirmation
+const rebuilt = tx.rebuild({
+  feeRate: 50, // sat/vB
+});
+
+// XRP example - update sequence
+const rebuilt = tx.rebuild({
+  sequence: await getAccountSequence(address),
+});
+```
+
+### Signing Payload Structure
+
+The `getSigningPayload()` method returns data ready for external signing:
+
+```typescript
+interface SigningPayload {
+  chainAlias: ChainAlias;
+  data: string[];              // Always array, even for single signature
+  algorithm: 'secp256k1' | 'ed25519';
+}
+```
+
+**Important**: `data` is always an array to handle ecosystems requiring multiple signatures:
+- **EVM**: Single item (transaction hash to sign)
+- **SVM**: Single item (message bytes)
+- **UTXO**: Multiple items (one sighash per input)
+- **TVM**: Single item (transaction hash)
+- **XRP**: Single item (transaction hash)
+- **Substrate**: Single item (signing payload)
+
+```typescript
+const payload = tx.getSigningPayload();
+
+// EVM - single signature
+// payload.data = ['0xabc123...'] (tx hash)
+// payload.algorithm = 'secp256k1'
+
+// UTXO with 3 inputs - three signatures needed
+// payload.data = ['0x111...', '0x222...', '0x333...'] (sighash per input)
+// payload.algorithm = 'secp256k1'
+
+// Solana - single signature
+// payload.data = ['base58encodedMessage...']
+// payload.algorithm = 'ed25519'
+```
+
+### Apply Signature
+
+After external signing, apply signatures to create a `SignedTransaction`:
+
+```typescript
+// signatures array must match payload.data length
+const signedTx = tx.applySignature(signatures);
+
+// SignedTransaction provides:
+// - signedTx.serialized: hex/base58 encoded signed tx
+// - signedTx.hash: transaction hash (known before broadcast)
+// - signedTx.broadcast(): send to network
+```
+
+## Broadcast Implementation
+
+### RPC Methods Per Ecosystem
+
+| Ecosystem | RPC Method | Encoding |
+|-----------|------------|----------|
+| EVM | `eth_sendRawTransaction` | Hex with 0x prefix |
+| SVM | `sendTransaction` | Base58 |
+| UTXO | Blockbook `sendtx` | Hex |
+| TVM | `/wallet/broadcasttransaction` | JSON |
+| XRP | `submit` | Hex blob |
+| Substrate | `author_submitExtrinsic` | Hex with 0x prefix |
+
+### Broadcast Behavior
+
+- **Returns immediately** after node accepts transaction
+- Does **not** wait for confirmation
+- Returns `{ hash, success, error? }`
+
+### Error Code Mapping
+
+Each ecosystem maps native RPC errors to `BroadcastErrorCode`:
+
+```typescript
+// EVM error mapping
+const evmErrorMapping: Record<string, BroadcastErrorCode> = {
+  'nonce too low': 'NONCE_TOO_LOW',
+  'already known': 'ALREADY_KNOWN',
+  'replacement transaction underpriced': 'UNDERPRICED',
+  'insufficient funds': 'INSUFFICIENT_FUNDS',
+};
+
+// SVM error mapping
+const svmErrorMapping: Record<string, BroadcastErrorCode> = {
+  'Blockhash not found': 'EXPIRED',
+  'Transaction already processed': 'ALREADY_KNOWN',
+  'Insufficient funds': 'INSUFFICIENT_FUNDS',
+};
+
+// XRP error mapping
+const xrpErrorMapping: Record<string, BroadcastErrorCode> = {
+  'tefPAST_SEQ': 'SEQUENCE_TOO_LOW',
+  'tefALREADY': 'ALREADY_KNOWN',
+  'tecUNFUNDED_PAYMENT': 'INSUFFICIENT_FUNDS',
+  'tefMAX_LEDGER': 'EXPIRED',
+};
+```
+
+### Broadcast Example
+
+```typescript
+const signedTx = tx.applySignature(signatures);
+
+try {
+  const result = await signedTx.broadcast();
+
+  if (result.success) {
+    console.log('Broadcast successful:', result.hash);
+  } else {
+    console.error('Broadcast returned error:', result.error);
+  }
+} catch (error) {
+  if (error instanceof BroadcastError) {
+    switch (error.code) {
+      case 'NONCE_TOO_LOW':
+        // Rebuild with fresh nonce and retry
+        break;
+      case 'EXPIRED':
+        // Rebuild with fresh blockhash/sequence and retry
+        break;
+      case 'UNDERPRICED':
+        // Rebuild with higher gas price and retry
+        break;
+      case 'INSUFFICIENT_FUNDS':
+        // Notify user - can't proceed
+        break;
+      default:
+        // Log and handle unknown error
+        break;
+    }
+  }
+  throw error;
+}
