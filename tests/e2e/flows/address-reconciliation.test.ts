@@ -164,7 +164,7 @@ describe.sequential('Address Reconciliation Flow', () => {
 
     // Store first non-native token contract address for spam test
     const tokens = response.data.data.filter((t) => t.address !== 'native');
-    if (tokens.length > 0) {
+    if (tokens.length > 0 && tokens[0]) {
       tokenContractAddress = tokens[0].address;
     }
   });
