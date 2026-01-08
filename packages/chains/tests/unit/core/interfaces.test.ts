@@ -63,7 +63,7 @@ describe('Interfaces', () => {
     expect(params.overrides).toBeDefined();
   });
 
-  it('TokenTransferParams extends NativeTransferParams with contractAddress and overrides', () => {
+  it('TokenTransferParams is flat with contractAddress and overrides', () => {
     const params: TokenTransferParams = {
       from: '0xSender',
       to: '0xRecipient',
@@ -136,6 +136,7 @@ describe('Interfaces', () => {
       }),
       toNormalised: () => ({
         chainAlias: 'ethereum',
+        to: null,
         value: '0',
         formattedValue: '0',
         symbol: 'ETH',
@@ -188,8 +189,11 @@ describe('Interfaces', () => {
       ],
       metadata: {
         isContractDeployment: false,
-        methodName: 'transfer',
-        methodSignature: 'transfer(address,uint256)',
+        nonce: 42,
+        sequence: 1,
+        memo: 'test memo',
+        inputCount: 1,
+        outputCount: 2,
       },
     };
     expect(tx.hash).toBe('0xabcdef123456');
@@ -197,52 +201,85 @@ describe('Interfaces', () => {
     expect(tx.tokenTransfer).toBeDefined();
     expect(tx.contractCall).toBeDefined();
     expect(tx.outputs).toHaveLength(2);
+    expect(tx.metadata.nonce).toBe(42);
   });
 
-  it('RawSolanaTransaction uses svm discriminator', () => {
+  it('RawSolanaTransaction uses svm discriminator and version', () => {
     const raw: RawSolanaTransaction = {
       _chain: 'svm',
+      version: 'legacy',
       recentBlockhash: 'blockhash123',
       feePayer: 'payer123',
-      instructions: [],
+      instructions: [
+        {
+          programId: 'program123',
+          accounts: [
+            { pubkey: 'account1', isSigner: true, isWritable: true },
+          ],
+          data: 'base64data',
+        },
+      ],
+      signatures: ['sig1'],
     };
     expect(raw._chain).toBe('svm');
+    expect(raw.version).toBe('legacy');
+    expect(raw.instructions[0].accounts).toBeDefined();
   });
 
-  it('RawTronTransaction uses tvm discriminator', () => {
+  it('RawTronTransaction uses tvm discriminator with camelCase fields', () => {
     const raw: RawTronTransaction = {
       _chain: 'tvm',
       txID: 'txid123',
       rawData: {
         contract: [],
-        ref_block_bytes: '0000',
-        ref_block_hash: '00000000',
+        refBlockBytes: '0000',
+        refBlockHash: '00000000',
         expiration: 1234567890,
         timestamp: 1234567890,
+        feeLimit: 1000000,
       },
-      rawDataHex: '0x...',
+      signature: ['sig1'],
     };
     expect(raw._chain).toBe('tvm');
+    expect(raw.rawData.refBlockBytes).toBe('0000');
+    expect(raw.rawData.refBlockHash).toBe('00000000');
+    expect(raw.signature).toEqual(['sig1']);
   });
 
-  it('ITransactionBuilder has decode and estimateGas methods', () => {
+  it('ITransactionBuilder has synchronous decode and parameterless estimateFee', () => {
     // Type-level validation - just checking that the interface compiles correctly
     const mockBuilder: ITransactionBuilder = {
       buildNativeTransfer: async () => ({} as UnsignedTransaction),
       buildTokenTransfer: async () => ({} as UnsignedTransaction),
       estimateFee: async () => ({ baseFee: '21000', priorityFee: '1000000000', totalFee: '21000000000000' }),
       estimateGas: async () => '21000',
-      decode: async () => ({
-        chainAlias: 'ethereum',
-        value: '0',
-        formattedValue: '0',
-        symbol: 'ETH',
-        type: 'native-transfer',
-        metadata: { isContractDeployment: false },
-      }),
+      decode: (serialized, format) => {
+        if (format === 'raw') {
+          return {
+            _chain: 'evm',
+            type: 2,
+            chainId: 1,
+            nonce: 0,
+            to: null,
+            value: '0',
+            data: '0x',
+            gasLimit: '21000',
+          } as const;
+        }
+        return {
+          chainAlias: 'ethereum',
+          to: null,
+          value: '0',
+          formattedValue: '0',
+          symbol: 'ETH',
+          type: 'native-transfer',
+          metadata: { isContractDeployment: false },
+        } as const;
+      },
     };
     expect(typeof mockBuilder.decode).toBe('function');
     expect(typeof mockBuilder.estimateGas).toBe('function');
+    expect(typeof mockBuilder.estimateFee).toBe('function');
   });
 
   it('IContractInteraction has renamed methods', () => {
@@ -255,5 +292,16 @@ describe('Interfaces', () => {
     expect(typeof mockContract.contractRead).toBe('function');
     expect(typeof mockContract.contractCall).toBe('function');
     expect(typeof mockContract.contractDeploy).toBe('function');
+  });
+
+  it('IBalanceFetcher does not have getTokenBalances method', () => {
+    const mockFetcher: IBalanceFetcher = {
+      getNativeBalance: async () => ({ value: '1000000000000000000', formattedValue: '1.0', symbol: 'ETH', decimals: 18 }),
+      getTokenBalance: async () => ({ contractAddress: '0x', value: '1000000', formattedValue: '1.0', symbol: 'USDC', decimals: 6 }),
+    };
+    expect(typeof mockFetcher.getNativeBalance).toBe('function');
+    expect(typeof mockFetcher.getTokenBalance).toBe('function');
+    // Ensure getTokenBalances is NOT in the interface
+    expect((mockFetcher as Record<string, unknown>)['getTokenBalances']).toBeUndefined();
   });
 });

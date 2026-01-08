@@ -16,254 +16,234 @@ import type {
 // ============ Normalised Transaction ============
 
 export interface NormalisedTransaction {
-  readonly chainAlias: ChainAlias;
-  readonly to?: string;
-  readonly from?: string;
-  readonly value: string;
-  readonly formattedValue: string;
-  readonly symbol: string;
-  readonly type: TransactionType;
-  readonly hash?: string;
-  readonly contractAddress?: string;
-  readonly tokenId?: string;
-  readonly data?: string;
-  readonly fee?: {
-    readonly value: string;
-    readonly formattedValue: string;
-    readonly symbol: string;
+  chainAlias: ChainAlias;
+  hash?: string;
+  from?: string;
+  to: string | null;
+  value: string;
+  formattedValue: string;
+  symbol: string;
+  fee?: {
+    value: string;
+    formattedValue: string;
+    symbol: string;
   };
-  readonly tokenTransfer?: {
-    readonly contractAddress: string;
-    readonly from: string;
-    readonly to: string;
-    readonly value: string;
-    readonly formattedValue: string;
-    readonly symbol: string;
-    readonly decimals: number;
-    readonly tokenId?: string;
+  type: TransactionType;
+  tokenTransfer?: {
+    contractAddress: string;
+    from: string;
+    to: string;
+    value: string;
+    formattedValue: string;
+    symbol: string;
+    decimals: number;
+    tokenId?: string;
   };
-  readonly contractCall?: {
-    readonly contractAddress: string;
-    readonly method?: string;
-    readonly selector?: string;
+  contractCall?: {
+    contractAddress: string;
+    method?: string;
+    selector?: string;
   };
-  readonly outputs?: readonly {
-    readonly address: string | null;
-    readonly value: string;
-    readonly formattedValue: string;
-  }[];
-  readonly metadata: {
-    readonly isContractDeployment: boolean;
-    readonly methodName?: string;
-    readonly methodSignature?: string;
-    readonly decodedArgs?: Record<string, unknown>;
+  data?: string;
+  metadata: {
+    nonce?: number;
+    sequence?: number;
+    memo?: string;
+    isContractDeployment: boolean;
+    inputCount?: number;
+    outputCount?: number;
   };
+  outputs?: Array<{
+    address: string | null;
+    value: string;
+    formattedValue: string;
+  }>;
 }
 
-// ============ Signed Transaction ============
-
-export interface SignedTransaction {
-  readonly chainAlias: ChainAlias;
-  readonly serialized: string;
-  readonly hash: string;
-  broadcast(rpcUrl?: string): Promise<BroadcastResult>;
-}
-
-// ============ Unsigned Transaction ============
+// ============ Transaction Interfaces ============
 
 export interface UnsignedTransaction {
   readonly chainAlias: ChainAlias;
   readonly raw: unknown;
   readonly serialized: string;
+
   rebuild(overrides: TransactionOverrides): UnsignedTransaction;
   getSigningPayload(): SigningPayload;
   applySignature(signatures: string[]): SignedTransaction;
   toNormalised(): NormalisedTransaction;
 }
 
-// ============ Transfer Parameters ============
+export interface SignedTransaction {
+  readonly chainAlias: ChainAlias;
+  readonly serialized: string;
+  readonly hash: string;
+
+  broadcast(rpcUrl?: string): Promise<BroadcastResult>;
+}
+
+// ============ Transfer Params ============
 
 export interface NativeTransferParams {
-  readonly from: string;
-  readonly to: string;
-  readonly value: string;
-  readonly memo?: string;
-  readonly overrides?: TransactionOverrides;
+  from: string;
+  to: string;
+  value: string;
+  overrides?: TransactionOverrides;
 }
 
-export interface TokenTransferParams extends NativeTransferParams {
-  readonly contractAddress: string;
-  readonly decimals?: number;
-  readonly overrides?: TransactionOverrides;
+export interface TokenTransferParams {
+  from: string;
+  to: string;
+  contractAddress: string;
+  value: string;
+  overrides?: TransactionOverrides;
 }
 
-// ============ Contract Interaction Parameters ============
+// ============ Contract Params ============
 
 export interface ContractReadParams {
-  readonly contractAddress: string;
-  readonly data: string;
-  readonly from?: string;
+  contractAddress: string;
+  data: string;
+  from?: string;
 }
 
 export interface ContractReadResult {
-  readonly data: string;
+  data: string;
 }
 
 export interface ContractCallParams {
-  readonly from: string;
-  readonly contractAddress: string;
-  readonly data: string;
-  readonly value?: string;
-  readonly overrides?: TransactionOverrides;
+  from: string;
+  contractAddress: string;
+  data: string;
+  value?: string;
+  overrides?: TransactionOverrides;
 }
 
 export interface ContractDeployParams {
-  readonly from: string;
-  readonly bytecode: string;
-  readonly constructorArgs?: string;
-  readonly value?: string;
-  readonly overrides?: TransactionOverrides;
+  from: string;
+  bytecode: string;
+  constructorArgs?: string;
+  value?: string;
+  overrides?: TransactionOverrides;
 }
 
 export interface DeployedContract {
-  readonly transaction: UnsignedTransaction;
-  readonly expectedAddress: string;
+  transaction: UnsignedTransaction;
+  expectedAddress: string;
 }
 
 // ============ Raw Transaction Types ============
 
 export interface RawEvmTransaction {
-  readonly _chain: 'evm';
-  readonly to?: string;
-  readonly from?: string;
-  readonly value?: bigint;
-  readonly data?: `0x${string}`;
-  readonly nonce?: number;
-  readonly gasLimit?: bigint;
-  readonly gasPrice?: bigint;
-  readonly maxFeePerGas?: bigint;
-  readonly maxPriorityFeePerGas?: bigint;
-  readonly chainId?: number;
-  readonly type?: 0 | 2;
+  _chain: 'evm';
+  type: 0 | 1 | 2;
+  chainId: number;
+  nonce: number;
+  to: string | null;
+  value: string;
+  data: string;
+  gasLimit: string;
+  gasPrice?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  accessList?: Array<{ address: string; storageKeys: string[] }>;
+  v?: number;
+  r?: string;
+  s?: string;
 }
 
 export interface RawSolanaTransaction {
-  readonly _chain: 'svm';
-  readonly recentBlockhash: string;
-  readonly feePayer: string;
-  readonly instructions: readonly {
-    readonly programId: string;
-    readonly keys: readonly {
-      readonly pubkey: string;
-      readonly isSigner: boolean;
-      readonly isWritable: boolean;
-    }[];
-    readonly data: Uint8Array;
-  }[];
-  readonly nonceInfo?: {
-    readonly nonce: string;
-    readonly nonceInstruction: unknown;
-  };
+  _chain: 'svm';
+  version: 'legacy' | 0;
+  recentBlockhash: string;
+  feePayer: string;
+  instructions: Array<{
+    programId: string;
+    accounts: Array<{
+      pubkey: string;
+      isSigner: boolean;
+      isWritable: boolean;
+    }>;
+    data: string;
+  }>;
+  signatures?: string[];
 }
 
 export interface RawUtxoTransaction {
-  readonly _chain: 'utxo';
-  readonly inputs: readonly {
-    readonly txid: string;
-    readonly vout: number;
-    readonly value: number;
-    readonly scriptPubKey?: string;
-    readonly sequence?: number;
-  }[];
-  readonly outputs: readonly {
-    readonly address: string;
-    readonly value: number;
-    readonly script?: string;
-  }[];
-  readonly locktime?: number;
-  readonly version?: number;
+  _chain: 'utxo';
+  version: number;
+  locktime: number;
+  isSegwit: boolean;
+  inputs: Array<{
+    txid: string;
+    vout: number;
+    scriptSig: string;
+    sequence: number;
+    witness?: string[];
+  }>;
+  outputs: Array<{
+    value: string;
+    scriptPubKey: string;
+    address?: string;
+  }>;
 }
 
 export interface RawTronTransaction {
-  readonly _chain: 'tvm';
-  readonly txID: string;
-  readonly rawData: {
-    readonly contract: readonly {
-      readonly parameter: {
-        readonly value: Record<string, unknown>;
-        readonly type_url: string;
+  _chain: 'tvm';
+  txID: string;
+  rawData: {
+    contract: Array<{
+      type: string;
+      parameter: {
+        value: Record<string, unknown>;
+        type_url: string;
       };
-      readonly type: string;
-    }[];
-    readonly ref_block_bytes: string;
-    readonly ref_block_hash: string;
-    readonly expiration: number;
-    readonly timestamp: number;
-    readonly fee_limit?: number;
+    }>;
+    refBlockBytes: string;
+    refBlockHash: string;
+    expiration: number;
+    timestamp: number;
+    feeLimit?: number;
   };
-  readonly rawDataHex: string;
+  signature?: string[];
 }
 
 export interface RawXrpTransaction {
-  readonly _chain: 'xrp';
-  readonly TransactionType: string;
-  readonly Account: string;
-  readonly Destination?: string;
-  readonly Amount?: string | { currency: string; issuer: string; value: string };
-  readonly Fee?: string;
-  readonly Sequence?: number;
-  readonly LastLedgerSequence?: number;
-  readonly SigningPubKey?: string;
-  readonly Memos?: readonly {
-    readonly Memo: {
-      readonly MemoType?: string;
-      readonly MemoData?: string;
-    };
-  }[];
+  _chain: 'xrp';
+  TransactionType: string;
+  Account: string;
+  Destination?: string;
+  Amount?: string | { currency: string; issuer: string; value: string };
+  Fee: string;
+  Sequence: number;
+  SigningPubKey?: string;
+  TxnSignature?: string;
+  Memos?: Array<{ Memo: { MemoType?: string; MemoData?: string } }>;
+  DestinationTag?: number;
 }
 
-export interface RawSubstrateTransaction {
-  readonly _chain: 'substrate';
-  readonly method: {
-    readonly pallet: string;
-    readonly name: string;
-    readonly args: Record<string, unknown>;
-  };
-  readonly era?: {
-    readonly period: number;
-    readonly phase: number;
-  };
-  readonly nonce?: number;
-  readonly tip?: bigint;
-  readonly specVersion?: number;
-  readonly transactionVersion?: number;
-  readonly genesisHash?: string;
-  readonly blockHash?: string;
-}
-
-// Union of all raw transaction types
 export type RawTransaction =
   | RawEvmTransaction
   | RawSolanaTransaction
   | RawUtxoTransaction
   | RawTronTransaction
-  | RawXrpTransaction
-  | RawSubstrateTransaction;
+  | RawXrpTransaction;
 
 // ============ Provider Interfaces ============
 
 export interface IBalanceFetcher {
   getNativeBalance(address: string): Promise<NativeBalance>;
   getTokenBalance(address: string, contractAddress: string): Promise<TokenBalance>;
-  getTokenBalances(address: string): Promise<TokenBalance[]>;
 }
 
 export interface ITransactionBuilder {
   buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction>;
   buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction>;
-  estimateFee(tx: UnsignedTransaction): Promise<FeeEstimate>;
+  decode<F extends DecodeFormat>(
+    serialized: string,
+    format: F
+  ): F extends 'raw' ? RawTransaction : NormalisedTransaction;
+  estimateFee(): Promise<FeeEstimate>;
   estimateGas(params: ContractCallParams): Promise<string>;
-  decode(serialized: string, format?: DecodeFormat): Promise<NormalisedTransaction>;
 }
 
 export interface IContractInteraction {
