@@ -23,9 +23,35 @@ export interface NormalisedTransaction {
   readonly formattedValue: string;
   readonly symbol: string;
   readonly type: TransactionType;
+  readonly hash?: string;
   readonly contractAddress?: string;
   readonly tokenId?: string;
   readonly data?: string;
+  readonly fee?: {
+    readonly value: string;
+    readonly formattedValue: string;
+    readonly symbol: string;
+  };
+  readonly tokenTransfer?: {
+    readonly contractAddress: string;
+    readonly from: string;
+    readonly to: string;
+    readonly value: string;
+    readonly formattedValue: string;
+    readonly symbol: string;
+    readonly decimals: number;
+    readonly tokenId?: string;
+  };
+  readonly contractCall?: {
+    readonly contractAddress: string;
+    readonly method?: string;
+    readonly selector?: string;
+  };
+  readonly outputs?: readonly {
+    readonly address: string | null;
+    readonly value: string;
+    readonly formattedValue: string;
+  }[];
   readonly metadata: {
     readonly isContractDeployment: boolean;
     readonly methodName?: string;
@@ -62,43 +88,46 @@ export interface NativeTransferParams {
   readonly to: string;
   readonly value: string;
   readonly memo?: string;
+  readonly overrides?: TransactionOverrides;
 }
 
 export interface TokenTransferParams extends NativeTransferParams {
   readonly contractAddress: string;
   readonly decimals?: number;
+  readonly overrides?: TransactionOverrides;
 }
 
 // ============ Contract Interaction Parameters ============
 
 export interface ContractReadParams {
   readonly contractAddress: string;
-  readonly abi: readonly unknown[];
-  readonly functionName: string;
-  readonly args?: readonly unknown[];
+  readonly data: string;
+  readonly from?: string;
 }
 
-export interface ContractReadResult<T = unknown> {
-  readonly result: T;
-  readonly raw: unknown;
+export interface ContractReadResult {
+  readonly data: string;
 }
 
-export interface ContractCallParams extends ContractReadParams {
+export interface ContractCallParams {
   readonly from: string;
+  readonly contractAddress: string;
+  readonly data: string;
   readonly value?: string;
+  readonly overrides?: TransactionOverrides;
 }
 
 export interface ContractDeployParams {
   readonly from: string;
-  readonly abi: readonly unknown[];
   readonly bytecode: string;
-  readonly args?: readonly unknown[];
+  readonly constructorArgs?: string;
   readonly value?: string;
+  readonly overrides?: TransactionOverrides;
 }
 
 export interface DeployedContract {
-  readonly address: string;
-  readonly deploymentTransaction: UnsignedTransaction;
+  readonly transaction: UnsignedTransaction;
+  readonly expectedAddress: string;
 }
 
 // ============ Raw Transaction Types ============
@@ -119,7 +148,7 @@ export interface RawEvmTransaction {
 }
 
 export interface RawSolanaTransaction {
-  readonly _chain: 'solana';
+  readonly _chain: 'svm';
   readonly recentBlockhash: string;
   readonly feePayer: string;
   readonly instructions: readonly {
@@ -156,7 +185,7 @@ export interface RawUtxoTransaction {
 }
 
 export interface RawTronTransaction {
-  readonly _chain: 'tron';
+  readonly _chain: 'tvm';
   readonly txID: string;
   readonly rawData: {
     readonly contract: readonly {
@@ -233,13 +262,14 @@ export interface ITransactionBuilder {
   buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction>;
   buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction>;
   estimateFee(tx: UnsignedTransaction): Promise<FeeEstimate>;
-  decodeTransaction(serialized: string, format?: DecodeFormat): Promise<NormalisedTransaction>;
+  estimateGas(params: ContractCallParams): Promise<string>;
+  decode(serialized: string, format?: DecodeFormat): Promise<NormalisedTransaction>;
 }
 
 export interface IContractInteraction {
-  readContract<T = unknown>(params: ContractReadParams): Promise<ContractReadResult<T>>;
-  buildContractCall(params: ContractCallParams): Promise<UnsignedTransaction>;
-  buildContractDeploy(params: ContractDeployParams): Promise<DeployedContract>;
+  contractRead(params: ContractReadParams): Promise<ContractReadResult>;
+  contractCall(params: ContractCallParams): Promise<UnsignedTransaction>;
+  contractDeploy(params: ContractDeployParams): Promise<DeployedContract>;
 }
 
 export interface IChainProvider extends IBalanceFetcher, ITransactionBuilder, IContractInteraction {
