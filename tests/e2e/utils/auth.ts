@@ -5,11 +5,25 @@ export async function fetchAuthToken(
   clientSecret: string,
   authUrl: string
 ): Promise<string> {
-  const response = await axios.post(authUrl, {
-    grant_type: 'client_credentials',
-    client_id: clientId,
-    client_secret: clientSecret,
-  });
+  try {
+    const response = await axios.post(authUrl, {
+      clientId,
+      clientSecret,
+    });
 
-  return response.data.access_token;
+    // Handle different response formats
+    const token = response.data.access_token || response.data.accessToken || response.data.token;
+
+    if (!token) {
+      console.error('[Auth] No token in response. Response data:', JSON.stringify(response.data, null, 2));
+      throw new Error('No access token in auth response');
+    }
+
+    return token;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('[Auth] Request failed:', error.response?.status, error.response?.data);
+    }
+    throw error;
+  }
 }

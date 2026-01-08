@@ -3,7 +3,8 @@ export const e2eConfig = {
     if (process.env.E2E_BASE_URL) return process.env.E2E_BASE_URL;
     const stage = process.env.STAGE || 'local';
     if (stage === 'local') return 'http://localhost:3000';
-    throw new Error('E2E_BASE_URL required for non-local stages');
+    if (stage === 'dev') return 'https://api.dev.iodevnet.com';
+    throw new Error('E2E_BASE_URL required for non-local/dev stages');
   },
 
   get authUrl(): string {
