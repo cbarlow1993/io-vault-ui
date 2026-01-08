@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { acquireSchedulerLock, releaseSchedulerLock, SCHEDULER_LOCK_ID } from '@/src/services/reconciliation/scheduler-lock.js';
+import { acquireSchedulerLock, releaseSchedulerLock, LOCK_IDS } from '@/src/services/reconciliation/scheduler-lock.js';
 
 /**
  * Creates a mock Kysely db instance that properly mocks the executor
@@ -75,10 +75,36 @@ describe('scheduler-lock', () => {
     });
   });
 
-  describe('SCHEDULER_LOCK_ID', () => {
-    it('exports a consistent lock ID', () => {
-      expect(typeof SCHEDULER_LOCK_ID).toBe('number');
-      expect(SCHEDULER_LOCK_ID).toBeGreaterThan(0);
+  describe('LOCK_IDS', () => {
+    it('exports consistent lock IDs', () => {
+      expect(typeof LOCK_IDS.reconciliation_scheduler).toBe('number');
+      expect(LOCK_IDS.reconciliation_scheduler).toBeGreaterThan(0);
+      expect(typeof LOCK_IDS.token_classification_scheduler).toBe('number');
+      expect(LOCK_IDS.token_classification_scheduler).toBeGreaterThan(0);
+    });
+
+    it('uses different IDs for different locks', () => {
+      expect(LOCK_IDS.reconciliation_scheduler).not.toBe(LOCK_IDS.token_classification_scheduler);
+    });
+  });
+
+  describe('named locks', () => {
+    it('acquires lock with custom name', async () => {
+      const { mockDb } = createMockDb({
+        rows: [{ pg_try_advisory_lock: true }],
+      });
+
+      const result = await acquireSchedulerLock(mockDb as any, 'token_classification_scheduler');
+
+      expect(result).toBe(true);
+    });
+
+    it('releases lock with custom name', async () => {
+      const { mockDb, mockExecuteQuery } = createMockDb({ rows: [] });
+
+      await releaseSchedulerLock(mockDb as any, 'token_classification_scheduler');
+
+      expect(mockExecuteQuery).toHaveBeenCalled();
     });
   });
 });
