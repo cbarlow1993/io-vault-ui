@@ -84,6 +84,10 @@ export class TransactionUpserter implements ITransactionUpserter {
         coingecko_id: null,
         is_verified: false,
         is_spam: false,
+        // Flag new tokens for classification by the background worker
+        needs_classification: true,
+        classification_attempts: 0,
+        classification_error: null,
         created_at: now,
         updated_at: now,
       })
