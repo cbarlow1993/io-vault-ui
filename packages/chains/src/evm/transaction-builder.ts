@@ -105,7 +105,7 @@ export class UnsignedEvmTransaction implements UnsignedTransaction {
       throw new Error('EVM transactions require exactly one signature');
     }
 
-    const signature = signatures[0];
+    const signature = signatures[0]!;
 
     // Validate signature format: must be hex string of correct length (65 bytes = 130 hex chars + 0x prefix)
     if (!signature.startsWith('0x') || !/^0x[0-9a-fA-F]{130}$/.test(signature)) {
