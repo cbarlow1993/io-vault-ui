@@ -78,6 +78,30 @@ const CONFUSABLES: Record<string, string> = {
 // Maximum input length to prevent ReDoS attacks
 const MAX_INPUT_LENGTH = 256;
 
+// Known legitimate brand names that include domain-like patterns
+// These are real crypto projects that use TLDs in their branding
+const LEGITIMATE_BRAND_DOMAINS = new Set([
+  'helium.io',
+  'lido.fi',
+  'curve.fi',
+  'yearn.fi',
+  'convex.fi',
+  'pendle.fi',
+  'radiant.fi',
+  'balancer.fi',
+  'euler.fi',
+  'sommelier.fi',
+  'maple.fi',
+  'ribbon.fi',
+  'sushi.com',
+  'aave.com',
+  'instadapp.io',
+  'zapper.fi',
+  'zerion.io',
+  'debank.com',
+  'apecoin.com',
+]);
+
 // Scam phrases to detect
 const SCAM_PHRASES = [
   'claim',
@@ -150,8 +174,18 @@ export class NameAnalyzer {
     // Require either: word boundary before TLD, or looks like a domain (word.tld pattern)
     // This prevents false positives like "CommonToken", "BioProtocol", "NetworkDAO"
     // Use bounded quantifier to prevent catastrophic backtracking (ReDoS)
-    const domainPattern = /\b[a-zA-Z0-9]{1,63}\.(com|io|net|org|xyz|eth)\b/i;
-    return domainPattern.test(text);
+    const domainPattern = /\b[a-zA-Z0-9]{1,63}\.(com|io|net|org|xyz|eth|fi)\b/gi;
+    const matches = text.matchAll(domainPattern);
+
+    for (const match of matches) {
+      const domain = match[0].toLowerCase();
+      // Allow known legitimate brand domains
+      if (!LEGITIMATE_BRAND_DOMAINS.has(domain)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private hasUnicodeConfusables(text: string): boolean {

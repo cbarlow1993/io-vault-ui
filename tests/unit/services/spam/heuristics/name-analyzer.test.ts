@@ -116,6 +116,54 @@ describe('NameAnalyzer', () => {
           expect(result.namePatterns).not.toContain('contains_url');
         });
       });
+
+      describe('legitimate brand domain allowlist', () => {
+        it('should NOT flag "Helium.io" as containing URL', () => {
+          const result = analyzer.analyze('Helium.io Network Token', 'HNT');
+          expect(result.namePatterns).not.toContain('contains_url');
+          expect(result.suspiciousName).toBe(false);
+        });
+
+        it('should NOT flag "Lido.fi" as containing URL', () => {
+          const result = analyzer.analyze('Lido.fi Staking', 'LDO');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should NOT flag "Curve.fi" as containing URL', () => {
+          const result = analyzer.analyze('Curve.fi Token', 'CRV');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should NOT flag "Yearn.fi" as containing URL', () => {
+          const result = analyzer.analyze('Yearn.fi Vault Token', 'YFI');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should NOT flag "Aave.com" as containing URL', () => {
+          const result = analyzer.analyze('Aave.com Protocol Token', 'AAVE');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should NOT flag "Zerion.io" as containing URL', () => {
+          const result = analyzer.analyze('Zerion.io Wallet Token', 'ZRN');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should NOT flag "Zapper.fi" as containing URL', () => {
+          const result = analyzer.analyze('Zapper.fi Token', 'ZAP');
+          expect(result.namePatterns).not.toContain('contains_url');
+        });
+
+        it('should still flag unknown domain patterns', () => {
+          const result = analyzer.analyze('Visit scam.io for rewards', 'SCAM');
+          expect(result.namePatterns).toContain('contains_url');
+        });
+
+        it('should still flag unknown .fi domains', () => {
+          const result = analyzer.analyze('Fake protocol unknown.fi token', 'FAKE');
+          expect(result.namePatterns).toContain('contains_url');
+        });
+      });
     });
 
     describe('unicode confusables', () => {
@@ -319,6 +367,136 @@ describe('NameAnalyzer', () => {
         const result = analyzer.analyze('Aave', 'AAVE');
         expect(result.suspiciousName).toBe(false);
         expect(result.namePatterns).toHaveLength(0);
+      });
+    });
+
+    describe('legitimate derivative tokens (staked, liquid, bridged)', () => {
+      it('should NOT flag Lido Staked Ether (stETH)', () => {
+        const result = analyzer.analyze('Lido Staked Ether', 'stETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Coinbase Wrapped Staked ETH (cbETH)', () => {
+        const result = analyzer.analyze('Coinbase Wrapped Staked ETH', 'cbETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Rocket Pool ETH (rETH)', () => {
+        const result = analyzer.analyze('Rocket Pool ETH', 'rETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Ethereum Name Service (ENS)', () => {
+        const result = analyzer.analyze('Ethereum Name Service', 'ENS');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Aave Ethereum (aETH)', () => {
+        const result = analyzer.analyze('Aave Ethereum', 'aETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Compound ETH (cETH)', () => {
+        const result = analyzer.analyze('Compound ETH', 'cETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Frax Staked ETH (frxETH normalized as FETH)', () => {
+        const result = analyzer.analyze('Frax Staked ETH', 'frxETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+      });
+
+      it('should NOT flag Swell ETH (swETH)', () => {
+        const result = analyzer.analyze('Swell Liquid Staking', 'swETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Origin Staked ETH (osETH)', () => {
+        const result = analyzer.analyze('Origin Staked ETH', 'osETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Liquid Staked ETH (lsETH)', () => {
+        const result = analyzer.analyze('Liquid Staked ETH', 'lsETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Bridged ETH (bETH)', () => {
+        const result = analyzer.analyze('Bridged Ethereum', 'bETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Eigenlayer ETH (eETH)', () => {
+        const result = analyzer.analyze('Eigenlayer Staked ETH', 'eETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Staked MATIC (stMATIC)', () => {
+        const result = analyzer.analyze('Lido Staked MATIC', 'stMATIC');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Coinbase Wrapped BTC (cbBTC)', () => {
+        const result = analyzer.analyze('Coinbase Wrapped Bitcoin', 'cbBTC');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Aave DAI (aDAI)', () => {
+        const result = analyzer.analyze('Aave interest bearing DAI', 'aDAI');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Compound DAI (cDAI)', () => {
+        const result = analyzer.analyze('Compound DAI', 'cDAI');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+
+      it('should NOT flag Synthetic USD (sUSD)', () => {
+        const result = analyzer.analyze('Synthetix USD', 'sUSD');
+        expect(result.namePatterns).not.toContain('impersonation');
+      });
+
+      it('should NOT flag Mantle Staked ETH (mETH)', () => {
+        const result = analyzer.analyze('Mantle Staked Ether', 'mETH');
+        expect(result.namePatterns).not.toContain('impersonation');
+        expect(result.suspiciousName).toBe(false);
+      });
+    });
+
+    describe('should still flag actual impersonation attempts', () => {
+      it('should flag USDT2 as impersonation', () => {
+        const result = analyzer.analyze('Tether Clone', 'USDT2');
+        expect(result.namePatterns).toContain('impersonation');
+      });
+
+      it('should flag ETH1 as impersonation', () => {
+        const result = analyzer.analyze('Ethereum Clone', 'ETH1');
+        expect(result.namePatterns).toContain('impersonation');
+      });
+
+      it('should flag fake USDT with wrong symbol', () => {
+        const result = analyzer.analyze('Fake USDT Token', 'SCAM');
+        expect(result.namePatterns).toContain('impersonation');
+      });
+
+      it('should flag fake ETH with wrong symbol', () => {
+        const result = analyzer.analyze('Fake Ethereum Token', 'FAKE');
+        expect(result.namePatterns).toContain('impersonation');
       });
     });
   });

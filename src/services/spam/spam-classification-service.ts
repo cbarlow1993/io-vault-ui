@@ -84,15 +84,9 @@ export class SpamClassificationService {
     if (classification.heuristics.suspiciousName) {
       reasons.push('Suspicious token name detected');
     }
-    if (classification.heuristics.isUnsolicited) {
-      reasons.push('Token received without user transaction');
-    }
-    if (classification.heuristics.isNewContract) {
-      reasons.push('Very new token contract');
-    }
-    if (classification.heuristics.holderDistribution === 'suspicious') {
-      reasons.push('Suspicious holder distribution');
-    }
+    // NOTE: isUnsolicited, isNewContract, and holderDistribution checks are not yet implemented.
+    // These require additional infrastructure (on-chain analysis, holder distribution APIs).
+    // The heuristics provider returns hardcoded values for these fields until implemented.
 
     // Check CoinGecko listing - only add as reason if there are other issues
     if (!classification.coingecko.isListed && reasons.length > 0) {
