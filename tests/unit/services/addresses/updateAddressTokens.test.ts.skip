@@ -1,0 +1,575 @@
+import { NotFoundError } from '@iofinnet/errors-sdk';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { updateAddressTokens } from '@/src/services/addresses/index.js';
+import type { Addresses } from '@/src/types/address.js';
+
+// Mock the DDB service
+const mockGetAddressItem = vi.fn();
+const mockUpdateAddressItem = vi.fn();
+const mockFormatAddressFromDynamoDB = vi.fn();
+
+vi.mock('@/src/services/addresses/ddb.js', () => ({
+  getAddressItem: (...args: any[]) => mockGetAddressItem(...args),
+  updateAddressItem: (...args: any[]) => mockUpdateAddressItem(...args),
+}));
+
+vi.mock('@/src/services/addresses/formatter.js', () => ({
+  formatAddressFromDynamoDB: (...args: any[]) => mockFormatAddressFromDynamoDB(...args),
+}));
+
+vi.mock('@/src/services/addresses/keys.js', () => ({
+  AddressKeys: {
+    pk: (address: string) => `ADDR#${address}`,
+    sk: (chain: string, monitored = true) =>
+      `CHAIN#${chain}#${monitored ? 'MONITORED' : 'UNMONITORED'}`,
+    gsi1pk: (vaultId: string) => `VAULT#${vaultId}`,
+    gsi1sk: {
+      root: (chain: string, address: string) => `CHAIN#${chain}#ROOT#ADDR#${address}`,
+    },
+    gsi3pk: (vaultId: string) => `VAULT#${vaultId}`,
+    gsi3sk: {
+      root: (chain: string, address: string, monitored = true) =>
+        `${monitored ? 'MONITORED' : 'UNMONITORED'}#CHAIN#${chain}#ROOT#ADDR#${address}`,
+    },
+  },
+}));
+
+describe('updateAddressTokens', () => {
+  const mockAddress = '0x1234567890abcdef1234567890abcdef12345678';
+  const mockChain = 'ethereum';
+  const mockVaultId = 'vault-123';
+  const mockWorkspaceId = 'workspace-123';
+  const mockOrganisationId = 'org-123';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should throw NotFoundError when address item is not found', async () => {
+    mockGetAddressItem.mockResolvedValue(null);
+
+    await expect(
+      updateAddressTokens({
+        chain: mockChain,
+        address: mockAddress,
+        tokens: [],
+      })
+    ).rejects.toThrow(NotFoundError);
+
+    expect(mockGetAddressItem).toHaveBeenCalledWith({
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+    });
+  });
+
+  it('should add new tokens with hidden=false when no existing tokens', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN1',
+        decimals: 18,
+      },
+      {
+        contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN2',
+        decimals: 6,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+        {
+          contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN2',
+          decimals: 6,
+          hidden: false,
+        },
+      ],
+    };
+
+    const formattedAddress = { ...expectedUpdatedItem };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(formattedAddress);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result).toEqual(formattedAddress);
+  });
+
+  it('should not duplicate tokens with exact case match', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+      ],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN1',
+        decimals: 18,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: existingItem.tokens, // No change expected
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(1);
+  });
+
+  it('should not duplicate tokens with different case (case insensitive comparison)', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+      ],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0B86A33E6441A6E3B2B8B94B1234567890ABCDEF', // Different case
+        symbol: 'TOKEN1',
+        decimals: 18,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: existingItem.tokens, // No change expected - duplicate prevented
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    // Now with case-insensitive comparison, no duplicates should be created
+    expect(result.tokens).toHaveLength(1);
+    expect(result.tokens[0].contractAddress).toBe('0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef');
+  });
+
+  it('should preserve existing token properties when adding new tokens', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: true, // existing token is hidden
+        },
+      ],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN2',
+        decimals: 6,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: true, // preserved
+        },
+        {
+          contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN2',
+          decimals: 6,
+          hidden: false, // new token defaults to hidden: false
+        },
+      ],
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(2);
+    expect(result.tokens[0].hidden).toBe(true);
+    expect(result.tokens[1].hidden).toBe(false);
+  });
+
+  it('should handle mixed case scenario with multiple new and existing tokens', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [
+        {
+          contractAddress: '0xa0b86a33e6441a6e3b2b8b94b1234567890abcdef', // lowercase
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+        {
+          contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN2',
+          decimals: 6,
+          hidden: true,
+        },
+      ],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0B86A33E6441A6E3B2B8B94B1234567890ABCDEF', // uppercase - should duplicate
+        symbol: 'TOKEN1',
+        decimals: 18,
+      },
+      {
+        contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef', // exact match - should not duplicate
+        symbol: 'TOKEN2',
+        decimals: 6,
+      },
+      {
+        contractAddress: '0xC0b86a33E6441a6e3b2b8b94b1234567890abcdef', // new token
+        symbol: 'TOKEN3',
+        decimals: 12,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: [
+        ...existingItem.tokens, // preserve existing
+        {
+          contractAddress: '0xC0b86a33E6441a6e3b2b8b94b1234567890abcdef', // new token only
+          symbol: 'TOKEN3',
+          decimals: 12,
+          hidden: false,
+        },
+      ],
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(3); // 2 existing + 1 new (uppercase duplicate prevented)
+
+    // Check that we only have one variant of TOKEN1 (case-insensitive deduplication)
+    const token1Variants = result.tokens.filter((t) => t.symbol === 'TOKEN1');
+    expect(token1Variants).toHaveLength(1);
+    expect(token1Variants[0].contractAddress).toBe('0xa0b86a33e6441a6e3b2b8b94b1234567890abcdef');
+  });
+
+  it('should set all new tokens to hidden=false regardless of input', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [],
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN1',
+        decimals: 18,
+        hidden: true, // This should be overridden to false
+      },
+      {
+        contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN2',
+        decimals: 6,
+        // hidden property not provided
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false, // Forced to false
+        },
+        {
+          contractAddress: '0xB0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN2',
+          decimals: 6,
+          hidden: false, // Forced to false
+        },
+      ],
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(2);
+    expect(result.tokens[0].hidden).toBe(false);
+    expect(result.tokens[1].hidden).toBe(false);
+  });
+
+  it('should handle empty tokens array gracefully', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+      ],
+    };
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: existingItem.tokens, // No change expected
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: [],
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(1);
+  });
+
+  it('should handle missing tokens array in existing item', async () => {
+    const existingItem = {
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#MONITORED`,
+      address: mockAddress,
+      chain: mockChain,
+      ecosystem: 'evm',
+      organisationId: mockOrganisationId,
+      workspaceId: mockWorkspaceId,
+      vaultId: mockVaultId,
+      GSI1PK: `VAULT#${mockVaultId}`,
+      GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3PK: `VAULT#${mockVaultId}`,
+      GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      // tokens property is missing
+    };
+
+    const newTokens: Addresses.Token[] = [
+      {
+        contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+        symbol: 'TOKEN1',
+        decimals: 18,
+      },
+    ];
+
+    const expectedUpdatedItem = {
+      ...existingItem,
+      tokens: [
+        {
+          contractAddress: '0xA0b86a33E6441a6e3b2b8b94b1234567890abcdef',
+          symbol: 'TOKEN1',
+          decimals: 18,
+          hidden: false,
+        },
+      ],
+    };
+
+    mockGetAddressItem.mockResolvedValue(existingItem);
+    mockUpdateAddressItem.mockResolvedValue(undefined);
+    mockFormatAddressFromDynamoDB.mockReturnValue(expectedUpdatedItem);
+
+    const result = await updateAddressTokens({
+      chain: mockChain,
+      address: mockAddress,
+      tokens: newTokens,
+    });
+
+    expect(mockUpdateAddressItem).toHaveBeenCalledWith({
+      address: expectedUpdatedItem,
+    });
+    expect(result.tokens).toHaveLength(1);
+    expect(result.tokens[0].hidden).toBe(false);
+  });
+});

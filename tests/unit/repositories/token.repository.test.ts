@@ -691,4 +691,31 @@ describe('PostgresTokenRepository', () => {
       expect(result[1]!.id).toBe('token-reclassify');
     });
   });
+
+  describe('refreshExpiredClassifications', () => {
+    it('should return number of refreshed tokens', async () => {
+      mockDb.mockExecuteTakeFirst.mockResolvedValue({ numUpdatedRows: BigInt(5) });
+
+      const result = await repository.refreshExpiredClassifications(720);
+
+      expect(mockDb.mockDb.updateTable).toHaveBeenCalledWith('tokens');
+      expect(result).toBe(5);
+    });
+
+    it('should return 0 when no tokens need refresh', async () => {
+      mockDb.mockExecuteTakeFirst.mockResolvedValue({ numUpdatedRows: BigInt(0) });
+
+      const result = await repository.refreshExpiredClassifications(720);
+
+      expect(result).toBe(0);
+    });
+
+    it('should handle undefined numUpdatedRows', async () => {
+      mockDb.mockExecuteTakeFirst.mockResolvedValue({});
+
+      const result = await repository.refreshExpiredClassifications(720);
+
+      expect(result).toBe(0);
+    });
+  });
 });

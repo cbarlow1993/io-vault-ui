@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   StubPolicyService,
@@ -16,7 +17,7 @@ describe('PolicyService', () => {
 
   const mockContext: WorkflowContext = {
     vaultId: 'vault-123',
-    chainAlias: 'ethereum',
+    chainAlias: 'eth' as ChainAlias,
     marshalledHex: '0xabc123',
     organisationId: 'org-456',
     createdBy: { id: 'user-789', type: 'User' },
@@ -52,7 +53,7 @@ describe('PolicyService', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith('Evaluating policies (stub)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         organisationId: 'org-456',
       });
     });
@@ -90,7 +91,7 @@ describe('PolicyService', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith('Evaluating policies (approval required)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         approvers: ['approver-1'],
       });
     });
@@ -126,7 +127,7 @@ describe('PolicyService', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith('Evaluating policies (rejecting)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
       });
     });
   });

@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockFetch = vi.fn();
@@ -81,9 +82,9 @@ describe('TransactionProcessor', () => {
   });
 
   it('processes a transaction end-to-end', async () => {
-    const result = await processor.process('ethereum', TEST_TX_HASH);
+    const result = await processor.process('eth' as ChainAlias, TEST_TX_HASH);
 
-    expect(mockFetch).toHaveBeenCalledWith('ethereum', 'mainnet', TEST_TX_HASH);
+    expect(mockFetch).toHaveBeenCalledWith('eth' as ChainAlias, 'mainnet', TEST_TX_HASH);
     expect(mockClassify).toHaveBeenCalled();
     expect(mockUpsert).toHaveBeenCalled();
     expect(result.transactionId).toBe('tx-123');
@@ -114,9 +115,9 @@ describe('TransactionProcessor', () => {
       decimals: 18,
     });
 
-    await processor.process('ethereum', TEST_TX_HASH);
+    await processor.process('eth' as ChainAlias, TEST_TX_HASH);
 
-    expect(mockFetchToken).toHaveBeenCalledWith('ethereum', 'mainnet', '0xtoken');
+    expect(mockFetchToken).toHaveBeenCalledWith('eth' as ChainAlias, 'mainnet', '0xtoken');
   });
 
   it('continues processing even if token fetch fails', async () => {
@@ -139,7 +140,7 @@ describe('TransactionProcessor', () => {
 
     mockFetchToken.mockRejectedValue(new Error('API error'));
 
-    const result = await processor.process('ethereum', TEST_TX_HASH);
+    const result = await processor.process('eth' as ChainAlias, TEST_TX_HASH);
 
     expect(result.transactionId).toBe('tx-123');
   });
@@ -147,7 +148,7 @@ describe('TransactionProcessor', () => {
   it('throws when transaction not found', async () => {
     mockFetch.mockRejectedValue(new Error('Transaction not found'));
 
-    await expect(processor.process('ethereum', NOTFOUND_TX_HASH)).rejects.toThrow(
+    await expect(processor.process('eth' as ChainAlias, NOTFOUND_TX_HASH)).rejects.toThrow(
       'Transaction not found'
     );
   });

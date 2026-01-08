@@ -8,7 +8,7 @@
 import { InternalServerError, NotFoundError } from '@iofinnet/errors-sdk';
 import { Chain, type ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { mapChainAliasToCoinGeckoAssetPlatform } from '@/src/config/chain-mappings/index.js';
+import { runWithChainAuth } from '@/src/lib/chain-auth-context.js';
 import { fetchNativeTokenMetadata } from '@/src/services/coingecko/index.js';
 import { logger } from '@/utils/powertools.js';
 import type {
@@ -77,68 +77,32 @@ export async function getNativeBalance(
   const { chainAlias, address } = request.params;
 
   try {
-    Chain.setAuthContext({
-      apiBearerToken: request.auth?.token ?? '',
-      rpcBearerToken: request.auth?.token ?? '',
-    })
-    const chain = await Chain.fromAlias(chainAlias as ChainAlias);
-    const balance = await chain.Explorer.getBalance(address);
+    // Run with request-scoped Chain SDK auth context
+    const result = await runWithChainAuth(request.auth?.token, async () => {
+      const chain = await Chain.fromAlias(chainAlias as ChainAlias);
+      const balance = await chain.Explorer.getBalance(address);
 
-    const platform = mapChainAliasToCoinGeckoAssetPlatform(chainAlias as ChainAlias);
-    const tokenRepo = request.server.repositories?.tokens;
-    const pricingService = request.server.services?.pricing;
+      const tokenRepo = request.server.repositories?.tokens;
+      const pricingService = request.server.services?.pricing;
 
-    let usdValue: string | null = null;
-    let name: string | null = null;
-    let logo: string | null = null;
+      let usdValue: string | null = null;
+      let name: string | null = null;
+      let logo: string | null = null;
 
-    // Check if we have cached native token metadata
-    let cachedNativeToken = tokenRepo
-      ? await tokenRepo.findByChainAliasAndAddress(platform, 'native')
-      : null;
+      // Check if we have cached native token metadata
+      const cachedNativeToken = tokenRepo
+        ? await tokenRepo.findByChainAliasAndAddress(chainAlias as ChainAlias, 'native')
+        : null;
 
-    if (cachedNativeToken?.coingeckoId) {
-      // Use cached metadata
-      name = cachedNativeToken.name;
-      logo = cachedNativeToken.logoUri;
+      if (cachedNativeToken?.coingeckoId) {
+        // Use cached metadata
+        name = cachedNativeToken.name;
+        logo = cachedNativeToken.logoUri;
 
-      // Get price from cache
-      if (pricingService) {
-        const prices = await pricingService.getPrices([cachedNativeToken.coingeckoId], 'usd');
-        const priceInfo = prices.get(cachedNativeToken.coingeckoId);
-        if (priceInfo) {
-          const numericBalance = Number(balance.nativeBalance);
-          if (Number.isFinite(numericBalance)) {
-            usdValue = (priceInfo.price * numericBalance).toFixed(2);
-          }
-        }
-      }
-    } else {
-      // Fetch from CoinGecko and cache
-      const data = await fetchNativeTokenMetadata(chain);
-      if (data) {
-        name = data.name ?? null;
-        logo = data.image?.small ?? null;
-
-        // Store in tokens table for future use
-        if (tokenRepo && data.name && data.symbol && data.id) {
-          await tokenRepo.upsert({
-            chainAlias: platform,
-            address: 'native',
-            name: data.name,
-            symbol: data.symbol,
-            decimals: chain.Config.nativeCurrency.decimals,
-            logoUri: data.image?.small ?? null,
-            coingeckoId: data.id,
-            isVerified: true,
-            isSpam: false,
-          });
-        }
-
-        // Cache the price and calculate USD value
-        if (pricingService && data.id) {
-          const prices = await pricingService.getPrices([data.id], 'usd');
-          const priceInfo = prices.get(data.id);
+        // Get price from cache
+        if (pricingService) {
+          const prices = await pricingService.getPrices([cachedNativeToken.coingeckoId], 'usd');
+          const priceInfo = prices.get(cachedNativeToken.coingeckoId);
           if (priceInfo) {
             const numericBalance = Number(balance.nativeBalance);
             if (Number.isFinite(numericBalance)) {
@@ -146,17 +110,53 @@ export async function getNativeBalance(
             }
           }
         }
-      }
-    }
+      } else {
+        // Fetch from CoinGecko and cache
+        const data = await fetchNativeTokenMetadata(chain);
+        if (data) {
+          name = data.name ?? null;
+          logo = data.image?.small ?? null;
 
-    return reply.send({
-      balance: balance.nativeBalance,
-      symbol: balance.nativeSymbol,
-      name,
-      logo,
-      usdValue: usdValue ?? null,
-      lastUpdated: new Date().toISOString(),
+          // Store in tokens table for future use
+          if (tokenRepo && data.name && data.symbol && data.id) {
+            await tokenRepo.upsert({
+              chainAlias: chainAlias as ChainAlias,
+              address: 'native',
+              name: data.name,
+              symbol: data.symbol,
+              decimals: chain.Config.nativeCurrency.decimals,
+              logoUri: data.image?.small ?? null,
+              coingeckoId: data.id,
+              isVerified: true,
+              isSpam: false,
+            });
+          }
+
+          // Cache the price and calculate USD value
+          if (pricingService && data.id) {
+            const prices = await pricingService.getPrices([data.id], 'usd');
+            const priceInfo = prices.get(data.id);
+            if (priceInfo) {
+              const numericBalance = Number(balance.nativeBalance);
+              if (Number.isFinite(numericBalance)) {
+                usdValue = (priceInfo.price * numericBalance).toFixed(2);
+              }
+            }
+          }
+        }
+      }
+
+      return {
+        balance: balance.nativeBalance,
+        symbol: balance.nativeSymbol,
+        name,
+        logo,
+        usdValue: usdValue ?? null,
+        lastUpdated: new Date().toISOString(),
+      };
     });
+
+    return reply.send(result);
   } catch (error) {
     logger.critical('Error retrieving native balance', { error });
     throw error;

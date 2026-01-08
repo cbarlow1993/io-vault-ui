@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { config } from '@/src/lib/config.js';
 
 const signatureWebhookSchema = z.object({
-  workflowId: z.string().uuid(),
+  workflowId: z.uuid(),
   requestId: z.string(),
   success: z.boolean(),
   signature: z.string().optional(),

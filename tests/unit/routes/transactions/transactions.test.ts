@@ -186,7 +186,7 @@ async function createTestApp() {
   } as any);
 
   // Register transaction routes
-  await app.register(transactionRoutes, { prefix: '/v1/transactions' });
+  await app.register(transactionRoutes, { prefix: '/v2/transactions' });
   await app.ready();
 
   return app;
@@ -219,7 +219,7 @@ async function createVaultTestApp() {
 
   // Register vault transaction routes
   await app.register(vaultTransactionRoutes, {
-    prefix: '/v1/vaults/:vaultId/transactions',
+    prefix: '/v2/vaults/:vaultId/transactions',
   });
   await app.ready();
 
@@ -231,7 +231,7 @@ describe('Transaction Routes', () => {
     vi.clearAllMocks();
   });
 
-  describe('GET /v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
+  describe('GET /v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
     it('returns paginated list of transactions', async () => {
       const app = await createTestApp();
 
@@ -247,7 +247,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -273,7 +273,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=10&cursor=cursor123`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=10&cursor=cursor123`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -290,14 +290,14 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(400);
     });
   });
 
-  describe('GET /v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address/transaction/:transactionHash', () => {
+  describe('GET /v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address/transaction/:transactionHash', () => {
     it('returns transaction details', async () => {
       const app = await createTestApp();
 
@@ -305,7 +305,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/transaction/${TEST_TX_HASH}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/transaction/${TEST_TX_HASH}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -323,7 +323,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/transaction/${TEST_TX_HASH}?include=operation`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/transaction/${TEST_TX_HASH}?include=operation`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -335,7 +335,7 @@ describe('Transaction Routes', () => {
     });
   });
 
-  describe('POST /v1/transactions/ecosystem/:ecosystem/chain/:chain/scan-transaction', () => {
+  describe('POST /v2/transactions/ecosystem/:ecosystem/chain/:chain/scan-transaction', () => {
     it('scans EVM transaction successfully', async () => {
       const app = await createTestApp();
 
@@ -347,7 +347,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/v1/transactions/ecosystem/evm/chain/eth/scan-transaction',
+        url: '/v2/transactions/ecosystem/evm/chain/eth/scan-transaction',
         payload: {
           marshalledHex: 'abcd1234',
           options: ['simulation', 'validation'],
@@ -365,7 +365,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/v1/transactions/ecosystem/evm/chain/eth/scan-transaction',
+        url: '/v2/transactions/ecosystem/evm/chain/eth/scan-transaction',
         payload: {},
       });
 
@@ -373,7 +373,7 @@ describe('Transaction Routes', () => {
     });
   });
 
-  describe('POST /v1/vaults/:vaultId/transactions/ecosystem/:ecosystem/chain/:chain/transaction', () => {
+  describe('POST /v2/vaults/:vaultId/transactions/ecosystem/:ecosystem/chain/:chain/transaction', () => {
     it('creates a transaction successfully', async () => {
       const app = await createVaultTestApp();
 
@@ -382,7 +382,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/transactions/ecosystem/evm/chain/eth/transaction`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/transactions/ecosystem/evm/chain/eth/transaction`,
         payload: {
           marshalledHex: 'abcd1234',
           memo: 'Test transaction',
@@ -400,7 +400,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/v1/vaults/invalid-vault/transactions/ecosystem/evm/chain/eth/transaction',
+        url: '/v2/vaults/invalid-vault/transactions/ecosystem/evm/chain/eth/transaction',
         payload: {
           marshalledHex: 'abcd1234',
         },
@@ -414,7 +414,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/transactions/ecosystem/evm/chain/eth/transaction`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/transactions/ecosystem/evm/chain/eth/transaction`,
         payload: {},
       });
 

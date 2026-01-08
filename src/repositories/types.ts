@@ -185,7 +185,15 @@ export interface TokenRepository {
     maxAttempts: number;
   }): Promise<Token[]>;
 
-  refreshExpiredClassifications(ttlHours: number): Promise<number>;
+  /**
+   * Marks tokens for re-classification when their cached classification has expired.
+   * Uses the per-token `classification_ttl_hours` column to determine expiration.
+   *
+   * @param _ttlHours - Unused. TTL is determined by each token's classification_ttl_hours column.
+   *                    Parameter kept for interface consistency.
+   * @returns Number of tokens marked for re-classification
+   */
+  refreshExpiredClassifications(_ttlHours: number): Promise<number>;
 
   updateClassificationSuccess(
     tokenId: string,

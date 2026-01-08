@@ -11,15 +11,23 @@ export class WalletFactory {
     chainAlias: ChainAlias,
     derivationPath?: string
   ): Promise<WalletFactoryResult<T>> {
-    const xpub = await this.vaultService.getVaultXpub(vaultId, chainAlias);
+    // Get full vault with curves (matches original getWalletAndVault pattern)
+    const vault = await this.vaultService.getVaultCurves(vaultId);
 
-    if (!xpub) {
-      throw new NotFoundError('Vault xpub not found');
+    if (!vault) {
+      throw new NotFoundError('Vault not found');
     }
 
     const chain = await Chain.fromAlias(chainAlias);
-    const wallet = await chain.loadHDWallet(xpub, derivationPath ?? '');
 
-    return { wallet: wallet as T, chain };
+    // Load wallet from vault curves (original pattern)
+    const wallet = chain.loadWallet(vault);
+
+    // Derive HD wallet only if derivation path is provided
+    const derivedWallet = derivationPath
+      ? wallet.deriveHDWallet({ derivationPath })
+      : wallet;
+
+    return { wallet: derivedWallet as unknown as T, chain };
   }
 }

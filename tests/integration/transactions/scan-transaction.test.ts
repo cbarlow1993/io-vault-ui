@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { DefaultAuthenticatedClients } from '@/tests/models.js';
-import { setupTestUsers } from '@/tests/utils/testApiClient.js';
+import { setupTestClients, type DefaultTestClients } from '@/tests/utils/dualModeTestClient.js';
 
 /**
  * Scan Transaction Integration Tests
@@ -16,15 +15,15 @@ import { setupTestUsers } from '@/tests/utils/testApiClient.js';
 const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
 
 (shouldRunAdditionalTests ? describe : describe.skip)('Scan Transaction Integration Tests', () => {
-  let clients: DefaultAuthenticatedClients;
+  let clients: DefaultTestClients;
 
   beforeAll(async () => {
-    clients = await setupTestUsers();
+    clients = await setupTestClients();
   });
 
   describe('EVM Transaction Scanning', () => {
     it('should return 200 and result for valid EVM transaction scan request', async () => {
-      const endpoint = 'v1/transactions/ecosystem/evm/chain/eth/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/evm/chain/eth/scan-transaction';
 
       const payload = {
         options: ['validation'],
@@ -45,7 +44,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
     });
 
     it('should return 400 for invalid EVM transaction scan request', async () => {
-      const endpoint = 'v1/transactions/ecosystem/evm/chain/eth/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/evm/chain/eth/scan-transaction';
 
       // Invalid payload: missing required fields
       const payload = {
@@ -66,7 +65,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
   // Seems like our api key does not have this for now, so skipping
   describe.skip('SVM Transaction Scanning', () => {
     it('should handle SVM transaction scan request', async () => {
-      const endpoint = 'v1/transactions/ecosystem/svm/chain/solana/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/svm/chain/solana/scan-transaction';
 
       const payload = {
         options: ['validation', 'simulation'],
@@ -87,7 +86,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
     });
 
     it('should return 400 for invalid SVM transaction scan request', async () => {
-      const endpoint = 'v1/transactions/ecosystem/svm/chain/solana/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/svm/chain/solana/scan-transaction';
 
       // Invalid payload: missing transactions field
       const payload = {
@@ -108,7 +107,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
 
   describe('Error Handling', () => {
     it('should reject request without transaction', async () => {
-      const endpoint = 'v1/transactions/ecosystem/evm/chain/eth/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/evm/chain/eth/scan-transaction';
 
       const payload = {
         // Missing required fields: data, account_address, metadata.domain
@@ -125,7 +124,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
     });
 
     it('should reject request with invalid chain for ecosystem', async () => {
-      const endpoint = 'v1/transactions/ecosystem/evm/chain/solana/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/evm/chain/solana/scan-transaction';
 
       const payload = {
         options: ['validation'],
@@ -153,7 +152,7 @@ const shouldRunAdditionalTests = process.env.RUN_ADDITIONAL_TESTS === 'true';
 
   describe('Optional Fields', () => {
     it('should accept request without optional fields', async () => {
-      const endpoint = 'v1/transactions/ecosystem/evm/chain/eth/scan-transaction';
+      const endpoint = 'v2/transactions/ecosystem/evm/chain/eth/scan-transaction';
 
       const payload = {
         options: ['validation'],

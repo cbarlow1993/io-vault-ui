@@ -45,7 +45,7 @@ export const transactionMachine = setup({
   initial: 'created',
   context: ({ input }) => ({
     vaultId: input.vaultId ?? '',
-    chainAlias: input.chainAlias ?? '',
+    chainAlias: input.chainAlias!,
     marshalledHex: input.marshalledHex ?? '',
     organisationId: input.organisationId ?? '',
     createdBy: input.createdBy ?? { id: '', type: 'User' },

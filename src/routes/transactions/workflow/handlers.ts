@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { NotFoundError, OperationForbiddenError } from '@iofinnet/errors-sdk';
 import type {
@@ -45,7 +46,7 @@ export async function createWorkflowHandler(
   // Create workflow
   const workflow = await orchestrator.create({
     vaultId,
-    chainAlias,
+    chainAlias: chainAlias as ChainAlias,
     marshalledHex,
     organisationId,
     createdBy: { id: userId, type: 'User' },

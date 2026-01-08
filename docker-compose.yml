@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: io_vault
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d io_vault"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: io-vault-app
+  #   environment:
+  #     - NODE_ENV=development
+  #     - STAGE=dev
+  #     - PORT=3000
+  #     - HOST=0.0.0.0
+  #     - DB_POSTGRES_HOST=postgres
+  #     - DB_POSTGRES_PORT=5432
+  #     - DB_POSTGRES_NAME=io_vault
+  #     - DB_POSTGRES_USER=postgres
+  #     - DB_POSTGRES_PASSWORD=localdev
+  #     - DB_POSTGRES_USE_IAM_AUTH=false
+  #     - DB_POSTGRES_POOL_MIN=2
+  #     - DB_POSTGRES_POOL_MAX=10
+  #     - PGSSLMODE=disable
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./src:/app/src:ro
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:

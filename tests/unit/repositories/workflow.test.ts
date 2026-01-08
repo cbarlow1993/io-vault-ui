@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WorkflowRepository } from '@/src/repositories/workflow.repository.js';
 import { ConcurrentModificationError } from '@/src/services/workflow/errors.js';
@@ -64,7 +65,7 @@ function createMockWorkflowRow(overrides: Partial<{
     state: 'created',
     context: {
       vaultId: 'vault-123',
-      chainAlias: 'eth-mainnet',
+      chainAlias: 'eth' as ChainAlias,
       marshalledHex: '0xabc123',
       organisationId: 'org-123',
       createdBy: { id: 'user-1', type: 'User' },
@@ -80,7 +81,7 @@ function createMockWorkflowRow(overrides: Partial<{
       failedAt: null,
     },
     vault_id: 'vault-123',
-    chain_alias: 'eth-mainnet',
+    chain_alias: 'eth' as ChainAlias,
     marshalled_hex: '0xabc123',
     organisation_id: 'org-123',
     created_by: { id: 'user-1', type: 'User' },
@@ -115,7 +116,7 @@ describe('WorkflowRepository', () => {
 
       const result = await repository.create({
         vaultId: 'vault-123',
-        chainAlias: 'eth-mainnet',
+        chainAlias: 'eth' as ChainAlias,
         marshalledHex: '0xabc123',
         organisationId: 'org-123',
         createdBy: { id: 'user-1', type: 'User' },
@@ -124,7 +125,7 @@ describe('WorkflowRepository', () => {
       expect(mockDb.mockDb.insertInto).toHaveBeenCalledWith('transaction_workflows');
       expect(mockDb.chainable.values).toHaveBeenCalledWith(expect.objectContaining({
         vault_id: 'vault-123',
-        chain_alias: 'eth-mainnet',
+        chain_alias: 'eth' as ChainAlias,
         marshalled_hex: '0xabc123',
         organisation_id: 'org-123',
         state: 'created',
@@ -143,7 +144,7 @@ describe('WorkflowRepository', () => {
 
       const result = await repository.create({
         vaultId: 'vault-123',
-        chainAlias: 'eth-mainnet',
+        chainAlias: 'eth' as ChainAlias,
         marshalledHex: '0xabc123',
         organisationId: 'org-123',
         createdBy: { id: 'user-1', type: 'User' },
@@ -156,7 +157,7 @@ describe('WorkflowRepository', () => {
       const workflowRow = createMockWorkflowRow({
         context: {
           vaultId: 'vault-123',
-          chainAlias: 'eth-mainnet',
+          chainAlias: 'eth' as ChainAlias,
           marshalledHex: '0xabc123',
           organisationId: 'org-123',
           createdBy: { id: 'user-1', type: 'User' },
@@ -176,7 +177,7 @@ describe('WorkflowRepository', () => {
 
       const result = await repository.create({
         vaultId: 'vault-123',
-        chainAlias: 'eth-mainnet',
+        chainAlias: 'eth' as ChainAlias,
         marshalledHex: '0xabc123',
         organisationId: 'org-123',
         createdBy: { id: 'user-1', type: 'User' },
@@ -277,7 +278,7 @@ describe('WorkflowRepository', () => {
         version: 3,
         context: {
           vaultId: 'vault-123',
-          chainAlias: 'eth-mainnet',
+          chainAlias: 'eth' as ChainAlias,
           marshalledHex: '0xabc123',
           organisationId: 'org-123',
           createdBy: { id: 'user-1', type: 'User' },
@@ -302,7 +303,7 @@ describe('WorkflowRepository', () => {
         blockNumber: 54321,
         context: {
           vaultId: 'vault-123',
-          chainAlias: 'eth-mainnet',
+          chainAlias: 'eth' as ChainAlias,
           marshalledHex: '0xabc123',
           organisationId: 'org-123',
           createdBy: { id: 'user-1', type: 'User' },

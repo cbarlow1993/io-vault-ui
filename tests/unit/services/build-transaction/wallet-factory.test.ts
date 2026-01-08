@@ -16,53 +16,87 @@ describe('WalletFactory', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockVaultService = {
-      getVaultXpub: vi.fn(),
+      getVaultCurves: vi.fn(),
     } as unknown as VaultService;
     walletFactory = new WalletFactory(mockVaultService);
   });
 
   describe('createWallet', () => {
-    it('should create wallet from vault xpub', async () => {
-      const mockXpub = 'xpub661MyMwAqRbctest';
+    it('should create wallet from vault curves', async () => {
+      const mockVault = {
+        vaultId: 'vault-123',
+        curves: [{ curve: 'secp256k1', xpub: 'xpub661MyMwAqRbctest' }],
+      };
       const mockWallet = { address: '0x123' };
       const mockChain = {
         Config: { ecosystem: 'evm' },
-        loadHDWallet: vi.fn().mockResolvedValue(mockWallet),
+        loadWallet: vi.fn().mockReturnValue(mockWallet),
       };
 
-      vi.mocked(mockVaultService.getVaultXpub).mockResolvedValue(mockXpub);
+      vi.mocked(mockVaultService.getVaultCurves).mockResolvedValue(mockVault);
       vi.mocked(Chain.fromAlias).mockResolvedValue(mockChain as any);
 
       const result = await walletFactory.createWallet('vault-123', 'ethereum' as any);
 
-      expect(mockVaultService.getVaultXpub).toHaveBeenCalledWith('vault-123', 'ethereum');
+      expect(mockVaultService.getVaultCurves).toHaveBeenCalledWith('vault-123');
       expect(Chain.fromAlias).toHaveBeenCalledWith('ethereum');
-      expect(mockChain.loadHDWallet).toHaveBeenCalledWith(mockXpub, '');
+      expect(mockChain.loadWallet).toHaveBeenCalledWith(mockVault);
       expect(result).toEqual({ wallet: mockWallet, chain: mockChain });
     });
 
-    it('should pass derivation path to chain.loadHDWallet', async () => {
-      const mockXpub = 'xpub661MyMwAqRbctest';
-      const mockWallet = { address: '0x123' };
+    it('should derive HD wallet when derivation path is provided', async () => {
+      const mockVault = {
+        vaultId: 'vault-123',
+        curves: [{ curve: 'secp256k1', xpub: 'xpub661MyMwAqRbctest' }],
+      };
       const derivationPath = 'm/44/60/0/0/1';
+      const mockDerivedWallet = { address: '0x456', derivationPath };
+      const mockBaseWallet = {
+        address: '0x123',
+        deriveHDWallet: vi.fn().mockReturnValue(mockDerivedWallet),
+      };
       const mockChain = {
         Config: { ecosystem: 'evm' },
-        loadHDWallet: vi.fn().mockResolvedValue(mockWallet),
+        loadWallet: vi.fn().mockReturnValue(mockBaseWallet),
       };
 
-      vi.mocked(mockVaultService.getVaultXpub).mockResolvedValue(mockXpub);
+      vi.mocked(mockVaultService.getVaultCurves).mockResolvedValue(mockVault);
       vi.mocked(Chain.fromAlias).mockResolvedValue(mockChain as any);
 
-      await walletFactory.createWallet('vault-123', 'ethereum' as any, derivationPath);
+      const result = await walletFactory.createWallet('vault-123', 'ethereum' as any, derivationPath);
 
-      expect(mockChain.loadHDWallet).toHaveBeenCalledWith(mockXpub, derivationPath);
+      expect(mockChain.loadWallet).toHaveBeenCalledWith(mockVault);
+      expect(mockBaseWallet.deriveHDWallet).toHaveBeenCalledWith({ derivationPath });
+      expect(result).toEqual({ wallet: mockDerivedWallet, chain: mockChain });
     });
 
-    it('should throw NotFoundError when vault xpub not found', async () => {
-      vi.mocked(mockVaultService.getVaultXpub).mockResolvedValue(null);
+    it('should not derive HD wallet when derivation path is not provided', async () => {
+      const mockVault = {
+        vaultId: 'vault-123',
+        curves: [{ curve: 'secp256k1', xpub: 'xpub661MyMwAqRbctest' }],
+      };
+      const mockBaseWallet = {
+        address: '0x123',
+        deriveHDWallet: vi.fn(),
+      };
+      const mockChain = {
+        Config: { ecosystem: 'evm' },
+        loadWallet: vi.fn().mockReturnValue(mockBaseWallet),
+      };
+
+      vi.mocked(mockVaultService.getVaultCurves).mockResolvedValue(mockVault);
+      vi.mocked(Chain.fromAlias).mockResolvedValue(mockChain as any);
+
+      await walletFactory.createWallet('vault-123', 'ethereum' as any);
+
+      expect(mockBaseWallet.deriveHDWallet).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundError when vault not found', async () => {
+      vi.mocked(mockVaultService.getVaultCurves).mockResolvedValue(null);
 
       await expect(walletFactory.createWallet('vault-123', 'ethereum' as any))
-        .rejects.toThrow('Vault xpub not found');
+        .rejects.toThrow('Vault not found');
     });
   });
 });

@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { JsonRpcProvider, Contract } from 'ethers';
 import { logger } from '@/utils/powertools.js';
 import { getCoinGeckoPlatform } from '@/src/config/chain-mappings/index.js';
@@ -33,7 +34,7 @@ export class TokenMetadataFetcher {
    * @param address - The token contract address
    */
   async fetchOnChain(
-    chainAlias: string,
+    chainAlias: ChainAlias,
     address: string
   ): Promise<Partial<TokenInfo>> {
     const rpcUrl = this.rpcUrls[chainAlias];
@@ -77,7 +78,7 @@ export class TokenMetadataFetcher {
    * @param address - The token contract address
    */
   async fetchFromCoinGecko(
-    chainAlias: string,
+    chainAlias: ChainAlias,
     address: string
   ): Promise<{ coingeckoId: string | null; logoUri: string | null } | null> {
     const platform = getCoinGeckoPlatform(chainAlias);
@@ -93,7 +94,7 @@ export class TokenMetadataFetcher {
         logoUri: data.image?.large ?? data.image?.small ?? null,
       };
     } catch (error) {
-      logger.warn('Failed to fetch token from CoinGecko', { address, chainAlias, error });
+      logger.warn('Failed to fetch token from CoinGecko', { platform, address, chainAlias, error });
       return null;
     }
   }
@@ -108,7 +109,7 @@ export class TokenMetadataFetcher {
    * @note CoinGecko only has data for mainnet tokens. For testnet tokens,
    *       only on-chain data will be returned.
    */
-  async fetch(chainAlias: string, address: string): Promise<TokenMetadataResult> {
+  async fetch(chainAlias: ChainAlias, address: string): Promise<TokenMetadataResult> {
     const [onChain, coinGecko] = await Promise.all([
       this.fetchOnChain(chainAlias, address),
       this.fetchFromCoinGecko(chainAlias, address),

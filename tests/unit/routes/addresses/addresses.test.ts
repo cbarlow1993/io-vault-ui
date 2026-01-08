@@ -81,7 +81,7 @@ async function createTestApp() {
   } as any);
 
   // Register address routes with vaultId as a path parameter in the prefix
-  await app.register(addressRoutes, { prefix: '/v1/vaults/:vaultId/addresses' });
+  await app.register(addressRoutes, { prefix: '/v2/vaults/:vaultId/addresses' });
   await app.ready();
 
   return app;
@@ -92,7 +92,7 @@ describe('Address Routes', () => {
     vi.clearAllMocks();
   });
 
-  describe('GET /v1/vaults/:vaultId/addresses', () => {
+  describe('GET /v2/vaults/:vaultId/addresses', () => {
     it('returns paginated list of addresses for vault', async () => {
       const app = await createTestApp();
 
@@ -105,7 +105,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -120,7 +120,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses?first=10`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses?first=10`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -131,14 +131,14 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses?monitored=true`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses?monitored=true`,
       });
 
       expect(response.statusCode).toBe(200);
     });
   });
 
-  describe('GET /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain', () => {
+  describe('GET /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain', () => {
     it('returns addresses filtered by chain', async () => {
       const app = await createTestApp();
 
@@ -151,7 +151,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -165,14 +165,14 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/invalid/chain/invalid`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/invalid/chain/invalid`,
       });
 
       expect(response.statusCode).toBe(400);
     });
   });
 
-  describe('POST /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain', () => {
+  describe('POST /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain', () => {
     it('creates a new address', async () => {
       const app = await createTestApp();
 
@@ -184,7 +184,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
         payload: {
           address: TEST_ADDRESS,
           monitor: false,
@@ -205,7 +205,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
         payload: {
           address: TEST_ADDRESS,
           monitor: true,
@@ -220,7 +220,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth`,
         payload: {},
       });
 
@@ -228,7 +228,7 @@ describe('Address Routes', () => {
     });
   });
 
-  describe('GET /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
+  describe('GET /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
     it('returns address details', async () => {
       const app = await createTestApp();
 
@@ -237,7 +237,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -253,14 +253,14 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(404);
     });
   });
 
-  describe('PATCH /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
+  describe('PATCH /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
     it('updates address alias', async () => {
       const app = await createTestApp();
 
@@ -270,7 +270,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         payload: {
           alias: 'My Wallet',
         },
@@ -289,7 +289,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         payload: {
           addToHiddenAssets: ['0xtoken1'],
         },
@@ -299,7 +299,7 @@ describe('Address Routes', () => {
     });
   });
 
-  describe('POST /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address/monitoring', () => {
+  describe('POST /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address/monitoring', () => {
     it('starts monitoring an unmonitored address', async () => {
       const app = await createTestApp();
 
@@ -319,7 +319,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -340,7 +340,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -354,14 +354,14 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(404);
     });
   });
 
-  describe('DELETE /v1/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address/monitoring', () => {
+  describe('DELETE /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/address/:address/monitoring', () => {
     it('stops monitoring an address', async () => {
       const app = await createTestApp();
 
@@ -378,7 +378,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(204);
@@ -392,7 +392,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(204);
@@ -413,7 +413,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(204);
@@ -431,7 +431,7 @@ describe('Address Routes', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/v1/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
+        url: `/v2/vaults/${TEST_VAULT_ID}/addresses/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/monitoring`,
       });
 
       expect(response.statusCode).toBe(403);

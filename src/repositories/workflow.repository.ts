@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { Kysely } from 'kysely';
 import type { Database } from '@/src/lib/database/types.js';
 import type {
@@ -9,7 +10,7 @@ import { ConcurrentModificationError } from '@/src/services/workflow/errors.js';
 
 export interface CreateWorkflowInput {
   vaultId: string;
-  chainAlias: string;
+  chainAlias: ChainAlias;
   marshalledHex: string;
   organisationId: string;
   createdBy: { id: string; type: string };
@@ -74,7 +75,7 @@ function mapRowToWorkflow(row: WorkflowRow): Workflow {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     vaultId: row.vault_id,
-    chainAlias: row.chain_alias,
+    chainAlias: row.chain_alias as ChainAlias,
     marshalledHex: row.marshalled_hex,
     organisationId: row.organisation_id,
     createdBy: row.created_by,

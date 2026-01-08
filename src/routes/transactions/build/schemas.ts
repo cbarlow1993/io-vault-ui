@@ -1,6 +1,6 @@
 import { EcoSystem } from '@iofinnet/io-core-dapp-utils-chains-sdk';
-import { z } from '@/utils/openZod.js';
-import { vaultIdSchema } from '@/services/common.js';
+import { z } from 'zod';
+import { vaultIdSchema } from '@/src/lib/schemas/common.js';
 import { supportedChains } from '@/src/lib/chains.js';
 import { simpleDerivationPathSchema } from '@/src/lib/schemas/derivation-path.js';
 
@@ -43,7 +43,7 @@ export const gasPriceSchema = z
  */
 export const buildTransactionPathParamsSchema = z.object({
   vaultId: vaultIdSchema,
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chainAlias: supportedChains,
 });
 
@@ -153,6 +153,41 @@ export const xrpNativeBodySchema = baseTransactionBodySchema.extend({
  * Same as base transaction body.
  */
 export const substrateNativeBodySchema = baseTransactionBodySchema;
+
+// ==================== Combined Body Schemas ====================
+
+/**
+ * Combined native transaction body schema.
+ * Union of all ecosystem-specific native transaction schemas.
+ * Used at the route level for validation before ecosystem-specific handling.
+ */
+export const combinedNativeBodySchema = baseTransactionBodySchema.extend({
+  // EVM-specific fields
+  gasPrice: gasPriceSchema,
+  gasLimit: z.string().nullish(),
+  data: z.string().nullish(),
+  nonce: z.number().nullish(),
+  type: z.enum(['legacy', 'eip1559']).nullish(),
+  maxFeePerGas: z.string().nullish(),
+  maxPriorityFeePerGas: z.string().nullish(),
+  // SVM-specific fields
+  nonceAccount: z.string().optional(),
+  // UTXO-specific fields
+  feeRate: z.number().nullish(),
+  // XRP-specific fields
+  memo: z.string().optional(),
+  tag: z.string().optional(),
+});
+
+/**
+ * Combined token transaction body schema.
+ * Extends combined native with tokenAddress for token transfers.
+ * Used at the route level for validation before ecosystem-specific handling.
+ */
+export const combinedTokenBodySchema = combinedNativeBodySchema.extend({
+  tokenAddress: z.string(),
+  decimals: z.number().optional(),
+});
 
 // ==================== SVM Durable Nonce Schemas ====================
 

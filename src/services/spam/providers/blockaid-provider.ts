@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { TokenScanResponse } from '@blockaid/client/resources/token.js';
 import { blockaidClient } from '@/src/lib/clients.js';
 import { mapChainToBlockaidTokenScanChain } from '@/src/config/chain-mappings/index.js';
@@ -8,7 +9,7 @@ export class BlockaidProvider implements SpamClassificationProvider {
   readonly name = 'blockaid';
 
   async classify(token: TokenToClassify): Promise<Partial<SpamClassification>> {
-    const blockaidChain = mapChainToBlockaidTokenScanChain(token.chain);
+    const blockaidChain = mapChainToBlockaidTokenScanChain(token.chain as ChainAlias);
 
     // Unsupported chain - return null silently
     if (!blockaidChain) {

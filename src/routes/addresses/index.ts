@@ -4,6 +4,7 @@ import {
   bulkCreateHDAddresses,
   createAddress,
   createHDAddress,
+  generateAddress,
   getAddressDetails,
   listAddresses,
   listAddressesByChain,
@@ -21,6 +22,7 @@ import {
   createAddressBodySchema,
   createHDAddressBodySchema,
   fullAddressParamsSchema,
+  generateAddressBodySchema,
   hdAddressResponseSchema,
   listAddressesQuerySchema,
   updateAddressBodySchema,
@@ -77,11 +79,35 @@ export default async function addressRoutes(fastify: FastifyInstance) {
     listAddressesByChain
   );
 
-  // ==================== Create Route ====================
+  // ==================== Create/Generate Routes ====================
+
+  /**
+   * POST /
+   * Generate and save an address from vault curves
+   */
+  fastify.post(
+    '/',
+    {
+      schema: {
+        tags: ['Addresses'],
+        summary: 'Generate address for vault',
+        description:
+          'Generates an address from the vault curves and saves it to the database. ' +
+          'If a derivation path is provided, generates an HD address at that path. ' +
+          'Optionally starts monitoring the address for transactions.',
+        params: vaultIdParamsSchema,
+        body: generateAddressBodySchema,
+        response: {
+          201: addressResponseSchema,
+        },
+      },
+    },
+    generateAddress
+  );
 
   /**
    * POST /ecosystem/:ecosystem/chain/:chainAlias
-   * Create an address for a vault
+   * Create an address for a vault (legacy - requires address in body)
    */
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias',

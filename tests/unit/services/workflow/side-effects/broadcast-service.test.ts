@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   StubBroadcastService,
@@ -16,7 +17,7 @@ describe('BroadcastService', () => {
 
   const createMockContext = (overrides: Partial<WorkflowContext> = {}): WorkflowContext => ({
     vaultId: 'vault-123',
-    chainAlias: 'ethereum',
+    chainAlias: 'eth' as ChainAlias,
     marshalledHex: '0xabc123',
     organisationId: 'org-456',
     createdBy: { id: 'user-789', type: 'User' },
@@ -71,7 +72,7 @@ describe('BroadcastService', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith('Broadcasting transaction (stub)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         hasSignature: true,
       });
     });
@@ -112,7 +113,7 @@ describe('BroadcastService', () => {
 
       expect(mockLogger.warn).toHaveBeenCalledWith('Broadcast failed (retryable)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         attempt: 3,
       });
     });
@@ -153,7 +154,7 @@ describe('BroadcastService', () => {
 
       expect(mockLogger.error).toHaveBeenCalledWith('Broadcast failed (permanent)', {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         error: 'Custom error',
       });
     });

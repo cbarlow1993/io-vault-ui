@@ -112,7 +112,7 @@ export const COINGECKO_NATIVE_COIN_MAP: Record<string, string> = {
  * @param chainAlias - The internal chain alias (e.g., 'eth', 'polygon')
  * @returns The CoinGecko platform identifier, or undefined if not supported
  */
-export function getCoinGeckoPlatform(chainAlias: string): string | undefined {
+export function getCoinGeckoPlatform(chainAlias: ChainAlias): string | undefined {
   return COINGECKO_PLATFORM_MAP[chainAlias];
 }
 
@@ -123,7 +123,7 @@ export function getCoinGeckoPlatform(chainAlias: string): string | undefined {
  * @param chainAlias - The internal chain alias (e.g., 'eth', 'polygon')
  * @returns The CoinGecko coin ID, or undefined if not mapped
  */
-export function getCoinGeckoNativeCoinId(chainAlias: string): string | undefined {
+export function getCoinGeckoNativeCoinId(chainAlias: ChainAlias): string | undefined {
   return COINGECKO_NATIVE_COIN_MAP[chainAlias];
 }
 
@@ -133,7 +133,7 @@ export function getCoinGeckoNativeCoinId(chainAlias: string): string | undefined
  * @param chainAlias - The internal chain alias
  * @returns true if CoinGecko supports token lookups for this chain
  */
-export function isCoinGeckoSupported(chainAlias: string): boolean {
+export function isCoinGeckoSupported(chainAlias: ChainAlias): boolean {
   return chainAlias in COINGECKO_PLATFORM_MAP;
 }
 

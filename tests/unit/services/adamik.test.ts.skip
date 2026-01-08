@@ -1,0 +1,164 @@
+import { ChainAlias, EcoSystem } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ZodError } from 'zod';
+import { baseHandler } from '@/src/handlers/transactions/build-transaction/utxo/btc-handler.js';
+import { validatePsbt } from '@/src/services/psbt/validatePsbt.js';
+import { getVaultCurves } from '@/src/services/vaults/vaults.js';
+
+vi.mock('@/utils/middleware/extractAuth.js', async () => {
+  const actual = await vi.importActual<typeof import('@/utils/middleware/extractAuth.js')>(
+    '@/utils/middleware/extractAuth.js'
+  );
+
+  return {
+    ...actual,
+    extractCredentialsAndEntitlement: () => ({
+      before: vi.fn(), // no-op middleware
+    }),
+  };
+});
+
+vi.mock('@/src/services/vaults/vaults.js', () => ({
+  getVaultCurves: vi.fn(),
+}));
+
+vi.mock('@/src/services/psbt/validatePsbt.js', () => ({
+  validatePsbt: vi.fn(),
+}));
+
+describe('adamik service tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should build a transaction', async () => {
+    vi.mocked(getVaultCurves).mockResolvedValue({
+      vaultId: 'iyi35hr0ykzq5xfgk1wz8nhd',
+      curves: [
+        {
+          algorithm: 'ECDSA',
+          curve: 'secp256k1',
+          publicKey:
+            '0495cf71bd39fbaa2f7757b82fa96cef72bb6afa9958c553b5eb54405c4ea86dec290805b8ac44cd28a5f8be72985a059560409d8930879326ad37ef691ee742bc',
+        },
+      ],
+    });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          status: {
+            errors: [],
+            warnings: [],
+          },
+          transaction: {
+            encoded: [
+              {
+                raw: {
+                  value:
+                    '70736274ff010071020000000186fc46ae64773457161878a89b9551d3dc955176e033e2cfd6c8a26743958f420000000000fdffffff02e803000000000000160014ba8993cc8dcdc6f779caa365190c09ff8d9526d024020000000000001600147a5dd073671f8f47d3e14992458894b6f6522f46000000000001011fd0070000000000001600147a5dd073671f8f47d3e14992458894b6f6522f46000000',
+                },
+              },
+            ],
+          },
+        }),
+      })
+    );
+
+    vi.mocked(validatePsbt).mockImplementation(() => {
+      return;
+    });
+
+    const event = {
+      pathParameters: {
+        vaultId: 'iyi35hr0ykzq5xfgk1wz8nhd',
+        ecosystem: EcoSystem.UTXO,
+        chain: ChainAlias.BITCOIN,
+      },
+      body: {
+        amount: '1000',
+        to: 'bc1qh2ye8nydehr0w7w25dj3jrqfl7xe2fks5swpae',
+      },
+    };
+
+    const result = (await baseHandler(event)) as { statusCode: number; body: string };
+    expect(result.statusCode).toBe(201);
+    expect(JSON.parse(result.body)).toEqual({
+      marshalledHex:
+        '7b227075626c69634b6579223a2230343935636637316264333966626161326637373537623832666139366365663732626236616661393935386335353362356562353434303563346561383664656332393038303562386163343463643238613566386265373239383561303539353630343039643839333038373933323661643337656636393165653734326263222c2268657850736274223a22373037333632373466663031303037313032303030303030303138366663343661653634373733343537313631383738613839623935353164336463393535313736653033336532636664366338613236373433393538663432303030303030303030306664666666666666303265383033303030303030303030303030313630303134626138393933636338646364633666373739636161333635313930633039666638643935323664303234303230303030303030303030303031363030313437613564643037333637316638663437643365313439393234353838393462366636353232663436303030303030303030303031303131666430303730303030303030303030303031363030313437613564643037333637316638663437643365313439393234353838393462366636353232663436303030303030222c2266726f6d223a2237623232373636313735366337343232336137623232373636313735366337343439363432323361323236393739363933333335363837323330373936623761373133353738363636373662333137373761333836653638363432323263323236333735373237363635373332323361356237623232363136633637366637323639373436383664323233613232343534333434353334313232326332323633373537323736363532323361323237333635363337303332333533363662333132323263323237303735363236633639363334623635373932323361323233303334333933353633363633373331363236343333333936363632363136313332363633373337333533373632333833323636363133393336363336353636333733323632363233363631363636313339333933353338363333353335333336323335363536323335333433343330333536333334363536313338333636343635363333323339333033383330333536323338363136333334333436333634333233383631333536363338363236353337333233393338333536313330333533393335333633303334333033393634333833393333333033383337333933333332333636313634333333373635363633363339333136353635333733343332363236333232376435643764326332323633363836313639366534313663363936313733323233613232363236393734363336663639366532323764227d',
+      details: [
+        {
+          name: 'Network',
+          type: 'string',
+          value: 'Bitcoin',
+        },
+        {
+          name: 'Asset',
+          type: 'string',
+          value: 'BTC',
+        },
+        {
+          name: 'From',
+          type: 'string',
+          value: 'bc1q0fwaqum8r78505lpfxfytzy5kmm9yt6x3q49la',
+        },
+        {
+          name: 'To',
+          type: 'string',
+          value: 'bc1qh2ye8nydehr0w7w25dj3jrqfl7xe2fks5swpae',
+        },
+        {
+          name: 'Amount',
+          type: 'string',
+          value: '0.00001000',
+        },
+        {
+          name: 'Change',
+          type: 'string',
+          value: '0.00000548',
+        },
+      ],
+    });
+  });
+
+  it('should throw an error if adamik api returns an error', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({
+          status: {
+            errors: [
+              {
+                message: 'Bad Request',
+              },
+            ],
+            warnings: [],
+          },
+          transaction: {},
+        }),
+      })
+    );
+
+    const event = {
+      pathParameters: {
+        vaultId: 'iyi35hr0ykzq5xfgk1wz8nhd',
+        ecosystem: EcoSystem.UTXO,
+        chain: ChainAlias.BITCOIN,
+      },
+      body: {
+        amount: '1000',
+        to: 'bc1qh2ye8nydehr0w7w25dj3jrqfl7xe2fks5swpae',
+      },
+    };
+
+    try {
+      await baseHandler(event);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ZodError);
+    }
+  });
+});

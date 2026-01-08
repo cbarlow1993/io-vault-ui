@@ -10,7 +10,9 @@ declare module 'fastify' {
 }
 
 async function chainValidationPlugin(fastify: FastifyInstance) {
-  fastify.decorateRequest('chain', null);
+  if (!fastify.hasRequestDecorator('chain')) {
+    fastify.decorateRequest('chain', null);
+  }
 
   fastify.addHook('preHandler', async (request: FastifyRequest) => {
     const params = request.params as { ecosystem?: string; chainAlias?: string };

@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock fns declared before vi.mock calls
@@ -11,10 +12,10 @@ vi.mock('@/src/services/coingecko/client.js', () => ({
   })),
 }));
 
-// Mock chain mappings to return a valid platform for 'ethereum'
+// Mock chain mappings to return a valid platform for 'eth' as ChainAlias
 vi.mock('@/src/config/chain-mappings/index.js', () => ({
-  getCoinGeckoPlatform: vi.fn((chainAlias: string) => {
-    if (chainAlias === 'ethereum') return 'ethereum';
+  getCoinGeckoPlatform: vi.fn((chainAlias: unknown) => {
+    if (chainAlias === 'eth' as ChainAlias) return 'eth' as ChainAlias;
     return undefined;
   }),
 }));
@@ -55,7 +56,7 @@ describe('TokenMetadataFetcher', () => {
   describe('fetchOnChain', () => {
     it('fetches token metadata from EVM chain via RPC', async () => {
       const result = await fetcher.fetchOnChain(
-        'ethereum',
+        'eth' as ChainAlias,
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       );
 
@@ -68,7 +69,7 @@ describe('TokenMetadataFetcher', () => {
     });
 
     it('returns only address for unsupported chain', async () => {
-      const result = await fetcher.fetchOnChain('unsupported-chain', '0xabc123');
+      const result = await fetcher.fetchOnChain('unknown-chain' as ChainAlias, '0xabc123');
       expect(result).toEqual({
         address: '0xabc123',
       });
@@ -85,7 +86,7 @@ describe('TokenMetadataFetcher', () => {
       });
 
       const result = await fetcher.fetchFromCoinGecko(
-        'ethereum',
+        'eth' as ChainAlias,
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       );
 
@@ -96,21 +97,21 @@ describe('TokenMetadataFetcher', () => {
 
       expect(mockContractGet).toHaveBeenCalledWith(
         '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        { id: 'ethereum' }
+        { id: 'eth' as ChainAlias }
       );
     });
 
     it('returns null when SDK throws an error', async () => {
       mockContractGet.mockRejectedValueOnce(new Error('Token not found'));
 
-      const result = await fetcher.fetchFromCoinGecko('ethereum', '0xunknown');
+      const result = await fetcher.fetchFromCoinGecko('eth' as ChainAlias, '0xunknown');
 
       expect(result).toBeNull();
     });
 
     it('returns null for unsupported chain', async () => {
       const result = await fetcher.fetchFromCoinGecko(
-        'unsupported-chain',
+        'unknown-chain' as ChainAlias,
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       );
 
@@ -125,7 +126,7 @@ describe('TokenMetadataFetcher', () => {
       });
 
       const result = await fetcher.fetchFromCoinGecko(
-        'ethereum',
+        'eth' as ChainAlias,
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       );
 
@@ -141,7 +142,7 @@ describe('TokenMetadataFetcher', () => {
       });
 
       const result = await fetcher.fetch(
-        'ethereum',
+        'eth' as ChainAlias,
         '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       );
 

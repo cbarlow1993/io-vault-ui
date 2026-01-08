@@ -152,4 +152,28 @@ export class PostgresTokenRepository implements TokenRepository {
 
     return results.map(mapToToken);
   }
+
+  /**
+   * Marks tokens for re-classification when their cached classification has expired.
+   * Uses the per-token `classification_ttl_hours` column to determine expiration.
+   *
+   * @param _ttlHours - Unused. TTL is determined by each token's classification_ttl_hours column.
+   *                    Parameter kept for interface consistency.
+   * @returns Number of tokens marked for re-classification
+   */
+  async refreshExpiredClassifications(_ttlHours: number): Promise<number> {
+    const result = await this.db
+      .updateTable('tokens')
+      .set({
+        needs_classification: true,
+        classification_attempts: 0,
+      })
+      .where('needs_classification', '=', false)
+      .where(
+        sql`classification_updated_at + (classification_ttl_hours * interval '1 hour') < NOW()`
+      )
+      .executeTakeFirst();
+
+    return Number(result.numUpdatedRows ?? 0);
+  }
 }

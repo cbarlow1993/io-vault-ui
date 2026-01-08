@@ -5,7 +5,7 @@ import {
   SvmChainAliases,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { z } from 'zod';
-import { vaultIdSchema } from '@/services/common.js';
+import { vaultIdSchema } from '@/src/lib/schemas/common.js';
 import { ChainFeatures, supportedChains } from '@/src/lib/chains.js';
 import { isChainFeatureActive } from '@/src/lib/isChainFeatureActive.js';
 
@@ -16,7 +16,7 @@ import { isChainFeatureActive } from '@/src/lib/isChainFeatureActive.js';
  * GET /addresses/:addressId/transactions
  */
 export const transactionAddressIdPathParamsSchema = z.object({
-  addressId: z.string().uuid(),
+  addressId: z.uuid(),
 });
 
 /**
@@ -24,7 +24,7 @@ export const transactionAddressIdPathParamsSchema = z.object({
  * GET /ecosystem/:ecosystem/chain/:chainAlias/address/:address
  */
 export const listTransactionsPathParamsSchema = z.object({
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chainAlias: supportedChains.refine(
     (chainAlias) => {
       try {
@@ -46,7 +46,7 @@ export const listTransactionsPathParamsSchema = z.object({
  * GET /ecosystem/:ecosystem/chain/:chainAlias/address/:address/transaction/:transactionHash
  */
 export const getTransactionPathParamsSchema = z.object({
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chainAlias: supportedChains.refine(
     (chainAlias) => {
       try {
@@ -95,7 +95,7 @@ export const scanTransactionPathParamsSchema = z.object({
  */
 export const createTransactionPathParamsSchema = z.object({
   vaultId: vaultIdSchema,
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chainAlias: supportedChains,
 });
 
@@ -171,7 +171,7 @@ export const scanTransactionBodySchema = z
     marshalledHex: z.string().min(4),
     metadata: z
       .object({
-        url: z.string().url().nullable().default(null),
+        url: z.url().nullable().default(null),
       })
       .default({ url: null }),
     overrides: z

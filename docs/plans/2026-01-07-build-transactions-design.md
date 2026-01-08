@@ -6,7 +6,7 @@ Migrate the legacy Lambda-based build transaction endpoints to Fastify, maintain
 
 ## Endpoints
 
-Four endpoints registered under `vaultTransactionRoutes` (prefix: `/v1/vaults/:vaultId/transactions`):
+Four endpoints registered under `vaultTransactionRoutes` (prefix: `/v2/vaults/:vaultId/transactions`):
 
 | Method | Path | Description |
 |--------|------|-------------|

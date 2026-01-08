@@ -72,13 +72,25 @@ vi.mock('@/src/lib/error-reporter.js', () => ({
   reportErrorToQueue: vi.fn(),
 }));
 
-// Mock Chain.fromAlias
+// Mock Chain SDK
 vi.mock('@iofinnet/io-core-dapp-utils-chains-sdk', async () => {
   const actual = await vi.importActual('@iofinnet/io-core-dapp-utils-chains-sdk');
   return {
     ...actual,
     Chain: {
       setAuthContext: vi.fn(),
+      getAuthContext: vi.fn().mockReturnValue({
+        apiBearerToken: 'test-token',
+        rpcBearerToken: 'test-token',
+        iofinnetApiEndpoint: 'https://api.test.com',
+        iofinnetRpcApiEndpoint: 'https://rpc.test.com',
+      }),
+      requireAuthContext: vi.fn().mockReturnValue({
+        apiBearerToken: 'test-token',
+        rpcBearerToken: 'test-token',
+        iofinnetApiEndpoint: 'https://api.test.com',
+        iofinnetRpcApiEndpoint: 'https://rpc.test.com',
+      }),
       fromAlias: vi.fn().mockImplementation(() =>
         Promise.resolve({
           Alias: 'eth',
@@ -134,7 +146,7 @@ async function createTestApp() {
   });
 
   // Register balance routes
-  await app.register(balanceRoutes, { prefix: '/v1/balances' });
+  await app.register(balanceRoutes, { prefix: '/v2/balances' });
   await app.ready();
 
   return app;
@@ -150,7 +162,7 @@ describe('Balance Routes', () => {
     });
   });
 
-  describe('GET /v1/balances/ecosystem/:ecosystem/chain/:chain/address/:address/native', () => {
+  describe('GET /v2/balances/ecosystem/:ecosystem/chain/:chain/address/:address/native', () => {
     it('returns native balance for an address', async () => {
       const app = await createTestApp();
 
@@ -169,7 +181,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/native`,
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/native`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -187,7 +199,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/native`,
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/native`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -203,7 +215,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}/native`,
+        url: `/v2/balances/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}/native`,
       });
 
       expect(response.statusCode).toBe(400);
@@ -214,14 +226,14 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/invalid-chain/address/${TEST_ADDRESS}/native`,
+        url: `/v2/balances/ecosystem/evm/chain/invalid-chain/address/${TEST_ADDRESS}/native`,
       });
 
       expect(response.statusCode).toBe(400);
     });
   });
 
-  describe('GET /v1/balances/ecosystem/:ecosystem/chain/:chain/address/:address/tokens', () => {
+  describe('GET /v2/balances/ecosystem/:ecosystem/chain/:chain/address/:address/tokens', () => {
     it('returns token balances for an address', async () => {
       const app = await createTestApp();
 
@@ -243,7 +255,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -294,7 +306,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -345,7 +357,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?showHiddenTokens=true`,
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?showHiddenTokens=true`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -360,7 +372,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}/tokens`,
+        url: `/v2/balances/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}/tokens`,
       });
 
       expect(response.statusCode).toBe(400);
@@ -371,7 +383,7 @@ describe('Balance Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/balances/ecosystem/evm/chain/invalid-chain/address/${TEST_ADDRESS}/tokens`,
+        url: `/v2/balances/ecosystem/evm/chain/invalid-chain/address/${TEST_ADDRESS}/tokens`,
       });
 
       expect(response.statusCode).toBe(400);

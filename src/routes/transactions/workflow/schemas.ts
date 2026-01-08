@@ -4,7 +4,7 @@ import { z } from 'zod';
 const hexStringRegex = /^(0x)?[a-fA-F0-9]+$/;
 
 export const createWorkflowBodySchema = z.object({
-  vaultId: z.string().uuid(),
+  vaultId: z.uuid(),
   chainAlias: z.string().min(1).max(50),
   marshalledHex: z
     .string()
@@ -14,7 +14,7 @@ export const createWorkflowBodySchema = z.object({
 });
 
 export const workflowParamsSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
 });
 
 export const confirmBodySchema = z.object({}).optional();
@@ -27,11 +27,11 @@ export const rejectBodySchema = z.object({
 
 export const historyQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).optional().default(50),
-  cursor: z.string().uuid().optional(),
+  cursor: z.uuid().optional(),
 });
 
 export const workflowResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   state: z.string(),
   context: z.object({
     vaultId: z.string(),
@@ -49,7 +49,7 @@ export const workflowResponseSchema = z.object({
 });
 
 export const historyEventSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   event: z.string(),
   fromState: z.string(),
   toState: z.string(),
@@ -58,10 +58,10 @@ export const historyEventSchema = z.object({
 });
 
 export const historyResponseSchema = z.object({
-  workflowId: z.string().uuid(),
+  workflowId: z.uuid(),
   history: z.array(historyEventSchema),
   pagination: z.object({
-    nextCursor: z.string().uuid().nullable(),
+    nextCursor: z.uuid().nullable(),
     hasMore: z.boolean(),
   }),
 });

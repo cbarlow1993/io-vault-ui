@@ -16,7 +16,7 @@ export const initiateReconciliationPathSchema = z.object({
  * GET /reconciliation-jobs/:jobId
  */
 export const getJobPathSchema = z.object({
-  jobId: z.string().uuid(),
+  jobId: z.uuid(),
 });
 
 /**

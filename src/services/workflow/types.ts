@@ -1,3 +1,5 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+
 export interface Originator {
   id: string;
   type: 'User' | 'System' | 'Webhook';
@@ -6,7 +8,7 @@ export interface Originator {
 export interface WorkflowContext {
   // Transaction data
   vaultId: string;
-  chainAlias: string;
+  chainAlias: ChainAlias;
   marshalledHex: string;
   organisationId: string;
   createdBy: Originator;
@@ -60,7 +62,7 @@ export type WorkflowEvent =
 
 export interface CreateWorkflowInput {
   vaultId: string;
-  chainAlias: string;
+  chainAlias: ChainAlias;
   marshalledHex: string;
   organisationId: string;
   createdBy: Originator;
@@ -76,7 +78,7 @@ export interface Workflow {
   updatedAt: Date;
   // Denormalized fields from database
   vaultId: string;
-  chainAlias: string;
+  chainAlias: ChainAlias;
   marshalledHex: string;
   organisationId: string;
   createdBy: Record<string, unknown>;

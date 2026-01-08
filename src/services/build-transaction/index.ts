@@ -147,7 +147,7 @@ export async function routeNativeTransaction(
     logger.warn('Unsupported ecosystem:chain combination', { ecosystem, chainAlias });
     throw new UserInputError(`Unsupported ecosystem:chain combination: ${ecosystem}:${chainAlias}`);
   }
-
+  
   const { data: walletResult, error: walletError } = await tryCatch(
     walletFactory.createWallet(params.vaultId, chainAlias, params.derivationPath)
   );

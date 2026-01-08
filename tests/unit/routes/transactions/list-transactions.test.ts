@@ -66,7 +66,7 @@ vi.mock('@/utils/try-catch.js', () => ({
   tryCatch: vi.fn(),
 }));
 
-vi.mock('@/services/common/index.js', () => ({
+vi.mock('@/src/lib/schemas/common.js', () => ({
   vaultIdSchema: z.string().uuid(),
 }));
 
@@ -140,7 +140,7 @@ const mockTokenTransfer = {
 
 // Simplified schemas for testing (bypass chain validation)
 const listTransactionsPathParamsSchema = z.object({
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chain: z.string().min(1),
   address: z.string().min(1),
 });
@@ -183,7 +183,7 @@ async function createTestApp() {
 
   // Register the route directly with simplified schemas
   app.get(
-    '/v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address',
+    '/v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address',
     {
       schema: {
         params: listTransactionsPathParamsSchema,
@@ -203,7 +203,7 @@ describe('Transaction Routes', () => {
     vi.clearAllMocks();
   });
 
-  describe('GET /v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
+  describe('GET /v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address', () => {
     it('returns transactions for an address', async () => {
       const app = await createTestApp();
 
@@ -219,7 +219,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -246,7 +246,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -263,7 +263,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(404);
@@ -286,7 +286,7 @@ describe('Transaction Routes', () => {
 
       // Register route directly without services
       app.get(
-        '/v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address',
+        '/v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address',
         {
           schema: {
             params: listTransactionsPathParamsSchema,
@@ -300,7 +300,7 @@ describe('Transaction Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+        url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
       });
 
       expect(response.statusCode).toBe(500);
@@ -322,7 +322,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -347,7 +347,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=25`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=25`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -362,7 +362,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=150`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=150`,
         });
 
         expect(response.statusCode).toBe(400);
@@ -373,7 +373,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=0`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?limit=0`,
         });
 
         expect(response.statusCode).toBe(400);
@@ -394,7 +394,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -419,7 +419,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?sort=asc`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?sort=asc`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -434,7 +434,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?sort=invalid`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?sort=invalid`,
         });
 
         expect(response.statusCode).toBe(400);
@@ -457,7 +457,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?cursor=${cursor}`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?cursor=${cursor}`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -482,7 +482,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         });
 
         expect(response.statusCode).toBe(200);
@@ -515,7 +515,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=true`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=true`,
         });
 
         expect(response.statusCode).toBe(200);
@@ -552,7 +552,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeTokenTransfers=true`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeTokenTransfers=true`,
         });
 
         expect(response.statusCode).toBe(200);
@@ -590,7 +590,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=true&includeTokenTransfers=true`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=true&includeTokenTransfers=true`,
         });
 
         expect(response.statusCode).toBe(200);
@@ -623,7 +623,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=false&includeTokenTransfers=false`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}?includeNativeTransfers=false&includeTokenTransfers=false`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(
@@ -643,7 +643,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}`,
+          url: `/v2/transactions/ecosystem/invalid/chain/eth/address/${TEST_ADDRESS}`,
         });
 
         expect(response.statusCode).toBe(400);
@@ -654,7 +654,7 @@ describe('Transaction Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/`,
         });
 
         // Route matches but empty address fails min(1) validation
@@ -676,7 +676,7 @@ describe('Transaction Routes', () => {
 
         await app.inject({
           method: 'GET',
-          url: `/v1/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
+          url: `/v2/transactions/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}`,
         });
 
         expect(mockListByChainAndAddress).toHaveBeenCalledWith(

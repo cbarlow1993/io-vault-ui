@@ -3,7 +3,6 @@ import chainValidationPlugin from '@/src/plugins/chain-validation.js';
 import buildTransactionRoutes from './build/index.js';
 import {
   createTransaction,
-  getTransactionDetails,
   getTransactionDetailsV2,
   listTransactions,
   scanTransaction,
@@ -21,7 +20,6 @@ import {
   scanTransactionBodySchema,
   scanTransactionPathParamsSchema,
   scanTransactionResponseSchema,
-  transactionResponseSchema,
 } from '@/src/routes/transactions/schemas.js';
 
 /**
@@ -54,30 +52,6 @@ export default async function transactionRoutes(fastify: FastifyInstance) {
       },
     },
     listTransactions
-  );
-
-  // ==================== Get Transaction Details ====================
-
-  /**
-   * GET /ecosystem/:ecosystem/chain/:chainAlias/address/:address/transaction/:transactionHash
-   * Get transaction details
-   */
-  fastify.get(
-    '/ecosystem/:ecosystem/chain/:chainAlias/address/:address/transaction/:transactionHash',
-    {
-      schema: {
-        tags: ['Transactions'],
-        summary: 'Get transaction details',
-        description:
-          'Retrieves detailed information about a specific transaction including classification data and transfers.',
-        params: getTransactionPathParamsSchema,
-        querystring: getTransactionQuerySchema,
-        response: {
-          200: transactionResponseSchema,
-        },
-      },
-    },
-    getTransactionDetails
   );
 
   // ==================== Scan Transaction ====================
@@ -121,7 +95,7 @@ export async function vaultTransactionRoutes(fastify: FastifyInstance) {
   /**
    * POST /ecosystem/:ecosystem/chain/:chainAlias/transaction
    * Create a transaction (sign request)
-   * Note: vaultId is in the parent prefix (/v1/vaults/:vaultId/transactions)
+   * Note: vaultId is in the parent prefix (/v2/vaults/:vaultId/transactions)
    */
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/transaction',

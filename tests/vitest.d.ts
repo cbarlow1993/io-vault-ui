@@ -1,0 +1,8 @@
+// tests/vitest.d.ts
+import 'vitest';
+import type { CustomMatcher } from 'aws-sdk-client-mock-vitest';
+
+declare module 'vitest' {
+  interface Assertion<T = any> extends CustomMatcher<T> {}
+  interface AsymmetricMatchersContaining extends CustomMatcher {}
+}

@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { WorkflowOrchestrator } from '@/src/services/workflow/orchestrator.js';
 import { WorkflowRepository } from '@/src/repositories/workflow.repository.js';
@@ -17,7 +18,7 @@ import type {
 function createMockWorkflow(overrides: Partial<Workflow> = {}): Workflow {
   const defaultContext: WorkflowContext = {
     vaultId: 'vault-123',
-    chainAlias: 'ethereum',
+    chainAlias: 'eth' as ChainAlias,
     marshalledHex: '0xabc',
     organisationId: 'org-123',
     createdBy: { id: 'user-123', type: 'User' },
@@ -43,7 +44,7 @@ function createMockWorkflow(overrides: Partial<Workflow> = {}): Workflow {
     createdAt: overrides.createdAt ?? new Date(),
     updatedAt: overrides.updatedAt ?? new Date(),
     vaultId: 'vault-123',
-    chainAlias: 'ethereum',
+    chainAlias: 'eth' as ChainAlias,
     marshalledHex: '0xabc',
     organisationId: 'org-123',
     createdBy: { id: 'user-123', type: 'User' },
@@ -66,7 +67,7 @@ describe('WorkflowOrchestrator', () => {
 
   const baseContext: WorkflowContext = {
     vaultId: 'vault-123',
-    chainAlias: 'ethereum',
+    chainAlias: 'eth' as ChainAlias,
     marshalledHex: '0xabc',
     organisationId: 'org-123',
     createdBy: { id: 'user-123', type: 'User' },
@@ -113,7 +114,7 @@ describe('WorkflowOrchestrator', () => {
     it('creates workflow with initial context', async () => {
       const input = {
         vaultId: 'vault-123',
-        chainAlias: 'ethereum',
+        chainAlias: 'eth' as ChainAlias,
         marshalledHex: '0xabc',
         organisationId: 'org-123',
         createdBy: { id: 'user-123', type: 'User' as const },
@@ -131,7 +132,7 @@ describe('WorkflowOrchestrator', () => {
       expect(workflowRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           vaultId: 'vault-123',
-          chainAlias: 'ethereum',
+          chainAlias: 'eth' as ChainAlias,
           marshalledHex: '0xabc',
           organisationId: 'org-123',
         })
@@ -141,7 +142,7 @@ describe('WorkflowOrchestrator', () => {
     it('creates workflow with skipReview enabled', async () => {
       const input = {
         vaultId: 'vault-456',
-        chainAlias: 'polygon',
+        chainAlias: 'polygon' as ChainAlias,
         marshalledHex: '0xdef',
         organisationId: 'org-456',
         createdBy: { id: 'system', type: 'System' as const },

@@ -200,7 +200,7 @@ function loadConfig() {
 
   if (!result.success) {
     console.error('❌ Invalid configuration:');
-    console.error(result.error.format());
+    console.error(z.treeifyError(result.error));
     process.exit(1);
   }
 

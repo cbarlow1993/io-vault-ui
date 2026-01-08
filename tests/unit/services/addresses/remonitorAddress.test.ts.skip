@@ -1,0 +1,204 @@
+import { NotFoundError } from '@iofinnet/errors-sdk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { remonitorAddress } from '@/src/services/addresses/index.js';
+import * as ddbModule from '@/src/services/addresses/ddb.js';
+import type { Addresses } from '@/src/types/address.js';
+
+vi.mock('@/src/services/addresses/ddb.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...(actual as Record<string, unknown>),
+    getAddressItem: vi.fn(),
+    transactRemonitorAddress: vi.fn(),
+  };
+});
+
+describe('remonitorAddress', () => {
+  const mockAddress = '0xabc123';
+  const mockChain = 'eth';
+  const mockVaultId = 'vault-123';
+  const mockWorkspaceId = 'workspace-123';
+  const mockOrganisationId = 'org-123';
+
+  const mockUnmonitoredItem: Addresses.UnmonitoredDynamoDBAddress = {
+    PK: `ADDR#${mockAddress}`,
+    SK: `CHAIN#${mockChain}#UNMONITORED`,
+    address: mockAddress,
+    chain: mockChain,
+    ecosystem: 'evm',
+    organisationId: mockOrganisationId,
+    vaultId: mockVaultId,
+    workspaceId: mockWorkspaceId,
+    monitoredAt: '2024-01-01T00:00:00.000Z',
+    unmonitoredAt: '2024-01-02T00:00:00.000Z',
+    updatedAt: '2024-01-02T00:00:00.000Z',
+    tokens: [
+      {
+        contractAddress: '0xtoken1',
+        symbol: 'TKN1',
+        decimals: 18,
+        hidden: false,
+      },
+    ],
+    GSI1PK: `VAULT#${mockVaultId}`,
+    GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+    GSI3PK: `VAULT#${mockVaultId}`,
+    GSI3SK: `UNMONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should successfully re-monitor an unmonitored address', async () => {
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(mockUnmonitoredItem);
+    vi.spyOn(ddbModule, 'transactRemonitorAddress').mockResolvedValue();
+
+    const result = await remonitorAddress({ address: mockAddress, chain: mockChain });
+
+    expect(ddbModule.getAddressItem).toHaveBeenCalledWith({
+      PK: `ADDR#${mockAddress}`,
+      SK: `CHAIN#${mockChain}#UNMONITORED`,
+    });
+
+    expect(ddbModule.transactRemonitorAddress).toHaveBeenCalledWith({
+      unmonitoredItem: mockUnmonitoredItem,
+      monitoredItem: expect.objectContaining({
+        PK: `ADDR#${mockAddress}`,
+        SK: `CHAIN#${mockChain}#MONITORED`,
+        address: mockAddress,
+        chain: mockChain,
+        ecosystem: 'evm',
+        organisationId: mockOrganisationId,
+        vaultId: mockVaultId,
+        workspaceId: mockWorkspaceId,
+        monitoredAt: '2024-01-01T00:00:00.000Z', // Preserved from original
+        tokens: mockUnmonitoredItem.tokens,
+        GSI1PK: `VAULT#${mockVaultId}`,
+        GSI1SK: `CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+        GSI3PK: `VAULT#${mockVaultId}`,
+        GSI3SK: `MONITORED#CHAIN#${mockChain}#ROOT#ADDR#${mockAddress}`,
+      }),
+    });
+
+    expect(result).toEqual({
+      address: mockAddress,
+      alias: null,
+      chain: mockChain,
+      vaultId: mockVaultId,
+      workspaceId: mockWorkspaceId,
+      derivationPath: null,
+      subscriptionId: null,
+      monitored: true,
+      monitoredAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: expect.any(String),
+      tokens: mockUnmonitoredItem.tokens,
+    });
+  });
+
+  it('should preserve tokens when re-monitoring', async () => {
+    const tokensToPreserve = [
+      { contractAddress: '0xtoken1', symbol: 'TKN1', decimals: 18, hidden: false },
+      { contractAddress: '0xtoken2', symbol: 'TKN2', decimals: 6, hidden: true },
+    ];
+
+    const unmonitoredWithTokens = {
+      ...mockUnmonitoredItem,
+      tokens: tokensToPreserve,
+    };
+
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(unmonitoredWithTokens);
+    vi.spyOn(ddbModule, 'transactRemonitorAddress').mockResolvedValue();
+
+    const result = await remonitorAddress({ address: mockAddress, chain: mockChain });
+
+    expect(result.tokens).toEqual(tokensToPreserve);
+  });
+
+  it('should handle HD child addresses correctly', async () => {
+    const derivationPath = 'm/44/0/0/0';
+    const mockUnmonitoredHDAddress: Addresses.UnmonitoredDynamoDBAddress = {
+      ...mockUnmonitoredItem,
+      derivationPath,
+      GSI1SK: `CHAIN#${mockChain}#CHILD#${derivationPath}#ADDR#${mockAddress}`,
+      GSI3SK: `UNMONITORED#CHAIN#${mockChain}#CHILD#${derivationPath}#ADDR#${mockAddress}`,
+    };
+
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(mockUnmonitoredHDAddress);
+    vi.spyOn(ddbModule, 'transactRemonitorAddress').mockResolvedValue();
+
+    const result = await remonitorAddress({ address: mockAddress, chain: mockChain });
+
+    expect(ddbModule.transactRemonitorAddress).toHaveBeenCalledWith({
+      unmonitoredItem: mockUnmonitoredHDAddress,
+      monitoredItem: expect.objectContaining({
+        derivationPath,
+        GSI1SK: `CHAIN#${mockChain}#CHILD#${derivationPath}#ADDR#${mockAddress}`,
+        GSI3SK: `MONITORED#CHAIN#${mockChain}#CHILD#${derivationPath}#ADDR#${mockAddress}`,
+      }),
+    });
+
+    expect(result.derivationPath).toBe(derivationPath);
+  });
+
+  it('should throw NotFoundError when unmonitored address does not exist', async () => {
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(null);
+
+    await expect(remonitorAddress({ address: mockAddress, chain: mockChain })).rejects.toThrow(
+      NotFoundError
+    );
+
+    await expect(remonitorAddress({ address: mockAddress, chain: mockChain })).rejects.toThrow(
+      `Unmonitored address not found for address ${mockAddress} and chain ${mockChain}`
+    );
+
+    expect(ddbModule.transactRemonitorAddress).not.toHaveBeenCalled();
+  });
+
+  it('should preserve TTL if present', async () => {
+    const ttl = 1234567890;
+    const unmonitoredWithTTL = {
+      ...mockUnmonitoredItem,
+      ttl,
+    };
+
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(unmonitoredWithTTL);
+    vi.spyOn(ddbModule, 'transactRemonitorAddress').mockResolvedValue();
+
+    await remonitorAddress({ address: mockAddress, chain: mockChain });
+
+    expect(ddbModule.transactRemonitorAddress).toHaveBeenCalledWith({
+      unmonitoredItem: unmonitoredWithTTL,
+      monitoredItem: expect.objectContaining({
+        ttl,
+      }),
+    });
+  });
+
+  it('should handle different chains correctly', async () => {
+    const polygonChain = 'polygon';
+    const polygonUnmonitored = {
+      ...mockUnmonitoredItem,
+      chain: polygonChain,
+      SK: `CHAIN#${polygonChain}#UNMONITORED`,
+      GSI1SK: `CHAIN#${polygonChain}#ROOT#ADDR#${mockAddress}`,
+      GSI3SK: `UNMONITORED#CHAIN#${polygonChain}#ROOT#ADDR#${mockAddress}`,
+    };
+
+    vi.spyOn(ddbModule, 'getAddressItem').mockResolvedValue(polygonUnmonitored);
+    vi.spyOn(ddbModule, 'transactRemonitorAddress').mockResolvedValue();
+
+    const result = await remonitorAddress({ address: mockAddress, chain: polygonChain });
+
+    expect(result.chain).toBe(polygonChain);
+    expect(ddbModule.transactRemonitorAddress).toHaveBeenCalledWith({
+      unmonitoredItem: polygonUnmonitored,
+      monitoredItem: expect.objectContaining({
+        chain: polygonChain,
+        SK: `CHAIN#${polygonChain}#MONITORED`,
+        GSI1SK: `CHAIN#${polygonChain}#ROOT#ADDR#${mockAddress}`,
+        GSI3SK: `MONITORED#CHAIN#${polygonChain}#ROOT#ADDR#${mockAddress}`,
+      }),
+    });
+  });
+});

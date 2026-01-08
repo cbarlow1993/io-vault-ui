@@ -81,12 +81,14 @@ describe('Fastify App Integration', () => {
     it('lists chains without auth', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/v1/chains',
+        url: '/v2/chains',
       });
       expect(response.statusCode).toBe(200);
       const json = response.json();
-      expect(Array.isArray(json)).toBe(true);
-      expect(json.length).toBeGreaterThan(0);
+      // Response is { data: [...chains] }
+      expect(json).toHaveProperty('data');
+      expect(Array.isArray(json.data)).toBe(true);
+      expect(json.data.length).toBeGreaterThan(0);
     });
   });
 
@@ -105,7 +107,7 @@ describe('Fastify App Integration', () => {
     it('returns 401 for addresses without auth', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/v1/vaults/550e8400-e29b-41d4-a716-446655440000/addresses',
+        url: '/v2/vaults/550e8400-e29b-41d4-a716-446655440000/addresses',
       });
       expect(response.statusCode).toBe(401);
     });
@@ -113,7 +115,7 @@ describe('Fastify App Integration', () => {
     it('allows access with Bearer token auth', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/v1/vaults/550e8400-e29b-41d4-a716-446655440000/addresses',
+        url: '/v2/vaults/550e8400-e29b-41d4-a716-446655440000/addresses',
         headers: {
           Authorization: 'Bearer valid-test-token',
         },

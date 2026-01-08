@@ -67,7 +67,7 @@ vi.mock('@/utils/try-catch.js', () => ({
   tryCatch: vi.fn(),
 }));
 
-vi.mock('@/services/common/index.js', () => ({
+vi.mock('@/src/lib/schemas/common.js', () => ({
   vaultIdSchema: z.string().uuid(),
 }));
 
@@ -145,7 +145,7 @@ const mockTokenTransfer = {
 
 // Simplified schemas for testing (bypass chain validation)
 const getTransactionPathParamsSchema = z.object({
-  ecosystem: z.nativeEnum(EcoSystem),
+  ecosystem: z.enum(EcoSystem),
   chain: z.string().min(1),
   address: z.string().min(1),
   transactionHash: z.string().min(1),

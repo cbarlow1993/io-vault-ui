@@ -1545,7 +1545,7 @@ import {
 
 /**
  * Build transaction routes - vault-scoped
- * Registered under /v1/vaults/:vaultId/transactions
+ * Registered under /v2/vaults/:vaultId/transactions
  */
 export default async function buildTransactionRoutes(fastify: FastifyInstance) {
   await fastify.register(chainValidationPlugin);

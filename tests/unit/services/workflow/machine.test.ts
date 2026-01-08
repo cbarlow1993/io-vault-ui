@@ -1,3 +1,4 @@
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { createActor } from 'xstate';
 import { describe, it, expect } from 'vitest';
 import { transactionMachine } from '@/src/services/workflow/machine';
@@ -5,7 +6,7 @@ import type { WorkflowContext } from '@/src/services/workflow/types';
 
 const baseInput: Partial<WorkflowContext> = {
   vaultId: 'vault-123',
-  chainAlias: 'ethereum',
+  chainAlias: 'eth' as ChainAlias,
   marshalledHex: '0xabc',
   organisationId: 'org-123',
   createdBy: { id: 'user-123', type: 'User' },

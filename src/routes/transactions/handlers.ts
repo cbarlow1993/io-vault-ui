@@ -45,7 +45,7 @@ interface HDWallet extends IWalletLike {
 
 /**
  * List transactions for an address
- * GET /v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address
+ * GET /v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address
  */
 export async function listTransactions(
   request: FastifyRequest<{
@@ -108,7 +108,7 @@ export async function listTransactionsByAddressId(
   const result = await request.server.services.transactions.listByAddress(address.address, {
     limit,
     offset,
-    chainAlias,
+    chainAlias: chainAlias as ChainAlias | undefined,
   });
 
   return reply.send({
@@ -121,7 +121,7 @@ export async function listTransactionsByAddressId(
 
 /**
  * Get transaction details
- * GET /v1/transactions/ecosystem/:ecosystem/chain/:chain/address/:address/transaction/:transactionHash
+ * GET /v2/transactions/ecosystem/:ecosystem/chain/:chain/address/:address/transaction/:transactionHash
  * @deprecated Will be replaced with PostgreSQL-based handler (getTransactionDetailsV2)
  */
 export async function getTransactionDetails(
@@ -186,7 +186,7 @@ export async function getTransactionDetailsV2(
 
 /**
  * Scan a transaction for security threats using Blockaid
- * POST /v1/transactions/ecosystem/:ecosystem/chain/:chain/scan-transaction
+ * POST /v2/transactions/ecosystem/:ecosystem/chain/:chain/scan-transaction
  */
 export async function scanTransaction(
   request: FastifyRequest<{
@@ -266,7 +266,7 @@ export async function scanTransaction(
 
 /**
  * Create a transaction (sign request)
- * POST /v1/vaults/:vaultId/transactions/ecosystem/:ecosystem/chain/:chain/transaction
+ * POST /v2/vaults/:vaultId/transactions/ecosystem/:ecosystem/chain/:chain/transaction
  */
 export async function createTransaction(
   request: FastifyRequest<{

@@ -1,5 +1,6 @@
 import type { Kysely } from 'kysely';
 import {
+  type ChainAlias,
   EvmChainAliases,
   SvmChainAliases,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
@@ -23,11 +24,11 @@ import type {
 const evmAliases = Object.values(EvmChainAliases) as string[];
 const svmAliases = Object.values(SvmChainAliases) as string[];
 
-function isEvmChain(chainAlias: string): boolean {
+function isEvmChain(chainAlias: ChainAlias): boolean {
   return evmAliases.includes(chainAlias);
 }
 
-function isSvmChain(chainAlias: string): boolean {
+function isSvmChain(chainAlias: ChainAlias): boolean {
   return svmAliases.includes(chainAlias);
 }
 
@@ -60,7 +61,7 @@ function isValidSolanaTxSignature(signature: string): boolean {
 /**
  * Validates transaction hash format based on chain type.
  */
-function validateTxHashFormat(chain: string, txHash: string): void {
+function validateTxHashFormat(chain: ChainAlias, txHash: string): void {
   if (isEvmChain(chain)) {
     if (!isValidEvmTxHash(txHash)) {
       throw new Error(`Invalid EVM transaction hash format: ${txHash}`);
@@ -120,7 +121,7 @@ export class TransactionProcessor {
    * @param forAddress - Optional address that triggered this processing (for linking in address_transactions)
    * @returns The processing result with transaction ID and classification info
    */
-  async process(chainAlias: string, txHash: string, forAddress?: string): Promise<ProcessResult> {
+  async process(chainAlias: ChainAlias, txHash: string, forAddress?: string): Promise<ProcessResult> {
     // Validate required parameters
     if (!chainAlias?.trim() || !txHash?.trim()) {
       throw new Error('chainAlias and txHash are required');
@@ -174,7 +175,7 @@ export class TransactionProcessor {
    * @param addresses - The token contract addresses
    */
   private async fetchTokenMetadata(
-    chainAlias: string,
+    chainAlias: ChainAlias,
     addresses: string[]
   ): Promise<TokenInfo[]> {
     const tokens: TokenInfo[] = [];
@@ -202,7 +203,7 @@ export class TransactionProcessor {
    */
   private normalizeTransaction(
     rawTx: RawTransaction,
-    chainAlias: string
+    chainAlias: ChainAlias
   ): NormalizedTransaction {
     if (rawTx.type === 'evm') {
       return this.normalizeEvmTransaction(rawTx, chainAlias);
@@ -218,7 +219,7 @@ export class TransactionProcessor {
    */
   private normalizeEvmTransaction(
     rawTx: EvmTransactionData,
-    chainAlias: string
+    chainAlias: ChainAlias
   ): NormalizedTransaction {
     // Calculate fee: gasUsed * gasPrice
     const gasUsed = BigInt(rawTx.gasUsed);
@@ -244,7 +245,7 @@ export class TransactionProcessor {
    */
   private normalizeSvmTransaction(
     rawTx: SvmTransactionData,
-    chainAlias: string
+    chainAlias: ChainAlias
   ): NormalizedTransaction {
     // Validate that transaction has instructions
     if (!rawTx.instructions || rawTx.instructions.length === 0) {

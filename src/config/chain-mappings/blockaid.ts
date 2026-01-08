@@ -70,7 +70,7 @@ export const BLOCKAID_TOKEN_SCAN_CHAIN_MAP: Record<string, TokenScanSupportedCha
  * @param chain - Internal chain alias (e.g., 'eth', 'polygon', 'avalanche-c')
  * @returns Blockaid TokenScanSupportedChain or null if unsupported
  */
-export const mapChainToBlockaidTokenScanChain = (chain: string): TokenScanSupportedChain | null => {
+export const mapChainToBlockaidTokenScanChain = (chain: ChainAlias): TokenScanSupportedChain | null => {
   return BLOCKAID_TOKEN_SCAN_CHAIN_MAP[chain] ?? null;
 };
 
@@ -80,6 +80,6 @@ export const mapChainToBlockaidTokenScanChain = (chain: string): TokenScanSuppor
  * @param chainAlias - Internal chain alias
  * @returns true if Blockaid supports token scanning for this chain
  */
-export function isBlockaidTokenScanSupported(chainAlias: string): boolean {
+export function isBlockaidTokenScanSupported(chainAlias: ChainAlias): boolean {
   return chainAlias in BLOCKAID_TOKEN_SCAN_CHAIN_MAP;
 }

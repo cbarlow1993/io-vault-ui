@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import type { TestUser } from '@/tests/models.js';
-import { accessTokenCache } from '@/tests/utils/testApiClient.js';
+import { setupTestClients, type ITestClient } from '@/tests/utils/dualModeTestClient.js';
 
 // User/Client configurations
 
@@ -98,7 +98,7 @@ export const buildVaultEndpoint = (
   ecosystem?: string,
   chain?: string
 ): string => {
-  let endpoint = `/v1/vaults/${user.vaultId}${path}`;
+  let endpoint = `/v2/vaults/${user.vaultId}${path}`;
 
   if (ecosystem) {
     endpoint = endpoint.replace('{ecosystem}', ecosystem);
@@ -156,31 +156,31 @@ export const TEST_PAYLOADS = {
  */
 export const ENDPOINT_PATTERNS = [
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses/{ecosystem}/{chain}/hd-addresses',
+    endpoint: '/v2/vaults/{vaultId}/addresses/{ecosystem}/{chain}/hd-addresses',
     method: 'POST',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses/{ecosystem}/{chain}/hd-addresses/bulk',
+    endpoint: '/v2/vaults/{vaultId}/addresses/{ecosystem}/{chain}/hd-addresses/bulk',
     method: 'POST',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}/hd-addresses',
+    endpoint: '/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}/hd-addresses',
     method: 'GET',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}',
+    endpoint: '/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}',
     method: 'POST',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses',
+    endpoint: '/v2/vaults/{vaultId}/addresses',
     method: 'GET',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}',
+    endpoint: '/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chain}',
     method: 'GET',
   },
   {
-    endpoint: '/v1/vaults/{vaultId}/balances/ecosystem/{ecosystem}/chain/{chain}/{address}',
+    endpoint: '/v2/vaults/{vaultId}/balances/ecosystem/{ecosystem}/chain/{chain}/{address}',
     method: 'GET',
   },
 ] as const;
@@ -235,7 +235,11 @@ export const testCrossUserPermissions = async (
   ecosystem = 'evm',
   chain = 'polygon'
 ) => {
-  const unauthorizedClient = await createAuthenticatedApiClient(unauthorizedUser);
+  // Setup clients for the unauthorized user
+  const clients = await setupTestClients({
+    UNAUTHORIZED: unauthorizedUser,
+  });
+  const unauthorizedClient = clients.UNAUTHORIZED.client;
 
   return Promise.all(
     endpoints.map(async ({ endpoint, method }) => {
@@ -244,27 +248,10 @@ export const testCrossUserPermissions = async (
         .replace('{ecosystem}', ecosystem)
         .replace('{chain}', chain);
 
-      const response = await (unauthorizedClient as any)[method.toLowerCase()](url, undefined, {
-        validateStatus: () => true,
-      });
+      const response = await (unauthorizedClient as ITestClient)[method.toLowerCase() as keyof ITestClient](url);
 
       expectErrorResponse(response, 404);
       return { endpoint, method, status: response.status };
     })
   );
-};
-
-/**
- * Clear access token cache (useful for cleanup in tests)
- */
-export const clearAccessTokenCache = () => {
-  accessTokenCache.clear();
-};
-
-/**
- * Create an authenticated API client for cross-user permission testing
- */
-const createAuthenticatedApiClient = async (user: TestUser) => {
-  const { APITestClient, API_URL } = await import('@/tests/utils/testApiClient.js');
-  return APITestClient.createAuthenticatedApiClient(user, API_URL);
 };

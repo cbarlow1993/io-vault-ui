@@ -58,7 +58,7 @@ export class APITestClient {
     }
 
     // Always use AUTH_API_URL for token retrieval (cloud auth service)
-    const response = await axios.post(`${AUTH_API_URL}/v1/auth/accessToken`, {
+    const response = await axios.post(`${AUTH_API_URL}/v2/auth/accessToken`, {
       clientId: user.clientId,
       clientSecret: user.clientSecret,
     });
@@ -97,7 +97,7 @@ export class APITestClient {
   }
 
   async createTransactionHex(params: TokenHexParams | NativeHexParams): Promise<CreateHexResponse> {
-    const path = `/v1/vaults/${
+    const path = `/v2/vaults/${
       params.vaultId
     }/transactions/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/build-${
       params.type
@@ -126,7 +126,7 @@ export class APITestClient {
   }
 
   async createTransactionFromHex(params: FromHexParams): Promise<string> {
-    const transactionPath = `/v1/vaults/${
+    const transactionPath = `/v2/vaults/${
       params.vaultId
     }/transactions/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/transaction`;
     const transactionResponse = await this.client.post(transactionPath, params.hexInfo);
@@ -140,7 +140,7 @@ export class APITestClient {
   }
 
   async createHDAddress(params: CreateHDAddressParams): Promise<CreateHDAddressResponse> {
-    const createUrl = `/v1/vaults/${
+    const createUrl = `/v2/vaults/${
       params.vaultId
     }/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/hd-addresses`;
     console.log('createUrl', createUrl);
@@ -161,7 +161,7 @@ export class APITestClient {
   }
 
   async registerAddress(params: RegisterAddressParams): Promise<RegisterAddressResponse> {
-    const registerUrl = `/v1/vaults/${
+    const registerUrl = `/v2/vaults/${
       params.vaultId
     }/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}`;
     const requestBody = { address: params.address, derivationPath: params.derivationPath };
@@ -187,7 +187,7 @@ export class APITestClient {
   }
 
   async listVaultAddresses(params: ListVaultAddressesParams): Promise<ListVaultAddressesResponse> {
-    const vaultAddressesUrl = `/v1/vaults/${params.vaultId}/addresses`;
+    const vaultAddressesUrl = `/v2/vaults/${params.vaultId}/addresses`;
     const vaultAddressesResponse = await this.client.get(vaultAddressesUrl, {
       params: { after: params.after, first: 100 },
     });
@@ -202,7 +202,7 @@ export class APITestClient {
   }
 
   async listChainAddresses(params: ListChainAddressesParams): Promise<ListChainAddressesResponse> {
-    const chainAddressesUrl = `/v1/vaults/${
+    const chainAddressesUrl = `/v2/vaults/${
       params.vaultId
     }/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/hd-addresses`;
     const chainAddressesResponse = await this.client.get(chainAddressesUrl, {
@@ -223,7 +223,7 @@ export class APITestClient {
   async batchCreateHDAddresses(
     params: BatchCreateHDAddressesParams
   ): Promise<CreateHDAddressResponse[]> {
-    const batchCreateUrl = `/v1/vaults/${
+    const batchCreateUrl = `/v2/vaults/${
       params.vaultId
     }/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/hd-addresses/bulk`;
     const requestBody = { indexFrom: params.indexFrom, indexTo: params.indexTo };
@@ -247,7 +247,7 @@ export class APITestClient {
   }
 
   async getTransactions(params: GetTransactionsParams): Promise<GetTransactionsResponse> {
-    const transactionsUrl = `/v1/transactions/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}`;
+    const transactionsUrl = `/v2/transactions/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}`;
     console.log(`Fetching transactions from: ${transactionsUrl}`);
     const queryParams: Record<string, any> = {};
 
@@ -276,7 +276,7 @@ export class APITestClient {
     attempt = 0
   ): Promise<NativeBalanceResponse | TokenBalanceResponse> {
     const MAX_ATTEMPTS = 3;
-    const balanceUrl = `/v1/balances/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}/${params.type}`;
+    const balanceUrl = `/v2/balances/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}/${params.type}`;
     const balanceResponse = await this.client.get(balanceUrl);
 
     if (balanceResponse.status !== 200 && attempt < MAX_ATTEMPTS) {
@@ -308,7 +308,7 @@ export class APITestClient {
     chain: string;
     address: string;
   }): Promise<RegisterAddressResponse> {
-    const addressUrl = `/v1/vaults/${params.vaultId}/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}`;
+    const addressUrl = `/v2/vaults/${params.vaultId}/addresses/ecosystem/${params.ecosystem.toLowerCase()}/chain/${params.chain.toLowerCase()}/address/${params.address}`;
     console.log(`Fetching address details from: ${addressUrl}`);
 
     const addressResponse = await this.client.get(addressUrl);
@@ -365,7 +365,7 @@ export class APITestClient {
     vaultId: string,
     params: { attempt: number; after?: string } = { attempt: 0 }
   ): Promise<SignatureResponse> {
-    const signaturesUrl = `/v1/vaults/${vaultId}/signatures`;
+    const signaturesUrl = `/v2/vaults/${vaultId}/signatures`;
     const signaturesResponse = await this.client.get(signaturesUrl, {
       params: { after: params.after },
     });
