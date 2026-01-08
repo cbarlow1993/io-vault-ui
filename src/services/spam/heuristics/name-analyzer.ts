@@ -10,6 +10,51 @@ const KNOWN_TOKENS = [
   'UNI', 'AAVE', 'LINK', 'CRV', 'MKR', 'COMP', 'SNX', // DeFi
 ];
 
+// Legitimate symbol prefixes for derivative tokens (staked, wrapped, liquid, etc.)
+const LEGITIMATE_SYMBOL_PREFIXES = [
+  'W',    // Wrapped (WETH, WBTC)
+  'ST',   // Staked (stETH, stMATIC)
+  'R',    // Rocket Pool (rETH)
+  'CB',   // Coinbase (cbETH, cbBTC)
+  'A',    // Aave (aETH, aDAI)
+  'C',    // Compound (cETH, cDAI)
+  'S',    // Staked/Synth (sETH, sUSD)
+  'M',    // Morpho/Maker (mETH)
+  'E',    // Eigenlayer (eETH)
+  'WE',   // Wrapped Ether variants
+  'OS',   // Origin (osETH)
+  'SW',   // Swell (swETH)
+  'AN',   // Ankr (ankrETH normalized)
+  'F',    // Frax (frxETH normalized)
+  'LS',   // Liquid Staked
+  'B',    // Bridged
+];
+
+// Legitimate name patterns that indicate derivative tokens (case insensitive)
+const LEGITIMATE_NAME_PATTERNS = [
+  'staked',
+  'wrapped',
+  'liquid',
+  'bridged',
+  'synthetic',
+  'rebasing',
+  'interest bearing',
+  'yield bearing',
+  'lido',
+  'rocket pool',
+  'coinbase',
+  'compound',
+  'aave',
+  'frax',
+  'origin',
+  'swell',
+  'ankr',
+  'mantle',
+  'binance',
+  'name service',  // Ethereum Name Service
+  'domain',        // ENS domains
+];
+
 // Unicode confusable characters map
 const CONFUSABLES: Record<string, string> = {
   '\u00D0': 'D', // Ð (Latin Capital Letter Eth)
@@ -133,8 +178,9 @@ export class NameAnalyzer {
     const normalizedSymbol = this.normalizeSymbol(symbol);
     const upperSymbol = symbol.toUpperCase();
     const upperName = name.toUpperCase();
+    const lowerName = name.toLowerCase();
 
-    // If the normalized symbol exactly matches a known token (including wrapped), it's legitimate
+    // If the normalized symbol exactly matches a known token, it's legitimate
     if (KNOWN_TOKENS.includes(normalizedSymbol)) {
       // But if the original symbol had extra chars (dots, spaces, zero-width), it's impersonation
       if (upperSymbol !== normalizedSymbol) {
@@ -143,24 +189,54 @@ export class NameAnalyzer {
       return false;
     }
 
+    // Check if the name contains legitimate derivative patterns
+    const hasLegitimateNamePattern = LEGITIMATE_NAME_PATTERNS.some(
+      (pattern) => lowerName.includes(pattern)
+    );
+
+    // Check if symbol has a legitimate derivative prefix followed by a known token
+    const hasLegitimateSymbolPrefix = LEGITIMATE_SYMBOL_PREFIXES.some((prefix) => {
+      if (!normalizedSymbol.startsWith(prefix)) {
+        return false;
+      }
+      const remainder = normalizedSymbol.slice(prefix.length);
+      return KNOWN_TOKENS.includes(remainder);
+    });
+
     for (const knownToken of KNOWN_TOKENS) {
       // Check if normalized symbol contains known token with extra chars (e.g., USDT2, USDTX)
-      // Exclude wrapped tokens (WETH contains ETH, WBTC contains BTC) - these are legitimate
-      if (normalizedSymbol.includes(knownToken) && normalizedSymbol.length <= knownToken.length + 2) {
-        // Allow legitimate wrapped tokens (W prefix)
-        if (normalizedSymbol.startsWith('W') && normalizedSymbol === `W${knownToken}`) {
+      // Only flag symbols with 1-2 extra characters (likely impersonation)
+      // 3+ extra characters are likely unrelated tokens, not impersonation
+      if (normalizedSymbol.includes(knownToken) && normalizedSymbol.length < knownToken.length + 3) {
+        // Allow symbols with legitimate derivative prefixes (stETH, cbETH, rETH, etc.)
+        if (hasLegitimateSymbolPrefix) {
           continue;
         }
-        return true;
+        // Allow if name has legitimate derivative patterns (staked, wrapped, liquid, etc.)
+        if (hasLegitimateNamePattern) {
+          continue;
+        }
+        // Flag symbols that add suspicious suffixes (USDT2, ETHX, etc.)
+        if (normalizedSymbol !== knownToken) {
+          return true;
+        }
       }
 
       // Check if name mentions known token but symbol doesn't match
       if (upperName.includes(knownToken)) {
-        // Allow legitimate wrapped tokens
-        if (upperName.startsWith('WRAPPED') && normalizedSymbol.startsWith('W')) {
+        // Allow if name has legitimate derivative patterns (staked, wrapped, liquid, etc.)
+        if (hasLegitimateNamePattern) {
           continue;
         }
-        return true;
+        // Allow if symbol has legitimate derivative prefix
+        if (hasLegitimateSymbolPrefix) {
+          continue;
+        }
+        // Flag if name contains known token but symbol is unrelated
+        // (e.g., name="Fake USDT" symbol="SCAM")
+        if (!normalizedSymbol.includes(knownToken)) {
+          return true;
+        }
       }
     }
 

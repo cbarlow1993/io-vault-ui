@@ -5,7 +5,7 @@ import type { TokenScanResponse } from '@blockaid/client/resources/token';
 
 // Mock the blockaid client
 const mockTokenScan = vi.fn();
-vi.mock('@/src/lib/clients/index.js', () => ({
+vi.mock('@/src/lib/clients.js', () => ({
   blockaidClient: () => ({
     token: {
       scan: mockTokenScan,
@@ -344,6 +344,126 @@ describe('BlockaidProvider', () => {
         expect(result.blockaid!.checkedAt).toBeDefined();
         expect(result.blockaid!.checkedAt >= before).toBe(true);
         expect(result.blockaid!.checkedAt <= after).toBe(true);
+      });
+
+      describe('riskScore NaN handling', () => {
+        it('should default riskScore to 0 when malicious_score is undefined', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: undefined as unknown as string,
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0);
+          expect(Number.isNaN(result.blockaid!.riskScore)).toBe(false);
+        });
+
+        it('should default riskScore to 0 when malicious_score is null', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: null as unknown as string,
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0);
+          expect(Number.isNaN(result.blockaid!.riskScore)).toBe(false);
+        });
+
+        it('should default riskScore to 0 when malicious_score is empty string', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: '',
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0);
+          expect(Number.isNaN(result.blockaid!.riskScore)).toBe(false);
+        });
+
+        it('should default riskScore to 0 when malicious_score is non-numeric string', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: 'not-a-number',
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0);
+          expect(Number.isNaN(result.blockaid!.riskScore)).toBe(false);
+        });
+
+        it('should correctly parse valid numeric malicious_score', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: '0.75',
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0.75);
+        });
+
+        it('should correctly parse zero malicious_score', async () => {
+          mockTokenScan.mockResolvedValue(createMockTokenScanResponse({
+            malicious_score: '0',
+          }));
+
+          const token: TokenToClassify = {
+            chain: 'eth',
+            network: 'mainnet',
+            address: '0x123',
+            name: 'Test',
+            symbol: 'TEST',
+            coingeckoId: null,
+          };
+
+          const result = await provider.classify(token);
+
+          expect(result.blockaid!.riskScore).toBe(0);
+        });
       });
     });
 

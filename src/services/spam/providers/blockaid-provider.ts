@@ -61,10 +61,14 @@ export class BlockaidProvider implements SpamClassificationProvider {
       (t) => t.toLowerCase().includes('impersonator') || t.toLowerCase().includes('phishing')
     );
 
+    // Safely parse risk score, defaulting to 0 if invalid
+    const parsedScore = parseFloat(response.malicious_score);
+    const riskScore = Number.isNaN(parsedScore) ? 0 : parsedScore;
+
     return {
       isMalicious: response.result_type === 'Malicious',
       isPhishing,
-      riskScore: parseFloat(response.malicious_score),
+      riskScore,
       attackTypes,
       resultType: response.result_type,
       checkedAt: new Date().toISOString(),
