@@ -27,4 +27,13 @@ export {
   // Fee Estimate Types
   type FeeLevel,
   type FeeEstimate,
+  // Transaction Override Types
+  type EvmTransactionOverrides,
+  type SvmTransactionOverrides,
+  type UtxoTransactionOverrides,
+  type TvmTransactionOverrides,
+  type XrpTransactionOverrides,
+  type SubstrateTransactionOverrides,
+  type EcosystemOverridesMap,
+  type TransactionOverrides,
 } from './core/types.js';

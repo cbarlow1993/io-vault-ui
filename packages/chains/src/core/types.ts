@@ -121,3 +121,56 @@ export interface FeeEstimate {
   standard: FeeLevel;
   fast: FeeLevel;
 }
+
+// ============ Transaction Override Types ============
+
+export interface EvmTransactionOverrides {
+  nonce?: number;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  gasLimit?: string;
+}
+
+export interface SvmTransactionOverrides {
+  recentBlockhash?: string;
+  computeUnitLimit?: number;
+  computeUnitPrice?: number;
+}
+
+export interface UtxoTransactionOverrides {
+  feeRate?: number;
+}
+
+export interface TvmTransactionOverrides {
+  feeLimit?: number;
+  expiration?: number;
+}
+
+export interface XrpTransactionOverrides {
+  sequence?: number;
+  fee?: string;
+  lastLedgerSequence?: number;
+}
+
+export interface SubstrateTransactionOverrides {
+  tip?: string;
+  nonce?: number;
+  era?: number;
+}
+
+export interface EcosystemOverridesMap {
+  evm: EvmTransactionOverrides;
+  svm: SvmTransactionOverrides;
+  utxo: UtxoTransactionOverrides;
+  tvm: TvmTransactionOverrides;
+  xrp: XrpTransactionOverrides;
+  substrate: SubstrateTransactionOverrides;
+}
+
+export type TransactionOverrides =
+  | EvmTransactionOverrides
+  | SvmTransactionOverrides
+  | UtxoTransactionOverrides
+  | TvmTransactionOverrides
+  | XrpTransactionOverrides
+  | SubstrateTransactionOverrides;
