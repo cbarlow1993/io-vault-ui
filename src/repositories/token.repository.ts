@@ -100,6 +100,8 @@ export class PostgresTokenRepository implements TokenRepository {
         coingecko_id: input.coingeckoId ?? null,
         is_verified: input.isVerified ?? false,
         is_spam: input.isSpam ?? false,
+        needs_classification: true,
+        classification_attempts: 0,
         created_at: now,
         updated_at: now,
       })
@@ -170,7 +172,7 @@ export class PostgresTokenRepository implements TokenRepository {
       })
       .where('needs_classification', '=', false)
       .where(
-        sql`classification_updated_at + (classification_ttl_hours * interval '1 hour') < NOW()`
+        sql<boolean>`classification_updated_at + (classification_ttl_hours * interval '1 hour') < NOW()`
       )
       .executeTakeFirst();
 
