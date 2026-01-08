@@ -106,21 +106,68 @@ export interface UnsignedTransaction {
   hash?: string;
 }
 
-export interface DecodedTransaction {
+export type DecodeFormat = 'raw' | 'normalised';
+
+export type TransactionType =
+  | 'native-transfer'
+  | 'token-transfer'
+  | 'nft-transfer'
+  | 'contract-call'
+  | 'contract-deployment'
+  | 'approval'
+  | 'unknown';
+
+/**
+ * Normalised transaction for consistent cross-chain rendering.
+ * All chains map to this structure regardless of their native format.
+ */
+export interface NormalisedTransaction {
   chainAlias: ChainAlias;
-  from?: string;
-  to: string;
-  value: string;
-  formattedValue: string;
-  data?: string;
-  fee?: string;
-  tokenTransfer?: {
-    contractAddress: string;
-    to: string;
+  hash?: string;
+  from: string;
+  to: string | null;                    // null = contract deployment
+  value: string;                        // Raw units (wei, lamports, satoshis)
+  formattedValue: string;               // Human-readable with decimals
+  symbol: string;                       // Native currency symbol
+  fee?: {
     value: string;
     formattedValue: string;
+    symbol: string;
+  };
+  type: TransactionType;
+  tokenTransfer?: {
+    contractAddress: string;
+    from: string;
+    to: string;
+    value: string;
+    formattedValue?: string;
+    symbol?: string;
+    decimals?: number;
+    tokenId?: string;                   // For NFTs
+  };
+  contractCall?: {
+    contractAddress: string;
+    method?: string;                    // Function name if known
+    selector?: string;                  // EVM selector / instruction type
+  };
+  data?: string;
+  metadata: {
+    nonce?: number;
+    sequence?: number;                  // XRP
+    memo?: string;
+    isContractDeployment: boolean;
+    inputCount?: number;                // UTXO
+    outputCount?: number;               // UTXO
   };
 }
+
+// Union of all raw transaction types (see Transaction Decoding section)
+export type RawTransaction =
+  | RawEvmTransaction
+  | RawSolanaTransaction
+  | RawUtxoTransaction
+  | RawTronTransaction
+  | RawXrpTransaction;
 
 export interface NativeTransferParams {
   from: string;
@@ -238,7 +285,10 @@ export interface IBalanceFetcher {
 export interface ITransactionBuilder {
   buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction>;
   buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction>;
-  decode(serialized: string): Promise<DecodedTransaction>;
+  decode<F extends DecodeFormat>(
+    serialized: string,
+    format: F
+  ): Promise<F extends 'raw' ? RawTransaction : NormalisedTransaction>;
 }
 
 export interface IContractInteraction {
@@ -269,7 +319,12 @@ export async function getTokenBalance(chainAlias: ChainAlias, address: string, c
 // Transaction convenience functions
 export async function buildNativeTransfer(chainAlias: ChainAlias, params: NativeTransferParams, rpcUrl?: string): Promise<UnsignedTransaction>;
 export async function buildTokenTransfer(chainAlias: ChainAlias, params: TokenTransferParams, rpcUrl?: string): Promise<UnsignedTransaction>;
-export async function decodeTransaction(chainAlias: ChainAlias, serialized: string, rpcUrl?: string): Promise<DecodedTransaction>;
+export async function decodeTransaction<F extends DecodeFormat>(
+  chainAlias: ChainAlias,
+  serialized: string,
+  format: F,
+  rpcUrl?: string
+): Promise<F extends 'raw' ? RawTransaction : NormalisedTransaction>;
 
 // Contract convenience functions
 export async function contractRead(chainAlias: ChainAlias, params: ContractReadParams, rpcUrl?: string): Promise<ContractReadResult>;
@@ -503,3 +558,344 @@ tests/
 - All error conditions
 - Edge cases (zero values, large numbers, invalid addresses)
 - Each ecosystem's specific behavior
+
+## Transaction Decoding
+
+The decode function supports two formats:
+- **`raw`**: Returns chain-specific decoded transaction with all native fields
+- **`normalised`**: Returns unified structure for consistent cross-chain UI rendering
+
+### Raw Transaction Types
+
+#### EVM Raw Transaction
+
+```typescript
+export interface RawEvmTransaction {
+  _chain: 'evm';
+  type: 0 | 1 | 2;                      // Legacy, EIP-2930, EIP-1559
+  chainId: number;
+  nonce: number;
+  to: string | null;                    // null = contract deployment
+  value: string;
+  data: string;
+  gasLimit: string;
+  // Legacy (type 0)
+  gasPrice?: string;
+  // EIP-1559 (type 2)
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  // Access list (type 1, 2)
+  accessList?: Array<{ address: string; storageKeys: string[] }>;
+  // Signature (if signed)
+  v?: number;
+  r?: string;
+  s?: string;
+}
+```
+
+#### Solana Raw Transaction
+
+```typescript
+export interface RawSolanaTransaction {
+  _chain: 'svm';
+  version: 'legacy' | 0;
+  recentBlockhash: string;
+  feePayer: string;
+  instructions: Array<{
+    programId: string;
+    accounts: Array<{
+      pubkey: string;
+      isSigner: boolean;
+      isWritable: boolean;
+    }>;
+    data: string;                       // Base58 encoded
+  }>;
+  signatures?: string[];
+}
+```
+
+#### UTXO Raw Transaction
+
+```typescript
+export interface RawUtxoTransaction {
+  _chain: 'utxo';
+  version: number;
+  locktime: number;
+  isSegwit: boolean;
+  inputs: Array<{
+    txid: string;
+    vout: number;
+    scriptSig: string;
+    sequence: number;
+    witness?: string[];
+  }>;
+  outputs: Array<{
+    value: string;                      // Satoshis
+    scriptPubKey: string;
+    address?: string;                   // Derived from script if possible
+  }>;
+}
+```
+
+#### TRON Raw Transaction
+
+```typescript
+export interface RawTronTransaction {
+  _chain: 'tvm';
+  txID: string;
+  rawData: {
+    contract: Array<{
+      type: string;
+      parameter: {
+        value: Record<string, unknown>;
+        type_url: string;
+      };
+    }>;
+    refBlockBytes: string;
+    refBlockHash: string;
+    expiration: number;
+    timestamp: number;
+    feeLimit?: number;
+  };
+  signature?: string[];
+}
+```
+
+#### XRP Raw Transaction
+
+```typescript
+export interface RawXrpTransaction {
+  _chain: 'xrp';
+  TransactionType: string;
+  Account: string;
+  Destination?: string;
+  Amount?: string | { currency: string; issuer: string; value: string };
+  Fee: string;
+  Sequence: number;
+  SigningPubKey?: string;
+  TxnSignature?: string;
+  Memos?: Array<{ Memo: { MemoType?: string; MemoData?: string } }>;
+  DestinationTag?: number;
+}
+```
+
+### EVM Decoding Implementation
+
+EVM transactions use RLP (Recursive Length Prefix) encoding. Transaction type is determined by the first byte:
+- `0x02` = EIP-1559 (type 2)
+- `0x01` = EIP-2930 (type 1)
+- `0xc0-0xfe` = Legacy (type 0)
+
+```typescript
+// Known function selectors for classification
+const SELECTORS = {
+  // ERC20
+  'a9059cbb': { name: 'transfer', sig: 'transfer(address,uint256)' },
+  '23b872dd': { name: 'transferFrom', sig: 'transferFrom(address,address,uint256)' },
+  '095ea7b3': { name: 'approve', sig: 'approve(address,uint256)' },
+  // ERC721
+  '42842e0e': { name: 'safeTransferFrom', sig: 'safeTransferFrom(address,address,uint256)' },
+  'b88d4fde': { name: 'safeTransferFrom', sig: 'safeTransferFrom(address,address,uint256,bytes)' },
+  // ERC1155
+  'f242432a': { name: 'safeTransferFrom', sig: 'safeTransferFrom(address,address,uint256,uint256,bytes)' },
+  '2eb2c2d6': { name: 'safeBatchTransferFrom', sig: 'safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)' },
+} as const;
+
+function classifyEvmTransaction(raw: RawEvmTransaction): TransactionType {
+  if (raw.to === null) return 'contract-deployment';
+  if (!raw.data || raw.data === '0x') return 'native-transfer';
+
+  const selector = raw.data.slice(2, 10).toLowerCase();
+
+  if (selector === 'a9059cbb' || selector === '23b872dd') return 'token-transfer';
+  if (selector === '42842e0e' || selector === 'f242432a') return 'nft-transfer';
+  if (selector === '095ea7b3') return 'approval';
+
+  return 'contract-call';
+}
+```
+
+### Solana Decoding Implementation
+
+Solana transactions contain instructions. Each instruction has a program ID that determines its behavior.
+
+```typescript
+// Known program IDs
+const PROGRAMS = {
+  '11111111111111111111111111111111': 'System Program',
+  'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA': 'Token Program',
+  'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb': 'Token-2022 Program',
+  'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL': 'Associated Token Program',
+  'ComputeBudget111111111111111111111111111111': 'Compute Budget Program',
+} as const;
+
+// System Program instruction types
+const SYSTEM_INSTRUCTIONS = {
+  0: 'CreateAccount',
+  1: 'Assign',
+  2: 'Transfer',
+  3: 'CreateAccountWithSeed',
+} as const;
+
+// Token Program instruction types
+const TOKEN_INSTRUCTIONS = {
+  3: 'Transfer',
+  12: 'TransferChecked',
+} as const;
+```
+
+### UTXO Decoding Implementation
+
+Bitcoin transactions are decoded by parsing:
+1. Version (4 bytes, little-endian)
+2. SegWit marker/flag (if present: 0x00 0x01)
+3. Input count (varint) + inputs
+4. Output count (varint) + outputs
+5. Witness data (if SegWit)
+6. Locktime (4 bytes)
+
+Address derivation from scriptPubKey:
+- P2PKH: `OP_DUP OP_HASH160 <20 bytes> OP_EQUALVERIFY OP_CHECKSIG`
+- P2SH: `OP_HASH160 <20 bytes> OP_EQUAL`
+- P2WPKH: `OP_0 <20 bytes>` → bech32
+- P2WSH: `OP_0 <32 bytes>` → bech32
+- P2TR: `OP_1 <32 bytes>` → bech32m (Taproot)
+
+### Normalisation
+
+Each ecosystem has a normaliser that maps raw transactions to `NormalisedTransaction`:
+
+```typescript
+// evm/normalise.ts
+export function normaliseEvmTransaction(
+  raw: RawEvmTransaction,
+  config: ChainConfig
+): NormalisedTransaction {
+  const { symbol, decimals } = config.nativeCurrency;
+  const type = classifyEvmTransaction(raw);
+  const tokenTransfer = parseEvmTokenTransfer(raw);
+  const contractCall = parseEvmContractCall(raw);
+
+  return {
+    chainAlias: config.chainAlias,
+    from: '', // Recovered from signature or provided separately
+    to: raw.to,
+    value: raw.value,
+    formattedValue: formatUnits(BigInt(raw.value), decimals),
+    symbol,
+    type,
+    tokenTransfer,
+    contractCall,
+    data: raw.data !== '0x' ? raw.data : undefined,
+    metadata: {
+      nonce: raw.nonce,
+      isContractDeployment: raw.to === null,
+    },
+  };
+}
+
+// svm/normalise.ts
+export function normaliseSolanaTransaction(
+  raw: RawSolanaTransaction,
+  config: ChainConfig
+): NormalisedTransaction {
+  const { symbol, decimals } = config.nativeCurrency;
+  const { type, transfer, contractCall } = analyseSolanaInstructions(raw.instructions);
+  const solTransfer = findSolTransfer(raw.instructions);
+
+  return {
+    chainAlias: config.chainAlias,
+    from: raw.feePayer,
+    to: solTransfer?.to ?? contractCall?.contractAddress ?? null,
+    value: solTransfer?.lamports ?? '0',
+    formattedValue: formatUnits(BigInt(solTransfer?.lamports ?? '0'), decimals),
+    symbol,
+    type,
+    tokenTransfer: transfer,
+    contractCall,
+    metadata: { isContractDeployment: false },
+  };
+}
+
+// utxo/normalise.ts
+export function normaliseUtxoTransaction(
+  raw: RawUtxoTransaction,
+  config: ChainConfig
+): NormalisedTransaction {
+  const { symbol, decimals } = config.nativeCurrency;
+  const totalOutput = raw.outputs.reduce((sum, out) => sum + BigInt(out.value), 0n);
+  const primaryOutput = raw.outputs[0];
+
+  return {
+    chainAlias: config.chainAlias,
+    from: '', // UTXO doesn't have single sender
+    to: primaryOutput?.address ?? null,
+    value: totalOutput.toString(),
+    formattedValue: formatUnits(totalOutput, decimals),
+    symbol,
+    type: 'native-transfer',
+    metadata: {
+      isContractDeployment: false,
+      inputCount: raw.inputs.length,
+      outputCount: raw.outputs.length,
+    },
+  };
+}
+
+// xrp/normalise.ts
+export function normaliseXrpTransaction(
+  raw: RawXrpTransaction,
+  config: ChainConfig
+): NormalisedTransaction {
+  const { symbol, decimals } = config.nativeCurrency;
+  const type = classifyXrpTransaction(raw.TransactionType);
+  const { value, tokenTransfer } = parseXrpAmount(raw.Amount, raw.Destination);
+  const memo = raw.Memos?.[0]?.Memo?.MemoData
+    ? Buffer.from(raw.Memos[0].Memo.MemoData, 'hex').toString('utf8')
+    : undefined;
+
+  return {
+    chainAlias: config.chainAlias,
+    from: raw.Account,
+    to: raw.Destination ?? null,
+    value,
+    formattedValue: formatUnits(BigInt(value), decimals),
+    symbol,
+    fee: {
+      value: raw.Fee,
+      formattedValue: formatUnits(BigInt(raw.Fee), decimals),
+      symbol,
+    },
+    type,
+    tokenTransfer,
+    metadata: {
+      sequence: raw.Sequence,
+      memo,
+      isContractDeployment: false,
+    },
+  };
+}
+```
+
+### Decoding Usage Examples
+
+```typescript
+import { decodeTransaction } from '@/packages/chains';
+
+// Raw format - get chain-specific structure
+const rawEvm = await decodeTransaction('ethereum', '0x02f8...', 'raw');
+// Returns RawEvmTransaction with type, chainId, maxFeePerGas, nonce, etc.
+
+const rawSolana = await decodeTransaction('solana', '5K8s...', 'raw');
+// Returns RawSolanaTransaction with instructions, accounts, feePayer, etc.
+
+const rawBitcoin = await decodeTransaction('bitcoin', '0200...', 'raw');
+// Returns RawUtxoTransaction with inputs, outputs, witness data, etc.
+
+// Normalised format - unified structure for UI rendering
+const normalisedEvm = await decodeTransaction('ethereum', '0x02f8...', 'normalised');
+const normalisedSolana = await decodeTransaction('solana', '5K8s...', 'normalised');
+const normalisedBitcoin = await decodeTransaction('bitcoin', '0200...', 'normalised');
+// All return NormalisedTransaction with same structure:
+// { chainAlias, from, to, value, formattedValue, symbol, type, tokenTransfer?, ... }
+```
