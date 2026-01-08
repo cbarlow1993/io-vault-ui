@@ -135,4 +135,21 @@ export class PostgresTokenRepository implements TokenRepository {
 
     return results;
   }
+
+  async findNeedingClassification(options: {
+    limit: number;
+    maxAttempts: number;
+  }): Promise<Token[]> {
+    const results = await this.db
+      .selectFrom('tokens')
+      .selectAll()
+      .where('needs_classification', '=', true)
+      .where('classification_attempts', '<', options.maxAttempts)
+      .orderBy(sql`classification_updated_at ASC NULLS FIRST`)
+      .orderBy('created_at', 'asc')
+      .limit(options.limit)
+      .execute();
+
+    return results.map(mapToToken);
+  }
 }

@@ -455,4 +455,240 @@ describe('PostgresTokenRepository', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('findNeedingClassification', () => {
+    it('should return tokens needing classification within attempt limit', async () => {
+      const now = new Date();
+      const tokens = [
+        {
+          id: 'token-1',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xtoken1',
+          name: 'Token One',
+          symbol: 'T1',
+          decimals: 18,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: null,
+          classification_ttl_hours: null,
+          needs_classification: true,
+          classification_attempts: 0,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+        {
+          id: 'token-2',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xtoken2',
+          name: 'Token Two',
+          symbol: 'T2',
+          decimals: 6,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: null,
+          classification_ttl_hours: null,
+          needs_classification: true,
+          classification_attempts: 1,
+          classification_error: 'Previous error',
+          created_at: now,
+          updated_at: now,
+        },
+      ];
+
+      mockDb.mockExecute.mockResolvedValue(tokens);
+
+      const result = await repository.findNeedingClassification({
+        limit: 10,
+        maxAttempts: 3,
+      });
+
+      expect(mockDb.mockDb.selectFrom).toHaveBeenCalledWith('tokens');
+      expect(mockDb.chainable.selectAll).toHaveBeenCalled();
+      expect(mockDb.chainable.where).toHaveBeenCalledWith('needs_classification', '=', true);
+      expect(mockDb.chainable.where).toHaveBeenCalledWith('classification_attempts', '<', 3);
+      expect(mockDb.chainable.limit).toHaveBeenCalledWith(10);
+      expect(result).toHaveLength(2);
+      expect(result[0]!.id).toBe('token-1');
+      expect(result[0]!.needsClassification).toBe(true);
+      expect(result[0]!.classificationAttempts).toBe(0);
+      expect(result[1]!.id).toBe('token-2');
+      expect(result[1]!.classificationAttempts).toBe(1);
+      expect(result[1]!.classificationError).toBe('Previous error');
+    });
+
+    it('should order by classification_updated_at then created_at', async () => {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 3600000);
+      const twoHoursAgo = new Date(now.getTime() - 7200000);
+
+      const tokens = [
+        {
+          id: 'token-oldest-classification',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xtoken1',
+          name: 'Token One',
+          symbol: 'T1',
+          decimals: 18,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: twoHoursAgo,
+          classification_ttl_hours: null,
+          needs_classification: true,
+          classification_attempts: 1,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+        {
+          id: 'token-newer-classification',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xtoken2',
+          name: 'Token Two',
+          symbol: 'T2',
+          decimals: 6,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: oneHourAgo,
+          classification_ttl_hours: null,
+          needs_classification: true,
+          classification_attempts: 1,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+      ];
+
+      mockDb.mockExecute.mockResolvedValue(tokens);
+
+      const result = await repository.findNeedingClassification({
+        limit: 10,
+        maxAttempts: 3,
+      });
+
+      // Verify ordering was applied (first call uses sql template for NULLS FIRST)
+      expect(mockDb.chainable.orderBy).toHaveBeenCalledTimes(2);
+      expect(mockDb.chainable.orderBy).toHaveBeenCalledWith('created_at', 'asc');
+      expect(result).toHaveLength(2);
+      // The first token should be the one with the oldest classification_updated_at
+      expect(result[0]!.id).toBe('token-oldest-classification');
+    });
+
+    it('should respect limit parameter', async () => {
+      const now = new Date();
+      const tokens = [
+        {
+          id: 'token-1',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xtoken1',
+          name: 'Token One',
+          symbol: 'T1',
+          decimals: 18,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: null,
+          classification_ttl_hours: null,
+          needs_classification: true,
+          classification_attempts: 0,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+      ];
+
+      mockDb.mockExecute.mockResolvedValue(tokens);
+
+      await repository.findNeedingClassification({
+        limit: 5,
+        maxAttempts: 3,
+      });
+
+      expect(mockDb.chainable.limit).toHaveBeenCalledWith(5);
+    });
+
+    it('should return empty array when no tokens need classification', async () => {
+      mockDb.mockExecute.mockResolvedValue([]);
+
+      const result = await repository.findNeedingClassification({
+        limit: 10,
+        maxAttempts: 3,
+      });
+
+      expect(result).toEqual([]);
+    });
+
+    it('should prioritize never-classified tokens (NULL classification_updated_at)', async () => {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 3600000);
+
+      const tokens = [
+        {
+          id: 'token-never-classified',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xnulltoken',
+          name: 'Never Classified',
+          symbol: 'NC',
+          decimals: 18,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: null,
+          classification_ttl_hours: 720,
+          needs_classification: true,
+          classification_attempts: 0,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+        {
+          id: 'token-reclassify',
+          chain_alias: 'eth' as ChainAlias,
+          address: '0xreclasstoken',
+          name: 'Reclassify Token',
+          symbol: 'RC',
+          decimals: 18,
+          logo_uri: null,
+          coingecko_id: null,
+          is_verified: false,
+          is_spam: false,
+          spam_classification: null,
+          classification_updated_at: oneHourAgo,
+          classification_ttl_hours: 720,
+          needs_classification: true,
+          classification_attempts: 1,
+          classification_error: null,
+          created_at: now,
+          updated_at: now,
+        },
+      ];
+
+      mockDb.mockExecute.mockResolvedValue(tokens);
+
+      const result = await repository.findNeedingClassification({
+        limit: 10,
+        maxAttempts: 3,
+      });
+
+      expect(result[0]!.id).toBe('token-never-classified');
+      expect(result[0]!.classificationUpdatedAt).toBeNull();
+      expect(result[1]!.id).toBe('token-reclassify');
+    });
+  });
 });
