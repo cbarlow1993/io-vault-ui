@@ -136,6 +136,9 @@ export interface TokenTable {
   spam_classification: ColumnType<SpamClassification | null, string | null, string | null>;
   classification_updated_at: ColumnType<Date | null, string | null, string | null>;
   classification_ttl_hours: number | null;
+  needs_classification: boolean;
+  classification_attempts: number;
+  classification_error: string | null;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string | undefined>;
 }
