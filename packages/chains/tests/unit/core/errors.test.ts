@@ -8,6 +8,7 @@ import {
   InvalidAddressError,
   InvalidTransactionError,
   InsufficientBalanceError,
+  TransactionFailedError,
   UnsupportedChainError,
   UnsupportedOperationError,
   BroadcastError,
@@ -43,6 +44,8 @@ describe('Error Classes', () => {
       const error = new RpcTimeoutError('solana', 5000);
       expect(error.message).toBe('RPC request timed out after 5000ms');
       expect(error.name).toBe('RpcTimeoutError');
+      expect(error).toBeInstanceOf(RpcError);
+      expect(error).toBeInstanceOf(ChainError);
     });
   });
 
@@ -51,6 +54,8 @@ describe('Error Classes', () => {
       const error = new RateLimitError('ethereum', 1000);
       expect(error.message).toContain('retry after 1000ms');
       expect(error.code).toBe(429);
+      expect(error).toBeInstanceOf(RpcError);
+      expect(error).toBeInstanceOf(ChainError);
     });
   });
 
@@ -59,6 +64,7 @@ describe('Error Classes', () => {
       const error = new InvalidAddressError('bitcoin', 'not-an-address');
       expect(error.message).toContain('not-an-address');
       expect(error.address).toBe('not-an-address');
+      expect(error).toBeInstanceOf(ChainError);
     });
   });
 
@@ -77,6 +83,7 @@ describe('Error Classes', () => {
       expect(error.available).toBe('500');
       expect(error.message).toContain('1000');
       expect(error.message).toContain('500');
+      expect(error).toBeInstanceOf(ChainError);
     });
   });
 
@@ -103,6 +110,22 @@ describe('Error Classes', () => {
       const error = new BroadcastError('Nonce too low', 'ethereum', 'NONCE_TOO_LOW');
       expect(error.code).toBe('NONCE_TOO_LOW');
       expect(error.name).toBe('BroadcastError');
+      expect(error).toBeInstanceOf(ChainError);
+    });
+  });
+
+  describe('TransactionFailedError', () => {
+    it('creates error with txHash and optional reason', () => {
+      const errorWithReason = new TransactionFailedError('ethereum', '0x123abc', 'out of gas');
+      expect(errorWithReason.txHash).toBe('0x123abc');
+      expect(errorWithReason.message).toBe('Transaction failed: out of gas');
+      expect(errorWithReason.name).toBe('TransactionFailedError');
+      expect(errorWithReason).toBeInstanceOf(ChainError);
+
+      const errorWithoutReason = new TransactionFailedError('polygon', '0xdef456');
+      expect(errorWithoutReason.txHash).toBe('0xdef456');
+      expect(errorWithoutReason.message).toBe('Transaction failed');
+      expect(errorWithoutReason).toBeInstanceOf(ChainError);
     });
   });
 });
