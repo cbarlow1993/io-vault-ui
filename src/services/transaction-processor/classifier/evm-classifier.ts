@@ -1,6 +1,7 @@
 import type { Classifier, ClassificationResult, ClassifyOptions, EvmTransactionData, ParsedTransfer, RawTransaction } from '@/src/services/transaction-processor/types.js';
 import { calculateDirection } from '@/src/services/transaction-processor/classifier/direction.js';
 import { generateLabel } from '@/src/services/transaction-processor/classifier/label.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const APPROVAL_TOPIC = '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925';
@@ -87,7 +88,7 @@ export class EvmClassifier implements Classifier {
         const from = '0x' + log.topics[1]!.slice(26);
         const to = '0x' + log.topics[2]!.slice(26);
         const amount = log.data === '0x' || log.data === '' ? '0' : BigInt(log.data).toString();
-        const direction = from.toLowerCase() === tx.from.toLowerCase() ? 'out' : 'in';
+        const direction = WalletAddress.areEqual(from, tx.from) ? 'out' : 'in';
         transfers.push({ type: 'token', direction, from, to, amount, token: { address: log.address } });
       }
     }
@@ -100,17 +101,17 @@ export class EvmClassifier implements Classifier {
   }
 
   private isMint(transfers: ParsedTransfer[]): boolean {
-    return transfers.some((t) => t.from.toLowerCase() === '0x' + ZERO_ADDRESS.slice(26));
+    return transfers.some((t) => WalletAddress.areEqual(t.from, '0x' + ZERO_ADDRESS.slice(26)));
   }
 
   private isBurn(transfers: ParsedTransfer[]): boolean {
-    return transfers.some((t) => t.to.toLowerCase() === '0x' + ZERO_ADDRESS.slice(26));
+    return transfers.some((t) => WalletAddress.areEqual(t.to, '0x' + ZERO_ADDRESS.slice(26)));
   }
 
   private isSwap(transfers: ParsedTransfer[], sender: string): boolean {
     if (transfers.length < 2) return false;
-    const hasOut = transfers.some((t) => t.direction === 'out' && t.from.toLowerCase() === sender.toLowerCase());
-    const hasIn = transfers.some((t) => t.direction === 'in' && t.to.toLowerCase() === sender.toLowerCase());
+    const hasOut = transfers.some((t) => t.direction === 'out' && WalletAddress.areEqual(t.from, sender));
+    const hasIn = transfers.some((t) => t.direction === 'in' && WalletAddress.areEqual(t.to, sender));
     return hasOut && hasIn;
   }
 }
