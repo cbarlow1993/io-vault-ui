@@ -12,6 +12,7 @@ import {
   APIConnectionError,
   APIConnectionTimeoutError,
 } from '@coingecko/coingecko-typescript';
+import { TokenPrice } from '@/src/domain/value-objects/index.js';
 
 /**
  * Handle CoinGecko SDK errors with proper discrimination and logging.
@@ -152,15 +153,16 @@ export async function fetchNativeTokenMetadataByAlias(chainAlias: ChainAlias): P
 
 /**
  * Get USD price for a token by contract address.
+ * Returns a TokenPrice value object with full market data.
  *
  * @param chain - The chain alias
  * @param address - The token contract address
- * @returns USD price or null if not found/error
+ * @returns TokenPrice value object or null if not found/error/invalid price
  */
 export async function getTokenUsdPrice(
   chain: ChainAlias,
   address: string
-): Promise<number | null> {
+): Promise<TokenPrice | null> {
   if (!address || typeof address !== 'string' || address.trim().length === 0) {
     logger.warn('Invalid address provided to getTokenUsdPrice', { chain, address });
     return null;
@@ -177,7 +179,21 @@ export async function getTokenUsdPrice(
   try {
     // CoinGecko API requires lowercase addresses for contract lookups
     const data = await client.coins.contract.get(address.toLowerCase(), { id: platform });
-    return data.market_data?.current_price?.usd ?? null;
+    const price = data.market_data?.current_price?.usd;
+
+    // Return null if price is null, undefined, zero, or negative
+    // TokenPrice.create requires price > 0
+    if (price === null || price === undefined || price <= 0) {
+      return null;
+    }
+
+    return TokenPrice.create({
+      coingeckoId: data.id ?? address,
+      price,
+      currency: 'usd',
+      priceChange24h: data.market_data?.price_change_percentage_24h ?? null,
+      marketCap: data.market_data?.market_cap?.usd ?? null,
+    });
   } catch (error) {
     handleCoinGeckoError(error, { chain, address });
     return null;
@@ -185,9 +201,27 @@ export async function getTokenUsdPrice(
 }
 
 /**
- * Get USD price for native token by chain
+ * Get USD price for native token by chain.
+ * Returns a TokenPrice value object with full market data.
+ *
+ * @param chain - The Chain object
+ * @returns TokenPrice value object or null if not found/error/invalid price
  */
-export async function getNativeTokenUsdPrice(chain: Chain): Promise<number | null> {
+export async function getNativeTokenUsdPrice(chain: Chain): Promise<TokenPrice | null> {
   const metadata = await fetchNativeTokenMetadata(chain);
-  return metadata?.market_data?.current_price?.usd ?? null;
+  const price = metadata?.market_data?.current_price?.usd;
+
+  // Return null if metadata is missing, price is null, undefined, zero, or negative
+  // TokenPrice.create requires price > 0
+  if (!metadata || price === null || price === undefined || price <= 0) {
+    return null;
+  }
+
+  return TokenPrice.create({
+    coingeckoId: metadata.id ?? 'unknown',
+    price,
+    currency: 'usd',
+    priceChange24h: metadata.market_data?.price_change_percentage_24h ?? null,
+    marketCap: metadata.market_data?.market_cap?.usd ?? null,
+  });
 }

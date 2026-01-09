@@ -72,7 +72,7 @@ export const listTronTokenBalances = async (
       if (price !== null) {
         // Convert balance from smallest unit to human-readable and multiply by price
         const adjustedBalance = balance.balance / Math.pow(10, balance.token_decimal);
-        usdValue = (price * adjustedBalance).toFixed(2);
+        usdValue = price.calculateValue(adjustedBalance).toFixed(2);
       }
       return {
         ...balance,

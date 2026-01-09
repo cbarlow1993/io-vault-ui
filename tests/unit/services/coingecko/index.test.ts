@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { TokenPrice } from '@/src/domain/value-objects/index.js';
 
 const mockGetID = vi.fn();
 const mockContractGet = vi.fn();
@@ -90,14 +91,108 @@ describe('CoinGecko Service', () => {
   });
 
   describe('getTokenUsdPrice', () => {
-    it('should return USD price on success', async () => {
+    it('should return TokenPrice instance when successful', async () => {
       mockContractGet.mockResolvedValue({
-        market_data: { current_price: { usd: 1.5 } },
+        id: 'usd-coin',
+        market_data: {
+          current_price: { usd: 1.5 },
+          price_change_percentage_24h: 2.5,
+          market_cap: { usd: 5000000000 },
+        },
       });
 
       const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
 
-      expect(result).toBe(1.5);
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.price).toBe(1.5);
+      expect(result?.currency).toBe('usd');
+      expect(result?.coingeckoId).toBe('usd-coin');
+      expect(result?.priceChange24h).toBe(2.5);
+      expect(result?.marketCap).toBe(5000000000);
+    });
+
+    it('should return TokenPrice with correct properties when some market data is missing', async () => {
+      mockContractGet.mockResolvedValue({
+        id: 'some-token',
+        market_data: {
+          current_price: { usd: 10.0 },
+          // price_change_percentage_24h is missing
+          // market_cap is missing
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.price).toBe(10.0);
+      expect(result?.priceChange24h).toBeNull();
+      expect(result?.marketCap).toBeNull();
+    });
+
+    it('should use address as coingeckoId when id is missing', async () => {
+      mockContractGet.mockResolvedValue({
+        // id is missing
+        market_data: {
+          current_price: { usd: 1.0 },
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.coingeckoId).toBe('0xtoken');
+    });
+
+    it('should return null when price is null', async () => {
+      mockContractGet.mockResolvedValue({
+        id: 'some-token',
+        market_data: {
+          current_price: { usd: null },
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is undefined', async () => {
+      mockContractGet.mockResolvedValue({
+        id: 'some-token',
+        market_data: {
+          current_price: {},
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is zero', async () => {
+      mockContractGet.mockResolvedValue({
+        id: 'some-token',
+        market_data: {
+          current_price: { usd: 0 },
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is negative', async () => {
+      mockContractGet.mockResolvedValue({
+        id: 'some-token',
+        market_data: {
+          current_price: { usd: -1 },
+        },
+      });
+
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '0xtoken');
+
+      expect(result).toBeNull();
     });
 
     it('should return null on error', async () => {
@@ -107,22 +202,129 @@ describe('CoinGecko Service', () => {
 
       expect(result).toBeNull();
     });
+
+    it('should return null for invalid address', async () => {
+      const result = await getTokenUsdPrice(ChainAlias.ETH, '');
+
+      expect(result).toBeNull();
+      expect(mockContractGet).not.toHaveBeenCalled();
+    });
+
+    it('should return null for unsupported chain', async () => {
+      const result = await getTokenUsdPrice('unsupported-chain' as ChainAlias, '0xtoken');
+
+      expect(result).toBeNull();
+      expect(mockContractGet).not.toHaveBeenCalled();
+    });
   });
 
   describe('getNativeTokenUsdPrice', () => {
-    it('should return USD price when native metadata fetch succeeds', async () => {
+    it('should return TokenPrice instance when successful', async () => {
       mockGetID.mockResolvedValue({
         id: 'ethereum',
         symbol: 'eth',
         name: 'Ethereum',
-        market_data: { current_price: { usd: 2500 } },
+        market_data: {
+          current_price: { usd: 2500 },
+          price_change_percentage_24h: -1.5,
+          market_cap: { usd: 300000000000 },
+        },
       });
 
       const chain = { Alias: ChainAlias.ETH } as any;
       const result = await getNativeTokenUsdPrice(chain);
 
-      expect(result).toBe(2500);
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.price).toBe(2500);
+      expect(result?.currency).toBe('usd');
+      expect(result?.coingeckoId).toBe('ethereum');
+      expect(result?.priceChange24h).toBe(-1.5);
+      expect(result?.marketCap).toBe(300000000000);
       expect(mockGetID).toHaveBeenCalledWith('ethereum');
+    });
+
+    it('should return TokenPrice with null optional fields when market data is partial', async () => {
+      mockGetID.mockResolvedValue({
+        id: 'ethereum',
+        market_data: {
+          current_price: { usd: 2000 },
+          // no price_change_percentage_24h
+          // no market_cap
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.price).toBe(2000);
+      expect(result?.priceChange24h).toBeNull();
+      expect(result?.marketCap).toBeNull();
+    });
+
+    it('should return null when price is null', async () => {
+      mockGetID.mockResolvedValue({
+        id: 'ethereum',
+        market_data: {
+          current_price: { usd: null },
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is undefined', async () => {
+      mockGetID.mockResolvedValue({
+        id: 'ethereum',
+        market_data: {
+          current_price: {},
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is zero', async () => {
+      mockGetID.mockResolvedValue({
+        id: 'ethereum',
+        market_data: {
+          current_price: { usd: 0 },
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when price is negative', async () => {
+      mockGetID.mockResolvedValue({
+        id: 'ethereum',
+        market_data: {
+          current_price: { usd: -100 },
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when metadata is null', async () => {
+      mockGetID.mockResolvedValue(null);
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeNull();
     });
 
     it('should return null when native metadata fetch fails', async () => {
@@ -132,6 +334,21 @@ describe('CoinGecko Service', () => {
       const result = await getNativeTokenUsdPrice(chain);
 
       expect(result).toBeNull();
+    });
+
+    it('should use "unknown" as coingeckoId when id is missing', async () => {
+      mockGetID.mockResolvedValue({
+        // id is missing
+        market_data: {
+          current_price: { usd: 1500 },
+        },
+      });
+
+      const chain = { Alias: ChainAlias.ETH } as any;
+      const result = await getNativeTokenUsdPrice(chain);
+
+      expect(result).toBeInstanceOf(TokenPrice);
+      expect(result?.coingeckoId).toBe('unknown');
     });
   });
 });
