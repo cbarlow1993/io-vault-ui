@@ -3,24 +3,18 @@
  * Immutable representation of merged spam classification results from multiple providers.
  */
 
-export interface BlockaidResult {
-  isSpam: boolean;
-  reason: string | null;
-}
+// Re-export the canonical interfaces from token-classification
+export type {
+  BlockaidResult,
+  CoingeckoResult,
+  HeuristicsResult,
+} from '../token/token-classification.js';
 
-export interface CoingeckoResult {
-  isListed: boolean;
-  marketCapRank: number | null;
-}
-
-export interface HeuristicsResult {
-  suspiciousName: boolean;
-  namePatterns: string[];
-  isUnsolicited: boolean;
-  contractAgeDays: number | null;
-  isNewContract: boolean;
-  holderDistribution: 'concentrated' | 'distributed' | 'unknown';
-}
+import type {
+  BlockaidResult,
+  CoingeckoResult,
+  HeuristicsResult,
+} from '../token/token-classification.js';
 
 export interface ProviderResult {
   blockaid?: BlockaidResult;
@@ -53,10 +47,10 @@ const DEFAULT_HEURISTICS: HeuristicsResult = {
  *
  * @example
  * const result = SpamClassificationResult.merge([
- *   { blockaid: { isSpam: true, reason: 'known scam' } },
+ *   { blockaid: { isMalicious: true, isPhishing: false, riskScore: 0.9, attackTypes: ['scam'], checkedAt: '2024-01-01T00:00:00Z', resultType: 'Malicious' } },
  *   { coingecko: { isListed: false, marketCapRank: null } },
  * ]);
- * result.blockaid; // { isSpam: true, reason: 'known scam' }
+ * result.blockaid?.isMalicious; // true
  */
 export class SpamClassificationResult {
   private constructor(
