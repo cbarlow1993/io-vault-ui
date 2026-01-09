@@ -311,4 +311,24 @@ describe('WalletAddress', () => {
       });
     });
   });
+
+  describe('static comparison helpers', () => {
+    describe('normalizeForComparison', () => {
+      it('normalizes any address string for comparison', () => {
+        expect(WalletAddress.normalizeForComparison('0xAbC')).toBe('0xabc');
+        expect(WalletAddress.normalizeForComparison('  0xDEF  ')).toBe('0xdef');
+      });
+    });
+
+    describe('areEqual', () => {
+      it('compares two raw address strings', () => {
+        expect(WalletAddress.areEqual('0xABC', '0xabc')).toBe(true);
+        expect(WalletAddress.areEqual('0xABC', '0xDEF')).toBe(false);
+      });
+
+      it('handles whitespace', () => {
+        expect(WalletAddress.areEqual('  0xABC  ', '0xabc')).toBe(true);
+      });
+    });
+  });
 });

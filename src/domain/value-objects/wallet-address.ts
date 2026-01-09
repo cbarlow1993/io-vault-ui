@@ -277,4 +277,20 @@ export class WalletAddress {
   toString(): string {
     return this.normalized;
   }
+
+  /**
+   * Normalize any address string for comparison (without creating a WalletAddress instance).
+   * Useful for quick comparisons in services before creating full value objects.
+   */
+  static normalizeForComparison(address: string): string {
+    return address.toLowerCase().trim();
+  }
+
+  /**
+   * Compare two raw address strings for equality (case-insensitive).
+   * Useful for comparing addresses without chain context.
+   */
+  static areEqual(a: string, b: string): boolean {
+    return WalletAddress.normalizeForComparison(a) === WalletAddress.normalizeForComparison(b);
+  }
 }
