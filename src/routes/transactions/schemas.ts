@@ -332,7 +332,6 @@ export const transferResponseSchema = z.object({
 export const postgresTransactionSchema = z.object({
   id: z.string(),
   chainAlias: z.string(),
-  network: z.string(),
   txHash: z.string(),
   blockNumber: z.string(),
   blockHash: z.string(),
