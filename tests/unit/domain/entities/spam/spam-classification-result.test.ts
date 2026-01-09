@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   SpamClassificationResult,
   type ProviderResult,
-  type SpamBlockaidResult as BlockaidResult,
-  type SpamCoingeckoResult as CoingeckoResult,
-  type SpamHeuristicsResult as HeuristicsResult,
-} from '@/src/domain/entities/index.js';
+  type BlockaidResult,
+  type CoingeckoResult,
+  type HeuristicsResult,
+} from '@/src/domain/entities/spam/spam-classification-result.js';
 
 describe('SpamClassificationResult', () => {
   // Test fixtures matching the canonical BlockaidResult interface
