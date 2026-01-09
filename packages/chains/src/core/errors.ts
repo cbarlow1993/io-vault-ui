@@ -94,6 +94,13 @@ export class UnsupportedOperationError extends ChainError {
   }
 }
 
+export class ContractError extends ChainError {
+  constructor(message: string, chainAlias: ChainAlias, cause?: unknown) {
+    super(message, chainAlias, cause);
+    this.name = 'ContractError';
+  }
+}
+
 export type BroadcastErrorCode =
   | 'ALREADY_KNOWN'
   | 'NONCE_TOO_LOW'
@@ -113,5 +120,23 @@ export class BroadcastError extends ChainError {
   ) {
     super(message, chainAlias, cause);
     this.name = 'BroadcastError';
+  }
+}
+
+export class TransactionNotFoundError extends ChainError {
+  constructor(chainAlias: ChainAlias, public readonly hash: string) {
+    super(`Transaction not found: ${hash}`, chainAlias);
+    this.name = 'TransactionNotFoundError';
+  }
+}
+
+export class InvalidTransactionHashError extends ChainError {
+  constructor(
+    chainAlias: ChainAlias,
+    public readonly hash: string,
+    reason?: string
+  ) {
+    super(`Invalid transaction hash: ${hash}${reason ? ` (${reason})` : ''}`, chainAlias);
+    this.name = 'InvalidTransactionHashError';
   }
 }

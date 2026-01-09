@@ -13,8 +13,9 @@ import type {
   RawEvmTransaction,
 } from '../core/interfaces.js';
 import type { EvmChainConfig } from './config.js';
-import { formatUnits } from './utils.js';
+import { formatUnits, serializeTransaction, computeTransactionHash as viemComputeHash } from './utils.js';
 import { SignedEvmTransaction } from './signed-transaction.js';
+import type { TransactionSerializable, Hex } from 'viem';
 
 // ============ EVM Transaction Data Interface ============
 
@@ -267,18 +268,47 @@ export class UnsignedEvmTransaction implements UnsignedTransaction {
   }
 
   private computeTransactionHash(): string {
-    // For now, return a placeholder hash based on serialized data
-    // In production, this would use RLP encoding and keccak256
-    // This is a simplified implementation that creates a deterministic hash
-    const dataToHash = this.serialized;
-    let hash = 0;
-    for (let i = 0; i < dataToHash.length; i++) {
-      const char = dataToHash.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
+    // Convert transaction data to viem's TransactionSerializable format
+    const tx = this.toViemTransaction();
+
+    // Serialize using proper RLP encoding
+    const serialized = serializeTransaction(tx);
+
+    // Compute keccak256 hash of the serialized transaction
+    return viemComputeHash(serialized);
+  }
+
+  /**
+   * Convert internal transaction data to viem's TransactionSerializable format
+   */
+  private toViemTransaction(): TransactionSerializable {
+    const base = {
+      chainId: this.raw.chainId,
+      nonce: this.raw.nonce,
+      to: this.raw.to as `0x${string}` | null | undefined,
+      value: BigInt(this.raw.value),
+      data: this.raw.data as Hex,
+      gas: BigInt(this.raw.gasLimit),
+    };
+
+    if (this.raw.type === 2) {
+      return {
+        ...base,
+        type: 'eip1559' as const,
+        maxFeePerGas: this.raw.maxFeePerGas ? BigInt(this.raw.maxFeePerGas) : undefined,
+        maxPriorityFeePerGas: this.raw.maxPriorityFeePerGas ? BigInt(this.raw.maxPriorityFeePerGas) : undefined,
+        accessList: this.raw.accessList?.map(item => ({
+          address: item.address as `0x${string}`,
+          storageKeys: item.storageKeys as `0x${string}`[],
+        })),
+      };
     }
-    // Convert to hex and pad to 64 characters (32 bytes)
-    const hexHash = Math.abs(hash).toString(16).padStart(64, '0');
-    return '0x' + hexHash;
+
+    // Type 0 (legacy) transaction
+    return {
+      ...base,
+      type: 'legacy' as const,
+      gasPrice: this.raw.gasPrice ? BigInt(this.raw.gasPrice) : undefined,
+    };
   }
 }

@@ -11,6 +11,7 @@ import type {
   TransactionType,
   DecodeFormat,
   FeeEstimate,
+  TransactionResult,
 } from './types.js';
 
 // ============ Normalised Transaction ============
@@ -215,10 +216,34 @@ export interface RawXrpTransaction {
   Amount?: string | { currency: string; issuer: string; value: string };
   Fee: string;
   Sequence: number;
+  LastLedgerSequence?: number;
   SigningPubKey?: string;
   TxnSignature?: string;
   Memos?: Array<{ Memo: { MemoType?: string; MemoData?: string } }>;
   DestinationTag?: number;
+  SourceTag?: number;
+  Flags?: number;
+  LimitAmount?: { currency: string; issuer: string; value: string };
+  QualityIn?: number;
+  QualityOut?: number;
+}
+
+export interface RawSubstrateTransaction {
+  _chain: 'substrate';
+  method: {
+    palletIndex: number;
+    callIndex: number;
+    args: string;
+  };
+  era: string;
+  nonce: number;
+  tip: string;
+  specVersion: number;
+  transactionVersion: number;
+  genesisHash: string;
+  blockHash: string;
+  address: string;
+  signingPayload: string;
 }
 
 export type RawTransaction =
@@ -226,7 +251,8 @@ export type RawTransaction =
   | RawSolanaTransaction
   | RawUtxoTransaction
   | RawTronTransaction
-  | RawXrpTransaction;
+  | RawXrpTransaction
+  | RawSubstrateTransaction;
 
 // ============ Provider Interfaces ============
 
@@ -252,7 +278,15 @@ export interface IContractInteraction {
   contractDeploy(params: ContractDeployParams): Promise<DeployedContract>;
 }
 
-export interface IChainProvider extends IBalanceFetcher, ITransactionBuilder, IContractInteraction {
+export interface ITransactionFetcher {
+  getTransaction(hash: string): Promise<TransactionResult>;
+}
+
+export interface IChainProvider
+  extends IBalanceFetcher,
+    ITransactionBuilder,
+    IContractInteraction,
+    ITransactionFetcher {
   readonly config: ChainConfig;
   readonly chainAlias: ChainAlias;
 }

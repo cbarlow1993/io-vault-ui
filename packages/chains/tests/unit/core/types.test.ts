@@ -31,22 +31,22 @@ describe('Core Types', () => {
       expect(CHAIN_ECOSYSTEM_MAP.bittensor).toBe('substrate');
     });
 
-    it('contains exactly 18 chain mappings', () => {
-      expect(Object.keys(CHAIN_ECOSYSTEM_MAP).length).toBe(18);
+    it('contains exactly 19 chain mappings', () => {
+      expect(Object.keys(CHAIN_ECOSYSTEM_MAP).length).toBe(19);
     });
   });
 
   describe('Type Validation', () => {
     it('ChainAlias type includes all chain aliases', () => {
       const chains: ChainAlias[] = [
-        'ethereum', 'polygon', 'arbitrum', 'optimism', 'base', 'avalanche', 'bsc',
+        'ethereum', 'polygon', 'arbitrum', 'optimism', 'base', 'avalanche', 'fantom', 'bsc',
         'solana', 'solana-devnet',
         'bitcoin', 'bitcoin-testnet', 'mnee',
         'tron', 'tron-testnet',
         'xrp', 'xrp-testnet',
         'bittensor', 'bittensor-testnet',
       ];
-      expect(chains.length).toBe(18);
+      expect(chains.length).toBe(19);
     });
   });
 });

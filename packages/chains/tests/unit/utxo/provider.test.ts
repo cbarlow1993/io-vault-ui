@@ -3,6 +3,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UtxoChainProvider } from '../../../src/utxo/provider.js';
 import { ChainError } from '../../../src/core/errors.js';
+import { UtxoSelectionError } from '../../../src/utxo/errors.js';
+
+// Test compressed public key (33 bytes hex)
+const TEST_PUBKEY_HEX = '02' + '0'.repeat(62) + '01';
+
+// Valid P2WPKH scriptPubKey (OP_0 <20-byte-hash>)
+const TEST_SCRIPT_PUBKEY = '0014' + 'a'.repeat(40);
 
 describe('UtxoChainProvider', () => {
   let provider: UtxoChainProvider;
@@ -26,6 +33,29 @@ describe('UtxoChainProvider', () => {
     expect(testnetProvider.config.rpcUrl).toBe('https://custom-api.com');
   });
 
+  describe('getNativeBalance', () => {
+    it('returns balance from Blockbook API', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          balance: '50000000',
+          unconfirmedBalance: '10000000',
+          totalReceived: '100000000',
+          totalSent: '40000000',
+          txs: 15,
+          unconfirmedTxs: 1,
+        }),
+      });
+
+      const balance = await provider.getNativeBalance('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
+
+      expect(balance.balance).toBe('60000000');
+      expect(balance.formattedBalance).toBe('0.6');
+      expect(balance.symbol).toBe('BTC');
+    });
+  });
+
   describe('buildNativeTransfer', () => {
     it('creates correct transaction for BTC transfer', async () => {
       // Mock UTXO fetch
@@ -35,37 +65,46 @@ describe('UtxoChainProvider', () => {
           {
             txid: 'abc123def456abc123def456abc123def456abc123def456abc123def456abc1',
             vout: 0,
-            status: { confirmed: true },
-            value: 100000000, // 1 BTC
+            value: '100000000', // 1 BTC
+            confirmations: 6,
+            scriptPubKey: TEST_SCRIPT_PUBKEY,
+            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
           },
         ],
       });
 
-      // Mock fee rate fetch
+      // Mock fee rate fetch (Blockbook returns BTC/kB)
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          fastestFee: 20,
-          halfHourFee: 10,
-          hourFee: 5,
-          economyFee: 2,
-          minimumFee: 1,
+          result: '0.00010000', // 10 sat/vB
         }),
       });
 
       const tx = await provider.buildNativeTransfer({
         from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-        to: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+        to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
         value: '50000000', // 0.5 BTC
+        publicKey: TEST_PUBKEY_HEX,
       });
 
       expect(tx.chainAlias).toBe('bitcoin');
       expect(tx.raw).toBeDefined();
-      expect(tx.raw.inputs).toHaveLength(1);
+      expect(tx.raw.inputMetadata).toHaveLength(1);
       expect(tx.raw.outputs.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('throws when insufficient UTXOs', async () => {
+    it('throws when publicKey is not provided', async () => {
+      await expect(
+        provider.buildNativeTransfer({
+          from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
+          value: '50000000',
+        })
+      ).rejects.toThrow('publicKey is required for UTXO transactions');
+    });
+
+    it('throws when no UTXOs found', async () => {
       // Mock empty UTXO response
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -75,10 +114,107 @@ describe('UtxoChainProvider', () => {
       await expect(
         provider.buildNativeTransfer({
           from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-          to: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+          to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
           value: '50000000',
+          publicKey: TEST_PUBKEY_HEX,
         })
-      ).rejects.toThrow('No UTXOs found');
+      ).rejects.toThrow(UtxoSelectionError);
+    });
+
+    it('throws when insufficient balance', async () => {
+      // Mock UTXO with small value
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [
+          {
+            txid: 'abc123def456abc123def456abc123def456abc123def456abc123def456abc1',
+            vout: 0,
+            value: '1000', // 0.00001 BTC
+            confirmations: 6,
+            scriptPubKey: TEST_SCRIPT_PUBKEY,
+            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          },
+        ],
+      });
+
+      // Mock fee rate fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          result: '0.00010000',
+        }),
+      });
+
+      await expect(
+        provider.buildNativeTransfer({
+          from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
+          value: '50000000',
+          publicKey: TEST_PUBKEY_HEX,
+        })
+      ).rejects.toThrow('Insufficient funds');
+    });
+
+    it('uses custom UTXOs when provided in overrides', async () => {
+      // Mock fee rate fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          result: '0.00010000',
+        }),
+      });
+
+      const tx = await provider.buildNativeTransfer({
+        from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+        to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
+        value: '10000',
+        publicKey: TEST_PUBKEY_HEX,
+        overrides: {
+          utxos: [
+            {
+              // Valid 64-char hex txid
+              txid: 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234',
+              vout: 0,
+              value: 100000n,
+              scriptPubKey: TEST_SCRIPT_PUBKEY,
+              address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+              confirmations: 10,
+            },
+          ],
+        },
+      });
+
+      expect(tx.raw.inputMetadata).toHaveLength(1);
+    });
+
+    it('uses custom fee rate when provided', async () => {
+      // Mock UTXO fetch
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [
+          {
+            txid: 'abc123def456abc123def456abc123def456abc123def456abc123def456abc1',
+            vout: 0,
+            value: '100000000',
+            confirmations: 6,
+            scriptPubKey: TEST_SCRIPT_PUBKEY,
+            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          },
+        ],
+      });
+
+      const tx = await provider.buildNativeTransfer({
+        from: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+        to: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
+        value: '50000000',
+        publicKey: TEST_PUBKEY_HEX,
+        overrides: {
+          feeRate: 50, // 50 sat/vB
+        },
+      });
+
+      // Fee should be calculated with higher rate
+      expect(tx.raw.fee).toBeGreaterThan(0n);
     });
   });
 
@@ -87,7 +223,7 @@ describe('UtxoChainProvider', () => {
       await expect(
         provider.buildTokenTransfer({
           from: 'bc1q...',
-          to: '1Bv...',
+          to: 'bc1q...',
           contractAddress: 'token',
           value: '100',
         })
@@ -95,59 +231,20 @@ describe('UtxoChainProvider', () => {
     });
   });
 
-  describe('decode', () => {
-    it('decodes serialized transaction to normalised format', () => {
-      const serialized = JSON.stringify({
-        version: 2,
-        inputs: [
-          {
-            txid: 'abc123',
-            vout: 0,
-            sequence: 0xffffffff,
-            value: '100000000',
-          },
-        ],
-        outputs: [
-          { value: '50000000', address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2' },
-        ],
-        locktime: 0,
-        fee: '1000',
-      });
-
-      const normalised = provider.decode(serialized, 'normalised');
-
-      expect(normalised.chainAlias).toBe('bitcoin');
-      expect(normalised.type).toBe('native-transfer');
-      expect(normalised.symbol).toBe('BTC');
-    });
-
-    it('decodes to raw format', () => {
-      const serialized = JSON.stringify({
-        version: 2,
-        inputs: [{ txid: 'abc', vout: 0, sequence: 0xffffffff, value: '1000' }],
-        outputs: [{ value: '500', address: '1Addr' }],
-        locktime: 0,
-      });
-
-      const raw = provider.decode(serialized, 'raw');
-
-      expect(raw._chain).toBe('utxo');
-      expect(raw.version).toBe(2);
-    });
-  });
-
   describe('estimateFee', () => {
     it('returns fee estimate with slow/standard/fast tiers', async () => {
-      // Mock fee rate fetch
+      // Mock fee rate fetch (3 parallel requests)
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          fastestFee: 20,
-          halfHourFee: 10,
-          hourFee: 5,
-          economyFee: 2,
-          minimumFee: 1,
-        }),
+        json: async () => ({ result: '0.00025000' }), // 25 sat/vB fast
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: '0.00015000' }), // 15 sat/vB standard
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: '0.00008000' }), // 8 sat/vB slow
       });
 
       const estimate = await provider.estimateFee();
@@ -158,15 +255,67 @@ describe('UtxoChainProvider', () => {
       expect(estimate.standard.formattedFee).toContain('BTC');
     });
 
-    it('uses default rates when API fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    it('returns valid estimates with fallback rates', async () => {
+      // Mock fee rate fetch returning 0 (triggers fallback)
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ result: '-1' }), // Invalid rate triggers fallback
+      });
 
       const estimate = await provider.estimateFee();
 
-      // Should still return valid estimates
+      // Should still return valid estimates with minimum rate
       expect(estimate.slow).toBeDefined();
       expect(estimate.standard).toBeDefined();
       expect(estimate.fast).toBeDefined();
+    });
+  });
+
+  describe('getUtxos', () => {
+    it('returns UTXOs from Blockbook API', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [
+          {
+            txid: 'abc123def456abc123def456abc123def456abc123def456abc123def456abc1',
+            vout: 0,
+            value: '50000000',
+            confirmations: 6,
+            scriptPubKey: TEST_SCRIPT_PUBKEY,
+            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          },
+        ],
+      });
+
+      const utxos = await provider.getUtxos('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
+
+      expect(utxos).toHaveLength(1);
+      expect(utxos[0]!.value).toBe(50000000n);
+    });
+  });
+
+  describe('getFeeRates', () => {
+    it('fetches fee rates from Blockbook API', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: '0.00025000' }), // fast
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: '0.00015000' }), // standard
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: '0.00008000' }), // slow
+      });
+
+      const rates = await provider.getFeeRates();
+
+      expect(rates.fast).toBeGreaterThan(0);
+      expect(rates.standard).toBeGreaterThan(0);
+      expect(rates.slow).toBeGreaterThan(0);
+      expect(rates.fast).toBeGreaterThanOrEqual(rates.standard);
+      expect(rates.standard).toBeGreaterThanOrEqual(rates.slow);
     });
   });
 
@@ -190,24 +339,39 @@ describe('UtxoChainProvider', () => {
     });
   });
 
-  describe('getFeeRates', () => {
-    it('fetches from mempool.space API', async () => {
+  describe('getConfirmedBalance', () => {
+    it('returns only confirmed balance', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          fastestFee: 25,
-          halfHourFee: 15,
-          hourFee: 8,
-          economyFee: 3,
-          minimumFee: 1,
+          address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          balance: '50000000',
+          unconfirmedBalance: '10000000',
+          totalReceived: '100000000',
+          totalSent: '40000000',
+          txs: 15,
+          unconfirmedTxs: 1,
         }),
       });
 
-      const rates = await provider.getFeeRates();
+      const balance = await provider.getConfirmedBalance('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
 
-      expect(rates.fastestFee).toBe(25);
-      expect(rates.halfHourFee).toBe(15);
-      expect(rates.hourFee).toBe(8);
+      expect(balance.balance).toBe('50000000');
+    });
+  });
+
+  describe('broadcastRawTransaction', () => {
+    it('broadcasts transaction via Blockbook API', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          result: 'abc123def456abc123def456abc123def456abc123def456abc123def456abc1',
+        }),
+      });
+
+      const txid = await provider.broadcastRawTransaction('0100...');
+
+      expect(txid).toBe('abc123def456abc123def456abc123def456abc123def456abc123def456abc1');
     });
   });
 });

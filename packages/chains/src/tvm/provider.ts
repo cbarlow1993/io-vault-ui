@@ -6,6 +6,7 @@ import type {
   TokenBalance,
   FeeEstimate,
   DecodeFormat,
+  TransactionResult,
 } from '../core/types.js';
 import type {
   IChainProvider,
@@ -20,7 +21,7 @@ import type {
   RawTronTransaction,
   NormalisedTransaction,
 } from '../core/interfaces.js';
-import { RpcError, ChainError } from '../core/errors.js';
+import { RpcError, ChainError, InvalidAddressError } from '../core/errors.js';
 import { type TvmChainConfig, getTvmChainConfig } from './config.js';
 import { TvmBalanceFetcher } from './balance.js';
 import {
@@ -30,7 +31,8 @@ import {
   type TvmTransactionData,
   type BlockInfo,
 } from './transaction-builder.js';
-import { formatSun, parseSun, addressToHex, CONTRACT_TYPES } from './utils.js';
+import { TvmTransactionFetcher } from './transaction-fetcher.js';
+import { formatSun, parseSun, addressToHex, isValidTronAddress, sha256, CONTRACT_TYPES } from './utils.js';
 
 // ============ TVM Chain Provider ============
 
@@ -38,11 +40,13 @@ export class TvmChainProvider implements IChainProvider {
   readonly config: TvmChainConfig;
   readonly chainAlias: TvmChainAlias;
   private readonly balanceFetcher: TvmBalanceFetcher;
+  private readonly transactionFetcher: TvmTransactionFetcher;
 
   constructor(chainAlias: TvmChainAlias, rpcUrl?: string) {
-    this.config = getTvmChainConfig(chainAlias, rpcUrl);
+    this.config = getTvmChainConfig(chainAlias, rpcUrl ? { rpcUrl } : undefined);
     this.chainAlias = chainAlias;
     this.balanceFetcher = new TvmBalanceFetcher(this.config);
+    this.transactionFetcher = new TvmTransactionFetcher(this.config, this.chainAlias);
   }
 
   // ============ IBalanceFetcher Methods ============
@@ -60,6 +64,14 @@ export class TvmChainProvider implements IChainProvider {
   async buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction> {
     const { from, to, value, overrides } = params;
 
+    // Validate addresses
+    if (!isValidTronAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!isValidTronAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
+
     // Get latest block for ref block info
     const blockInfo = await this.getLatestBlock();
 
@@ -74,6 +86,17 @@ export class TvmChainProvider implements IChainProvider {
 
   async buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction> {
     const { from, to, contractAddress, value, overrides } = params;
+
+    // Validate addresses
+    if (!isValidTronAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!isValidTronAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
+    if (!isValidTronAddress(contractAddress)) {
+      throw new InvalidAddressError(this.chainAlias, contractAddress);
+    }
 
     // Get latest block for ref block info
     const blockInfo = await this.getLatestBlock();
@@ -235,6 +258,14 @@ export class TvmChainProvider implements IChainProvider {
   async contractCall(params: ContractCallParams): Promise<UnsignedTransaction> {
     const { from, contractAddress, data, value, overrides } = params;
 
+    // Validate addresses
+    if (!isValidTronAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!isValidTronAddress(contractAddress)) {
+      throw new InvalidAddressError(this.chainAlias, contractAddress);
+    }
+
     // Get latest block for ref block info
     const blockInfo = await this.getLatestBlock();
 
@@ -346,6 +377,12 @@ export class TvmChainProvider implements IChainProvider {
     };
   }
 
+  // ============ ITransactionFetcher Methods ============
+
+  async getTransaction(hash: string): Promise<TransactionResult> {
+    return this.transactionFetcher.getTransaction(hash);
+  }
+
   // ============ TVM-Specific Methods ============
 
   /**
@@ -407,14 +444,12 @@ export class TvmChainProvider implements IChainProvider {
   }
 
   private computeTxId(rawData: TvmTransactionData['rawData']): string {
-    // Simplified hash computation
-    const dataStr = JSON.stringify(rawData);
-    let hash = 0;
-    for (let i = 0; i < dataStr.length; i++) {
-      const char = dataStr.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(16).padStart(64, '0');
+    // Compute SHA256 hash of the rawData
+    // Note: TRON uses protobuf serialization for txID computation.
+    // This is an approximation using deterministic JSON serialization.
+    // For production with full compatibility, protobuf serialization is needed.
+    const dataStr = JSON.stringify(rawData, Object.keys(rawData).sort());
+    const hash = sha256(Buffer.from(dataStr, 'utf8'));
+    return hash.toString('hex');
   }
 }

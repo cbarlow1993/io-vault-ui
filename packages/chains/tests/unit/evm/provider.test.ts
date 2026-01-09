@@ -2,6 +2,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EvmChainProvider } from '../../../src/evm/provider.js';
 
+// Valid test addresses (all lowercase for viem compatibility)
+const TEST_SENDER = '0x742d35cc6634c0532925a3b844bc9e7595f88e26';
+const TEST_RECIPIENT = '0x8ba1f109551bd432803012645ac136ddd64dba72';
+const TEST_TOKEN_CONTRACT = '0xdac17f958d2ee523a2206206994597c13d831ec7'; // USDT
+
 describe('EvmChainProvider', () => {
   let provider: EvmChainProvider;
   let mockFetch: ReturnType<typeof vi.fn>;
@@ -44,14 +49,14 @@ describe('EvmChainProvider', () => {
     });
 
     const tx = await provider.buildNativeTransfer({
-      from: '0xSender',
-      to: '0xRecipient',
+      from: TEST_SENDER,
+      to: TEST_RECIPIENT,
       value: '1000000000000000000',
     });
 
     expect(tx.chainAlias).toBe('ethereum');
     expect(tx.raw).toBeDefined();
-    expect(tx.raw.to).toBe('0xRecipient');
+    expect(tx.raw.to).toBe(TEST_RECIPIENT);
     expect(tx.raw.value).toBe('1000000000000000000');
   });
 
@@ -82,14 +87,14 @@ describe('EvmChainProvider', () => {
     });
 
     const tx = await provider.buildTokenTransfer({
-      from: '0xSender',
-      to: '0xRecipient',
+      from: TEST_SENDER,
+      to: TEST_RECIPIENT,
       value: '1000000',
-      contractAddress: '0xTokenContract',
+      contractAddress: TEST_TOKEN_CONTRACT,
     });
 
     expect(tx.chainAlias).toBe('ethereum');
-    expect(tx.raw.to).toBe('0xTokenContract');
+    expect(tx.raw.to).toBe(TEST_TOKEN_CONTRACT);
     // ERC20 transfer selector: 0xa9059cbb
     expect(tx.raw.data.startsWith('0xa9059cbb')).toBe(true);
     expect(tx.raw.value).toBe('0');

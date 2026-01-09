@@ -1,90 +1,190 @@
 // packages/chains/tests/unit/api.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getChainProvider,
-  getNativeBalance,
-  buildNativeTransfer,
-  decodeTransaction,
-  parseTransaction,
+  configure,
+  isEvmProvider,
+  isSvmProvider,
+  isUtxoProvider,
+  isTvmProvider,
+  isXrpProvider,
+  isSubstrateProvider,
 } from '../../src/api.js';
+import { providerCache } from '../../src/core/provider-cache.js';
+import { getAllChainAliases, getChainAliasesByEcosystem } from '../../src/core/registry.js';
 
 describe('Public API', () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
-    mockFetch = vi.fn();
-    global.fetch = mockFetch;
+    // Clear provider cache before each test
+    providerCache.clear();
   });
 
   describe('getChainProvider', () => {
-    it('returns EVM provider for ethereum', () => {
-      const provider = getChainProvider('ethereum');
-      expect(provider.chainAlias).toBe('ethereum');
+    describe('resolves provider for all chain aliases', () => {
+      const allChains = getAllChainAliases();
+
+      it.each(allChains)('returns provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(provider).toBeDefined();
+        expect(provider.chainAlias).toBe(chainAlias);
+        expect(provider.config).toBeDefined();
+      });
+    });
+
+    describe('EVM chains', () => {
+      const evmChains = getChainAliasesByEcosystem('evm');
+
+      it.each(evmChains)('returns EVM provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isEvmProvider(provider)).toBe(true);
+      });
+    });
+
+    describe('SVM chains', () => {
+      const svmChains = getChainAliasesByEcosystem('svm');
+
+      it.each(svmChains)('returns SVM provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isSvmProvider(provider)).toBe(true);
+      });
+    });
+
+    describe('UTXO chains', () => {
+      const utxoChains = getChainAliasesByEcosystem('utxo');
+
+      it.each(utxoChains)('returns UTXO provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isUtxoProvider(provider)).toBe(true);
+      });
+    });
+
+    describe('TVM chains', () => {
+      const tvmChains = getChainAliasesByEcosystem('tvm');
+
+      it.each(tvmChains)('returns TVM provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isTvmProvider(provider)).toBe(true);
+      });
+    });
+
+    describe('XRP chains', () => {
+      const xrpChains = getChainAliasesByEcosystem('xrp');
+
+      it.each(xrpChains)('returns XRP provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isXrpProvider(provider)).toBe(true);
+      });
+    });
+
+    describe('Substrate chains', () => {
+      const substrateChains = getChainAliasesByEcosystem('substrate');
+
+      it.each(substrateChains)('returns Substrate provider for %s', (chainAlias) => {
+        const provider = getChainProvider(chainAlias);
+        expect(isSubstrateProvider(provider)).toBe(true);
+      });
     });
 
     it('throws for unsupported chain', () => {
       expect(() => getChainProvider('fake-chain' as any)).toThrow('Unsupported chain');
     });
-  });
 
-  describe('getNativeBalance', () => {
-    it('delegates to chain provider', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          jsonrpc: '2.0',
-          id: 1,
-          result: '0xde0b6b3a7640000',
-        }),
-      });
+    it('caches providers', () => {
+      const provider1 = getChainProvider('ethereum');
+      const provider2 = getChainProvider('ethereum');
+      expect(provider1).toBe(provider2);
+    });
 
-      const balance = await getNativeBalance('ethereum', '0x742d35Cc6634C0532925a3b844Bc454e4438f44e');
-
-      expect(balance.balance).toBe('1000000000000000000');
-      expect(balance.symbol).toBe('ETH');
+    it('creates different providers for different RPC URLs', () => {
+      const provider1 = getChainProvider('ethereum');
+      const provider2 = getChainProvider('ethereum', 'https://custom-rpc.example.com');
+      expect(provider1).not.toBe(provider2);
     });
   });
 
-  describe('decodeTransaction', () => {
-    it('decodes EVM transaction to normalised format', () => {
-      const serialized = JSON.stringify({
-        type: 2,
-        chainId: 1,
-        nonce: 0,
-        to: '0xRecipient',
-        value: '1000000000000000000',
-        data: '0x',
-        gasLimit: '21000',
-        maxFeePerGas: '50000000000',
-        maxPriorityFeePerGas: '2000000000',
-      });
+  describe('configure', () => {
+    afterEach(() => {
+      // Reset config
+      configure({ rpcOverrides: {} });
+      providerCache.clear();
+    });
 
-      const result = decodeTransaction('ethereum', serialized, 'normalised');
+    it('applies global RPC overrides', () => {
+      const customRpc = 'https://custom-ethereum-rpc.example.com';
+      configure({ rpcOverrides: { ethereum: customRpc } });
 
-      expect(result.chainAlias).toBe('ethereum');
-      expect(result.type).toBe('native-transfer');
+      const provider = getChainProvider('ethereum');
+      expect(provider.config.rpcUrl).toBe(customRpc);
     });
   });
 
-  describe('parseTransaction', () => {
-    it('reconstructs UnsignedTransaction from serialized', () => {
-      const serialized = JSON.stringify({
-        type: 2,
-        chainId: 1,
-        nonce: 0,
-        to: '0xRecipient',
-        value: '1000000000000000000',
-        data: '0x',
-        gasLimit: '21000',
-        maxFeePerGas: '50000000000',
-        maxPriorityFeePerGas: '2000000000',
-      });
+  describe('provider type guards', () => {
+    it('isEvmProvider returns true for EVM provider', () => {
+      const provider = getChainProvider('ethereum');
+      expect(isEvmProvider(provider)).toBe(true);
+      expect(isSvmProvider(provider)).toBe(false);
+    });
 
-      const tx = parseTransaction('ethereum', serialized);
+    it('isSvmProvider returns true for SVM provider', () => {
+      const provider = getChainProvider('solana');
+      expect(isSvmProvider(provider)).toBe(true);
+      expect(isEvmProvider(provider)).toBe(false);
+    });
 
-      expect(tx.chainAlias).toBe('ethereum');
-      expect(typeof tx.rebuild).toBe('function');
-      expect(typeof tx.getSigningPayload).toBe('function');
+    it('isUtxoProvider returns true for UTXO provider', () => {
+      const provider = getChainProvider('bitcoin');
+      expect(isUtxoProvider(provider)).toBe(true);
+      expect(isEvmProvider(provider)).toBe(false);
+    });
+
+    it('isTvmProvider returns true for TVM provider', () => {
+      const provider = getChainProvider('tron');
+      expect(isTvmProvider(provider)).toBe(true);
+      expect(isEvmProvider(provider)).toBe(false);
+    });
+
+    it('isXrpProvider returns true for XRP provider', () => {
+      const provider = getChainProvider('xrp');
+      expect(isXrpProvider(provider)).toBe(true);
+      expect(isEvmProvider(provider)).toBe(false);
+    });
+
+    it('isSubstrateProvider returns true for Substrate provider', () => {
+      const provider = getChainProvider('bittensor');
+      expect(isSubstrateProvider(provider)).toBe(true);
+      expect(isEvmProvider(provider)).toBe(false);
+    });
+  });
+
+  describe('provider has required methods', () => {
+    it('EVM provider has getNativeBalance method', () => {
+      const provider = getChainProvider('ethereum');
+      expect(typeof provider.getNativeBalance).toBe('function');
+    });
+
+    it('SVM provider has getNativeBalance method', () => {
+      const provider = getChainProvider('solana');
+      expect(typeof provider.getNativeBalance).toBe('function');
+    });
+
+    it('UTXO provider has getNativeBalance method', () => {
+      const provider = getChainProvider('bitcoin');
+      expect(typeof provider.getNativeBalance).toBe('function');
+    });
+
+    it('TVM provider has getNativeBalance method', () => {
+      const provider = getChainProvider('tron');
+      expect(typeof provider.getNativeBalance).toBe('function');
+    });
+
+    it('XRP provider has getNativeBalance method', () => {
+      const provider = getChainProvider('xrp');
+      expect(typeof provider.getNativeBalance).toBe('function');
+    });
+
+    it('Substrate provider has getNativeBalance method', () => {
+      const provider = getChainProvider('bittensor');
+      expect(typeof provider.getNativeBalance).toBe('function');
     });
   });
 });

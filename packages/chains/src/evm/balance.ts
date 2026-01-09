@@ -2,11 +2,16 @@
 import type { NativeBalance, TokenBalance } from '../core/types.js';
 import type { IBalanceFetcher } from '../core/interfaces.js';
 import { RpcError } from '../core/errors.js';
+import { mergeHeaders } from '../core/utils.js';
 import type { EvmChainConfig } from './config.js';
 import { formatUnits } from './utils.js';
 
 export class EvmBalanceFetcher implements IBalanceFetcher {
-  constructor(private readonly config: EvmChainConfig) {}
+  private readonly headers: Record<string, string>;
+
+  constructor(private readonly config: EvmChainConfig) {
+    this.headers = mergeHeaders({ 'Content-Type': 'application/json' }, config.auth);
+  }
 
   async getNativeBalance(address: string): Promise<NativeBalance> {
     const result = await this.rpcCall('eth_getBalance', [address, 'latest']);
@@ -50,7 +55,7 @@ export class EvmBalanceFetcher implements IBalanceFetcher {
   private async rpcCall(method: string, params: unknown[]): Promise<string> {
     const response = await fetch(this.config.rpcUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.headers,
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: Date.now(),

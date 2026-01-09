@@ -3,6 +3,7 @@
 import type { NativeBalance, TokenBalance } from '../core/types.js';
 import type { IBalanceFetcher } from '../core/interfaces.js';
 import { RpcError } from '../core/errors.js';
+import { mergeHeaders } from '../core/utils.js';
 import type { TvmChainConfig } from './config.js';
 import { formatSun, encodeBalanceOf, encodeDecimals, encodeSymbol, addressToHex } from './utils.js';
 
@@ -37,7 +38,11 @@ interface TriggerSmartContractResponse {
 // ============ TVM Balance Fetcher ============
 
 export class TvmBalanceFetcher implements IBalanceFetcher {
-  constructor(private readonly config: TvmChainConfig) {}
+  private readonly headers: Record<string, string>;
+
+  constructor(private readonly config: TvmChainConfig) {
+    this.headers = mergeHeaders({ 'Content-Type': 'application/json' }, config.auth);
+  }
 
   /**
    * Get native TRX balance for an address
@@ -46,7 +51,7 @@ export class TvmBalanceFetcher implements IBalanceFetcher {
     const url = `${this.config.rpcUrl}/v1/accounts/${address}`;
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: this.headers });
 
       if (!response.ok) {
         throw new RpcError(`Failed to fetch balance: ${response.statusText}`, this.config.chainAlias);
@@ -125,7 +130,7 @@ export class TvmBalanceFetcher implements IBalanceFetcher {
     const url = `${this.config.rpcUrl}/v1/accounts/${address}`;
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: this.headers });
 
       if (!response.ok) {
         throw new RpcError(`Failed to fetch account resources: ${response.statusText}`, this.config.chainAlias);
@@ -158,7 +163,7 @@ export class TvmBalanceFetcher implements IBalanceFetcher {
     const url = `${this.config.rpcUrl}/v1/accounts/${address}`;
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: this.headers });
 
       if (!response.ok) {
         throw new RpcError(`Failed to fetch TRC20 balances: ${response.statusText}`, this.config.chainAlias);
@@ -225,7 +230,7 @@ export class TvmBalanceFetcher implements IBalanceFetcher {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.headers,
         body: JSON.stringify(body),
       });
 

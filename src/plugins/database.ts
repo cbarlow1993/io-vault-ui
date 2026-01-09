@@ -36,15 +36,13 @@ import { PricingService } from '@/src/services/balances/pricing-service.js';
 import { PostgresTransactionService } from '@/src/services/transactions/postgres-service.js';
 import { VaultService } from '@/src/services/vaults/vault-service.js';
 import { WalletFactory } from '@/src/services/build-transaction/wallet-factory.js';
-import { EVMBalanceFetcher } from '@/src/services/balances/fetchers/evm.js';
-import { JsonRpcClient } from '@/src/lib/rpc/client.js';
+import { createBalanceFetcher } from '@/src/services/balances/fetchers/factory.js';
 import { WorkflowRepository } from '@/src/repositories/workflow.repository.js';
 import { WorkflowEventsRepository } from '@/src/repositories/workflow-events.repository.js';
 import { WorkflowOrchestrator } from '@/src/services/workflow/orchestrator.js';
 
 // Configuration constants
 const PRICE_CACHE_TTL_SECONDS = 3600; // 1 hour
-const RPC_TIMEOUT_MS = 5000;
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -105,8 +103,7 @@ async function databasePlugin(fastify: FastifyInstance) {
   const fetcherFactory = (chain: string, network: string) => {
     const rpcUrl = getRpcUrl(chain as ChainAlias);
     if (!rpcUrl) return null;
-    const rpc = new JsonRpcClient({ chain, network, url: rpcUrl, timeoutMs: RPC_TIMEOUT_MS });
-    return new EVMBalanceFetcher(rpc, chain, network);
+    return createBalanceFetcher(chain, network, rpcUrl);
   };
 
   const balanceService = new BalanceService(
@@ -136,7 +133,7 @@ async function databasePlugin(fastify: FastifyInstance) {
 
   // Decorate Fastify instance
   fastify.decorate('db', db);
-  fastify.decorate('vaultDb', vaultDb);
+  // fastify.decorate('vaultDb', vaultDb);
 
   fastify.decorate('repositories', {
     addresses: addressRepository,

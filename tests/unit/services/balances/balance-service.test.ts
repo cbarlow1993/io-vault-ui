@@ -903,7 +903,8 @@ describe('BalanceService', () => {
 
       const address = createMockAddress({ address: '0x123abc' });
 
-      vi.mocked(addressRepository.findById).mockResolvedValue(address);
+      // Use findByAddressAndChainAlias for getBalancesByChainAndAddress
+      vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
 
       // User has marked this token as spam
       vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([
@@ -926,6 +927,7 @@ describe('BalanceService', () => {
       ]);
 
       vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+      vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
 
       vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
         address: '0x123abc',
@@ -964,7 +966,8 @@ describe('BalanceService', () => {
         reasons: ['User marked as spam'],
       });
 
-      const result = await serviceWithSpam.getBalances('addr-1');
+      // Use showSpam: true to see the spam token (we're testing metadata, not filtering)
+      const result = await serviceWithSpam.getBalancesByChainAndAddress('ethereum', '0x123abc', { showSpam: true });
 
       expect(result).toHaveLength(1);
       expect(result[0]!.spamAnalysis!.userOverride).toBe('spam');
@@ -2267,6 +2270,582 @@ describe('BalanceService', () => {
         expect(result.decimals).toBe(8);
         expect(result.name).toBe('Wrapped Bitcoin');
         expect(result.symbol).toBe('WBTC');
+      });
+    });
+  });
+
+  describe('fetchAndEnrichBalances integration', () => {
+    describe('caching integration', () => {
+      it('should call detectBalanceMismatches with fetched balances and cached holdings', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+        const cachedHolding: TokenHolding = {
+          id: 'holding-1',
+          addressId: 'addr-1',
+          chainAlias: 'ethereum' as ChainAlias,
+          tokenAddress: null,
+          isNative: true,
+          balance: '500000000000000000', // 0.5 ETH (different from fetched)
+          decimals: 18,
+          name: 'Ethereum',
+          symbol: 'ETH',
+          visibility: 'visible',
+          userSpamOverride: null,
+          overrideUpdatedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([cachedHolding]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000', // 1 ETH
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Spy on logger.warn to verify mismatch detection
+        const powertools = await import('@/utils/powertools.js');
+        const warnSpy = vi.spyOn(powertools.logger, 'warn').mockImplementation(() => {});
+
+        await service.getBalances('addr-1');
+
+        // Should have logged the mismatch
+        expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', expect.objectContaining({
+          addressId: 'addr-1',
+          tokenAddress: null,
+          cached: '500000000000000000',
+          fetched: '1000000000000000000',
+        }));
+
+        warnSpy.mockRestore();
+      });
+
+      it('should call upsertBalancesToCache with non-zero balances after fetch', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xusdc',
+            isNative: false,
+            balance: '1000000',
+            decimals: 6,
+            symbol: 'USDC',
+            name: 'USD Coin',
+          },
+          {
+            address: '0x123abc',
+            tokenAddress: '0xzero',
+            isNative: false,
+            balance: '0', // Zero balance - should be excluded
+            decimals: 18,
+            symbol: 'ZERO',
+            name: 'Zero Token',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        await service.getBalances('addr-1');
+
+        // upsertMany should be called with only non-zero balances
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({
+              addressId: 'addr-1',
+              chainAlias: 'ethereum',
+              tokenAddress: null,
+              isNative: true,
+              balance: '1000000000000000000',
+            }),
+            expect.objectContaining({
+              addressId: 'addr-1',
+              chainAlias: 'ethereum',
+              tokenAddress: '0xusdc',
+              isNative: false,
+              balance: '1000000',
+            }),
+          ])
+        );
+
+        // Should NOT include zero balance token
+        expect(tokenHoldingRepository.upsertMany).not.toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({ tokenAddress: '0xzero' }),
+          ])
+        );
+      });
+    });
+
+    describe('spam filtering and sorting integration', () => {
+      let spamClassificationService: ReturnType<typeof createMockSpamClassificationService>;
+
+      beforeEach(() => {
+        spamClassificationService = createMockSpamClassificationService();
+      });
+
+      it('should filter spam tokens when showSpam is false', async () => {
+        const serviceWithSpam = new BalanceService(
+          addressRepository,
+          tokenRepository,
+          tokenHoldingRepository,
+          pricingService,
+          fetcherFactory,
+          { currency: 'usd' },
+          spamClassificationService
+        );
+
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([
+          {
+            id: 'token-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            address: '0xspam',
+            name: 'Spam Token',
+            symbol: 'SPAM',
+            decimals: 18,
+            logoUri: null,
+            coingeckoId: null,
+            isVerified: false,
+            isSpam: true,
+            spamClassification: null,
+            classificationUpdatedAt: null,
+            classificationTtlHours: 720,
+            needsClassification: false,
+            classificationAttempts: 0,
+            classificationError: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xspam',
+            isNative: false,
+            balance: '1000000000000000000',
+            decimals: 18,
+            symbol: 'SPAM',
+            name: 'Spam Token',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Mark the spam token as danger
+        vi.mocked(spamClassificationService.classifyTokensBatch).mockResolvedValue(
+          new Map([
+            ['native', {
+              tokenAddress: 'native',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: true, marketCapRank: 2 },
+                heuristics: { suspiciousName: false, namePatterns: [], isUnsolicited: false, contractAgeDays: 1000, isNewContract: false, holderDistribution: 'normal' },
+              },
+              updatedAt: new Date(),
+            }],
+            ['0xspam', {
+              tokenAddress: '0xspam',
+              classification: {
+                blockaid: { isMalicious: true, isPhishing: false, riskScore: 0.9, attackTypes: [], checkedAt: new Date().toISOString(), resultType: 'Spam', rawResponse: null },
+                coingecko: { isListed: false, marketCapRank: null },
+                heuristics: { suspiciousName: true, namePatterns: ['spam'], isUnsolicited: true, contractAgeDays: 1, isNewContract: true, holderDistribution: 'suspicious' },
+              },
+              updatedAt: new Date(),
+            }],
+          ])
+        );
+
+        vi.mocked(spamClassificationService.computeRiskSummary)
+          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] }) // For ETH
+          .mockReturnValueOnce({ riskLevel: 'danger', reasons: ['Spam token'] }); // For SPAM
+
+        // Default behavior: showSpam is false
+        const result = await serviceWithSpam.getBalances('addr-1');
+
+        // Only ETH should remain (spam filtered out)
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('ETH');
+      });
+
+      it('should include spam tokens when showSpam is true', async () => {
+        const serviceWithSpam = new BalanceService(
+          addressRepository,
+          tokenRepository,
+          tokenHoldingRepository,
+          pricingService,
+          fetcherFactory,
+          { currency: 'usd' },
+          spamClassificationService
+        );
+
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xspam',
+            isNative: false,
+            balance: '1000000000000000000',
+            decimals: 18,
+            symbol: 'SPAM',
+            name: 'Spam Token',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        vi.mocked(spamClassificationService.classifyTokensBatch).mockResolvedValue(
+          new Map([
+            ['native', {
+              tokenAddress: 'native',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: true, marketCapRank: 2 },
+                heuristics: { suspiciousName: false, namePatterns: [], isUnsolicited: false, contractAgeDays: 1000, isNewContract: false, holderDistribution: 'normal' },
+              },
+              updatedAt: new Date(),
+            }],
+            ['0xspam', {
+              tokenAddress: '0xspam',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: false, marketCapRank: null },
+                heuristics: { suspiciousName: true, namePatterns: ['spam'], isUnsolicited: true, contractAgeDays: 1, isNewContract: true, holderDistribution: 'suspicious' },
+              },
+              updatedAt: new Date(),
+            }],
+          ])
+        );
+
+        vi.mocked(spamClassificationService.computeRiskSummary)
+          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] })
+          .mockReturnValueOnce({ riskLevel: 'danger', reasons: ['Spam token'] });
+
+        // showSpam: true
+        const result = await serviceWithSpam.getBalancesByChainAndAddress('ethereum', '0x123abc', { showSpam: true });
+
+        // Both tokens should be present
+        expect(result).toHaveLength(2);
+        expect(result.map(b => b.symbol).sort()).toEqual(['ETH', 'SPAM']);
+      });
+
+      it('should sort results by usdValue descending by default', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([
+          {
+            id: 'token-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            address: '0xusdc',
+            name: 'USD Coin',
+            symbol: 'USDC',
+            decimals: 6,
+            logoUri: null,
+            coingeckoId: 'usd-coin',
+            isVerified: true,
+            isSpam: false,
+            spamClassification: null,
+            classificationUpdatedAt: null,
+            classificationTtlHours: 720,
+            needsClassification: false,
+            classificationAttempts: 0,
+            classificationError: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '100000000000000000', // 0.1 ETH
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xusdc',
+            isNative: false,
+            balance: '1000000000', // 1000 USDC
+            decimals: 6,
+            symbol: 'USDC',
+            name: 'USD Coin',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(
+          new Map([
+            ['ethereum', { coingeckoId: 'ethereum', price: 2000, priceChange24h: null, marketCap: null, isStale: false }],
+            ['usd-coin', { coingeckoId: 'usd-coin', price: 1, priceChange24h: null, marketCap: null, isStale: false }],
+          ])
+        );
+
+        const result = await service.getBalances('addr-1');
+
+        // USDC should be first (1000 * 1 = $1000) vs ETH (0.1 * 2000 = $200)
+        expect(result).toHaveLength(2);
+        expect(result[0]!.symbol).toBe('USDC');
+        expect(result[0]!.usdValue).toBe(1000);
+        expect(result[1]!.symbol).toBe('ETH');
+        expect(result[1]!.usdValue).toBe(200);
+      });
+
+      it('should sort by symbol ascending when specified', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([
+          {
+            id: 'token-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            address: '0xweth',
+            name: 'Wrapped Ether',
+            symbol: 'WETH',
+            decimals: 18,
+            logoUri: null,
+            coingeckoId: null,
+            isVerified: true,
+            isSpam: false,
+            spamClassification: null,
+            classificationUpdatedAt: null,
+            classificationTtlHours: 720,
+            needsClassification: false,
+            classificationAttempts: 0,
+            classificationError: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xweth',
+            isNative: false,
+            balance: '1000000000000000000',
+            decimals: 18,
+            symbol: 'WETH',
+            name: 'Wrapped Ether',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        const result = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', {
+          sortBy: 'symbol',
+          sortOrder: 'asc',
+        });
+
+        // ETH should come before WETH alphabetically
+        expect(result).toHaveLength(2);
+        expect(result[0]!.symbol).toBe('ETH');
+        expect(result[1]!.symbol).toBe('WETH');
+      });
+
+      it('should apply both spam filtering and sorting correctly', async () => {
+        const serviceWithSpam = new BalanceService(
+          addressRepository,
+          tokenRepository,
+          tokenHoldingRepository,
+          pricingService,
+          fetcherFactory,
+          { currency: 'usd' },
+          spamClassificationService
+        );
+
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([
+          {
+            id: 'token-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            address: '0xusdc',
+            name: 'USD Coin',
+            symbol: 'USDC',
+            decimals: 6,
+            logoUri: null,
+            coingeckoId: 'usd-coin',
+            isVerified: true,
+            isSpam: false,
+            spamClassification: null,
+            classificationUpdatedAt: null,
+            classificationTtlHours: 720,
+            needsClassification: false,
+            classificationAttempts: 0,
+            classificationError: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '2000000000000000000', // 2 ETH
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([
+          {
+            address: '0x123abc',
+            tokenAddress: '0xusdc',
+            isNative: false,
+            balance: '5000000000', // 5000 USDC
+            decimals: 6,
+            symbol: 'USDC',
+            name: 'USD Coin',
+          },
+          {
+            address: '0x123abc',
+            tokenAddress: '0xspam',
+            isNative: false,
+            balance: '1000000000000000000000', // 1000 SPAM
+            decimals: 18,
+            symbol: 'SPAM',
+            name: 'Spam Token',
+          },
+        ]);
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(
+          new Map([
+            ['ethereum', { coingeckoId: 'ethereum', price: 2000, priceChange24h: null, marketCap: null, isStale: false }],
+            ['usd-coin', { coingeckoId: 'usd-coin', price: 1, priceChange24h: null, marketCap: null, isStale: false }],
+          ])
+        );
+
+        // Classify: ETH and USDC safe, SPAM is danger
+        vi.mocked(spamClassificationService.classifyTokensBatch).mockResolvedValue(
+          new Map([
+            ['native', {
+              tokenAddress: 'native',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: true, marketCapRank: 2 },
+                heuristics: { suspiciousName: false, namePatterns: [], isUnsolicited: false, contractAgeDays: 1000, isNewContract: false, holderDistribution: 'normal' },
+              },
+              updatedAt: new Date(),
+            }],
+            ['0xusdc', {
+              tokenAddress: '0xusdc',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: true, marketCapRank: 5 },
+                heuristics: { suspiciousName: false, namePatterns: [], isUnsolicited: false, contractAgeDays: 1000, isNewContract: false, holderDistribution: 'normal' },
+              },
+              updatedAt: new Date(),
+            }],
+            ['0xspam', {
+              tokenAddress: '0xspam',
+              classification: {
+                blockaid: null,
+                coingecko: { isListed: false, marketCapRank: null },
+                heuristics: { suspiciousName: true, namePatterns: ['spam'], isUnsolicited: true, contractAgeDays: 1, isNewContract: true, holderDistribution: 'suspicious' },
+              },
+              updatedAt: new Date(),
+            }],
+          ])
+        );
+
+        vi.mocked(spamClassificationService.computeRiskSummary)
+          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] }) // ETH
+          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] }) // USDC
+          .mockReturnValueOnce({ riskLevel: 'danger', reasons: ['Spam'] }); // SPAM
+
+        // Filter spam and sort by usdValue desc
+        const result = await serviceWithSpam.getBalancesByChainAndAddress('ethereum', '0x123abc', {
+          showSpam: false,
+          sortBy: 'usdValue',
+          sortOrder: 'desc',
+        });
+
+        // SPAM should be filtered out, results sorted by usdValue desc
+        // USDC: 5000 * 1 = $5000, ETH: 2 * 2000 = $4000
+        expect(result).toHaveLength(2);
+        expect(result[0]!.symbol).toBe('USDC');
+        expect(result[0]!.usdValue).toBe(5000);
+        expect(result[1]!.symbol).toBe('ETH');
+        expect(result[1]!.usdValue).toBe(4000);
       });
     });
   });

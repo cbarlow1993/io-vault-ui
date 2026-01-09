@@ -28,25 +28,12 @@ describe('UTXO Chain Config', () => {
       expect(config.pubKeyHashPrefix).toBe(0x6f);
     });
 
-    it('contains bitcoin signet config', () => {
-      const config = UTXO_CHAIN_CONFIGS['bitcoin-signet'];
-      expect(config.chainAlias).toBe('bitcoin-signet');
-      expect(config.network).toBe('signet');
-      expect(config.nativeCurrency.symbol).toBe('sBTC');
-    });
-
-    it('contains litecoin config', () => {
-      const config = UTXO_CHAIN_CONFIGS['litecoin'];
-      expect(config.chainAlias).toBe('litecoin');
-      expect(config.nativeCurrency.symbol).toBe('LTC');
-      expect(config.bech32Prefix).toBe('ltc');
-    });
-
-    it('contains dogecoin config', () => {
-      const config = UTXO_CHAIN_CONFIGS['dogecoin'];
-      expect(config.chainAlias).toBe('dogecoin');
-      expect(config.nativeCurrency.symbol).toBe('DOGE');
-      expect(config.dustLimit).toBe(100000000); // 1 DOGE
+    it('contains mnee config', () => {
+      const config = UTXO_CHAIN_CONFIGS['mnee'];
+      expect(config.chainAlias).toBe('mnee');
+      expect(config.network).toBe('mainnet');
+      expect(config.nativeCurrency.symbol).toBe('MNEE');
+      expect(config.bech32Prefix).toBe('bc');
     });
   });
 
@@ -59,7 +46,7 @@ describe('UTXO Chain Config', () => {
 
     it('allows custom RPC URL override', () => {
       const customRpc = 'https://custom-btc-node.example.com';
-      const config = getUtxoChainConfig('bitcoin', customRpc);
+      const config = getUtxoChainConfig('bitcoin', { rpcUrl: customRpc });
       expect(config.rpcUrl).toBe(customRpc);
       expect(config.chainAlias).toBe('bitcoin');
     });
@@ -73,8 +60,7 @@ describe('UTXO Chain Config', () => {
     it('returns true for valid UTXO chains', () => {
       expect(isValidUtxoChainAlias('bitcoin')).toBe(true);
       expect(isValidUtxoChainAlias('bitcoin-testnet')).toBe(true);
-      expect(isValidUtxoChainAlias('litecoin')).toBe(true);
-      expect(isValidUtxoChainAlias('dogecoin')).toBe(true);
+      expect(isValidUtxoChainAlias('mnee')).toBe(true);
     });
 
     it('returns false for invalid chains', () => {

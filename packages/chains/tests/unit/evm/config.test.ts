@@ -22,9 +22,9 @@ describe('EVM Chain Configs', () => {
       expect(EVM_CHAIN_CONFIGS.arbitrum.chainId).toBe(42161);
     });
 
-    it('has config for all 7 EVM chains', () => {
+    it('has config for all 8 EVM chains', () => {
       const chainAliases: EvmChainAlias[] = [
-        'ethereum', 'polygon', 'arbitrum', 'optimism', 'base', 'avalanche', 'bsc'
+        'ethereum', 'polygon', 'arbitrum', 'optimism', 'base', 'avalanche', 'fantom', 'bsc'
       ];
       chainAliases.forEach(alias => {
         expect(EVM_CHAIN_CONFIGS[alias]).toBeDefined();
@@ -41,7 +41,7 @@ describe('EVM Chain Configs', () => {
 
     it('applies rpc override when provided', () => {
       const customRpc = 'https://custom-rpc.example.com';
-      const config = getEvmChainConfig('ethereum', customRpc);
+      const config = getEvmChainConfig('ethereum', { rpcUrl: customRpc });
       expect(config.rpcUrl).toBe(customRpc);
     });
   });

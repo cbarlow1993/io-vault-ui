@@ -14,12 +14,17 @@ import type {
   RawSolanaTransaction,
 } from '../core/interfaces.js';
 import type { SvmChainConfig } from './config.js';
-import { formatUnits, SPL_TOKEN_PROGRAM_ID, SPL_TOKEN_2022_PROGRAM_ID } from './utils.js';
+import {
+  formatUnits,
+  SPL_TOKEN_PROGRAM_ID,
+  SPL_TOKEN_2022_PROGRAM_ID,
+  SYSTEM_PROGRAM_ID,
+  serializeSolanaMessage,
+} from './utils.js';
 import { SignedSvmTransaction } from './signed-transaction.js';
 
-// ============ System Program ID ============
-
-export const SYSTEM_PROGRAM_ID = '11111111111111111111111111111111';
+// Re-export for backwards compatibility
+export { SYSTEM_PROGRAM_ID };
 
 // ============ SVM Transaction Data Interface ============
 
@@ -220,9 +225,15 @@ export class UnsignedSvmTransaction implements UnsignedTransaction {
   }
 
   private computeMessageToSign(): string {
-    // For now, return a base64-encoded representation of the transaction
-    // In production, this would properly serialize the message according to Solana's format
-    return Buffer.from(this.serialized).toString('base64');
+    // Serialize the transaction message according to Solana's binary format
+    const messageBytes = serializeSolanaMessage(
+      this.raw.feePayer,
+      this.raw.recentBlockhash,
+      this.raw.instructions
+    );
+
+    // Return base64-encoded serialized message for signing
+    return Buffer.from(messageBytes).toString('base64');
   }
 
   private isValidBase64(str: string): boolean {

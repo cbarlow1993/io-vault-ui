@@ -6,6 +6,7 @@ import type {
   TokenBalance,
   FeeEstimate,
   DecodeFormat,
+  TransactionResult,
 } from '../core/types.js';
 import type {
   IChainProvider,
@@ -20,11 +21,12 @@ import type {
   RawSolanaTransaction,
   NormalisedTransaction,
 } from '../core/interfaces.js';
-import { RpcError, ChainError } from '../core/errors.js';
+import { RpcError, ChainError, InvalidAddressError } from '../core/errors.js';
 import { type SvmChainConfig, getSvmChainConfig } from './config.js';
 import { SvmBalanceFetcher } from './balance.js';
 import { UnsignedSvmTransaction, type SvmTransactionData, SYSTEM_PROGRAM_ID } from './transaction-builder.js';
-import { formatUnits, SPL_TOKEN_PROGRAM_ID } from './utils.js';
+import { SvmTransactionFetcher } from './transaction-fetcher.js';
+import { formatUnits, SPL_TOKEN_PROGRAM_ID, validateSolanaAddress } from './utils.js';
 
 // ============ Solana RPC Response Types ============
 
@@ -71,11 +73,17 @@ export class SvmChainProvider implements IChainProvider {
   readonly config: SvmChainConfig;
   readonly chainAlias: SvmChainAlias;
   private readonly balanceFetcher: SvmBalanceFetcher;
+  private readonly transactionFetcher: SvmTransactionFetcher;
 
   constructor(chainAlias: SvmChainAlias, rpcUrl?: string) {
-    this.config = getSvmChainConfig(chainAlias, rpcUrl);
+    this.config = getSvmChainConfig(chainAlias, rpcUrl ? { rpcUrl } : undefined);
     this.chainAlias = chainAlias;
     this.balanceFetcher = new SvmBalanceFetcher(this.config);
+    this.transactionFetcher = new SvmTransactionFetcher(
+      this.config,
+      this.chainAlias,
+      this.rpcCall.bind(this)
+    );
   }
 
   // ============ IBalanceFetcher Methods ============
@@ -92,6 +100,14 @@ export class SvmChainProvider implements IChainProvider {
 
   async buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction> {
     const { from, to, value, overrides } = params;
+
+    // Validate addresses
+    if (!validateSolanaAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!validateSolanaAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
 
     // Get recent blockhash
     const { blockhash } = await this.getRecentBlockhash();
@@ -125,6 +141,17 @@ export class SvmChainProvider implements IChainProvider {
 
   async buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction> {
     const { from, to, contractAddress: mintAddress, value, overrides } = params;
+
+    // Validate addresses
+    if (!validateSolanaAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!validateSolanaAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
+    if (!validateSolanaAddress(mintAddress)) {
+      throw new InvalidAddressError(this.chainAlias, mintAddress);
+    }
 
     // Get recent blockhash and token accounts in parallel
     const [{ blockhash }, sourceAccounts, destAccounts] = await Promise.all([
@@ -239,6 +266,14 @@ export class SvmChainProvider implements IChainProvider {
   async contractCall(params: ContractCallParams): Promise<UnsignedTransaction> {
     const { from, contractAddress: programId, data, overrides } = params;
 
+    // Validate addresses
+    if (!validateSolanaAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!validateSolanaAddress(programId)) {
+      throw new InvalidAddressError(this.chainAlias, programId);
+    }
+
     const { blockhash } = await this.getRecentBlockhash();
 
     const txData: SvmTransactionData = {
@@ -262,6 +297,12 @@ export class SvmChainProvider implements IChainProvider {
   async contractDeploy(_params: ContractDeployParams): Promise<DeployedContract> {
     // Solana program deployment is more complex and requires multiple transactions
     throw new ChainError('contractDeploy not supported - use Solana CLI or Anchor for program deployment', this.chainAlias);
+  }
+
+  // ============ ITransactionFetcher Methods ============
+
+  async getTransaction(hash: string): Promise<TransactionResult> {
+    return this.transactionFetcher.getTransaction(hash);
   }
 
   // ============ Helper Methods ============

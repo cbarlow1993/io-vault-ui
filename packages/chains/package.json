@@ -10,13 +10,19 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
+    "@iofinnet/bitcoinjs-lib": "^1.0.0",
+    "tiny-secp256k1": "^2.2.3",
     "viem": "^2.43.5",
     "zod": "^4.3.5"
   },
@@ -25,7 +31,7 @@
     "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@solana/web3.js": "^1.98.4",
-    "@polkadot/api": "^15.10.2"
+    "@polkadot/api": "^15.10.2",
+    "@solana/web3.js": "^1.98.4"
   }
 }

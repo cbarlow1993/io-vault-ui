@@ -162,6 +162,12 @@ export class BalanceService {
     // Filter out zero balances
     const nonZeroBalances = allBalances.filter((b) => b.balance !== '0');
 
+    // Detect any mismatches between fetched and cached balances (for logging)
+    this.detectBalanceMismatches(addressId, chain, allBalances, holdings);
+
+    // Update cache with fresh balances
+    await this.upsertBalancesToCache(addressId, chain as ChainAlias, nonZeroBalances);
+
     // Collect coingecko IDs for pricing
     const coingeckoIds: string[] = [];
     const nativeCoingeckoId = nativeTokenMetadata?.coingeckoId ?? this.getNativeCoingeckoId(chain);
@@ -197,7 +203,7 @@ export class BalanceService {
     );
 
     // Enrich balances with prices
-    return nonZeroBalances.map((balance) => {
+    const enrichedBalances: EnrichedBalance[] = nonZeroBalances.map((balance) => {
       const coingeckoId = balance.isNative
         ? nativeCoingeckoId
         : tokenMap.get(balance.tokenAddress!)?.coingeckoId;
@@ -243,6 +249,21 @@ export class BalanceService {
         spamAnalysis,
       };
     });
+
+    // Apply spam filtering
+    const filteredBalances = this.filterSpamBalances(
+      enrichedBalances,
+      options?.showSpam ?? false
+    );
+
+    // Apply sorting
+    const sortedBalances = this.sortBalances(
+      filteredBalances,
+      options?.sortBy ?? 'usdValue',
+      options?.sortOrder ?? 'desc'
+    );
+
+    return sortedBalances;
   }
 
   private async classifyBalancesForSpam(

@@ -1,5 +1,24 @@
 // packages/chains/src/tvm/utils.ts
 
+import { createHash } from 'crypto';
+
+// ============ SHA256 Hashing ============
+
+/**
+ * Compute SHA256 hash
+ */
+export function sha256(data: Uint8Array | Buffer): Buffer {
+  return createHash('sha256').update(data).digest();
+}
+
+/**
+ * Compute double SHA256 hash (SHA256 of SHA256)
+ * Used for TRON address checksum
+ */
+export function doubleSha256(data: Uint8Array | Buffer): Buffer {
+  return sha256(sha256(data));
+}
+
 // ============ Constants ============
 
 export const SUN_PER_TRX = 1_000_000n; // 1 TRX = 1,000,000 SUN
@@ -58,13 +77,20 @@ export function formatSun(sun: bigint, decimals: number = TRX_DECIMALS): string 
  * @returns Amount in SUN as bigint
  */
 export function parseSun(trx: string, decimals: number = TRX_DECIMALS): bigint {
-  const [wholePart, fractionalPart = ''] = trx.split('.');
+  // Handle negative values
+  const isNegative = trx.startsWith('-');
+  const absValue = isNegative ? trx.slice(1) : trx;
+
+  const [wholePart = '0', fractionalPart = ''] = absValue.split('.');
+  // Handle values like ".5" where wholePart would be empty string
+  const normalizedWhole = wholePart === '' ? '0' : wholePart;
   const paddedFractional = fractionalPart.padEnd(decimals, '0').slice(0, decimals);
 
-  const wholeInSun = BigInt(wholePart || '0') * 10n ** BigInt(decimals);
+  const wholeInSun = BigInt(normalizedWhole) * 10n ** BigInt(decimals);
   const fractionalInSun = BigInt(paddedFractional);
+  const result = wholeInSun + fractionalInSun;
 
-  return wholeInSun + fractionalInSun;
+  return isNegative ? -result : result;
 }
 
 // ============ Address Utilities ============
@@ -174,7 +200,18 @@ export function isValidTronAddress(address: string): boolean {
       return false;
     }
 
-    // Checksum verification would require SHA256 - simplified check here
+    // Verify checksum: first 4 bytes of double SHA256 of address bytes
+    const addressBytes = decoded.slice(0, 21);
+    const providedChecksum = decoded.slice(21, 25);
+    const computedChecksum = doubleSha256(addressBytes).slice(0, 4);
+
+    // Compare checksums byte by byte
+    for (let i = 0; i < 4; i++) {
+      if (providedChecksum[i] !== computedChecksum[i]) {
+        return false;
+      }
+    }
+
     return true;
   } catch {
     return false;
@@ -215,19 +252,12 @@ export function hexToAddress(hexAddress: string): string {
     throw new Error(`Invalid hex address length: ${hex.length}`);
   }
 
-  // Simple checksum computation placeholder
-  // In production, would use double SHA256
   const addressBytes = Buffer.from(hex, 'hex');
 
-  // Create checksum (simplified - in production use double SHA256)
-  let checksum = 0;
-  for (const byte of addressBytes) {
-    checksum = (checksum + byte) & 0xffffffff;
-  }
-  const checksumBytes = Buffer.alloc(4);
-  checksumBytes.writeUInt32BE(checksum, 0);
+  // Compute checksum: first 4 bytes of double SHA256
+  const checksum = doubleSha256(addressBytes).slice(0, 4);
 
-  const fullBytes = Buffer.concat([addressBytes, checksumBytes]);
+  const fullBytes = Buffer.concat([addressBytes, checksum]);
   return base58Encode(new Uint8Array(fullBytes));
 }
 

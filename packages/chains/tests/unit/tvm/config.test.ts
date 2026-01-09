@@ -55,7 +55,7 @@ describe('TVM Chain Config', () => {
 
     it('uses custom RPC URL when provided', () => {
       const customUrl = 'https://custom-tron-node.com';
-      const config = getTvmChainConfig('tron', customUrl);
+      const config = getTvmChainConfig('tron', { rpcUrl: customUrl });
       expect(config.rpcUrl).toBe(customUrl);
       expect(config.fullNodeUrl).toBe(customUrl);
       expect(config.solidityNodeUrl).toBe(customUrl);

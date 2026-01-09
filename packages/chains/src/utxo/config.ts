@@ -1,6 +1,6 @@
 // packages/chains/src/utxo/config.ts
 
-import type { UtxoChainAlias, ChainConfig } from '../core/types.js';
+import type { UtxoChainAlias, ChainConfig, RpcAuth } from '../core/types.js';
 
 // ============ UTXO Chain Config Interface ============
 
@@ -12,6 +12,7 @@ export interface UtxoChainConfig extends ChainConfig {
   scriptHashPrefix: number;
   wif: number;
   dustLimit: number; // Minimum satoshis for a valid output
+  taprootSupported: boolean; // Whether P2TR addresses are supported
 }
 
 // ============ UTXO Chain Configs ============
@@ -20,9 +21,8 @@ export const UTXO_CHAIN_CONFIGS: Record<UtxoChainAlias, UtxoChainConfig> = {
   bitcoin: {
     chainAlias: 'bitcoin',
     network: 'mainnet',
-    rpcUrl: 'https://blockstream.info/api',
+    rpcUrl: 'https://attentive-attentive-liquid.btc.quiknode.pro/de06a76c6f93fa3c0614ded00a2f332963620310/',
     nativeCurrency: {
-      name: 'Bitcoin',
       symbol: 'BTC',
       decimals: 8,
     },
@@ -31,13 +31,13 @@ export const UTXO_CHAIN_CONFIGS: Record<UtxoChainAlias, UtxoChainConfig> = {
     scriptHashPrefix: 0x05,
     wif: 0x80,
     dustLimit: 546,
+    taprootSupported: true,
   },
   'bitcoin-testnet': {
     chainAlias: 'bitcoin-testnet',
     network: 'testnet',
-    rpcUrl: 'https://blockstream.info/testnet/api',
+    rpcUrl: 'https://testnet-blockbook.example.com/', // Update with actual testnet Blockbook URL
     nativeCurrency: {
-      name: 'Bitcoin',
       symbol: 'tBTC',
       decimals: 8,
     },
@@ -46,62 +46,47 @@ export const UTXO_CHAIN_CONFIGS: Record<UtxoChainAlias, UtxoChainConfig> = {
     scriptHashPrefix: 0xc4,
     wif: 0xef,
     dustLimit: 546,
+    taprootSupported: true,
   },
-  'bitcoin-signet': {
-    chainAlias: 'bitcoin-signet',
-    network: 'signet',
-    rpcUrl: 'https://mempool.space/signet/api',
+  mnee: {
+    chainAlias: 'mnee',
+    network: 'mainnet',
+    rpcUrl: 'https://mnee-blockbook.example.com/', // Update with actual MNEE Blockbook URL
     nativeCurrency: {
-      name: 'Bitcoin',
-      symbol: 'sBTC',
+      symbol: 'MNEE',
       decimals: 8,
     },
-    bech32Prefix: 'tb',
-    pubKeyHashPrefix: 0x6f,
-    scriptHashPrefix: 0xc4,
-    wif: 0xef,
+    bech32Prefix: 'bc',
+    pubKeyHashPrefix: 0x00,
+    scriptHashPrefix: 0x05,
+    wif: 0x80,
     dustLimit: 546,
-  },
-  litecoin: {
-    chainAlias: 'litecoin',
-    network: 'mainnet',
-    rpcUrl: 'https://litecoinspace.org/api',
-    nativeCurrency: {
-      name: 'Litecoin',
-      symbol: 'LTC',
-      decimals: 8,
-    },
-    bech32Prefix: 'ltc',
-    pubKeyHashPrefix: 0x30,
-    scriptHashPrefix: 0x32,
-    wif: 0xb0,
-    dustLimit: 5460,
-  },
-  dogecoin: {
-    chainAlias: 'dogecoin',
-    network: 'mainnet',
-    rpcUrl: 'https://dogechain.info/api/v1',
-    nativeCurrency: {
-      name: 'Dogecoin',
-      symbol: 'DOGE',
-      decimals: 8,
-    },
-    bech32Prefix: '', // Dogecoin doesn't use bech32
-    pubKeyHashPrefix: 0x1e,
-    scriptHashPrefix: 0x16,
-    wif: 0x9e,
-    dustLimit: 100000000, // 1 DOGE
+    taprootSupported: false, // MNEE may not support Taproot
   },
 };
 
 // ============ Helper Functions ============
 
-export function getUtxoChainConfig(chainAlias: UtxoChainAlias, rpcUrl?: string): UtxoChainConfig {
+export function getUtxoChainConfig(
+  chainAlias: UtxoChainAlias,
+  options?: { rpcUrl?: string; auth?: RpcAuth }
+): UtxoChainConfig {
   const config = UTXO_CHAIN_CONFIGS[chainAlias];
   if (!config) {
     throw new Error(`Unknown UTXO chain alias: ${chainAlias}`);
   }
-  return rpcUrl ? { ...config, rpcUrl } : config;
+
+  const result = { ...config };
+
+  if (options?.rpcUrl) {
+    result.rpcUrl = options.rpcUrl;
+  }
+
+  if (options?.auth) {
+    result.auth = options.auth;
+  }
+
+  return result;
 }
 
 export function isValidUtxoChainAlias(alias: string): alias is UtxoChainAlias {

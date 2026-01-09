@@ -5,6 +5,8 @@ import type { SignedTransaction } from '../core/interfaces.js';
 import { RpcError } from '../core/errors.js';
 import type { EvmChainConfig } from './config.js';
 import type { EvmTransactionData } from './transaction-builder.js';
+import { serializeTransaction, computeTransactionHash } from './utils.js';
+import type { TransactionSerializable, Hex } from 'viem';
 
 export class SignedEvmTransaction implements SignedTransaction {
   readonly chainAlias: ChainAlias;
@@ -18,7 +20,7 @@ export class SignedEvmTransaction implements SignedTransaction {
   ) {
     this.chainAlias = config.chainAlias;
     this.serialized = this.buildSerializedTransaction();
-    this.hash = this.computeTransactionHash();
+    this.hash = computeTransactionHash(this.serialized as Hex);
   }
 
   async broadcast(rpcUrl?: string): Promise<BroadcastResult> {
@@ -73,26 +75,74 @@ export class SignedEvmTransaction implements SignedTransaction {
   }
 
   private buildSerializedTransaction(): string {
-    // In production, this would properly RLP encode the signed transaction
-    // For now, return a representation that includes the signature
-    const signedData = {
-      ...this.txData,
-      signature: this.signature,
-    };
-    return '0x' + Buffer.from(JSON.stringify(signedData)).toString('hex');
+    // Convert transaction data to viem's TransactionSerializable format
+    const tx = this.toViemTransaction();
+
+    // Parse signature components (r, s, v) from the 65-byte signature
+    const sig = this.parseSignature();
+
+    // Serialize with signature using proper RLP encoding
+    return serializeTransaction(tx, sig);
   }
 
-  private computeTransactionHash(): string {
-    // In production, this would compute keccak256 of the RLP-encoded signed transaction
-    // For now, create a deterministic hash from the serialized transaction
-    const dataToHash = this.serialized;
-    let hash = 0;
-    for (let i = 0; i < dataToHash.length; i++) {
-      const char = dataToHash.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
+  private buildSerializedTransactionHash(): string {
+    // Compute keccak256 hash of the serialized signed transaction
+    return computeTransactionHash(this.serialized as Hex);
+  }
+
+  /**
+   * Parse 65-byte signature into r, s, v components
+   */
+  private parseSignature(): { r: Hex; s: Hex; v: bigint } {
+    // Signature format: 0x + r (64 chars) + s (64 chars) + v (2 chars)
+    const sig = this.signature.slice(2); // Remove 0x prefix
+
+    const r = ('0x' + sig.slice(0, 64)) as Hex;
+    const s = ('0x' + sig.slice(64, 128)) as Hex;
+    const vHex = sig.slice(128, 130);
+
+    // Parse v value - handle both legacy (27/28) and EIP-155 formats
+    let v = BigInt('0x' + vHex);
+
+    // If v is 0 or 1, convert to 27/28 (legacy format)
+    if (v === 0n || v === 1n) {
+      v = v + 27n;
     }
-    const hexHash = Math.abs(hash).toString(16).padStart(64, '0');
-    return '0x' + hexHash;
+
+    return { r, s, v };
+  }
+
+  /**
+   * Convert internal transaction data to viem's TransactionSerializable format
+   */
+  private toViemTransaction(): TransactionSerializable {
+    const base = {
+      chainId: this.txData.chainId,
+      nonce: this.txData.nonce,
+      to: this.txData.to as `0x${string}` | null | undefined,
+      value: BigInt(this.txData.value),
+      data: this.txData.data as Hex,
+      gas: BigInt(this.txData.gasLimit),
+    };
+
+    if (this.txData.type === 2) {
+      return {
+        ...base,
+        type: 'eip1559' as const,
+        maxFeePerGas: this.txData.maxFeePerGas ? BigInt(this.txData.maxFeePerGas) : undefined,
+        maxPriorityFeePerGas: this.txData.maxPriorityFeePerGas ? BigInt(this.txData.maxPriorityFeePerGas) : undefined,
+        accessList: this.txData.accessList?.map(item => ({
+          address: item.address as `0x${string}`,
+          storageKeys: item.storageKeys as `0x${string}`[],
+        })),
+      };
+    }
+
+    // Type 0 (legacy) transaction
+    return {
+      ...base,
+      type: 'legacy' as const,
+      gasPrice: this.txData.gasPrice ? BigInt(this.txData.gasPrice) : undefined,
+    };
   }
 }

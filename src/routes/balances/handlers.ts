@@ -6,12 +6,12 @@
  */
 
 import { InternalServerError, NotFoundError } from '@iofinnet/errors-sdk';
-import { Chain, type ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { type ChainAlias as ChainsChainAlias, getChainProvider } from '@io-vault/chains';
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { fetchNativeTokenMetadata } from '@/src/services/coingecko/index.js';
+import { fetchNativeTokenMetadataByAlias } from '@/src/services/coingecko/index.js';
 import { logger } from '@/utils/powertools.js';
 import type {
-  AddressIdPathParams,
   BalancePathParams,
   TokenBalancePathParams,
   TokenBalanceQuery,
@@ -20,49 +20,6 @@ import type {
 // ==================== Route Handlers ====================
 
 /**
- * Get all balances (native + tokens) for an address by ID
- * GET /addresses/:addressId/balances
- */
-export async function getBalancesByAddressId(
-  request: FastifyRequest<{ Params: AddressIdPathParams }>,
-  reply: FastifyReply
-) {
-  const { addressId } = request.params;
-
-  if (!request.server.services?.balances) {
-    throw new InternalServerError('Balance service not available');
-  }
-
-  try {
-    const balances = await request.server.services.balances.getBalances(addressId);
-
-    return reply.send({
-      balances: balances.map((b) => ({
-        tokenAddress: b.tokenAddress,
-        symbol: b.symbol,
-        name: b.name,
-        decimals: b.decimals,
-        balance: b.formattedBalance,
-        rawBalance: b.balance,
-        usdPrice: b.usdPrice,
-        usdValue: b.usdValue,
-        priceChange24h: b.priceChange24h,
-        logoUri: b.logoUri,
-        isNative: b.isNative,
-      })),
-      lastUpdated: new Date().toISOString(),
-    });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      throw error;
-    }
-    logger.error('Failed to fetch balances', { message: (error as Error).message, addressId });
-    throw error;
-  }
-}
-
-/**
- * @deprecated Use getBalancesByAddressId instead. This handler will be removed in a future version.
  *
  * Get native balance for an address
  * GET /ecosystem/:ecosystem/chain/:chain/address/:address/native
@@ -76,8 +33,8 @@ export async function getNativeBalance(
   const { chainAlias, address } = request.params;
 
   try {
-    const chain = await Chain.fromAlias(chainAlias as ChainAlias);
-    const balance = await chain.Explorer.getBalance(address);
+    const provider = getChainProvider(chainAlias as ChainsChainAlias);
+    const balance = await provider.getNativeBalance(address);
 
     const tokenRepo = request.server.repositories?.tokens;
     const pricingService = request.server.services?.pricing;
@@ -101,7 +58,7 @@ export async function getNativeBalance(
         const prices = await pricingService.getPrices([cachedNativeToken.coingeckoId], 'usd');
         const priceInfo = prices.get(cachedNativeToken.coingeckoId);
         if (priceInfo) {
-          const numericBalance = Number(balance.nativeBalance);
+          const numericBalance = Number(balance.formattedBalance);
           if (Number.isFinite(numericBalance)) {
             usdValue = (priceInfo.price * numericBalance).toFixed(2);
           }
@@ -109,7 +66,7 @@ export async function getNativeBalance(
       }
     } else {
       // Fetch from CoinGecko and cache
-      const data = await fetchNativeTokenMetadata(chain);
+      const data = await fetchNativeTokenMetadataByAlias(chainAlias as ChainAlias);
       if (data) {
         name = data.name ?? null;
         logo = data.image?.small ?? null;
@@ -121,7 +78,7 @@ export async function getNativeBalance(
             address: 'native',
             name: data.name,
             symbol: data.symbol,
-            decimals: chain.Config.nativeCurrency.decimals,
+            decimals: provider.config.nativeCurrency.decimals,
             logoUri: data.image?.small ?? null,
             coingeckoId: data.id,
             isVerified: true,
@@ -134,7 +91,7 @@ export async function getNativeBalance(
           const prices = await pricingService.getPrices([data.id], 'usd');
           const priceInfo = prices.get(data.id);
           if (priceInfo) {
-            const numericBalance = Number(balance.nativeBalance);
+            const numericBalance = Number(balance.formattedBalance);
             if (Number.isFinite(numericBalance)) {
               usdValue = (priceInfo.price * numericBalance).toFixed(2);
             }
@@ -144,8 +101,8 @@ export async function getNativeBalance(
     }
 
     return reply.send({
-      balance: balance.nativeBalance,
-      symbol: balance.nativeSymbol,
+      balance: balance.formattedBalance,
+      symbol: balance.symbol,
       name,
       logo,
       usdValue: usdValue ?? null,

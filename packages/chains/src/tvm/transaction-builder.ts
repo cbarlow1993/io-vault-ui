@@ -14,7 +14,7 @@ import type {
   RawTronTransaction,
 } from '../core/interfaces.js';
 import type { TvmChainConfig } from './config.js';
-import { formatSun, addressToHex, hexToAddress, CONTRACT_TYPES, type ContractType } from './utils.js';
+import { formatSun, addressToHex, hexToAddress, sha256, CONTRACT_TYPES, type ContractType } from './utils.js';
 import { SignedTvmTransaction } from './signed-transaction.js';
 
 // ============ TVM Transaction Data Interface ============
@@ -387,18 +387,12 @@ export function buildTrc20Transfer(
 
 /**
  * Compute transaction ID from raw data
- * In production, this would use proper SHA256 hashing
+ * Uses SHA256 hash of deterministic JSON serialization.
+ * Note: TRON uses protobuf serialization for txID computation.
+ * For full compatibility, protobuf serialization would be needed.
  */
 function computeTransactionId(rawData: TvmTransactionData['rawData']): string {
-  // Simplified hash computation for demonstration
-  // In production, this would serialize rawData to protobuf and SHA256 hash it
-  const dataStr = JSON.stringify(rawData);
-  let hash = 0;
-  for (let i = 0; i < dataStr.length; i++) {
-    const char = dataStr.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-
-  return Math.abs(hash).toString(16).padStart(64, '0');
+  const dataStr = JSON.stringify(rawData, Object.keys(rawData).sort());
+  const hash = sha256(Buffer.from(dataStr, 'utf8'));
+  return hash.toString('hex');
 }

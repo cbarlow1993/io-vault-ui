@@ -12,6 +12,7 @@ export { EvmBalanceFetcher } from './balance.js';
 // Transaction
 export { UnsignedEvmTransaction } from './transaction-builder.js';
 export { SignedEvmTransaction } from './signed-transaction.js';
+export { EvmTransactionFetcher } from './transaction-fetcher.js';
 
 // Utils
 export { formatUnits, parseUnits } from './utils.js';

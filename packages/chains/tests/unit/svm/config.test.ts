@@ -49,13 +49,13 @@ describe('SVM Chain Configs', () => {
 
     it('applies rpc override when provided', () => {
       const customRpc = 'https://custom-solana-rpc.example.com';
-      const config = getSvmChainConfig('solana', customRpc);
+      const config = getSvmChainConfig('solana', { rpcUrl: customRpc });
       expect(config.rpcUrl).toBe(customRpc);
     });
 
     it('preserves other config properties when overriding rpc', () => {
       const customRpc = 'https://custom-solana-rpc.example.com';
-      const config = getSvmChainConfig('solana', customRpc);
+      const config = getSvmChainConfig('solana', { rpcUrl: customRpc });
       expect(config.chainAlias).toBe('solana');
       expect(config.cluster).toBe('mainnet-beta');
       expect(config.nativeCurrency.symbol).toBe('SOL');

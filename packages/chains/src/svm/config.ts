@@ -1,5 +1,5 @@
 // packages/chains/src/svm/config.ts
-import type { ChainConfig, SvmChainAlias } from '../core/types.js';
+import type { ChainConfig, SvmChainAlias, RpcAuth } from '../core/types.js';
 
 export interface SvmChainConfig extends ChainConfig {
   chainAlias: SvmChainAlias;
@@ -23,11 +23,19 @@ export const SVM_CHAIN_CONFIGS: Record<SvmChainAlias, SvmChainConfig> = {
 
 export function getSvmChainConfig(
   chainAlias: SvmChainAlias,
-  rpcUrl?: string
+  options?: { rpcUrl?: string; auth?: RpcAuth }
 ): SvmChainConfig {
   const config = SVM_CHAIN_CONFIGS[chainAlias];
-  if (rpcUrl) {
-    return { ...config, rpcUrl };
+
+  const result = { ...config };
+
+  if (options?.rpcUrl) {
+    result.rpcUrl = options.rpcUrl;
   }
-  return config;
+
+  if (options?.auth) {
+    result.auth = options.auth;
+  }
+
+  return result;
 }

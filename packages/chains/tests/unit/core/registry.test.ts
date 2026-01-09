@@ -63,9 +63,9 @@ describe('Registry', () => {
   });
 
   describe('getAllChainAliases', () => {
-    it('returns all 18 chain aliases', () => {
+    it('returns all 19 chain aliases', () => {
       const aliases = getAllChainAliases();
-      expect(aliases.length).toBe(18);
+      expect(aliases.length).toBe(19);
       expect(aliases).toContain('ethereum');
       expect(aliases).toContain('solana');
       expect(aliases).toContain('bitcoin');
@@ -78,7 +78,7 @@ describe('Registry', () => {
       expect(evmChains).toContain('ethereum');
       expect(evmChains).toContain('polygon');
       expect(evmChains).toContain('arbitrum');
-      expect(evmChains.length).toBe(7);
+      expect(evmChains.length).toBe(8);
     });
 
     it('returns solana chains for svm ecosystem', () => {

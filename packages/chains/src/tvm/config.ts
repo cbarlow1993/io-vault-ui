@@ -1,6 +1,6 @@
 // packages/chains/src/tvm/config.ts
 
-import type { TvmChainAlias, ChainConfig } from '../core/types.js';
+import type { TvmChainAlias, ChainConfig, RpcAuth } from '../core/types.js';
 
 // ============ TVM Chain Config Interface ============
 
@@ -50,23 +50,29 @@ export const TVM_CHAIN_CONFIGS: Record<TvmChainAlias, TvmChainConfig> = {
 /**
  * Get TVM chain configuration by alias
  */
-export function getTvmChainConfig(chainAlias: TvmChainAlias, rpcUrl?: string): TvmChainConfig {
+export function getTvmChainConfig(
+  chainAlias: TvmChainAlias,
+  options?: { rpcUrl?: string; auth?: RpcAuth }
+): TvmChainConfig {
   const config = TVM_CHAIN_CONFIGS[chainAlias];
   if (!config) {
     throw new Error(`Unknown TVM chain alias: ${chainAlias}`);
   }
 
-  if (rpcUrl) {
-    return {
-      ...config,
-      rpcUrl,
-      fullNodeUrl: rpcUrl,
-      solidityNodeUrl: rpcUrl,
-      eventServerUrl: rpcUrl,
-    };
+  const result = { ...config };
+
+  if (options?.rpcUrl) {
+    result.rpcUrl = options.rpcUrl;
+    result.fullNodeUrl = options.rpcUrl;
+    result.solidityNodeUrl = options.rpcUrl;
+    result.eventServerUrl = options.rpcUrl;
   }
 
-  return { ...config };
+  if (options?.auth) {
+    result.auth = options.auth;
+  }
+
+  return result;
 }
 
 /**

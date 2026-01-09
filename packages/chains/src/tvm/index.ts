@@ -18,6 +18,7 @@ export {
   type BlockInfo,
 } from './transaction-builder.js';
 export { SignedTvmTransaction } from './signed-transaction.js';
+export { TvmTransactionFetcher } from './transaction-fetcher.js';
 
 // Utils
 export {

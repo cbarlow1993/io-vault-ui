@@ -6,6 +6,7 @@ import type {
   TokenBalance,
   FeeEstimate,
   DecodeFormat,
+  TransactionResult,
 } from '../core/types.js';
 import type {
   IChainProvider,
@@ -20,11 +21,12 @@ import type {
   RawEvmTransaction,
   NormalisedTransaction,
 } from '../core/interfaces.js';
-import { RpcError } from '../core/errors.js';
+import { RpcError, InvalidAddressError } from '../core/errors.js';
 import { type EvmChainConfig, getEvmChainConfig } from './config.js';
 import { EvmBalanceFetcher } from './balance.js';
 import { UnsignedEvmTransaction, type EvmTransactionData } from './transaction-builder.js';
-import { formatUnits } from './utils.js';
+import { EvmTransactionFetcher } from './transaction-fetcher.js';
+import { formatUnits, computeContractAddress, validateAddress } from './utils.js';
 
 // ============ Fee Data Interface ============
 
@@ -40,11 +42,17 @@ export class EvmChainProvider implements IChainProvider {
   readonly config: EvmChainConfig;
   readonly chainAlias: EvmChainAlias;
   private readonly balanceFetcher: EvmBalanceFetcher;
+  private readonly transactionFetcher: EvmTransactionFetcher;
 
   constructor(chainAlias: EvmChainAlias, rpcUrl?: string) {
-    this.config = getEvmChainConfig(chainAlias, rpcUrl);
+    this.config = getEvmChainConfig(chainAlias, rpcUrl ? { rpcUrl } : undefined);
     this.chainAlias = chainAlias;
     this.balanceFetcher = new EvmBalanceFetcher(this.config);
+    this.transactionFetcher = new EvmTransactionFetcher(
+      this.config,
+      this.chainAlias,
+      this.rpcCall.bind(this)
+    );
   }
 
   // ============ IBalanceFetcher Methods ============
@@ -61,6 +69,14 @@ export class EvmChainProvider implements IChainProvider {
 
   async buildNativeTransfer(params: NativeTransferParams): Promise<UnsignedTransaction> {
     const { from, to, value, overrides } = params;
+
+    // Validate addresses
+    if (!validateAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!validateAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
 
     // Fetch nonce, gas estimate, and fee data in parallel
     const [nonce, gasLimit, feeData] = await Promise.all([
@@ -99,6 +115,17 @@ export class EvmChainProvider implements IChainProvider {
 
   async buildTokenTransfer(params: TokenTransferParams): Promise<UnsignedTransaction> {
     const { from, to, contractAddress, value, overrides } = params;
+
+    // Validate addresses
+    if (!validateAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+    if (!validateAddress(to)) {
+      throw new InvalidAddressError(this.chainAlias, to);
+    }
+    if (!validateAddress(contractAddress)) {
+      throw new InvalidAddressError(this.chainAlias, contractAddress);
+    }
 
     // Encode ERC20 transfer(address,uint256) data
     // Function selector: 0xa9059cbb
@@ -264,6 +291,11 @@ export class EvmChainProvider implements IChainProvider {
   async contractDeploy(params: ContractDeployParams): Promise<DeployedContract> {
     const { from, bytecode, constructorArgs, value, overrides } = params;
 
+    // Validate sender address
+    if (!validateAddress(from)) {
+      throw new InvalidAddressError(this.chainAlias, from);
+    }
+
     const data = constructorArgs ? `${bytecode}${constructorArgs.replace('0x', '')}` : bytecode;
 
     const [nonce, gasLimit, feeData] = await Promise.all([
@@ -304,14 +336,19 @@ export class EvmChainProvider implements IChainProvider {
     const tx = new UnsignedEvmTransaction(this.config, txData);
     const transaction = overrides ? tx.rebuild(overrides) : tx;
 
-    // Calculate expected contract address (CREATE: keccak256(rlp([sender, nonce]))[12:])
-    // Simplified deterministic address for now
-    const expectedAddress = this.computeContractAddress(from, nonce);
+    // Calculate expected contract address using proper CREATE logic
+    const expectedAddress = computeContractAddress(from as `0x${string}`, BigInt(nonce));
 
     return {
       transaction,
       expectedAddress,
     };
+  }
+
+  // ============ ITransactionFetcher Methods ============
+
+  async getTransaction(hash: string): Promise<TransactionResult> {
+    return this.transactionFetcher.getTransaction(hash);
   }
 
   // ============ Helper Methods ============
@@ -389,19 +426,4 @@ export class EvmChainProvider implements IChainProvider {
     return json.result;
   }
 
-  // ============ Private Helpers ============
-
-  private computeContractAddress(sender: string, nonce: number): string {
-    // Simplified deterministic contract address calculation
-    // In production, would use RLP encoding and keccak256
-    const combined = `${sender.toLowerCase()}${nonce}`;
-    let hash = 0;
-    for (let i = 0; i < combined.length; i++) {
-      const char = combined.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    const hexHash = Math.abs(hash).toString(16).padStart(40, '0');
-    return '0x' + hexHash.slice(0, 40);
-  }
 }

@@ -128,6 +128,29 @@ export async function fetchNativeTokenMetadata(chain: Chain): Promise<CoinData |
 }
 
 /**
+ * Fetch native token metadata by chain alias directly
+ * This version doesn't require a Chain object, making it compatible with the new chains package.
+ *
+ * @param chainAlias - The chain alias (e.g., 'ethereum', 'polygon')
+ * @returns Token metadata or null if not found/error
+ */
+export async function fetchNativeTokenMetadataByAlias(chainAlias: ChainAlias): Promise<CoinData | null> {
+  const client = getCoinGeckoClient();
+  const coinId = mapChainAliasToCoinGeckoNativeCoinId(chainAlias);
+
+  if (!coinId) {
+    logger.warn('Chain native token not mapped in CoinGecko', { chainAlias });
+    return null;
+  }
+
+  try {
+    return await client.coins.getID(coinId);
+  } catch (error) {
+    return handleCoinGeckoError(error, { chainAlias, coinId });
+  }
+}
+
+/**
  * Get USD price for a token by contract address.
  *
  * @param chain - The chain alias

@@ -5,6 +5,11 @@ import type { SignedTransaction } from '../core/interfaces.js';
 import { RpcError } from '../core/errors.js';
 import type { SvmChainConfig } from './config.js';
 import type { SvmTransactionData } from './transaction-builder.js';
+import {
+  serializeSolanaMessage,
+  serializeSolanaTransaction,
+  base58Encode,
+} from './utils.js';
 
 // ============ Signed SVM Transaction ============
 
@@ -73,28 +78,42 @@ export class SignedSvmTransaction implements SignedTransaction {
   }
 
   private toBase64EncodedTransaction(): string {
-    // In production, this would properly serialize the transaction
-    // according to Solana's binary format
-    // For now, return the JSON-serialized version as base64
-    return Buffer.from(this.serialized).toString('base64');
+    // Serialize the message according to Solana's binary format
+    const messageBytes = serializeSolanaMessage(
+      this.txData.feePayer,
+      this.txData.recentBlockhash,
+      this.txData.instructions
+    );
+
+    // Convert signatures from base64 to Uint8Array
+    const signatureBytes = this.signatures.map((sig) => {
+      const bytes = Buffer.from(sig, 'base64');
+      // Ed25519 signatures are 64 bytes
+      if (bytes.length !== 64) {
+        throw new Error(`Invalid signature length: ${bytes.length}, expected 64`);
+      }
+      return new Uint8Array(bytes);
+    });
+
+    // Serialize complete transaction (signatures + message)
+    const txBytes = serializeSolanaTransaction(signatureBytes, messageBytes);
+
+    // Return base64-encoded transaction for RPC submission
+    return Buffer.from(txBytes).toString('base64');
   }
 
   private computeTransactionHash(): string {
-    // For Solana, the transaction hash is typically the first signature
-    // In production, this would be base58-encoded
-    // For now, create a deterministic hash from the first signature
+    // For Solana, the transaction "hash" is the first signature, base58-encoded
+    // The first signer is always the fee payer
     if (this.signatures.length > 0) {
-      return this.signatures[0]!;
+      const firstSig = this.signatures[0]!;
+      // Decode from base64 and re-encode as base58
+      const sigBytes = Buffer.from(firstSig, 'base64');
+      return base58Encode(new Uint8Array(sigBytes));
     }
 
-    // Fallback: create a hash from the transaction data
-    const dataToHash = this.serialized;
-    let hash = 0;
-    for (let i = 0; i < dataToHash.length; i++) {
-      const char = dataToHash.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash).toString(36).padStart(44, '0');
+    // Fallback if no signatures (shouldn't happen in normal flow)
+    // Use a deterministic hash based on transaction data
+    throw new Error('Cannot compute transaction hash without signatures');
   }
 }

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "workspaces": ["packages/*"],
   "engines": {
     "node": ">=22.0.0"
   },
@@ -25,6 +26,7 @@
     "docker:logs": "docker-compose logs -f"
   },
   "dependencies": {
+    "@io-vault/chains": "workspace:*",
     "@blockaid/client": "^0.65.0",
     "@bsv/sdk": "^1.5.1",
     "@coingecko/coingecko-typescript": "^2.5.0",
