@@ -5,6 +5,7 @@ import type { Addresses } from '@/src/types/address.js';
 import type { AddressListItem } from '@/src/routes/addresses/schemas.js';
 import { formatAddressFromPostgres, formatAddressForList } from '@/src/services/addresses/postgres-formatter.js';
 import { PAGINATION_DEFAULTS } from '@/src/lib/schemas/pagination-schema.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 /**
  * Cursor-paginated result returned by address list methods.
@@ -32,7 +33,13 @@ export class PostgresAddressService {
     chain: string;
     address: string;
   }): Promise<Addresses.Address | null> {
-    const result = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const result = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!result) {
       return null;
     }
@@ -184,7 +191,13 @@ export class PostgresAddressService {
     address: string;
     alias: string | null;
   }): Promise<Addresses.Address> {
-    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!existing) {
       throw new NotFoundError(`Address not found for address ${address} and chain ${chain}`);
     }
@@ -205,7 +218,13 @@ export class PostgresAddressService {
     addToHiddenAssets: string[];
     removeFromHiddenAssets: string[];
   }): Promise<Addresses.Address> {
-    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!existing) {
       throw new NotFoundError(`Address not found for address ${address} and chain ${chain}`);
     }
@@ -231,7 +250,13 @@ export class PostgresAddressService {
     address: string;
     subscriptionId?: string;
   }): Promise<Addresses.Address> {
-    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!existing) {
       throw new NotFoundError(`Address not found for address ${address} and chain ${chain}`);
     }
@@ -247,7 +272,13 @@ export class PostgresAddressService {
     chain: string;
     address: string;
   }): Promise<Addresses.Address> {
-    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!existing) {
       throw new NotFoundError(`Address not found for address ${address} and chain ${chain}`);
     }
@@ -271,7 +302,13 @@ export class PostgresAddressService {
       name?: string;
     }>;
   }): Promise<Addresses.Address> {
-    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(address, chain as ChainAlias);
+    // Validate input through domain value object
+    const walletAddress = WalletAddress.create(address, chain as ChainAlias);
+
+    const existing = await this.deps.addressRepository.findByAddressAndChainAlias(
+      walletAddress.normalized,
+      walletAddress.chainAlias
+    );
     if (!existing) {
       throw new NotFoundError(`Address not found for address ${address} and chain ${chain}`);
     }
