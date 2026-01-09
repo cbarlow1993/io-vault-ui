@@ -6,6 +6,7 @@ import type {
   ClassificationResult,
 } from '@/src/services/spam/types.js';
 import { TokenClassification, type RiskSummary } from '@/src/domain/entities/index.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 export type { RiskSummary };
 
@@ -29,7 +30,7 @@ export class SpamClassificationService {
     const classification = this.mergeClassifications(providerResults);
 
     return {
-      tokenAddress: token.address.toLowerCase(),
+      tokenAddress: WalletAddress.normalizeForComparison(token.address),
       classification,
       updatedAt: new Date(),
     };
@@ -45,7 +46,7 @@ export class SpamClassificationService {
     tokens.forEach((token, index) => {
       const classification = classifications[index];
       if (classification) {
-        results.set(token.address.toLowerCase(), classification);
+        results.set(WalletAddress.normalizeForComparison(token.address), classification);
       }
     });
 
