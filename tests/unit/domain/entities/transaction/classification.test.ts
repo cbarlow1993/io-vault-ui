@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   TransactionClassification,
   type ClassificationData,
+  type TransferForClassification,
 } from '@/src/domain/entities/transaction/classification.js';
 
 describe('TransactionClassification', () => {
@@ -379,6 +380,127 @@ describe('TransactionClassification', () => {
       const json = classification.toJSON();
 
       expect(json.protocol).toBeNull();
+    });
+  });
+
+  describe('classification detection', () => {
+    describe('detectMint', () => {
+      it('detects mint when transfer from zero address', () => {
+        const result = TransactionClassification.detectMint([
+          { from: '0x0000000000000000000000000000000000000000', to: '0xabc', amount: '100' },
+        ]);
+        expect(result).toBe(true);
+      });
+
+      it('returns false when no zero address sender', () => {
+        const result = TransactionClassification.detectMint([
+          { from: '0xabc', to: '0xdef', amount: '100' },
+        ]);
+        expect(result).toBe(false);
+      });
+
+      it('detects mint with mixed-case zero address', () => {
+        const result = TransactionClassification.detectMint([
+          { from: '0x0000000000000000000000000000000000000000', to: '0xABC', amount: '100' },
+        ]);
+        expect(result).toBe(true);
+      });
+
+      it('returns false for empty transfers array', () => {
+        const result = TransactionClassification.detectMint([]);
+        expect(result).toBe(false);
+      });
+    });
+
+    describe('detectBurn', () => {
+      it('detects burn when transfer to zero address', () => {
+        const result = TransactionClassification.detectBurn([
+          { from: '0xabc', to: '0x0000000000000000000000000000000000000000', amount: '100' },
+        ]);
+        expect(result).toBe(true);
+      });
+
+      it('returns false when no zero address recipient', () => {
+        const result = TransactionClassification.detectBurn([
+          { from: '0xabc', to: '0xdef', amount: '100' },
+        ]);
+        expect(result).toBe(false);
+      });
+
+      it('detects burn with mixed-case addresses', () => {
+        const result = TransactionClassification.detectBurn([
+          { from: '0xABC', to: '0x0000000000000000000000000000000000000000', amount: '100' },
+        ]);
+        expect(result).toBe(true);
+      });
+
+      it('returns false for empty transfers array', () => {
+        const result = TransactionClassification.detectBurn([]);
+        expect(result).toBe(false);
+      });
+    });
+
+    describe('detectSwap', () => {
+      it('detects swap when sender has both in and out transfers', () => {
+        const sender = '0xabc';
+        const result = TransactionClassification.detectSwap(
+          [
+            { from: sender, to: '0xrouter', amount: '100', direction: 'out' },
+            { from: '0xrouter', to: sender, amount: '50', direction: 'in' },
+          ],
+          sender
+        );
+        expect(result).toBe(true);
+      });
+
+      it('returns false for single transfer', () => {
+        const result = TransactionClassification.detectSwap(
+          [{ from: '0xabc', to: '0xdef', amount: '100', direction: 'out' }],
+          '0xabc'
+        );
+        expect(result).toBe(false);
+      });
+
+      it('returns false when only outgoing transfers', () => {
+        const sender = '0xabc';
+        const result = TransactionClassification.detectSwap(
+          [
+            { from: sender, to: '0xrouter1', amount: '100', direction: 'out' },
+            { from: sender, to: '0xrouter2', amount: '50', direction: 'out' },
+          ],
+          sender
+        );
+        expect(result).toBe(false);
+      });
+
+      it('returns false when only incoming transfers', () => {
+        const sender = '0xabc';
+        const result = TransactionClassification.detectSwap(
+          [
+            { from: '0xrouter1', to: sender, amount: '100', direction: 'in' },
+            { from: '0xrouter2', to: sender, amount: '50', direction: 'in' },
+          ],
+          sender
+        );
+        expect(result).toBe(false);
+      });
+
+      it('detects swap with mixed-case sender address', () => {
+        const sender = '0xABC';
+        const result = TransactionClassification.detectSwap(
+          [
+            { from: '0xabc', to: '0xrouter', amount: '100', direction: 'out' },
+            { from: '0xrouter', to: '0xABC', amount: '50', direction: 'in' },
+          ],
+          sender
+        );
+        expect(result).toBe(true);
+      });
+
+      it('returns false for empty transfers array', () => {
+        const result = TransactionClassification.detectSwap([], '0xabc');
+        expect(result).toBe(false);
+      });
     });
   });
 });

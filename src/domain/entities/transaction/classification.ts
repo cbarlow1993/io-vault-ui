@@ -1,7 +1,23 @@
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
+
 /**
  * TransactionClassification value object.
  * Immutable representation of how a transaction is classified.
  */
+
+/** Zero address constant used for mint/burn detection */
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+/**
+ * Minimal transfer interface for classification detection.
+ * Used to classify transactions without requiring full transfer domain objects.
+ */
+export interface TransferForClassification {
+  from: string;
+  to: string;
+  amount: string;
+  direction?: 'in' | 'out';
+}
 
 export type ClassificationType =
   | 'transfer'
@@ -81,6 +97,41 @@ export class TransactionClassification {
       'Transaction',
       null
     );
+  }
+
+  // --- Classification Detection Methods ---
+
+  /**
+   * Detect if transaction is a mint (transfer from zero address).
+   * Mints are token creations where tokens are sent from the zero address.
+   */
+  static detectMint(transfers: TransferForClassification[]): boolean {
+    return transfers.some((t) => WalletAddress.areEqual(t.from, ZERO_ADDRESS));
+  }
+
+  /**
+   * Detect if transaction is a burn (transfer to zero address).
+   * Burns are token destructions where tokens are sent to the zero address.
+   */
+  static detectBurn(transfers: TransferForClassification[]): boolean {
+    return transfers.some((t) => WalletAddress.areEqual(t.to, ZERO_ADDRESS));
+  }
+
+  /**
+   * Detect if transaction is a swap (sender has both in and out transfers).
+   * Swaps involve exchanging one token for another, requiring bidirectional transfers.
+   */
+  static detectSwap(transfers: TransferForClassification[], sender: string): boolean {
+    if (transfers.length < 2) return false;
+
+    const hasOut = transfers.some(
+      (t) => t.direction === 'out' && WalletAddress.areEqual(t.from, sender)
+    );
+    const hasIn = transfers.some(
+      (t) => t.direction === 'in' && WalletAddress.areEqual(t.to, sender)
+    );
+
+    return hasOut && hasIn;
   }
 
   /**
