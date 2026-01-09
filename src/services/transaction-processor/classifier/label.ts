@@ -1,4 +1,5 @@
 import type { ClassificationType, ClassificationDirection, ParsedTransfer } from '@/src/services/transaction-processor/types.js';
+import { TokenAmount } from '@/src/domain/value-objects/index.js';
 
 /**
  * Formats a raw token amount using decimals.
@@ -10,23 +11,7 @@ import type { ClassificationType, ClassificationDirection, ParsedTransfer } from
  */
 export function formatAmount(rawAmount: string, decimals: number): string {
   if (!rawAmount || rawAmount === '0') return '0';
-  if (decimals === 0) return rawAmount;
-
-  // Pad with leading zeros if needed
-  const padded = rawAmount.padStart(decimals + 1, '0');
-
-  // Split into integer and decimal parts
-  const integerPart = padded.slice(0, -decimals) || '0';
-  const decimalPart = padded.slice(-decimals);
-
-  // Remove trailing zeros from decimal part
-  const trimmedDecimal = decimalPart.replace(/0+$/, '');
-
-  if (!trimmedDecimal) {
-    return integerPart;
-  }
-
-  return `${integerPart}.${trimmedDecimal}`;
+  return TokenAmount.fromRaw(rawAmount, decimals).formatted;
 }
 
 /**

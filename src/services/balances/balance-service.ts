@@ -6,6 +6,7 @@ import type { SpamAnalysis, TokenToClassify } from '@/src/services/spam/types.js
 import type { SpamClassificationService } from '@/src/services/spam/spam-classification-service.js';
 import type { BalanceFetcher, RawBalance } from '@/src/services/balances/fetchers/types.js';
 import type { PricingService } from '@/src/services/balances/pricing-service.js';
+import { TokenAmount, getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
 
 export interface TokenInfo {
   address: string;
@@ -193,7 +194,7 @@ export class BalanceService {
 
     // Collect coingecko IDs for pricing
     const coingeckoIds: string[] = [];
-    const nativeCoingeckoId = nativeTokenMetadata?.coingeckoId ?? this.getNativeCoingeckoId(chain);
+    const nativeCoingeckoId = nativeTokenMetadata?.coingeckoId ?? getNativeCoingeckoId(chain);
     if (nativeCoingeckoId) {
       coingeckoIds.push(nativeCoingeckoId);
     }
@@ -234,7 +235,7 @@ export class BalanceService {
       const price = coingeckoId ? prices.get(coingeckoId) : undefined;
       const token = balance.tokenAddress ? tokenMap.get(balance.tokenAddress) : undefined;
 
-      const formattedBalance = this.formatBalance(balance.balance, balance.decimals);
+      const formattedBalance = TokenAmount.fromRaw(balance.balance, balance.decimals).formatted;
       const usdValue = price ? parseFloat(formattedBalance) * price.price : null;
 
       // For native tokens, use metadata from database if available
@@ -366,40 +367,6 @@ export class BalanceService {
       classificationUpdatedAt: classificationResult.updatedAt.toISOString(),
       summary,
     };
-  }
-
-  private formatBalance(balance: string, decimals: number): string {
-    const value = BigInt(balance);
-    const divisor = BigInt(10 ** decimals);
-    const integerPart = value / divisor;
-    const fractionalPart = value % divisor;
-
-    const fractionalStr = fractionalPart.toString().padStart(decimals, '0');
-    const trimmedFractional = fractionalStr.slice(0, 8).replace(/0+$/, '');
-
-    if (trimmedFractional === '') {
-      return integerPart.toString();
-    }
-
-    return `${integerPart}.${trimmedFractional}`;
-  }
-
-  private getNativeCoingeckoId(chain: string): string | null {
-    const mapping: Record<string, string> = {
-      ethereum: 'ethereum',
-      polygon: 'polygon-ecosystem-token',
-      arbitrum: 'ethereum',
-      optimism: 'ethereum',
-      base: 'ethereum',
-      avalanche: 'avalanche-2',
-      bsc: 'binancecoin',
-      solana: 'solana',
-      bitcoin: 'bitcoin',
-      tron: 'tron',
-      xrp: 'ripple',
-    };
-
-    return mapping[chain] ?? null;
   }
 
   /**

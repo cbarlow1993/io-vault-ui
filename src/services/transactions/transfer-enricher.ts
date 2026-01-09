@@ -6,6 +6,7 @@ import type {
   AssetMetadata,
 } from '@/src/repositories/types.js';
 import { formatAmount } from '@/src/services/transaction-processor/classifier/label.js';
+import { getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
 
 /**
  * Default asset metadata for tokens without metadata in the database
@@ -68,7 +69,7 @@ export class TransferEnricher {
         symbol: nativeCurrency.symbol,
         decimals: nativeCurrency.decimals,
         logoUri: null, // Could be added to chain config in future
-        coingeckoId: this.getNativeCoingeckoId(chainAlias),
+        coingeckoId: getNativeCoingeckoId(chainAlias),
         isVerified: true,
         isSpam: false,
       };
@@ -84,31 +85,6 @@ export class TransferEnricher {
         isSpam: false,
       };
     }
-  }
-
-  /**
-   * Maps chain alias to CoinGecko ID for native currencies.
-   */
-  private getNativeCoingeckoId(chainAlias: ChainAlias): string | null {
-    const mapping: Record<string, string> = {
-      ethereum: 'ethereum',
-      'ethereum-sepolia': 'ethereum',
-      solana: 'solana',
-      'solana-devnet': 'solana',
-      polygon: 'polygon-ecosystem-token',
-      'polygon-amoy': 'polygon-ecosystem-token',
-      arbitrum: 'ethereum',
-      'arbitrum-sepolia': 'ethereum',
-      optimism: 'ethereum',
-      'optimism-sepolia': 'ethereum',
-      base: 'ethereum',
-      'base-sepolia': 'ethereum',
-      avalanche: 'avalanche-2',
-      'avalanche-fuji': 'avalanche-2',
-      bsc: 'binancecoin',
-      'bsc-testnet': 'binancecoin',
-    };
-    return mapping[chainAlias] ?? null;
   }
 
   /**
