@@ -10,6 +10,7 @@ export {
   type SupportedCurrency,
 } from './token-price.js';
 export { ReorgThreshold } from './reorg-threshold.js';
+export { TransactionCursor, InvalidCursorError } from './transaction-cursor.js';
 
 // Utilities
 export {
