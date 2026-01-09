@@ -3,10 +3,11 @@ import {
   type ChainAlias,
   type Curve,
   EcoSystem,
-  type Vault,
+  type Vault as SdkVault,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { VaultRepository, VaultDetails } from '@/src/repositories/vault.repository.js';
 import type { ElipticCurve, TagAssignmentRow } from '@/src/lib/database/types.js';
+import { Vault } from '@/src/domain/entities/index.js';
 import { logger } from '@/utils/powertools.js';
 
 export class VaultService {
@@ -40,7 +41,7 @@ export class VaultService {
     return this.vaultRepository.findWorkspaceId(vaultId);
   }
 
-  async getVaultCurves(vaultId: string): Promise<Vault | null> {
+  async getVaultCurves(vaultId: string): Promise<SdkVault | null> {
     const result = await this.vaultRepository.findVaultCurves(vaultId);
 
     if (!result) {
@@ -55,6 +56,26 @@ export class VaultService {
 
   async getVaultDetails(vaultId: string): Promise<VaultDetails | null> {
     return this.vaultRepository.findVaultDetails(vaultId);
+  }
+
+  /**
+   * Get a Vault domain entity by ID.
+   * Returns the full Vault entity with all properties needed for domain operations.
+   */
+  async getVault(vaultId: string): Promise<Vault | null> {
+    const vaultData = await this.vaultRepository.findVaultWithDetails(vaultId);
+
+    if (!vaultData) {
+      return null;
+    }
+
+    return Vault.create({
+      id: vaultData.vaultId,
+      name: vaultData.name,
+      organizationId: vaultData.organizationId,
+      workspaceId: vaultData.workspaceId,
+      createdAt: vaultData.createdAt,
+    });
   }
 
   async getTagAssignment(params: {

@@ -11,8 +11,10 @@ export interface VaultDatabase {
 // Vault table
 export interface VaultTable {
   id: string;
+  name: string;
   workspaceId: string;
   organisationId: string;
+  createdAt: Date;
 }
 
 // Elliptic curve enum values

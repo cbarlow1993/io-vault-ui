@@ -18,10 +18,22 @@ export interface VaultWithCurves {
   curves: VaultCurveRow[];
 }
 
+/**
+ * Extended vault details including name and createdAt for domain entity creation.
+ */
+export interface VaultWithDetails {
+  vaultId: string;
+  name: string;
+  organizationId: string;
+  workspaceId: string | null;
+  createdAt: Date;
+}
+
 export interface VaultRepository {
   findById(id: string): Promise<VaultRow | null>;
   findWorkspaceId(vaultId: string): Promise<string | null>;
   findVaultDetails(vaultId: string): Promise<VaultDetails | null>;
+  findVaultWithDetails(vaultId: string): Promise<VaultWithDetails | null>;
   findVaultXpub(vaultId: string, curve: ElipticCurve): Promise<string | null>;
   findVaultCurves(vaultId: string): Promise<VaultWithCurves | null>;
   findTagAssignment(params: {
@@ -84,6 +96,26 @@ export class PostgresVaultRepository implements VaultRepository {
     }
 
     return result.rows[0]!.xpub;
+  }
+
+  async findVaultWithDetails(vaultId: string): Promise<VaultWithDetails | null> {
+    const result = await this.db
+      .selectFrom('Vault')
+      .select(['id', 'name', 'workspaceId', 'organisationId', 'createdAt'])
+      .where('id', '=', vaultId)
+      .executeTakeFirst();
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      vaultId: result.id,
+      name: result.name,
+      organizationId: result.organisationId,
+      workspaceId: result.workspaceId ?? null,
+      createdAt: result.createdAt,
+    };
   }
 
   async findVaultCurves(vaultId: string): Promise<VaultWithCurves | null> {
