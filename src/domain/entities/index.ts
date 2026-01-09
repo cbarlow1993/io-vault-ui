@@ -69,3 +69,13 @@ export {
   type CreateTransactionData,
   type TransactionRow as TransactionEntityRow,
 } from './transaction/transaction.js';
+
+// Spam domain
+export {
+  SpamClassificationResult,
+  type ProviderResult,
+  type SpamClassificationData,
+  type BlockaidResult as SpamBlockaidResult,
+  type CoingeckoResult as SpamCoingeckoResult,
+  type HeuristicsResult as SpamHeuristicsResult,
+} from './spam/spam-classification-result.js';
