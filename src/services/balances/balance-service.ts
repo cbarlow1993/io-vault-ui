@@ -481,7 +481,7 @@ export class BalanceService {
    * Upserts fresh balances to the token_holdings cache.
    * Called after successful balance fetch to keep cache current.
    */
-  async upsertBalancesToCache(
+  private async upsertBalancesToCache(
     addressId: string,
     chain: ChainAlias,
     balances: RawBalance[]
@@ -503,7 +503,7 @@ export class BalanceService {
   /**
    * Compares fetched balances with cached holdings and logs mismatches.
    */
-  detectBalanceMismatches(
+  private detectBalanceMismatches(
     addressId: string,
     chain: string,
     fetchedBalances: RawBalance[],
@@ -533,11 +533,11 @@ export class BalanceService {
   /**
    * Converts a cached TokenHolding to a RawBalance for fallback.
    */
-  holdingToRawBalance(holding: TokenHolding): RawBalance {
+  private holdingToRawBalance(holding: TokenHolding): RawBalance {
     return {
       address: '',
       tokenAddress: holding.tokenAddress,
-      isNative: holding.isNative,
+      isNative: holding.tokenAddress === null,
       balance: holding.balance,
       decimals: holding.decimals,
       name: holding.name,

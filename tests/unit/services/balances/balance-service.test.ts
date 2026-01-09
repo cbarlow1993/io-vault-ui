@@ -1949,7 +1949,7 @@ describe('BalanceService', () => {
 
         vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
 
-        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+        await (service as any).upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
 
         expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
           {
@@ -1978,7 +1978,7 @@ describe('BalanceService', () => {
       it('should handle empty balances array', async () => {
         vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
 
-        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, []);
+        await (service as any).upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, []);
 
         expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([]);
       });
@@ -1997,7 +1997,7 @@ describe('BalanceService', () => {
 
         vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
 
-        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+        await (service as any).upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
 
         expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
           {
@@ -2027,7 +2027,7 @@ describe('BalanceService', () => {
 
         vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
 
-        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+        await (service as any).upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
 
         expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
           {
@@ -2069,7 +2069,7 @@ describe('BalanceService', () => {
           }),
         ];
 
-        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+        (service as any).detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
 
         expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', {
           addressId: 'addr-1',
@@ -2096,7 +2096,7 @@ describe('BalanceService', () => {
           }),
         ];
 
-        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+        (service as any).detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
 
         expect(warnSpy).not.toHaveBeenCalled();
       });
@@ -2117,7 +2117,7 @@ describe('BalanceService', () => {
           }),
         ];
 
-        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+        (service as any).detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
 
         expect(warnSpy).not.toHaveBeenCalled();
       });
@@ -2139,7 +2139,7 @@ describe('BalanceService', () => {
           }),
         ];
 
-        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+        (service as any).detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
 
         expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', {
           addressId: 'addr-1',
@@ -2185,7 +2185,7 @@ describe('BalanceService', () => {
           }),
         ];
 
-        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+        (service as any).detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
 
         // Should only log for token1 mismatch
         expect(warnSpy).toHaveBeenCalledTimes(1);
@@ -2210,7 +2210,7 @@ describe('BalanceService', () => {
           isNative: false,
         });
 
-        const result = service.holdingToRawBalance(holding);
+        const result = (service as any).holdingToRawBalance(holding);
 
         expect(result).toEqual({
           address: '',
@@ -2233,7 +2233,7 @@ describe('BalanceService', () => {
           isNative: true,
         });
 
-        const result = service.holdingToRawBalance(holding);
+        const result = (service as any).holdingToRawBalance(holding);
 
         expect(result.isNative).toBe(true);
         expect(result.tokenAddress).toBeNull();
@@ -2245,7 +2245,7 @@ describe('BalanceService', () => {
           isNative: false,
         });
 
-        const result = service.holdingToRawBalance(holding);
+        const result = (service as any).holdingToRawBalance(holding);
 
         expect(result.isNative).toBe(false);
         expect(result.tokenAddress).toBe('0xtoken');
@@ -2261,7 +2261,7 @@ describe('BalanceService', () => {
           isNative: false,
         });
 
-        const result = service.holdingToRawBalance(holding);
+        const result = (service as any).holdingToRawBalance(holding);
 
         expect(result.balance).toBe('50000000');
         expect(result.decimals).toBe(8);
