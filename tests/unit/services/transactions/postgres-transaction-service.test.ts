@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NotFoundError } from '@iofinnet/errors-sdk';
+import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { PostgresTransactionService } from '@/src/services/transactions/postgres-service.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 import type {
   TransactionRepository,
   AddressRepository,
+  AddressWithDomain,
   Transaction,
   NativeTransfer,
   TokenTransferWithMetadata,
@@ -124,11 +127,13 @@ function createMockTokenTransferWithMetadata(
   };
 }
 
-function createMockAddress(overrides: Record<string, unknown> = {}) {
+function createMockAddress(overrides: Record<string, unknown> = {}): AddressWithDomain {
+  const address = (overrides.address as string) ?? '0x123abc';
+  const chainAlias = (overrides.chain_alias as ChainAlias) ?? ('eth' as ChainAlias);
   return {
     id: 'addr-1',
-    address: '0x123abc',
-    chain_alias: 'eth',
+    address,
+    chain_alias: chainAlias,
     ecosystem: 'evm',
     vault_id: 'vault-1',
     workspace_id: 'workspace-1',
@@ -142,6 +147,7 @@ function createMockAddress(overrides: Record<string, unknown> = {}) {
     last_reconciled_block: null,
     created_at: new Date(),
     updated_at: new Date(),
+    walletAddress: WalletAddress.create(address, chainAlias),
     ...overrides,
   };
 }
