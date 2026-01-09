@@ -5,7 +5,7 @@
  * The old DynamoDB-based functions have been removed as part of the PostgreSQL migration.
  */
 
-import { InternalServerError, NotFoundError, OperationForbiddenError } from '@iofinnet/errors-sdk';
+import { InternalServerError, NotFoundError, OperationForbiddenError, UserInputError } from '@iofinnet/errors-sdk';
 import { Chain } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { Addresses } from '@/src/types/address.js';
@@ -148,7 +148,7 @@ export async function createAddress(
   // Validate address format using domain value object
   const validation = addressValidator.validate(address, chainAlias);
   if (!validation.isValid) {
-    return reply.status(400).send({ error: validation.error });
+    throw new UserInputError(validation.error);
   }
 
   // Authorization: verify vault belongs to authenticated organisation
@@ -327,7 +327,7 @@ export async function getAddressDetails(
   // Validate address format using domain value object
   const validation = addressValidator.validate(address, chainAlias);
   if (!validation.isValid) {
-    return reply.status(400).send({ error: validation.error });
+    throw new UserInputError(validation.error);
   }
 
   // Authorization: verify vault belongs to authenticated organisation
@@ -360,7 +360,7 @@ export async function updateAddress(
   // Validate address format using domain value object
   const validation = addressValidator.validate(addressParam, chainAlias);
   if (!validation.isValid) {
-    return reply.status(400).send({ error: validation.error });
+    throw new UserInputError(validation.error);
   }
 
   // Authorization: verify vault belongs to authenticated organisation
@@ -415,7 +415,7 @@ export async function monitorAddress(
   // Validate address format using domain value object
   const validation = addressValidator.validate(address, chainAlias);
   if (!validation.isValid) {
-    return reply.status(400).send({ error: validation.error });
+    throw new UserInputError(validation.error);
   }
 
   // Authorization: verify vault belongs to authenticated organisation
@@ -469,7 +469,7 @@ export async function unmonitorAddressHandler(
   // Validate address format using domain value object
   const validation = addressValidator.validate(address, chainAlias);
   if (!validation.isValid) {
-    return reply.status(400).send({ error: validation.error });
+    throw new UserInputError(validation.error);
   }
 
   // Authorization: verify vault belongs to authenticated organisation
