@@ -52,6 +52,8 @@ export {
   type ClassificationConfidence,
   type ClassificationSource,
   type ClassificationData,
+  type DetectionInput,
+  type TransferForClassification,
 } from './transaction/classification.js';
 
 export {
