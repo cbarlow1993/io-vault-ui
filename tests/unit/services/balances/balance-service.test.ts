@@ -1641,4 +1641,250 @@ describe('BalanceService', () => {
       });
     });
   });
+
+  describe('sortBalances', () => {
+    function createEnrichedBalance(overrides: Partial<import('@/src/services/balances/balance-service.js').EnrichedBalance> = {}): import('@/src/services/balances/balance-service.js').EnrichedBalance {
+      return {
+        tokenAddress: '0xtoken',
+        isNative: false,
+        symbol: 'TOKEN',
+        name: 'Test Token',
+        decimals: 18,
+        balance: '1000000000000000000',
+        formattedBalance: '1',
+        usdPrice: 100,
+        usdValue: 100,
+        priceChange24h: null,
+        isPriceStale: false,
+        logoUri: null,
+        coingeckoId: null,
+        spamAnalysis: null,
+        ...overrides,
+      };
+    }
+
+    describe('sorting by balance', () => {
+      it('should sort balances in ascending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'HIGH', balance: '3000000000000000000' }),
+          createEnrichedBalance({ symbol: 'LOW', balance: '1000000000000000000' }),
+          createEnrichedBalance({ symbol: 'MID', balance: '2000000000000000000' }),
+        ];
+
+        const result = service.sortBalances(balances, 'balance', 'asc');
+
+        expect(result.map(b => b.symbol)).toEqual(['LOW', 'MID', 'HIGH']);
+      });
+
+      it('should sort balances in descending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'LOW', balance: '1000000000000000000' }),
+          createEnrichedBalance({ symbol: 'HIGH', balance: '3000000000000000000' }),
+          createEnrichedBalance({ symbol: 'MID', balance: '2000000000000000000' }),
+        ];
+
+        const result = service.sortBalances(balances, 'balance', 'desc');
+
+        expect(result.map(b => b.symbol)).toEqual(['HIGH', 'MID', 'LOW']);
+      });
+
+      it('should handle very large BigInt balances correctly', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'HUGE', balance: '999999999999999999999999999999' }),
+          createEnrichedBalance({ symbol: 'SMALL', balance: '1' }),
+          createEnrichedBalance({ symbol: 'MEDIUM', balance: '1000000000000000000000' }),
+        ];
+
+        const result = service.sortBalances(balances, 'balance', 'desc');
+
+        expect(result.map(b => b.symbol)).toEqual(['HUGE', 'MEDIUM', 'SMALL']);
+      });
+
+      it('should handle equal balances', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'A', balance: '1000000000000000000' }),
+          createEnrichedBalance({ symbol: 'B', balance: '1000000000000000000' }),
+        ];
+
+        const result = service.sortBalances(balances, 'balance', 'asc');
+
+        // Both have same balance, order should be stable
+        expect(result).toHaveLength(2);
+        expect(result.map(b => b.balance)).toEqual(['1000000000000000000', '1000000000000000000']);
+      });
+    });
+
+    describe('sorting by usdValue', () => {
+      it('should sort by usdValue in ascending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'HIGH', usdValue: 1000 }),
+          createEnrichedBalance({ symbol: 'LOW', usdValue: 100 }),
+          createEnrichedBalance({ symbol: 'MID', usdValue: 500 }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'asc');
+
+        expect(result.map(b => b.symbol)).toEqual(['LOW', 'MID', 'HIGH']);
+      });
+
+      it('should sort by usdValue in descending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'LOW', usdValue: 100 }),
+          createEnrichedBalance({ symbol: 'HIGH', usdValue: 1000 }),
+          createEnrichedBalance({ symbol: 'MID', usdValue: 500 }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'desc');
+
+        expect(result.map(b => b.symbol)).toEqual(['HIGH', 'MID', 'LOW']);
+      });
+
+      it('should sort null usdValues last in ascending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'NULL', usdValue: null }),
+          createEnrichedBalance({ symbol: 'LOW', usdValue: 100 }),
+          createEnrichedBalance({ symbol: 'HIGH', usdValue: 1000 }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'asc');
+
+        expect(result.map(b => b.symbol)).toEqual(['NULL', 'LOW', 'HIGH']);
+      });
+
+      it('should sort null usdValues last in descending order', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'NULL', usdValue: null }),
+          createEnrichedBalance({ symbol: 'LOW', usdValue: 100 }),
+          createEnrichedBalance({ symbol: 'HIGH', usdValue: 1000 }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'desc');
+
+        expect(result.map(b => b.symbol)).toEqual(['HIGH', 'LOW', 'NULL']);
+      });
+
+      it('should handle multiple null usdValues', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'NULL1', usdValue: null }),
+          createEnrichedBalance({ symbol: 'VALUE', usdValue: 100 }),
+          createEnrichedBalance({ symbol: 'NULL2', usdValue: null }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'desc');
+
+        expect(result[0]!.symbol).toBe('VALUE');
+        // Null values should be at the end
+        expect(result.slice(1).every(b => b.usdValue === null)).toBe(true);
+      });
+
+      it('should handle zero usdValue correctly', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'ZERO', usdValue: 0 }),
+          createEnrichedBalance({ symbol: 'NULL', usdValue: null }),
+          createEnrichedBalance({ symbol: 'POSITIVE', usdValue: 100 }),
+        ];
+
+        const result = service.sortBalances(balances, 'usdValue', 'asc');
+
+        // Zero should be before positive values but after null (which sorts to -Infinity)
+        expect(result.map(b => b.symbol)).toEqual(['NULL', 'ZERO', 'POSITIVE']);
+      });
+    });
+
+    describe('sorting by symbol', () => {
+      it('should sort by symbol in ascending order (A-Z)', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'USDC' }),
+          createEnrichedBalance({ symbol: 'BTC' }),
+          createEnrichedBalance({ symbol: 'ETH' }),
+        ];
+
+        const result = service.sortBalances(balances, 'symbol', 'asc');
+
+        expect(result.map(b => b.symbol)).toEqual(['BTC', 'ETH', 'USDC']);
+      });
+
+      it('should sort by symbol in descending order (Z-A)', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'BTC' }),
+          createEnrichedBalance({ symbol: 'USDC' }),
+          createEnrichedBalance({ symbol: 'ETH' }),
+        ];
+
+        const result = service.sortBalances(balances, 'symbol', 'desc');
+
+        expect(result.map(b => b.symbol)).toEqual(['USDC', 'ETH', 'BTC']);
+      });
+
+      it('should sort case-insensitively', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'usdc' }),
+          createEnrichedBalance({ symbol: 'BTC' }),
+          createEnrichedBalance({ symbol: 'Eth' }),
+        ];
+
+        const result = service.sortBalances(balances, 'symbol', 'asc');
+
+        // localeCompare with default options is case-insensitive
+        expect(result.map(b => b.symbol)).toEqual(['BTC', 'Eth', 'usdc']);
+      });
+
+      it('should handle special characters in symbols', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'WETH' }),
+          createEnrichedBalance({ symbol: 'aUSDC' }),
+          createEnrichedBalance({ symbol: 'ETH' }),
+        ];
+
+        const result = service.sortBalances(balances, 'symbol', 'asc');
+
+        expect(result.map(b => b.symbol)).toEqual(['aUSDC', 'ETH', 'WETH']);
+      });
+    });
+
+    describe('immutability', () => {
+      it('should not mutate the original array', () => {
+        const originalBalances = [
+          createEnrichedBalance({ symbol: 'C', balance: '3000000000000000000' }),
+          createEnrichedBalance({ symbol: 'A', balance: '1000000000000000000' }),
+          createEnrichedBalance({ symbol: 'B', balance: '2000000000000000000' }),
+        ];
+
+        const originalOrder = originalBalances.map(b => b.symbol);
+
+        service.sortBalances(originalBalances, 'balance', 'asc');
+
+        // Original array should be unchanged
+        expect(originalBalances.map(b => b.symbol)).toEqual(originalOrder);
+      });
+
+      it('should return a new array', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'A' }),
+          createEnrichedBalance({ symbol: 'B' }),
+        ];
+
+        const result = service.sortBalances(balances, 'symbol', 'asc');
+
+        expect(result).not.toBe(balances);
+      });
+    });
+
+    describe('edge cases', () => {
+      it('should handle empty array', () => {
+        const result = service.sortBalances([], 'balance', 'asc');
+
+        expect(result).toEqual([]);
+      });
+
+      it('should handle single element array', () => {
+        const balances = [createEnrichedBalance({ symbol: 'ONLY' })];
+
+        const result = service.sortBalances(balances, 'balance', 'asc');
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('ONLY');
+      });
+    });
+  });
 });

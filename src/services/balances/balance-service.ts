@@ -422,4 +422,47 @@ export class BalanceService {
     return 'unknown';
   }
 
+  /**
+   * Sorts balances by the specified field and order.
+   * Does not mutate the input array - returns a new sorted array.
+   */
+  sortBalances(
+    balances: EnrichedBalance[],
+    sortBy: 'balance' | 'usdValue' | 'symbol',
+    sortOrder: 'asc' | 'desc'
+  ): EnrichedBalance[] {
+    const sorted = [...balances].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case 'balance':
+          // Compare as BigInt for precision
+          comparison = this.compareBigInt(a.balance, b.balance);
+          break;
+        case 'usdValue':
+          // Sort by USD value, nulls last
+          const aValue = a.usdValue ?? -Infinity;
+          const bValue = b.usdValue ?? -Infinity;
+          comparison = aValue - bValue;
+          break;
+        case 'symbol':
+          // Case-insensitive comparison using localeCompare
+          comparison = a.symbol.localeCompare(b.symbol);
+          break;
+      }
+
+      return sortOrder === 'desc' ? -comparison : comparison;
+    });
+
+    return sorted;
+  }
+
+  private compareBigInt(a: string, b: string): number {
+    const aBig = BigInt(a);
+    const bBig = BigInt(b);
+    if (aBig < bBig) return -1;
+    if (aBig > bBig) return 1;
+    return 0;
+  }
+
 }
