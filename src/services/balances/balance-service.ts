@@ -1,6 +1,7 @@
 import { InternalServerError, NotFoundError } from '@iofinnet/errors-sdk';
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
-import type { AddressRepository, TokenHolding, TokenHoldingRepository, TokenRepository } from '@/src/repositories/types.js';
+import { logger } from '@/utils/powertools.js';
+import type { AddressRepository, CreateTokenHoldingInput, TokenHolding, TokenHoldingRepository, TokenRepository } from '@/src/repositories/types.js';
 import type { SpamAnalysis, TokenToClassify } from '@/src/services/spam/types.js';
 import type { SpamClassificationService } from '@/src/services/spam/spam-classification-service.js';
 import type { BalanceFetcher, RawBalance } from '@/src/services/balances/fetchers/types.js';
@@ -474,6 +475,74 @@ export class BalanceService {
     if (aBig < bBig) return -1;
     if (aBig > bBig) return 1;
     return 0;
+  }
+
+  /**
+   * Upserts fresh balances to the token_holdings cache.
+   * Called after successful balance fetch to keep cache current.
+   */
+  async upsertBalancesToCache(
+    addressId: string,
+    chain: ChainAlias,
+    balances: RawBalance[]
+  ): Promise<void> {
+    const inputs: CreateTokenHoldingInput[] = balances.map((balance) => ({
+      addressId,
+      chainAlias: chain,
+      tokenAddress: balance.tokenAddress,
+      isNative: balance.isNative,
+      balance: balance.balance,
+      decimals: balance.decimals,
+      name: balance.name,
+      symbol: balance.symbol,
+    }));
+
+    await this.tokenHoldingRepository.upsertMany(inputs);
+  }
+
+  /**
+   * Compares fetched balances with cached holdings and logs mismatches.
+   */
+  detectBalanceMismatches(
+    addressId: string,
+    chain: string,
+    fetchedBalances: RawBalance[],
+    cachedHoldings: TokenHolding[]
+  ): void {
+    // Build a Map from cachedHoldings keyed by tokenAddress (null for native)
+    const cachedMap = new Map<string | null, TokenHolding>();
+    for (const holding of cachedHoldings) {
+      cachedMap.set(holding.tokenAddress, holding);
+    }
+
+    // For each fetched balance, check if cache exists and balance differs
+    for (const fetched of fetchedBalances) {
+      const cached = cachedMap.get(fetched.tokenAddress);
+      if (cached && cached.balance !== fetched.balance) {
+        logger.warn('Balance mismatch detected', {
+          addressId,
+          tokenAddress: fetched.tokenAddress,
+          cached: cached.balance,
+          fetched: fetched.balance,
+          chain,
+        });
+      }
+    }
+  }
+
+  /**
+   * Converts a cached TokenHolding to a RawBalance for fallback.
+   */
+  holdingToRawBalance(holding: TokenHolding): RawBalance {
+    return {
+      address: '',
+      tokenAddress: holding.tokenAddress,
+      isNative: holding.isNative,
+      balance: holding.balance,
+      decimals: holding.decimals,
+      name: holding.name,
+      symbol: holding.symbol,
+    };
   }
 
 }

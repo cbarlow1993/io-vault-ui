@@ -1,7 +1,8 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BalanceService, type TokenBalanceOptions } from '@/src/services/balances/balance-service.js';
-import type { AddressRepository, TokenHoldingRepository, TokenRepository } from '@/src/repositories/types.js';
+import type { AddressRepository, TokenHolding, TokenHoldingRepository, TokenRepository } from '@/src/repositories/types.js';
+import type { RawBalance } from '@/src/services/balances/fetchers/types.js';
 import type { PricingService } from '@/src/services/balances/pricing-service.js';
 import type { BalanceFetcher } from '@/src/services/balances/fetchers/types.js';
 import type { SpamClassificationService } from '@/src/services/spam/spam-classification-service.js';
@@ -45,6 +46,7 @@ function createMockTokenHoldingRepository() {
     findByAddressId: vi.fn(),
     findVisibleByAddressId: vi.fn(),
     upsert: vi.fn(),
+    upsertMany: vi.fn(),
     updateVisibility: vi.fn(),
     updateSpamOverride: vi.fn(),
   } as unknown as TokenHoldingRepository;
@@ -1884,6 +1886,387 @@ describe('BalanceService', () => {
 
         expect(result).toHaveLength(1);
         expect(result[0]!.symbol).toBe('ONLY');
+      });
+    });
+  });
+
+  describe('caching helper methods', () => {
+    // Helper to create a mock TokenHolding
+    function createMockTokenHolding(overrides: Partial<TokenHolding> = {}): TokenHolding {
+      return {
+        id: 'holding-1',
+        addressId: 'addr-1',
+        chainAlias: 'ethereum' as ChainAlias,
+        tokenAddress: '0xtoken',
+        isNative: false,
+        balance: '1000000000000000000',
+        decimals: 18,
+        name: 'Test Token',
+        symbol: 'TEST',
+        visibility: 'visible',
+        userSpamOverride: null,
+        overrideUpdatedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...overrides,
+      };
+    }
+
+    // Helper to create a mock RawBalance
+    function createMockRawBalance(overrides: Partial<RawBalance> = {}): RawBalance {
+      return {
+        address: '0x123abc',
+        tokenAddress: '0xtoken',
+        isNative: false,
+        balance: '1000000000000000000',
+        decimals: 18,
+        symbol: 'TEST',
+        name: 'Test Token',
+        ...overrides,
+      };
+    }
+
+    describe('upsertBalancesToCache', () => {
+      it('should call tokenHoldingRepository.upsertMany with correct inputs', async () => {
+        const balances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: '0xusdc',
+            symbol: 'USDC',
+            name: 'USD Coin',
+            decimals: 6,
+            balance: '1000000',
+            isNative: false,
+          }),
+          createMockRawBalance({
+            tokenAddress: '0xweth',
+            symbol: 'WETH',
+            name: 'Wrapped Ether',
+            decimals: 18,
+            balance: '500000000000000000',
+            isNative: false,
+          }),
+        ];
+
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
+          {
+            addressId: 'addr-1',
+            chainAlias: 'ethereum',
+            tokenAddress: '0xusdc',
+            isNative: false,
+            balance: '1000000',
+            decimals: 6,
+            name: 'USD Coin',
+            symbol: 'USDC',
+          },
+          {
+            addressId: 'addr-1',
+            chainAlias: 'ethereum',
+            tokenAddress: '0xweth',
+            isNative: false,
+            balance: '500000000000000000',
+            decimals: 18,
+            name: 'Wrapped Ether',
+            symbol: 'WETH',
+          },
+        ]);
+      });
+
+      it('should handle empty balances array', async () => {
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, []);
+
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([]);
+      });
+
+      it('should correctly map native token (tokenAddress: null)', async () => {
+        const balances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: null,
+            symbol: 'ETH',
+            name: 'Ethereum',
+            decimals: 18,
+            balance: '1000000000000000000',
+            isNative: true,
+          }),
+        ];
+
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
+          {
+            addressId: 'addr-1',
+            chainAlias: 'ethereum',
+            tokenAddress: null,
+            isNative: true,
+            balance: '1000000000000000000',
+            decimals: 18,
+            name: 'Ethereum',
+            symbol: 'ETH',
+          },
+        ]);
+      });
+
+      it('should correctly map ERC-20 tokens', async () => {
+        const balances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            symbol: 'USDC',
+            name: 'USD Coin',
+            decimals: 6,
+            balance: '1000000000',
+            isNative: false,
+          }),
+        ];
+
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        await service.upsertBalancesToCache('addr-1', 'ethereum' as ChainAlias, balances);
+
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalledWith([
+          {
+            addressId: 'addr-1',
+            chainAlias: 'ethereum',
+            tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            isNative: false,
+            balance: '1000000000',
+            decimals: 6,
+            name: 'USD Coin',
+            symbol: 'USDC',
+          },
+        ]);
+      });
+    });
+
+    describe('detectBalanceMismatches', () => {
+      let warnSpy: ReturnType<typeof vi.spyOn>;
+
+      beforeEach(async () => {
+        // Dynamically import and spy on logger
+        const powertools = await import('@/utils/powertools.js');
+        warnSpy = vi.spyOn(powertools.logger, 'warn').mockImplementation(() => {});
+      });
+
+      it('should log warning when balance differs from cache', () => {
+        const fetchedBalances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: '0xtoken',
+            balance: '2000000000000000000', // 2 tokens
+            isNative: false,
+          }),
+        ];
+
+        const cachedHoldings: TokenHolding[] = [
+          createMockTokenHolding({
+            tokenAddress: '0xtoken',
+            balance: '1000000000000000000', // 1 token (different)
+          }),
+        ];
+
+        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+
+        expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', {
+          addressId: 'addr-1',
+          tokenAddress: '0xtoken',
+          cached: '1000000000000000000',
+          fetched: '2000000000000000000',
+          chain: 'ethereum',
+        });
+      });
+
+      it('should not log when balances match', () => {
+        const fetchedBalances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: '0xtoken',
+            balance: '1000000000000000000',
+            isNative: false,
+          }),
+        ];
+
+        const cachedHoldings: TokenHolding[] = [
+          createMockTokenHolding({
+            tokenAddress: '0xtoken',
+            balance: '1000000000000000000', // Same balance
+          }),
+        ];
+
+        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+
+        expect(warnSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not log when no cached balance exists', () => {
+        const fetchedBalances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: '0xnewtoken',
+            balance: '1000000000000000000',
+            isNative: false,
+          }),
+        ];
+
+        const cachedHoldings: TokenHolding[] = [
+          createMockTokenHolding({
+            tokenAddress: '0xothertoken', // Different token
+            balance: '500000000000000000',
+          }),
+        ];
+
+        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+
+        expect(warnSpy).not.toHaveBeenCalled();
+      });
+
+      it('should handle native token (null tokenAddress) correctly', () => {
+        const fetchedBalances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: null,
+            balance: '5000000000000000000', // 5 ETH
+            isNative: true,
+          }),
+        ];
+
+        const cachedHoldings: TokenHolding[] = [
+          createMockTokenHolding({
+            tokenAddress: null, // Native token
+            balance: '3000000000000000000', // 3 ETH (different)
+            isNative: true,
+          }),
+        ];
+
+        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+
+        expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', {
+          addressId: 'addr-1',
+          tokenAddress: null,
+          cached: '3000000000000000000',
+          fetched: '5000000000000000000',
+          chain: 'ethereum',
+        });
+      });
+
+      it('should handle multiple balances with some mismatches', () => {
+        const fetchedBalances: RawBalance[] = [
+          createMockRawBalance({
+            tokenAddress: null,
+            balance: '1000000000000000000',
+            isNative: true,
+          }),
+          createMockRawBalance({
+            tokenAddress: '0xtoken1',
+            balance: '2000000000000000000', // Mismatch
+            isNative: false,
+          }),
+          createMockRawBalance({
+            tokenAddress: '0xtoken2',
+            balance: '3000000000000000000', // Matches
+            isNative: false,
+          }),
+        ];
+
+        const cachedHoldings: TokenHolding[] = [
+          createMockTokenHolding({
+            tokenAddress: null,
+            balance: '1000000000000000000', // Matches
+            isNative: true,
+          }),
+          createMockTokenHolding({
+            tokenAddress: '0xtoken1',
+            balance: '1500000000000000000', // Different
+          }),
+          createMockTokenHolding({
+            tokenAddress: '0xtoken2',
+            balance: '3000000000000000000', // Same
+          }),
+        ];
+
+        service.detectBalanceMismatches('addr-1', 'ethereum', fetchedBalances, cachedHoldings);
+
+        // Should only log for token1 mismatch
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith('Balance mismatch detected', {
+          addressId: 'addr-1',
+          tokenAddress: '0xtoken1',
+          cached: '1500000000000000000',
+          fetched: '2000000000000000000',
+          chain: 'ethereum',
+        });
+      });
+    });
+
+    describe('holdingToRawBalance', () => {
+      it('should convert TokenHolding to RawBalance correctly', () => {
+        const holding = createMockTokenHolding({
+          tokenAddress: '0xusdc',
+          balance: '1000000',
+          decimals: 6,
+          name: 'USD Coin',
+          symbol: 'USDC',
+          isNative: false,
+        });
+
+        const result = service.holdingToRawBalance(holding);
+
+        expect(result).toEqual({
+          address: '',
+          tokenAddress: '0xusdc',
+          isNative: false,
+          balance: '1000000',
+          decimals: 6,
+          name: 'USD Coin',
+          symbol: 'USDC',
+        });
+      });
+
+      it('should set isNative: true when tokenAddress is null', () => {
+        const holding = createMockTokenHolding({
+          tokenAddress: null,
+          balance: '1000000000000000000',
+          decimals: 18,
+          name: 'Ethereum',
+          symbol: 'ETH',
+          isNative: true,
+        });
+
+        const result = service.holdingToRawBalance(holding);
+
+        expect(result.isNative).toBe(true);
+        expect(result.tokenAddress).toBeNull();
+      });
+
+      it('should set isNative: false when tokenAddress exists', () => {
+        const holding = createMockTokenHolding({
+          tokenAddress: '0xtoken',
+          isNative: false,
+        });
+
+        const result = service.holdingToRawBalance(holding);
+
+        expect(result.isNative).toBe(false);
+        expect(result.tokenAddress).toBe('0xtoken');
+      });
+
+      it('should preserve all token metadata', () => {
+        const holding = createMockTokenHolding({
+          tokenAddress: '0xwbtc',
+          balance: '50000000',
+          decimals: 8,
+          name: 'Wrapped Bitcoin',
+          symbol: 'WBTC',
+          isNative: false,
+        });
+
+        const result = service.holdingToRawBalance(holding);
+
+        expect(result.balance).toBe('50000000');
+        expect(result.decimals).toBe(8);
+        expect(result.name).toBe('Wrapped Bitcoin');
+        expect(result.symbol).toBe('WBTC');
       });
     });
   });
