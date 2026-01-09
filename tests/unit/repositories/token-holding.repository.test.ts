@@ -574,4 +574,195 @@ describe('PostgresTokenHoldingRepository', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('upsertMany', () => {
+    it('should return empty array when given empty input', async () => {
+      const result = await repository.upsertMany([]);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should upsert a single token holding', async () => {
+      const input: CreateTokenHoldingInput = {
+        addressId: 'addr-1',
+        chainAlias: 'eth' as ChainAlias,
+        tokenAddress: '0xusdc',
+        isNative: false,
+        balance: '1000000',
+        decimals: 6,
+        name: 'USD Coin',
+        symbol: 'USDC',
+      };
+
+      const expectedHolding = {
+        id: 'holding-uuid',
+        address_id: 'addr-1',
+        chain_alias: 'eth',
+        token_address: '0xusdc',
+        is_native: false,
+        balance: '1000000',
+        decimals: 6,
+        name: 'USD Coin',
+        symbol: 'USDC',
+        visibility: 'visible',
+        user_spam_override: null,
+        override_updated_at: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+
+      mockSql.mockReturnValue({
+        execute: vi.fn().mockResolvedValue({ rows: [expectedHolding] }),
+      });
+
+      const result = await repository.upsertMany([input]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.addressId).toBe('addr-1');
+      expect(result[0]!.tokenAddress).toBe('0xusdc');
+      expect(result[0]!.symbol).toBe('USDC');
+    });
+
+    it('should upsert multiple token holdings', async () => {
+      const inputs: CreateTokenHoldingInput[] = [
+        {
+          addressId: 'addr-1',
+          chainAlias: 'eth' as ChainAlias,
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          name: 'Ethereum',
+          symbol: 'ETH',
+        },
+        {
+          addressId: 'addr-1',
+          chainAlias: 'eth' as ChainAlias,
+          tokenAddress: '0xusdc',
+          isNative: false,
+          balance: '1000000',
+          decimals: 6,
+          name: 'USD Coin',
+          symbol: 'USDC',
+        },
+        {
+          addressId: 'addr-1',
+          chainAlias: 'eth' as ChainAlias,
+          tokenAddress: '0xdai',
+          isNative: false,
+          balance: '2000000000000000000',
+          decimals: 18,
+          name: 'Dai',
+          symbol: 'DAI',
+        },
+      ];
+
+      const expectedHoldings = [
+        {
+          id: 'holding-1',
+          address_id: 'addr-1',
+          chain_alias: 'eth',
+          token_address: null,
+          is_native: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          name: 'Ethereum',
+          symbol: 'ETH',
+          visibility: 'visible',
+          user_spam_override: null,
+          override_updated_at: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        {
+          id: 'holding-2',
+          address_id: 'addr-1',
+          chain_alias: 'eth',
+          token_address: '0xusdc',
+          is_native: false,
+          balance: '1000000',
+          decimals: 6,
+          name: 'USD Coin',
+          symbol: 'USDC',
+          visibility: 'visible',
+          user_spam_override: null,
+          override_updated_at: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        {
+          id: 'holding-3',
+          address_id: 'addr-1',
+          chain_alias: 'eth',
+          token_address: '0xdai',
+          is_native: false,
+          balance: '2000000000000000000',
+          decimals: 18,
+          name: 'Dai',
+          symbol: 'DAI',
+          visibility: 'visible',
+          user_spam_override: null,
+          override_updated_at: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      ];
+
+      // Mock sql to return different holdings for each call
+      let callIndex = 0;
+      mockSql.mockImplementation(() => ({
+        execute: vi.fn().mockResolvedValue({ rows: [expectedHoldings[callIndex++]] }),
+      }));
+
+      const result = await repository.upsertMany(inputs);
+
+      expect(result).toHaveLength(3);
+      expect(result[0]!.isNative).toBe(true);
+      expect(result[0]!.symbol).toBe('ETH');
+      expect(result[1]!.tokenAddress).toBe('0xusdc');
+      expect(result[1]!.symbol).toBe('USDC');
+      expect(result[2]!.tokenAddress).toBe('0xdai');
+      expect(result[2]!.symbol).toBe('DAI');
+    });
+
+    it('should update existing holdings on conflict', async () => {
+      const input: CreateTokenHoldingInput = {
+        addressId: 'addr-1',
+        chainAlias: 'eth' as ChainAlias,
+        tokenAddress: '0xusdc',
+        isNative: false,
+        balance: '2000000', // Updated balance
+        decimals: 6,
+        name: 'USD Coin',
+        symbol: 'USDC',
+      };
+
+      const updatedHolding = {
+        id: 'existing-holding-id',
+        address_id: 'addr-1',
+        chain_alias: 'eth',
+        token_address: '0xusdc',
+        is_native: false,
+        balance: '2000000',
+        decimals: 6,
+        name: 'USD Coin',
+        symbol: 'USDC',
+        visibility: 'visible',
+        user_spam_override: null,
+        override_updated_at: null,
+        created_at: new Date('2024-01-01'),
+        updated_at: new Date(), // Updated timestamp
+      };
+
+      mockSql.mockReturnValue({
+        execute: vi.fn().mockResolvedValue({ rows: [updatedHolding] }),
+      });
+
+      const result = await repository.upsertMany([input]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.id).toBe('existing-holding-id');
+      expect(result[0]!.balance).toBe('2000000');
+    });
+  });
 });

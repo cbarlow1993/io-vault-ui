@@ -91,6 +91,22 @@ export class PostgresTokenHoldingRepository implements TokenHoldingRepository {
     return mapToTokenHolding(row);
   }
 
+  async upsertMany(inputs: CreateTokenHoldingInput[]): Promise<TokenHolding[]> {
+    if (inputs.length === 0) {
+      return [];
+    }
+
+    // Process upserts sequentially to handle conflicts properly
+    // Each upsert uses raw SQL with ON CONFLICT for the unique index
+    const results: TokenHolding[] = [];
+    for (const input of inputs) {
+      const holding = await this.upsert(input);
+      results.push(holding);
+    }
+
+    return results;
+  }
+
   async updateVisibility(
     id: string,
     visibility: 'visible' | 'hidden'

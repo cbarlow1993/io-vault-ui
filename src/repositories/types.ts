@@ -395,6 +395,14 @@ export interface TokenHoldingRepository {
   findByAddressId(addressId: string): Promise<TokenHolding[]>;
   findVisibleByAddressId(addressId: string): Promise<TokenHolding[]>;
   upsert(input: CreateTokenHoldingInput): Promise<TokenHolding>;
+  /**
+   * Performs a bulk upsert of token holdings (insert or update if exists).
+   * Uses the unique constraint on (address_id, chain_alias, COALESCE(token_address, ''))
+   * to determine conflicts.
+   * @param inputs - Array of token holding records to upsert
+   * @returns Array of upserted TokenHolding records
+   */
+  upsertMany(inputs: CreateTokenHoldingInput[]): Promise<TokenHolding[]>;
   updateVisibility(id: string, visibility: 'visible' | 'hidden'): Promise<TokenHolding>;
   updateSpamOverride(
     addressId: string,
