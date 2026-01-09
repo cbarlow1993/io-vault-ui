@@ -7,6 +7,7 @@ import type { SpamClassificationService } from '@/src/services/spam/spam-classif
 import type { BalanceFetcher, RawBalance } from '@/src/services/balances/fetchers/types.js';
 import type { PricingService } from '@/src/services/balances/pricing-service.js';
 import { TokenAmount, getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
+import { SpamAnalysis as SpamAnalysisEntity } from '@/src/domain/entities/index.js';
 
 export interface TokenInfo {
   address: string;
@@ -333,7 +334,7 @@ export class BalanceService {
     classifications: Map<string, import('@/src/services/spam/types.js').ClassificationResult> | null,
     holdingsMap: Map<string | null, TokenHolding>
   ): SpamAnalysis | null {
-    if (!classifications || !this.spamClassificationService) {
+    if (!classifications) {
       return null;
     }
 
@@ -353,20 +354,16 @@ export class BalanceService {
     const holding = holdingsMap.get(holdingKey);
     const userOverride = holding?.userSpamOverride ?? null;
 
-    // Compute risk summary using the classification service
-    const summary = this.spamClassificationService.computeRiskSummary(
-      classificationResult.classification,
-      userOverride
-    );
-
-    return {
+    // Use SpamAnalysis entity to build the analysis with computed risk summary
+    const spamAnalysis = SpamAnalysisEntity.create({
       blockaid: classificationResult.classification.blockaid,
       coingecko: classificationResult.classification.coingecko,
       heuristics: classificationResult.classification.heuristics,
       userOverride,
       classificationUpdatedAt: classificationResult.updatedAt.toISOString(),
-      summary,
-    };
+    });
+
+    return spamAnalysis.toJSON();
   }
 
   /**

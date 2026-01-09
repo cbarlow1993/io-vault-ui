@@ -394,7 +394,7 @@ describe('BalanceService', () => {
       const result = await service.getBalances('addr-1');
 
       expect(result).toHaveLength(1);
-      expect(result[0]!.formattedBalance).toBe('1.23456789'); // Truncated to 8 decimals
+      expect(result[0]!.formattedBalance).toBe('1.234567890123456789'); // Full precision preserved
     });
   });
 
@@ -765,12 +765,6 @@ describe('BalanceService', () => {
       expect(result[0]!.spamAnalysis!.userOverride).toBe('trusted');
       expect(result[0]!.spamAnalysis!.summary.riskLevel).toBe('safe');
       expect(result[0]!.spamAnalysis!.summary.reasons).toContain('User marked as trusted');
-
-      // Verify computeRiskSummary was called with the user override
-      expect(spamClassificationService.computeRiskSummary).toHaveBeenCalledWith(
-        suspiciousClassification,
-        'trusted'
-      );
     });
 
     it('should handle missing classification result for a token', async () => {
@@ -972,11 +966,6 @@ describe('BalanceService', () => {
       expect(result).toHaveLength(1);
       expect(result[0]!.spamAnalysis!.userOverride).toBe('spam');
       expect(result[0]!.spamAnalysis!.summary.riskLevel).toBe('danger');
-
-      expect(spamClassificationService.computeRiskSummary).toHaveBeenCalledWith(
-        classification,
-        'spam'
-      );
     });
 
     describe('native token spam analysis', () => {
@@ -1051,12 +1040,6 @@ describe('BalanceService', () => {
         expect(nativeBalance).toBeDefined();
         expect(nativeBalance?.spamAnalysis).not.toBeNull();
         expect(nativeBalance?.spamAnalysis?.userOverride).toBe('trusted');
-
-        // Verify computeRiskSummary was called with the correct user override
-        expect(spamClassificationService.computeRiskSummary).toHaveBeenCalledWith(
-          classification,
-          'trusted'
-        );
       });
 
       it('applies user override for native token when balance has isNative=true but tokenAddress varies', async () => {
@@ -2818,7 +2801,7 @@ describe('BalanceService', () => {
             ['0xspam', {
               tokenAddress: '0xspam',
               classification: {
-                blockaid: null,
+                blockaid: { isMalicious: true, isPhishing: false, riskScore: 0.9, attackTypes: [], checkedAt: new Date().toISOString(), resultType: 'Malicious', rawResponse: null },
                 coingecko: { isListed: false, marketCapRank: null },
                 heuristics: { suspiciousName: true, namePatterns: ['spam'], isUnsolicited: true, contractAgeDays: 1, isNewContract: true, holderDistribution: 'suspicious' },
               },
@@ -2826,11 +2809,6 @@ describe('BalanceService', () => {
             }],
           ])
         );
-
-        vi.mocked(spamClassificationService.computeRiskSummary)
-          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] }) // ETH
-          .mockReturnValueOnce({ riskLevel: 'safe', reasons: [] }) // USDC
-          .mockReturnValueOnce({ riskLevel: 'danger', reasons: ['Spam'] }); // SPAM
 
         // Filter spam and sort by usdValue desc
         const result = await serviceWithSpam.getBalancesByChainAndAddress('ethereum', '0x123abc', {

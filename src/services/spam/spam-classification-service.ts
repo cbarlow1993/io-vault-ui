@@ -5,11 +5,9 @@ import type {
   TokenToClassify,
   ClassificationResult,
 } from '@/src/services/spam/types.js';
+import { TokenClassification, type RiskSummary } from '@/src/domain/entities/index.js';
 
-export interface RiskSummary {
-  riskLevel: 'safe' | 'warning' | 'danger';
-  reasons: string[];
-}
+export type { RiskSummary };
 
 export class SpamClassificationService {
   constructor(private readonly providers: SpamClassificationProvider[]) {}
@@ -58,54 +56,13 @@ export class SpamClassificationService {
     classification: SpamClassification,
     userOverride: 'trusted' | 'spam' | null
   ): RiskSummary {
-    const reasons: string[] = [];
-
-    // User override takes precedence
-    if (userOverride === 'trusted') {
-      return {
-        riskLevel: 'safe',
-        reasons: ['User marked as trusted'],
-      };
-    }
-
-    if (userOverride === 'spam') {
-      return {
-        riskLevel: 'danger',
-        reasons: ['User marked as spam'],
-      };
-    }
-
-    // Check Blockaid results
-    if (classification.blockaid?.isMalicious) {
-      reasons.push('Flagged as malicious by Blockaid');
-    }
-    if (classification.blockaid?.isPhishing) {
-      reasons.push('Flagged as phishing by Blockaid');
-    }
-
-    // Check heuristics
-    if (classification.heuristics.suspiciousName) {
-      reasons.push('Suspicious token name detected');
-    }
-    // NOTE: isUnsolicited, isNewContract, and holderDistribution checks are not yet implemented.
-    // These require additional infrastructure (on-chain analysis, holder distribution APIs).
-    // The heuristics provider returns hardcoded values for these fields until implemented.
-
-    // Check CoinGecko listing - only add as reason if there are other issues
-    if (!classification.coingecko.isListed && reasons.length > 0) {
-      reasons.push('Not listed on CoinGecko');
-    }
-
-    // Determine risk level
-    let riskLevel: 'safe' | 'warning' | 'danger' = 'safe';
-
-    if (classification.blockaid?.isMalicious || classification.blockaid?.isPhishing) {
-      riskLevel = 'danger';
-    } else if (reasons.length > 0) {
-      riskLevel = 'warning';
-    }
-
-    return { riskLevel, reasons };
+    const tokenClassification = TokenClassification.create({
+      blockaid: classification.blockaid,
+      coingecko: classification.coingecko,
+      heuristics: classification.heuristics,
+      classifiedAt: new Date(),
+    });
+    return tokenClassification.getRiskSummary(userOverride);
   }
 
   private mergeClassifications(results: Partial<SpamClassification>[]): SpamClassification {

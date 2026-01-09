@@ -1,5 +1,6 @@
 import type { ClassificationType, ClassificationDirection, ParsedTransfer } from '@/src/services/transaction-processor/types.js';
 import { TokenAmount } from '@/src/domain/value-objects/index.js';
+import { TransactionClassification } from '@/src/domain/entities/index.js';
 
 /**
  * Formats a raw token amount using decimals.
@@ -35,63 +36,6 @@ export function generateLabel(
   const formattedAmount = rawAmount ? formatAmount(rawAmount, decimals) : '';
   const amountWithSymbol = formattedAmount ? `${formattedAmount} ${symbol}` : symbol;
 
-  switch (type) {
-    case 'transfer':
-      switch (direction) {
-        case 'in':
-          return `Received ${amountWithSymbol}`;
-        case 'out':
-          return `Sent ${amountWithSymbol}`;
-        default:
-          return `Transferred ${amountWithSymbol}`;
-      }
-
-    case 'stake':
-      switch (direction) {
-        case 'in':
-          return `Unstaked ${amountWithSymbol}`;
-        case 'out':
-          return `Staked ${amountWithSymbol}`;
-        default:
-          return `Stake Interaction`;
-      }
-
-    case 'swap':
-      return `Swapped ${symbol}`;
-
-    case 'mint':
-      return `Minted ${amountWithSymbol}`;
-
-    case 'burn':
-      return `Burned ${amountWithSymbol}`;
-
-    case 'approve':
-      return 'Token Approval';
-
-    case 'contract_deploy':
-      return 'Deployed Contract';
-
-    case 'nft_transfer':
-      switch (direction) {
-        case 'in':
-          return 'Received NFT';
-        case 'out':
-          return 'Sent NFT';
-        default:
-          return 'NFT Transfer';
-      }
-
-    case 'bridge':
-      switch (direction) {
-        case 'in':
-          return `Bridged In ${amountWithSymbol}`;
-        case 'out':
-          return `Bridged Out ${amountWithSymbol}`;
-        default:
-          return `Bridged ${amountWithSymbol}`;
-      }
-
-    default:
-      return 'Transaction';
-  }
+  // Delegate label generation to domain entity
+  return TransactionClassification.generateLabel(type, direction, amountWithSymbol);
 }

@@ -115,7 +115,6 @@ export async function getNativeBalance(
 }
 
 /**
- * @deprecated Use getBalancesByAddressId instead. This handler will be removed in a future version.
  *
  * Get token balances for an address
  * GET /ecosystem/:ecosystem/chain/:chain/address/:address/tokens

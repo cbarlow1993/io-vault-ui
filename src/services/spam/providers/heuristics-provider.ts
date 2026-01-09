@@ -1,20 +1,15 @@
 import type { SpamClassificationProvider, TokenToClassify, SpamClassification, HeuristicsClassification } from '@/src/services/spam/types.js';
-import { NameAnalyzer } from '@/src/services/spam/heuristics/name-analyzer.js';
+import { TokenName } from '@/src/domain/entities/index.js';
 
 export class HeuristicsProvider implements SpamClassificationProvider {
   readonly name = 'heuristics';
-  private readonly nameAnalyzer: NameAnalyzer;
-
-  constructor() {
-    this.nameAnalyzer = new NameAnalyzer();
-  }
 
   async classify(token: TokenToClassify): Promise<Partial<SpamClassification>> {
-    const nameAnalysis = this.nameAnalyzer.analyze(token.name, token.symbol);
+    const tokenName = TokenName.create(token.name, token.symbol);
 
     const heuristics: HeuristicsClassification = {
-      suspiciousName: nameAnalysis.suspiciousName,
-      namePatterns: nameAnalysis.namePatterns,
+      suspiciousName: tokenName.isSuspicious,
+      namePatterns: tokenName.suspiciousPatterns,
       isUnsolicited: false, // TODO: Implement airdrop detection
       contractAgeDays: null, // TODO: Implement contract age checking
       isNewContract: false,

@@ -5,8 +5,8 @@ import type {
   EnrichedTransfer,
   AssetMetadata,
 } from '@/src/repositories/types.js';
-import { formatAmount } from '@/src/services/transaction-processor/classifier/label.js';
-import { getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
+import { getNativeCoingeckoId, WalletAddress } from '@/src/domain/value-objects/index.js';
+import { Transfer } from '@/src/domain/entities/index.js';
 
 /**
  * Default asset metadata for tokens without metadata in the database
@@ -37,19 +37,20 @@ export class TransferEnricher {
     tokenTransfers: TokenTransferWithMetadata[],
     perspectiveAddress: string
   ): Promise<EnrichedTransfer[]> {
-    const normalizedPerspective = perspectiveAddress.toLowerCase();
+    // Create WalletAddress for direction calculation
+    const perspective = WalletAddress.create(perspectiveAddress, chainAlias);
 
     // Get native currency metadata from chain SDK
     const nativeAsset = await this.getNativeAssetMetadata(chainAlias);
 
-    // Enrich native transfers
+    // Enrich native transfers using Transfer entity
     const enrichedNative = nativeTransfers.map((transfer) =>
-      this.enrichNativeTransfer(transfer, nativeAsset, normalizedPerspective)
+      this.enrichNativeTransfer(chainAlias, transfer, nativeAsset, perspective)
     );
 
-    // Enrich token transfers
+    // Enrich token transfers using Transfer entity
     const enrichedTokens = tokenTransfers.map((transfer) =>
-      this.enrichTokenTransfer(transfer, normalizedPerspective)
+      this.enrichTokenTransfer(chainAlias, transfer, perspective)
     );
 
     // Combine and return
@@ -88,21 +89,24 @@ export class TransferEnricher {
   }
 
   /**
-   * Enriches a single native transfer.
+   * Enriches a single native transfer using the Transfer domain entity.
    */
   private enrichNativeTransfer(
+    chainAlias: ChainAlias,
     transfer: NativeTransfer,
     asset: AssetMetadata,
-    perspectiveAddress: string
+    perspective: WalletAddress
   ): EnrichedTransfer {
-    const direction = this.calculateDirection(
-      transfer.fromAddress,
-      transfer.toAddress,
-      perspectiveAddress
-    );
+    // Create Transfer entity for amount formatting and direction calculation
+    const transferEntity = Transfer.native(chainAlias, transfer.fromAddress, transfer.toAddress, transfer.amount, {
+      name: asset.name,
+      symbol: asset.symbol,
+      decimals: asset.decimals,
+      coingeckoId: asset.coingeckoId,
+    });
 
-    const formattedAmount = formatAmount(transfer.amount, asset.decimals);
-    const displayAmount = `${formattedAmount} ${asset.symbol}`;
+    // Get direction, defaulting to 'out' if address not involved
+    const direction = transferEntity.getDirection(perspective) ?? 'out';
 
     return {
       id: transfer.id,
@@ -112,25 +116,20 @@ export class TransferEnricher {
       toAddress: transfer.toAddress,
       tokenAddress: null,
       amount: transfer.amount,
-      formattedAmount,
-      displayAmount,
+      formattedAmount: transferEntity.formattedAmount,
+      displayAmount: transferEntity.displayAmount,
       asset,
     };
   }
 
   /**
-   * Enriches a single token transfer.
+   * Enriches a single token transfer using the Transfer domain entity.
    */
   private enrichTokenTransfer(
+    chainAlias: ChainAlias,
     transfer: TokenTransferWithMetadata,
-    perspectiveAddress: string
+    perspective: WalletAddress
   ): EnrichedTransfer {
-    const direction = this.calculateDirection(
-      transfer.fromAddress,
-      transfer.toAddress,
-      perspectiveAddress
-    );
-
     // Use metadata from tokens table, or fallback to defaults
     const decimals = transfer.tokenDecimals ?? 18;
     const symbol = transfer.tokenSymbol ?? 'TOKEN';
@@ -146,8 +145,20 @@ export class TransferEnricher {
       isSpam: transfer.tokenIsSpam ?? DEFAULT_TOKEN_METADATA.isSpam,
     };
 
-    const formattedAmount = formatAmount(transfer.amount, decimals);
-    const displayAmount = `${formattedAmount} ${symbol}`;
+    // Create Transfer entity for amount formatting and direction calculation
+    const transferEntity = Transfer.token(chainAlias, transfer.fromAddress, transfer.toAddress, transfer.amount, {
+      address: transfer.tokenAddress,
+      name,
+      symbol,
+      decimals,
+      logoUri: asset.logoUri,
+      coingeckoId: asset.coingeckoId,
+      isVerified: asset.isVerified,
+      isSpam: asset.isSpam,
+    });
+
+    // Get direction, defaulting to 'out' if address not involved
+    const direction = transferEntity.getDirection(perspective) ?? 'out';
 
     return {
       id: transfer.id,
@@ -157,31 +168,10 @@ export class TransferEnricher {
       toAddress: transfer.toAddress,
       tokenAddress: transfer.tokenAddress,
       amount: transfer.amount,
-      formattedAmount,
-      displayAmount,
+      formattedAmount: transferEntity.formattedAmount,
+      displayAmount: transferEntity.displayAmount,
       asset,
     };
   }
 
-  /**
-   * Calculates the direction of a transfer from the perspective address.
-   */
-  private calculateDirection(
-    fromAddress: string | null,
-    toAddress: string | null,
-    perspectiveAddress: string
-  ): 'in' | 'out' {
-    const normalizedFrom = fromAddress?.toLowerCase();
-    const normalizedTo = toAddress?.toLowerCase();
-
-    if (normalizedTo === perspectiveAddress) {
-      return 'in';
-    }
-    if (normalizedFrom === perspectiveAddress) {
-      return 'out';
-    }
-    // Default to 'out' if perspective address is not involved
-    // This shouldn't happen in practice as transfers are linked to the address
-    return 'out';
-  }
 }

@@ -1,4 +1,5 @@
 import type { ClassificationType, ClassificationDirection, ParsedTransfer } from '@/src/services/transaction-processor/types.js';
+import { TransactionClassification } from '@/src/domain/entities/index.js';
 
 /**
  * Calculates the direction of a transaction from the perspective of a specific address.
@@ -15,21 +16,10 @@ export function calculateDirection(
 ): ClassificationDirection {
   const addr = perspectiveAddress.toLowerCase();
 
-  // Type-based overrides (no transfer analysis needed)
-  if (type === 'swap' || type === 'approve' || type === 'contract_deploy' || type === 'unknown') {
-    return 'neutral';
-  }
+  // Count transfers relative to perspective address
+  const incomingCount = transfers.filter((t) => t.to?.toLowerCase() === addr).length;
+  const outgoingCount = transfers.filter((t) => t.from?.toLowerCase() === addr).length;
 
-  if (type === 'mint') return 'in';
-  if (type === 'burn') return 'out';
-
-  // For stake, transfer, nft_transfer, bridge: analyze transfers
-  const incoming = transfers.filter((t) => t.to?.toLowerCase() === addr);
-  const outgoing = transfers.filter((t) => t.from?.toLowerCase() === addr);
-
-  if (incoming.length > 0 && outgoing.length === 0) return 'in';
-  if (outgoing.length > 0 && incoming.length === 0) return 'out';
-
-  // Mixed or no transfers
-  return 'neutral';
+  // Delegate to domain entity for classification logic
+  return TransactionClassification.computeDirection(type, incomingCount, outgoingCount);
 }
