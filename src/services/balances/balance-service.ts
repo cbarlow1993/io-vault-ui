@@ -439,12 +439,23 @@ export class BalanceService {
           // Compare as BigInt for precision
           comparison = this.compareBigInt(a.balance, b.balance);
           break;
-        case 'usdValue':
-          // Sort by USD value, nulls last
-          const aValue = a.usdValue ?? -Infinity;
-          const bValue = b.usdValue ?? -Infinity;
-          comparison = aValue - bValue;
+        case 'usdValue': {
+          // Sort by USD value, nulls always last (regardless of sort order)
+          const aNull = a.usdValue === null;
+          const bNull = b.usdValue === null;
+          if (aNull && bNull) {
+            comparison = 0;
+          } else if (aNull) {
+            // a is null, should always be last - bypass sort order reversal
+            return 1;
+          } else if (bNull) {
+            // b is null, should always be last - bypass sort order reversal
+            return -1;
+          } else {
+            comparison = a.usdValue - b.usdValue;
+          }
           break;
+        }
         case 'symbol':
           // Case-insensitive comparison using localeCompare
           comparison = a.symbol.localeCompare(b.symbol);

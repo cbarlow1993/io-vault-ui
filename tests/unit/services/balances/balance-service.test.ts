@@ -1748,7 +1748,7 @@ describe('BalanceService', () => {
 
         const result = service.sortBalances(balances, 'usdValue', 'asc');
 
-        expect(result.map(b => b.symbol)).toEqual(['NULL', 'LOW', 'HIGH']);
+        expect(result.map(b => b.symbol)).toEqual(['LOW', 'HIGH', 'NULL']);
       });
 
       it('should sort null usdValues last in descending order', () => {
@@ -1786,8 +1786,8 @@ describe('BalanceService', () => {
 
         const result = service.sortBalances(balances, 'usdValue', 'asc');
 
-        // Zero should be before positive values but after null (which sorts to -Infinity)
-        expect(result.map(b => b.symbol)).toEqual(['NULL', 'ZERO', 'POSITIVE']);
+        // Zero should be first (smallest value), then positive, null is always last
+        expect(result.map(b => b.symbol)).toEqual(['ZERO', 'POSITIVE', 'NULL']);
       });
     });
 
