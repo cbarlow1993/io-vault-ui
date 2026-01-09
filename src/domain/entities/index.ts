@@ -79,3 +79,6 @@ export {
   type CoingeckoResult as SpamCoingeckoResult,
   type HeuristicsResult as SpamHeuristicsResult,
 } from './spam/spam-classification-result.js';
+
+// Vault domain
+export { Vault, type CreateVaultData } from './vault/index.js';
