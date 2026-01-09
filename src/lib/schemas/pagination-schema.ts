@@ -12,7 +12,7 @@ export const PAGINATION_DEFAULTS = {
   /** Maximum items per page for most endpoints */
   MAX_LIMIT: 100,
   /** Maximum items per page for token balances endpoint */
-  MAX_LIMIT_TOKENS: 200,
+  MAX_LIMIT_TOKENS: 20,
 } as const;
 
 // ==================== Cursor-Based Pagination Schema ====================
