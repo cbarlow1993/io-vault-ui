@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PostgresAddressRepository } from '@/src/repositories/address.repository.js';
 import type { Kysely } from 'kysely';
 import type { Database } from '@/src/lib/database/index.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 // Create mock Kysely instance
 function createMockDb() {
@@ -112,32 +113,91 @@ describe('PostgresAddressRepository', () => {
   });
 
   describe('findByAddressAndChainAlias', () => {
-    it('should return address when found', async () => {
-      const expectedAddress = {
+    it('should return address with walletAddress when found', async () => {
+      // Use a valid EVM address (40 hex chars after 0x)
+      const validAddress = '0x1234567890abcdef1234567890abcdef12345678';
+      const dbRow = {
         id: 'uuid-1',
-        address: '0x123',
-        chain_alias: 'ETH',
+        address: validAddress,
+        chain_alias: 'eth',
         vault_id: 'vault-1',
         organisation_id: 'org-1',
       };
 
-      mockDb.mockExecuteTakeFirst.mockResolvedValue(expectedAddress);
+      mockDb.mockExecuteTakeFirst.mockResolvedValue(dbRow);
 
-      const result = await repository.findByAddressAndChainAlias('0x123', 'eth' as ChainAlias);
+      const result = await repository.findByAddressAndChainAlias(validAddress, 'eth' as ChainAlias);
 
       expect(mockDb.mockDb.selectFrom).toHaveBeenCalledWith('addresses');
       // First where call uses sql`LOWER(address)` which creates a RawBuilder
-      expect(mockDb.chainable.where).toHaveBeenCalledWith(expect.anything(), '=', '0x123');
+      expect(mockDb.chainable.where).toHaveBeenCalledWith(expect.anything(), '=', validAddress.toLowerCase());
       expect(mockDb.chainable.where).toHaveBeenCalledWith('chain_alias', '=', 'eth');
-      expect(result).toEqual(expectedAddress);
+
+      // Verify database properties are preserved
+      expect(result?.id).toBe('uuid-1');
+      expect(result?.address).toBe(validAddress);
+      expect(result?.chain_alias).toBe('eth');
+
+      // Verify walletAddress is added
+      expect(result?.walletAddress).toBeDefined();
+      expect(result?.walletAddress.normalized).toBe(validAddress.toLowerCase());
     });
 
     it('should return null when not found', async () => {
       mockDb.mockExecuteTakeFirst.mockResolvedValue(undefined);
 
-      const result = await repository.findByAddressAndChainAlias('0x456', 'bitcoin' as ChainAlias);
+      // Use a valid EVM address for the search (even though we're looking up something that doesn't exist)
+      const result = await repository.findByAddressAndChainAlias(
+        '0x1234567890abcdef1234567890abcdef12345678',
+        'eth' as ChainAlias
+      );
 
       expect(result).toBeNull();
+    });
+
+    it('should return AddressWithDomain containing walletAddress value object', async () => {
+      // Use a valid EVM address for the test (40 hex chars after 0x)
+      const validEvmAddress = '0x1234567890abcdef1234567890abcdef12345678';
+      const dbRow = {
+        id: 'uuid-1',
+        address: validEvmAddress,
+        chain_alias: 'eth',
+        vault_id: 'vault-1',
+        organisation_id: 'org-1',
+        ecosystem: 'evm',
+        workspace_id: 'workspace-1',
+        derivation_path: null,
+        alias: null,
+        is_monitored: false,
+        subscription_id: null,
+        monitored_at: null,
+        unmonitored_at: null,
+        last_reconciled_block: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+
+      mockDb.mockExecuteTakeFirst.mockResolvedValue(dbRow);
+
+      const result = await repository.findByAddressAndChainAlias(validEvmAddress, 'eth' as ChainAlias);
+
+      // Verify result has walletAddress property
+      expect(result).not.toBeNull();
+      expect(result).toHaveProperty('walletAddress');
+
+      // Verify walletAddress is a WalletAddress instance
+      expect(result!.walletAddress).toBeInstanceOf(WalletAddress);
+
+      // Verify walletAddress has correct values
+      expect(result!.walletAddress.normalized).toBe(validEvmAddress.toLowerCase());
+      expect(result!.walletAddress.chainAlias).toBe('eth');
+
+      // Verify original Address properties are preserved
+      expect(result!.id).toBe('uuid-1');
+      expect(result!.address).toBe(validEvmAddress);
+      expect(result!.chain_alias).toBe('eth');
+      expect(result!.vault_id).toBe('vault-1');
+      expect(result!.organisation_id).toBe('org-1');
     });
   });
 

@@ -3,6 +3,7 @@ import { type Kysely, sql } from 'kysely';
 import type { Address, AddressToken, Database } from '@/src/lib/database/types.js';
 import type {
   AddressRepository,
+  AddressWithDomain,
   CreateAddressInput,
   CreateTokenInput,
   CursorPaginatedResult,
@@ -12,6 +13,7 @@ import type {
   PaginatedResult,
   PaginationOptions,
 } from '@/src/repositories/types.js';
+import { AddressMapper } from './mappers/index.js';
 
 // ==================== Cursor Utilities ====================
 
@@ -66,14 +68,28 @@ export class PostgresAddressRepository implements AddressRepository {
     return result ?? null;
   }
 
-  async findByAddressAndChainAlias(address: string, chainAlias: ChainAlias): Promise<Address | null> {
+  async findByAddressAndChainAlias(address: string, chainAlias: ChainAlias): Promise<AddressWithDomain | null> {
     const result = await this.db
       .selectFrom('addresses')
       .selectAll()
       .where(sql`LOWER(address)`, '=', address.toLowerCase())
       .where('chain_alias', '=', chainAlias)
       .executeTakeFirst();
-    return result ?? null;
+
+    if (!result) {
+      return null;
+    }
+
+    // Enrich the database row with the WalletAddress domain value object
+    const walletAddress = AddressMapper.toDomain({
+      address: result.address,
+      chain_alias: result.chain_alias as ChainAlias,
+    });
+
+    return {
+      ...result,
+      walletAddress,
+    };
   }
 
   async findByVaultId(

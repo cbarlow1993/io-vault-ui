@@ -1,5 +1,16 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { Address, AddressToken, SpamClassification, Token as TokenRow } from '@/src/lib/database/types.js';
+import type { WalletAddress } from '@/src/domain/value-objects/index.js';
+
+// ==================== Domain-Enriched Types ====================
+
+/**
+ * Address entity enriched with domain value objects.
+ * Extends the raw database Address type with WalletAddress for type-safe address handling.
+ */
+export interface AddressWithDomain extends Address {
+  walletAddress: WalletAddress;
+}
 
 // ==================== Cursor-Based Pagination ====================
 
@@ -78,7 +89,7 @@ export interface AddressRepository {
   // Core CRUD
   create(input: CreateAddressInput): Promise<Address>;
   findById(id: string): Promise<Address | null>;
-  findByAddressAndChainAlias(address: string, chainAlias: ChainAlias): Promise<Address | null>;
+  findByAddressAndChainAlias(address: string, chainAlias: ChainAlias): Promise<AddressWithDomain | null>;
 
   // Cursor-based pagination queries (preferred)
   findByVaultIdCursor(
