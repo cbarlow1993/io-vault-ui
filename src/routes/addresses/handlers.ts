@@ -10,6 +10,7 @@ import { Chain } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { Addresses } from '@/src/types/address.js';
 import { Address } from '@/src/services/addresses/address.js';
+import { AddressValidator } from '@/src/routes/validators/index.js';
 import { logger } from '@/utils/powertools.js';
 import { tryCatch } from '@/utils/try-catch.js';
 import type {
@@ -23,6 +24,9 @@ import type {
   UpdateAddressBody,
   VaultIdParams,
 } from '@/src/routes/addresses/schemas.js';
+
+// Shared validator instance for all handlers
+const addressValidator = new AddressValidator();
 
 // ==================== Helper Functions ====================
 
@@ -140,6 +144,12 @@ export async function createAddress(
   const { address, derivationPath, monitor = false, alias } = request.body;
   const { vaultId, chainAlias, ecosystem } = request.params;
   const { organisationId } = request.auth!;
+
+  // Validate address format using domain value object
+  const validation = addressValidator.validate(address, chainAlias);
+  if (!validation.isValid) {
+    return reply.status(400).send({ error: validation.error });
+  }
 
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, organisationId);
@@ -314,6 +324,12 @@ export async function getAddressDetails(
   const { vaultId, chainAlias, address } = request.params;
   const { organisationId: authOrgId } = request.auth!;
 
+  // Validate address format using domain value object
+  const validation = addressValidator.validate(address, chainAlias);
+  if (!validation.isValid) {
+    return reply.status(400).send({ error: validation.error });
+  }
+
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
 
@@ -340,6 +356,12 @@ export async function updateAddress(
   const { vaultId, address: addressParam, chainAlias } = request.params;
   const { organisationId: authOrgId } = request.auth!;
   const { addToHiddenAssets, removeFromHiddenAssets, alias } = request.body;
+
+  // Validate address format using domain value object
+  const validation = addressValidator.validate(addressParam, chainAlias);
+  if (!validation.isValid) {
+    return reply.status(400).send({ error: validation.error });
+  }
 
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
@@ -390,6 +412,12 @@ export async function monitorAddress(
   const { address, chainAlias, vaultId, ecosystem: _ecosystem } = request.params;
   const { organisationId: authOrgId } = request.auth!;
 
+  // Validate address format using domain value object
+  const validation = addressValidator.validate(address, chainAlias);
+  if (!validation.isValid) {
+    return reply.status(400).send({ error: validation.error });
+  }
+
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
 
@@ -437,6 +465,12 @@ export async function unmonitorAddressHandler(
 ) {
   const { address, chainAlias, vaultId } = request.params;
   const { organisationId: authOrgId } = request.auth!;
+
+  // Validate address format using domain value object
+  const validation = addressValidator.validate(address, chainAlias);
+  if (!validation.isValid) {
+    return reply.status(400).send({ error: validation.error });
+  }
 
   // Authorization: verify vault belongs to authenticated organisation
   await verifyVaultOwnership(request.server, vaultId, authOrgId);
