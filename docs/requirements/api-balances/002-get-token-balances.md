@@ -9,14 +9,14 @@ Users can retrieve all token balances for a specific blockchain address. The res
 
 ## Dependencies
 
-- [Cursor-Based Pagination](../common/001-cursor-pagination.md) - Standard pagination implementation (max limit: 200 for this endpoint)
+- [Cursor-Based Pagination](../common/001-cursor-pagination.md) - Standard pagination implementation (max limit: 20 for this endpoint)
 
 ## Functional Requirements
 
 | ID | Requirement |
 |----|-------------|
 | **FR-1** | The system must accept a GET request to `/v2/balances/ecosystem/{ecosystem}/chain/{chain}/address/{address}/tokens` |
-| **FR-2** | The system must implement cursor-based pagination as defined in [001-cursor-pagination](../common/001-cursor-pagination.md) with max limit of 200 |
+| **FR-2** | The system must implement cursor-based pagination as defined in [001-cursor-pagination](../common/001-cursor-pagination.md) with max limit of 20 |
 | **FR-3** | The system must return an array of all tokens held by the address with non-zero balance |
 | **FR-4** | Each token must include: `contractAddress`, `symbol`, `name`, `decimals` |
 | **FR-5** | Each token must include: `balance` (smallest unit), `balanceFormatted` (human-readable) |
