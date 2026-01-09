@@ -13,14 +13,20 @@ vi.mock('@/src/services/reconciliation/providers/registry.js', () => ({
   getProviderForChainAlias: vi.fn(),
 }));
 
-vi.mock('@/src/services/reconciliation/config.js', () => ({
-  getReorgThreshold: vi.fn().mockReturnValue(32),
+vi.mock('@/src/domain/value-objects/index.js', () => ({
+  ReorgThreshold: {
+    forChain: vi.fn().mockReturnValue(32),
+    calculateSafeFromBlock: vi.fn().mockImplementation((checkpoint: number, _chainAlias: ChainAlias) => {
+      return Math.max(0, checkpoint - 32);
+    }),
+    defaultThreshold: 32,
+  },
 }));
 
 // Import after mocking
 import { ReconciliationService } from '@/src/services/reconciliation/reconciliation-service.js';
 import * as providerRegistry from '@/src/services/reconciliation/providers/registry.js';
-import * as config from '@/src/services/reconciliation/config.js';
+import { ReorgThreshold } from '@/src/domain/value-objects/index.js';
 
 function createMockJobRepository(): ReconciliationJobRepository {
   return {
@@ -268,7 +274,7 @@ describe('ReconciliationService', () => {
       };
 
       vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(mockAddress);
-      vi.mocked(config.getReorgThreshold).mockReturnValue(32);
+      vi.mocked(ReorgThreshold.calculateSafeFromBlock).mockReturnValue(968);
 
       const mockJob = createMockJob({ mode: 'partial', fromBlock: 968 });
       vi.mocked(jobRepository.create).mockResolvedValue(mockJob);
@@ -427,7 +433,7 @@ describe('ReconciliationService', () => {
       };
 
       vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(mockAddress);
-      vi.mocked(config.getReorgThreshold).mockReturnValue(32);
+      vi.mocked(ReorgThreshold.calculateSafeFromBlock).mockReturnValue(0);
 
       const mockJob = createMockJob({ mode: 'partial', fromBlock: 0 });
       vi.mocked(jobRepository.create).mockResolvedValue(mockJob);

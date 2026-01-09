@@ -7,7 +7,7 @@ import type {
   ReconciliationAuditEntry,
 } from '@/src/repositories/types.js';
 import { getProviderForChainAlias } from '@/src/services/reconciliation/providers/registry.js';
-import { getReorgThreshold } from '@/src/services/reconciliation/config.js';
+import { ReorgThreshold } from '@/src/domain/value-objects/index.js';
 
 /**
  * Dependencies required by the ReconciliationService.
@@ -129,8 +129,7 @@ export class ReconciliationService {
         mode = 'full';
       } else {
         // Calculate fromBlock as checkpoint minus reorg threshold for safety
-        const threshold = getReorgThreshold(input.chainAlias);
-        fromBlock = Math.max(0, address.last_reconciled_block - threshold);
+        fromBlock = ReorgThreshold.calculateSafeFromBlock(address.last_reconciled_block, input.chainAlias);
       }
     }
 

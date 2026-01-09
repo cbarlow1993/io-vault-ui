@@ -9,6 +9,7 @@ export {
   SUPPORTED_CURRENCIES,
   type SupportedCurrency,
 } from './token-price.js';
+export { ReorgThreshold } from './reorg-threshold.js';
 
 // Utilities
 export {
