@@ -38,7 +38,7 @@ export {
 
 export {
   Balance,
-  type TokenPrice,
+  type BalancePriceInfo,
   type NativeAsset,
   type CreateBalanceData,
   type EnrichedBalanceDTO,

@@ -9,7 +9,7 @@ import { SpamAnalysis } from './spam-analysis.js';
 import type { UserOverride } from '../token/token-classification.js';
 import { InvalidBalanceError } from '../errors.js';
 
-export interface TokenPrice {
+export interface BalancePriceInfo {
   price: number;
   priceChange24h: number | null;
   updatedAt: Date;
@@ -39,7 +39,7 @@ export interface CreateBalanceData {
   isVerified?: boolean;
   visibility?: 'visible' | 'hidden';
   userSpamOverride?: UserOverride;
-  price?: TokenPrice | null;
+  price?: BalancePriceInfo | null;
   spamAnalysis?: SpamAnalysis;
 }
 
@@ -96,7 +96,7 @@ export class Balance {
     public readonly isVerified: boolean,
     public readonly visibility: 'visible' | 'hidden',
     public readonly spamAnalysis: SpamAnalysis,
-    public readonly price: TokenPrice | null
+    public readonly price: BalancePriceInfo | null
   ) {
     Object.freeze(this);
   }
@@ -141,7 +141,7 @@ export class Balance {
     chainAlias: ChainAlias,
     balance: string,
     asset: NativeAsset,
-    price?: TokenPrice | null
+    price?: BalancePriceInfo | null
   ): Balance {
     return Balance.create({
       id,
@@ -168,7 +168,7 @@ export class Balance {
     token: Token,
     balance: string,
     userOverride: UserOverride,
-    price?: TokenPrice | null,
+    price?: BalancePriceInfo | null,
     visibility?: 'visible' | 'hidden'
   ): Balance {
     const amount = token.formatAmount(balance);
@@ -315,7 +315,7 @@ export class Balance {
   /**
    * Create a new Balance with updated price
    */
-  withPrice(price: TokenPrice | null): Balance {
+  withPrice(price: BalancePriceInfo | null): Balance {
     return new Balance(
       this.id,
       this.addressId,

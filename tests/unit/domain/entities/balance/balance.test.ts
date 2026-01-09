@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { Balance, Token, SpamAnalysis, InvalidBalanceError } from '@/src/domain/entities/index.js';
-import type { TokenPrice, NativeAsset } from '@/src/domain/entities/balance/balance.js';
+import type { BalancePriceInfo, NativeAsset } from '@/src/domain/entities/balance/balance.js';
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 
 describe('Balance', () => {
   const chainAlias = 'ethereum' as ChainAlias;
 
-  const createPrice = (price: number, priceChange24h: number | null = null): TokenPrice => ({
+  const createPrice = (price: number, priceChange24h: number | null = null): BalancePriceInfo => ({
     price,
     priceChange24h,
     updatedAt: new Date(),
