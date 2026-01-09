@@ -1,6 +1,6 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import type { Address, AddressToken, SpamClassification, Token as TokenRow } from '@/src/lib/database/types.js';
-import type { WalletAddress } from '@/src/domain/value-objects/index.js';
+import type { WalletAddress, TransactionHash, TokenAmount } from '@/src/domain/value-objects/index.js';
 
 // ==================== Domain-Enriched Types ====================
 
@@ -10,6 +10,22 @@ import type { WalletAddress } from '@/src/domain/value-objects/index.js';
  */
 export interface AddressWithDomain extends Address {
   walletAddress: WalletAddress;
+}
+
+/**
+ * Transaction entity enriched with domain value objects.
+ * Extends the raw Transaction type with type-safe domain primitives.
+ * The raw string properties are preserved for backward compatibility.
+ */
+export interface TransactionWithDomain extends Transaction {
+  /** Transaction hash as a domain value object */
+  txHashDomain: TransactionHash;
+  /** From address as a domain value object */
+  fromAddressDomain: WalletAddress;
+  /** To address as a domain value object (null for contract creation) */
+  toAddressDomain: WalletAddress | null;
+  /** Transaction value as a domain value object (native token with 18 decimals) */
+  valueDomain: TokenAmount;
 }
 
 // ==================== Cursor-Based Pagination ====================
@@ -341,7 +357,7 @@ export interface EnrichedTransfer {
 
 export interface TransactionRepository {
   findById(id: string): Promise<Transaction | null>;
-  findByTxHash(chainAlias: ChainAlias, txHash: string): Promise<Transaction | null>;
+  findByTxHash(chainAlias: ChainAlias, txHash: string): Promise<TransactionWithDomain | null>;
   findByAddress(
     address: string,
     options?: { chainAlias?: ChainAlias; limit?: number; offset?: number }

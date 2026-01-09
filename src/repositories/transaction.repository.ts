@@ -8,6 +8,7 @@ import type {
 } from '@/src/lib/database/types.js';
 import type {
   Transaction,
+  TransactionWithDomain,
   TransactionRepository,
   TransactionListOptions,
   TransactionListResult,
@@ -15,6 +16,10 @@ import type {
   TokenTransfer,
   TokenTransferWithMetadata,
 } from '@/src/repositories/types.js';
+import { TransactionMapper, AddressMapper } from './mappers/index.js';
+
+/** Native token decimals (ETH, MATIC, etc. all use 18 decimals) */
+const NATIVE_TOKEN_DECIMALS = 18;
 
 /**
  * Maps a database transaction row (snake_case) to the Transaction interface (camelCase)
@@ -37,6 +42,25 @@ function mapToTransaction(row: TransactionRow): Transaction {
     classificationLabel: row.classification_label,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * Maps a database transaction row to TransactionWithDomain, enriching with domain value objects.
+ * Preserves all raw string properties for backward compatibility while adding type-safe domain objects.
+ */
+function mapToTransactionWithDomain(row: TransactionRow): TransactionWithDomain {
+  const chainAlias = row.chain_alias as ChainAlias;
+  const base = mapToTransaction(row);
+
+  return {
+    ...base,
+    txHashDomain: TransactionMapper.hashToDomain(row.tx_hash, chainAlias),
+    fromAddressDomain: AddressMapper.toDomain({ address: row.from_address, chain_alias: chainAlias }),
+    toAddressDomain: row.to_address
+      ? AddressMapper.toDomain({ address: row.to_address, chain_alias: chainAlias })
+      : null,
+    valueDomain: TransactionMapper.amountToDomain(row.value, NATIVE_TOKEN_DECIMALS),
   };
 }
 
@@ -100,7 +124,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
     return result ? mapToTransaction(result) : null;
   }
 
-  async findByTxHash(chainAlias: ChainAlias, txHash: string): Promise<Transaction | null> {
+  async findByTxHash(chainAlias: ChainAlias, txHash: string): Promise<TransactionWithDomain | null> {
     const result = await this.db
       .selectFrom('transactions')
       .selectAll()
@@ -108,7 +132,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
       .where('tx_hash', '=', txHash.toLowerCase())
       .executeTakeFirst();
 
-    return result ? mapToTransaction(result) : null;
+    return result ? mapToTransactionWithDomain(result) : null;
   }
 
   async findByAddress(

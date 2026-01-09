@@ -3,6 +3,7 @@ import { PostgresTransactionRepository } from '@/src/repositories/transaction.re
 import type { Kysely } from 'kysely';
 import type { Database } from '@/src/lib/database/types.js';
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import { TransactionHash, WalletAddress, TokenAmount } from '@/src/domain/value-objects/index.js';
 
 // Create mock Kysely instance
 function createMockDb() {
@@ -36,11 +37,15 @@ function createMockDb() {
   };
 }
 
+// Valid EVM addresses for domain object tests (40 hex chars after 0x)
+const VALID_FROM_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
+const VALID_TO_ADDRESS = '0xabcdef1234567890abcdef1234567890abcdef12';
+const VALID_TX_HASH = '0xabc123def456789012345678901234567890123456789012345678901234abcd';
+
 // Helper to create a mock transaction row from the database
 function createMockTransactionRow(overrides: Partial<{
   id: string;
-  chain: string;
-  network: string;
+  chain_alias: string;
   tx_hash: string;
   block_number: string;
   block_hash: string;
@@ -53,15 +58,12 @@ function createMockTransactionRow(overrides: Partial<{
   timestamp: Date;
   classification_type: string | null;
   classification_label: string | null;
-  protocol_name: string | null;
-  details: Record<string, unknown> | null;
   created_at: Date;
   updated_at: Date;
 }> = {}) {
   return {
     id: 'tx-uuid-1',
-    chain: 'eth' as ChainAlias,
-    network: 'mainnet',
+    chain_alias: 'eth' as ChainAlias,
     tx_hash: '0xabc123',
     block_number: '12345678',
     block_hash: '0xblock123',
@@ -74,8 +76,46 @@ function createMockTransactionRow(overrides: Partial<{
     timestamp: new Date('2024-01-15T10:00:00Z'),
     classification_type: 'transfer',
     classification_label: 'ETH Transfer',
-    protocol_name: null,
-    details: null,
+    created_at: new Date('2024-01-15T10:00:00Z'),
+    updated_at: new Date('2024-01-15T10:00:00Z'),
+    ...overrides,
+  };
+}
+
+// Helper to create a mock transaction row with valid EVM addresses for domain tests
+function createMockTransactionRowWithValidAddresses(overrides: Partial<{
+  id: string;
+  chain_alias: string;
+  tx_hash: string;
+  block_number: string;
+  block_hash: string;
+  tx_index: number | null;
+  from_address: string;
+  to_address: string | null;
+  value: string;
+  fee: string | null;
+  status: 'success' | 'failed' | 'pending';
+  timestamp: Date;
+  classification_type: string | null;
+  classification_label: string | null;
+  created_at: Date;
+  updated_at: Date;
+}> = {}) {
+  return {
+    id: 'tx-uuid-1',
+    chain_alias: 'eth' as ChainAlias,
+    tx_hash: VALID_TX_HASH,
+    block_number: '12345678',
+    block_hash: '0xblock123',
+    tx_index: 0,
+    from_address: VALID_FROM_ADDRESS,
+    to_address: VALID_TO_ADDRESS,
+    value: '1000000000000000000',
+    fee: '21000000000000',
+    status: 'success' as const,
+    timestamp: new Date('2024-01-15T10:00:00Z'),
+    classification_type: 'transfer',
+    classification_label: 'ETH Transfer',
     created_at: new Date('2024-01-15T10:00:00Z'),
     updated_at: new Date('2024-01-15T10:00:00Z'),
     ...overrides,
@@ -172,14 +212,17 @@ describe('PostgresTransactionRepository', () => {
 
   describe('findByTxHash', () => {
     it('should return transaction when found', async () => {
-      const txRow = createMockTransactionRow();
+      // Use valid EVM addresses to pass domain object validation
+      const txRow = createMockTransactionRowWithValidAddresses({
+        tx_hash: '0xabc123def456789012345678901234567890123456789012345678901234abcd',
+      });
       mockDb.mockExecuteTakeFirst.mockResolvedValue(txRow);
 
       const result = await repository.findByTxHash('eth' as ChainAlias, '0xABC123');
 
       expect(mockDb.chainable.where).toHaveBeenCalledWith('chain_alias', '=', 'eth');
       expect(mockDb.chainable.where).toHaveBeenCalledWith('tx_hash', '=', '0xabc123');
-      expect(result?.txHash).toBe('0xabc123');
+      expect(result?.txHash).toBe('0xabc123def456789012345678901234567890123456789012345678901234abcd');
     });
 
     it('should normalize tx hash to lowercase', async () => {
@@ -196,6 +239,70 @@ describe('PostgresTransactionRepository', () => {
       const result = await repository.findByTxHash('eth' as ChainAlias, '0xnonexistent');
 
       expect(result).toBeNull();
+    });
+
+    it('should return TransactionWithDomain containing domain value objects', async () => {
+      const txRow = createMockTransactionRowWithValidAddresses();
+      mockDb.mockExecuteTakeFirst.mockResolvedValue(txRow);
+
+      const result = await repository.findByTxHash('eth' as ChainAlias, VALID_TX_HASH);
+
+      // Verify result has domain properties
+      expect(result).not.toBeNull();
+      expect(result).toHaveProperty('txHashDomain');
+      expect(result).toHaveProperty('fromAddressDomain');
+      expect(result).toHaveProperty('toAddressDomain');
+      expect(result).toHaveProperty('valueDomain');
+
+      // Verify txHashDomain is a TransactionHash instance
+      expect(result!.txHashDomain).toBeInstanceOf(TransactionHash);
+      expect(result!.txHashDomain.value).toBe(VALID_TX_HASH);
+      expect(result!.txHashDomain.chainAlias).toBe('eth');
+
+      // Verify fromAddressDomain is a WalletAddress instance
+      expect(result!.fromAddressDomain).toBeInstanceOf(WalletAddress);
+      expect(result!.fromAddressDomain.normalized).toBe(VALID_FROM_ADDRESS.toLowerCase());
+      expect(result!.fromAddressDomain.chainAlias).toBe('eth');
+
+      // Verify toAddressDomain is a WalletAddress instance
+      expect(result!.toAddressDomain).toBeInstanceOf(WalletAddress);
+      expect(result!.toAddressDomain!.normalized).toBe(VALID_TO_ADDRESS.toLowerCase());
+      expect(result!.toAddressDomain!.chainAlias).toBe('eth');
+
+      // Verify valueDomain is a TokenAmount instance
+      expect(result!.valueDomain).toBeInstanceOf(TokenAmount);
+      expect(result!.valueDomain.raw).toBe('1000000000000000000');
+      expect(result!.valueDomain.decimals).toBe(18);
+      expect(result!.valueDomain.formatted).toBe('1');
+    });
+
+    it('should return null for toAddressDomain when to_address is null', async () => {
+      const txRow = createMockTransactionRowWithValidAddresses({ to_address: null });
+      mockDb.mockExecuteTakeFirst.mockResolvedValue(txRow);
+
+      const result = await repository.findByTxHash('eth' as ChainAlias, VALID_TX_HASH);
+
+      expect(result).not.toBeNull();
+      expect(result!.toAddressDomain).toBeNull();
+      // Other domain objects should still be present
+      expect(result!.txHashDomain).toBeInstanceOf(TransactionHash);
+      expect(result!.fromAddressDomain).toBeInstanceOf(WalletAddress);
+      expect(result!.valueDomain).toBeInstanceOf(TokenAmount);
+    });
+
+    it('should preserve original Transaction properties alongside domain objects', async () => {
+      const txRow = createMockTransactionRowWithValidAddresses();
+      mockDb.mockExecuteTakeFirst.mockResolvedValue(txRow);
+
+      const result = await repository.findByTxHash('eth' as ChainAlias, VALID_TX_HASH);
+
+      // Verify original string properties are preserved
+      expect(result!.txHash).toBe(VALID_TX_HASH);
+      expect(result!.fromAddress).toBe(VALID_FROM_ADDRESS);
+      expect(result!.toAddress).toBe(VALID_TO_ADDRESS);
+      expect(result!.value).toBe('1000000000000000000');
+      expect(result!.chainAlias).toBe('eth');
+      expect(result!.id).toBe('tx-uuid-1');
     });
   });
 
