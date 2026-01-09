@@ -24,6 +24,7 @@ const {
   mockExplorerGetBalance,
   mockGetBalancesByChainAndAddress,
   mockGetNativeBalance,
+  mockComputeEffectiveSpamStatus,
 } = vi.hoisted(() => ({
   mockTokenBalanceFetcher: vi.fn(),
   mockGetNativeTokenUsdValue: vi.fn(),
@@ -33,6 +34,7 @@ const {
   mockExplorerGetBalance: vi.fn(),
   mockGetBalancesByChainAndAddress: vi.fn(),
   mockGetNativeBalance: vi.fn(),
+  mockComputeEffectiveSpamStatus: vi.fn(),
 }));
 
 // Mock the balance services - using dynamic enum values
@@ -136,6 +138,7 @@ async function createTestApp() {
   app.decorate('services', {
     balances: {
       getBalancesByChainAndAddress: mockGetBalancesByChainAndAddress,
+      computeEffectiveSpamStatus: mockComputeEffectiveSpamStatus,
     },
   });
 
@@ -243,6 +246,10 @@ describe('Balance Routes', () => {
         usdValue: 1000.0,
         logoUri: 'https://example.com/usdc.png',
         isNative: false,
+        spamAnalysis: {
+          summary: { riskLevel: 'safe' },
+          userOverride: null,
+        },
       },
       {
         tokenAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
@@ -253,6 +260,10 @@ describe('Balance Routes', () => {
         usdValue: 500.0,
         logoUri: 'https://example.com/usdt.png',
         isNative: false,
+        spamAnalysis: {
+          summary: { riskLevel: 'safe' },
+          userOverride: null,
+        },
       },
     ];
 
@@ -260,6 +271,7 @@ describe('Balance Routes', () => {
       const app = await createTestApp();
 
       mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
 
       const response = await app.inject({
         method: 'GET',
@@ -276,7 +288,7 @@ describe('Balance Routes', () => {
       expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
         'eth',
         TEST_ADDRESS,
-        { includeHidden: false }
+        { includeHidden: false, showSpam: false, sortBy: 'usdValue', sortOrder: 'desc' }
       );
     });
 
@@ -285,6 +297,7 @@ describe('Balance Routes', () => {
 
       // Service returns only visible tokens when includeHidden is false
       mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
 
       const response = await app.inject({
         method: 'GET',
@@ -293,11 +306,11 @@ describe('Balance Routes', () => {
 
       expect(response.statusCode).toBe(200);
       const data = response.json();
-      // Verify service was called with includeHidden: false
+      // Verify service was called with default options including spam params
       expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
         'eth',
         TEST_ADDRESS,
-        { includeHidden: false }
+        { includeHidden: false, showSpam: false, sortBy: 'usdValue', sortOrder: 'desc' }
       );
       // Only visible tokens returned
       expect(data.data).toHaveLength(2);
@@ -318,10 +331,12 @@ describe('Balance Routes', () => {
           usdValue: null,
           logoUri: null,
           isNative: false,
+          spamAnalysis: null,
         },
       ];
 
       mockGetBalancesByChainAndAddress.mockResolvedValueOnce(balancesWithHidden);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
 
       const response = await app.inject({
         method: 'GET',
@@ -334,7 +349,7 @@ describe('Balance Routes', () => {
       expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
         'eth',
         TEST_ADDRESS,
-        { includeHidden: true }
+        { includeHidden: true, showSpam: false, sortBy: 'usdValue', sortOrder: 'desc' }
       );
       // Hidden token should be included
       const hiddenToken = data.data.find((t: any) => t.address === hiddenTokenAddress);
@@ -361,6 +376,199 @@ describe('Balance Routes', () => {
       });
 
       expect(response.statusCode).toBe(400);
+    });
+
+    it('passes showSpam parameter to service', async () => {
+      const app = await createTestApp();
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?showSpam=true`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: false, showSpam: true, sortBy: 'usdValue', sortOrder: 'desc' }
+      );
+    });
+
+    it('passes sortBy and sortOrder parameters to service', async () => {
+      const app = await createTestApp();
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?sortBy=symbol&sortOrder=asc`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: false, showSpam: false, sortBy: 'symbol', sortOrder: 'asc' }
+      );
+    });
+
+    it('includes spam fields in response', async () => {
+      const app = await createTestApp();
+
+      const balancesWithSpamData = [
+        {
+          tokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          formattedBalance: '1000.00',
+          symbol: 'USDC',
+          decimals: 6,
+          name: 'USD Coin',
+          usdValue: 1000.0,
+          logoUri: 'https://example.com/usdc.png',
+          isNative: false,
+          spamAnalysis: {
+            summary: { riskLevel: 'safe' },
+            userOverride: null,
+          },
+        },
+      ];
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(balancesWithSpamData);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = response.json();
+      expect(data.data[0]).toHaveProperty('isSpam', false);
+      expect(data.data[0]).toHaveProperty('userSpamOverride', null);
+      expect(data.data[0]).toHaveProperty('effectiveSpamStatus', 'unknown');
+    });
+
+    it('returns isSpam=true when riskLevel is danger', async () => {
+      const app = await createTestApp();
+
+      const spamBalance = [
+        {
+          tokenAddress: '0xspam123',
+          formattedBalance: '1000000',
+          symbol: 'SCAM',
+          decimals: 18,
+          name: 'Scam Token',
+          usdValue: null,
+          logoUri: null,
+          isNative: false,
+          spamAnalysis: {
+            summary: { riskLevel: 'danger' },
+            userOverride: null,
+          },
+        },
+      ];
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(spamBalance);
+      mockComputeEffectiveSpamStatus.mockReturnValue('spam');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?showSpam=true`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = response.json();
+      expect(data.data[0]).toHaveProperty('isSpam', true);
+      expect(data.data[0]).toHaveProperty('effectiveSpamStatus', 'spam');
+    });
+
+    it('returns userSpamOverride from spamAnalysis', async () => {
+      const app = await createTestApp();
+
+      const balanceWithOverride = [
+        {
+          tokenAddress: '0xtoken123',
+          formattedBalance: '100',
+          symbol: 'TKN',
+          decimals: 18,
+          name: 'Token',
+          usdValue: null,
+          logoUri: null,
+          isNative: false,
+          spamAnalysis: {
+            summary: { riskLevel: 'danger' },
+            userOverride: 'trusted',
+          },
+        },
+      ];
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(balanceWithOverride);
+      mockComputeEffectiveSpamStatus.mockReturnValue('trusted');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = response.json();
+      expect(data.data[0]).toHaveProperty('isSpam', true);
+      expect(data.data[0]).toHaveProperty('userSpamOverride', 'trusted');
+      expect(data.data[0]).toHaveProperty('effectiveSpamStatus', 'trusted');
+    });
+
+    it('handles null spamAnalysis gracefully', async () => {
+      const app = await createTestApp();
+
+      const balanceNoSpamAnalysis = [
+        {
+          tokenAddress: '0xtoken123',
+          formattedBalance: '100',
+          symbol: 'TKN',
+          decimals: 18,
+          name: 'Token',
+          usdValue: null,
+          logoUri: null,
+          isNative: false,
+          spamAnalysis: null,
+        },
+      ];
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(balanceNoSpamAnalysis);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = response.json();
+      expect(data.data[0]).toHaveProperty('isSpam', false);
+      expect(data.data[0]).toHaveProperty('userSpamOverride', null);
+      expect(data.data[0]).toHaveProperty('effectiveSpamStatus', 'unknown');
+    });
+
+    it('passes all options together to service', async () => {
+      const app = await createTestApp();
+
+      mockGetBalancesByChainAndAddress.mockResolvedValueOnce(mockEnrichedBalances);
+      mockComputeEffectiveSpamStatus.mockReturnValue('unknown');
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/v2/balances/ecosystem/evm/chain/eth/address/${TEST_ADDRESS}/tokens?showHiddenTokens=true&showSpam=true&sortBy=balance&sortOrder=asc`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(mockGetBalancesByChainAndAddress).toHaveBeenCalledWith(
+        'eth',
+        TEST_ADDRESS,
+        { includeHidden: true, showSpam: true, sortBy: 'balance', sortOrder: 'asc' }
+      );
     });
   });
 });

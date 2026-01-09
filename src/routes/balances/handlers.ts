@@ -132,22 +132,30 @@ export async function getTokenBalances(
   reply: FastifyReply
 ) {
   const { chainAlias, address } = request.params;
-  const { cursor, limit, showHiddenTokens } = request.query;
+  const { cursor, limit, showHiddenTokens, showSpam, sortBy, sortOrder } = request.query;
 
   if (!request.server.services?.balances) {
     throw new InternalServerError('Balance service not available');
   }
 
+  const balanceService = request.server.services.balances;
+
   try {
     // Use chainAlias directly for database lookup (e.g., "polygon")
     // The BalanceService uses this format internally
-    const balances = await request.server.services.balances.getBalancesByChainAndAddress(
+    const options = {
+      includeHidden: showHiddenTokens,
+      showSpam,
+      sortBy,
+      sortOrder,
+    };
+    const balances = await balanceService.getBalancesByChainAndAddress(
       chainAlias,
       address,
-      { includeHidden: showHiddenTokens }
+      options
     );
 
-    // Transform EnrichedBalance[] to response format
+    // Transform EnrichedBalance[] to response format with spam fields
     const allData = balances.map((b) => ({
       name: b.name,
       balance: b.formattedBalance,
@@ -156,6 +164,10 @@ export async function getTokenBalances(
       address: b.isNative ? 'native' : (b.tokenAddress ?? ''),
       usdValue: b.usdValue?.toFixed(2) ?? null,
       logo: b.logoUri,
+      // Spam-related fields
+      isSpam: b.spamAnalysis?.summary?.riskLevel === 'danger',
+      userSpamOverride: b.spamAnalysis?.userOverride ?? null,
+      effectiveSpamStatus: balanceService.computeEffectiveSpamStatus(b),
     }));
 
     // Apply in-memory cursor-based pagination
