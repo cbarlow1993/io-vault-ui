@@ -27,7 +27,7 @@ describe('UTXO Balance Integration Tests', () => {
   const PUBLIC_BLOCKBOOK_URL = 'https://btc1.trezor.io';
 
   describe('Bitcoin Mainnet', () => {
-    const config = getUtxoChainConfig('bitcoin', PUBLIC_BLOCKBOOK_URL);
+    const config = getUtxoChainConfig('bitcoin', { rpcUrl: PUBLIC_BLOCKBOOK_URL });
     const fetcher = new UtxoBalanceFetcher(config);
 
     it('should fetch native BTC balance for Satoshi genesis address', async () => {

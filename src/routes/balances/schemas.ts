@@ -38,7 +38,7 @@ export const tokenBalancePathParamsSchema = z.object({
 
 /**
  * Query params for token balances.
- * Uses cursor-based pagination with higher limit (200) for token endpoints.
+ * Uses cursor-based pagination with limit (20) for token endpoints.
  *
  * @see docs/requirements/common/001-cursor-pagination.md
  * @see docs/requirements/api-balances/002-get-token-balances.md
