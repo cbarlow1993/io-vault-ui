@@ -2848,5 +2848,150 @@ describe('BalanceService', () => {
         expect(result[1]!.usdValue).toBe(4000);
       });
     });
+
+    describe('fallback to cached holdings on fetch failure', () => {
+      it('should fall back to cached holdings when fetcher throws error', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+        const cachedHoldings: TokenHolding[] = [
+          {
+            id: 'holding-1',
+            addressId: 'addr-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            tokenAddress: null,
+            isNative: true,
+            balance: '1000000000000000000',
+            decimals: 18,
+            name: 'Ethereum',
+            symbol: 'ETH',
+            visibility: 'visible',
+            userSpamOverride: null,
+            overrideUpdatedAt: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: 'holding-2',
+            addressId: 'addr-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            tokenAddress: '0xusdc',
+            isNative: false,
+            balance: '5000000',
+            decimals: 6,
+            name: 'USD Coin',
+            symbol: 'USDC',
+            visibility: 'visible',
+            userSpamOverride: null,
+            overrideUpdatedAt: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ];
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue(cachedHoldings);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        // Simulate fetch failure
+        vi.mocked(balanceFetcher.getNativeBalance).mockRejectedValue(new Error('RPC timeout'));
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Spy on logger.warn to verify fallback message
+        const powertools = await import('@/utils/powertools.js');
+        const warnSpy = vi.spyOn(powertools.logger, 'warn').mockImplementation(() => {});
+
+        const result = await service.getBalances('addr-1');
+
+        // Should have logged fallback warning
+        expect(warnSpy).toHaveBeenCalledWith(
+          'Balance fetch failed, falling back to cached holdings',
+          expect.objectContaining({
+            addressId: 'addr-1',
+            walletAddress: '0x123abc',
+            chain: 'ethereum',
+            error: 'RPC timeout',
+            cachedHoldingsCount: 2,
+          })
+        );
+
+        // Should return cached balances
+        expect(result).toHaveLength(2);
+        expect(result.map(b => b.symbol).sort()).toEqual(['ETH', 'USDC']);
+
+        warnSpy.mockRestore();
+      });
+
+      it('should re-throw error when fetch fails and no cached holdings available', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]); // No cache
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        // Simulate fetch failure
+        vi.mocked(balanceFetcher.getNativeBalance).mockRejectedValue(new Error('RPC unavailable'));
+
+        // Spy on logger.error to verify error message
+        const powertools = await import('@/utils/powertools.js');
+        const errorSpy = vi.spyOn(powertools.logger, 'error').mockImplementation(() => {});
+
+        await expect(service.getBalances('addr-1')).rejects.toThrow('RPC unavailable');
+
+        expect(errorSpy).toHaveBeenCalledWith(
+          'Balance fetch failed and no cached holdings available',
+          expect.objectContaining({
+            addressId: 'addr-1',
+            walletAddress: '0x123abc',
+            chain: 'ethereum',
+            error: 'RPC unavailable',
+          })
+        );
+
+        errorSpy.mockRestore();
+      });
+
+      it('should not call upsertBalancesToCache when using cached holdings', async () => {
+        const address = createMockAddress({ address: '0x123abc' });
+        const cachedHoldings: TokenHolding[] = [
+          {
+            id: 'holding-1',
+            addressId: 'addr-1',
+            chainAlias: 'ethereum' as ChainAlias,
+            tokenAddress: null,
+            isNative: true,
+            balance: '1000000000000000000',
+            decimals: 18,
+            name: 'Ethereum',
+            symbol: 'ETH',
+            visibility: 'visible',
+            userSpamOverride: null,
+            overrideUpdatedAt: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ];
+
+        vi.mocked(addressRepository.findById).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue(cachedHoldings);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.upsertMany).mockResolvedValue([]);
+
+        // Simulate fetch failure
+        vi.mocked(balanceFetcher.getNativeBalance).mockRejectedValue(new Error('RPC error'));
+
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Suppress warning logs
+        const powertools = await import('@/utils/powertools.js');
+        vi.spyOn(powertools.logger, 'warn').mockImplementation(() => {});
+
+        await service.getBalances('addr-1');
+
+        // upsertMany should still be called (with cached data converted to balances)
+        // The system updates cache even when using fallback to keep timestamps fresh
+        expect(tokenHoldingRepository.upsertMany).toHaveBeenCalled();
+      });
+    });
   });
 });

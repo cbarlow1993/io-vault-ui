@@ -151,13 +151,36 @@ export class BalanceService {
       }
     }
 
-    // Fetch balances from chain
-    const [nativeBalance, tokenBalances] = await Promise.all([
-      fetcher.getNativeBalance(walletAddress),
-      fetcher.getTokenBalances(walletAddress, Array.from(tokenMap.values())),
-    ]);
-
-    const allBalances: RawBalance[] = [nativeBalance, ...tokenBalances];
+    // Fetch balances from chain with fallback to cache
+    let allBalances: RawBalance[];
+    try {
+      const [nativeBalance, tokenBalances] = await Promise.all([
+        fetcher.getNativeBalance(walletAddress),
+        fetcher.getTokenBalances(walletAddress, Array.from(tokenMap.values())),
+      ]);
+      allBalances = [nativeBalance, ...tokenBalances];
+    } catch (error) {
+      // Fall back to cached holdings if chain fetch fails
+      if (holdings.length > 0) {
+        logger.warn('Balance fetch failed, falling back to cached holdings', {
+          addressId,
+          walletAddress,
+          chain,
+          error: error instanceof Error ? error.message : String(error),
+          cachedHoldingsCount: holdings.length,
+        });
+        allBalances = holdings.map((holding) => this.holdingToRawBalance(holding));
+      } else {
+        // No cache available, re-throw the error
+        logger.error('Balance fetch failed and no cached holdings available', {
+          addressId,
+          walletAddress,
+          chain,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+    }
 
     // Filter out zero balances
     const nonZeroBalances = allBalances.filter((b) => b.balance !== '0');
