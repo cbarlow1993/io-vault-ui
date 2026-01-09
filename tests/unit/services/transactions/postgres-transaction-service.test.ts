@@ -66,16 +66,24 @@ function createMockAddressRepository(): AddressRepository {
   } as unknown as AddressRepository;
 }
 
+// Valid 40-character EVM addresses for test mocks
+const MOCK_FROM_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
+const MOCK_TO_ADDRESS = '0xabcdef1234567890abcdef1234567890abcdef12';
+const MOCK_TOKEN_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'; // USDC mainnet
+const MOCK_PERSPECTIVE_ADDRESS = '0x742d35cc6634c0532925a3b844bc9e7595f5a123'; // Address for perspective/query
+const MOCK_NONEXISTENT_ADDRESS = '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'; // Valid format but "not found"
+const MOCK_NONEXISTENT_TX_HASH = '0xnonexistent123456789012345678901234567890123456789012345678901234'; // 66 char tx hash
+
 function createMockTransaction(overrides: Partial<Transaction> = {}): Transaction {
   return {
     id: 'tx-1',
     chainAlias: 'eth',
-    txHash: '0xabc123',
+    txHash: '0xabc123def456789012345678901234567890123456789012345678901234abcd',
     blockNumber: '12345',
-    blockHash: '0xblock123',
+    blockHash: '0xblock12345678901234567890123456789012345678901234567890123456',
     txIndex: 0,
-    fromAddress: '0xfrom',
-    toAddress: '0xto',
+    fromAddress: MOCK_FROM_ADDRESS,
+    toAddress: MOCK_TO_ADDRESS,
     value: '1000000000000000000',
     fee: '21000000000000',
     status: 'success',
@@ -93,8 +101,8 @@ function createMockNativeTransfer(overrides: Partial<NativeTransfer> = {}): Nati
     id: 'native-1',
     txId: 'tx-1',
     chainAlias: 'eth',
-    fromAddress: '0xfrom',
-    toAddress: '0xto',
+    fromAddress: MOCK_FROM_ADDRESS,
+    toAddress: MOCK_TO_ADDRESS,
     amount: '1000000000000000000',
     metadata: null,
     createdAt: new Date('2024-01-15T10:30:00.000Z'),
@@ -109,9 +117,9 @@ function createMockTokenTransferWithMetadata(
     id: 'token-transfer-1',
     txId: 'tx-1',
     chainAlias: 'eth',
-    tokenAddress: '0xusdc',
-    fromAddress: '0xfrom',
-    toAddress: '0xto',
+    tokenAddress: MOCK_TOKEN_ADDRESS,
+    fromAddress: MOCK_FROM_ADDRESS,
+    toAddress: MOCK_TO_ADDRESS,
     amount: '1000000',
     transferType: 'erc20',
     metadata: null,
@@ -128,7 +136,8 @@ function createMockTokenTransferWithMetadata(
 }
 
 function createMockAddress(overrides: Record<string, unknown> = {}): AddressWithDomain {
-  const address = (overrides.address as string) ?? '0x123abc';
+  // Use a valid 40-character EVM address for tests
+  const address = (overrides.address as string) ?? '0x742d35cc6634c0532925a3b844bc9e7595f5a123';
   const chainAlias = (overrides.chain_alias as ChainAlias) ?? ('eth' as ChainAlias);
   return {
     id: 'addr-1',
@@ -174,26 +183,26 @@ describe('PostgresTransactionService', () => {
       await expect(
         service.getByChainAndHash({
           chainAlias: 'eth',
-          txHash: '0xnonexistent',
-          address: '0x123abc',
+          txHash: MOCK_NONEXISTENT_TX_HASH,
+          address: MOCK_PERSPECTIVE_ADDRESS,
         })
       ).rejects.toThrow(NotFoundError);
 
       await expect(
         service.getByChainAndHash({
           chainAlias: 'eth',
-          txHash: '0xnonexistent',
-          address: '0x123abc',
+          txHash: MOCK_NONEXISTENT_TX_HASH,
+          address: MOCK_PERSPECTIVE_ADDRESS,
         })
-      ).rejects.toThrow('Transaction not found: 0xnonexistent on chain eth');
+      ).rejects.toThrow(`Transaction not found: ${MOCK_NONEXISTENT_TX_HASH} on chain eth`);
 
-      expect(transactionRepository.findByTxHash).toHaveBeenCalledWith('eth', '0xnonexistent');
+      expect(transactionRepository.findByTxHash).toHaveBeenCalledWith('eth', MOCK_NONEXISTENT_TX_HASH);
     });
 
     it('returns transaction with transfers and operationId null', async () => {
       const tx = createMockTransaction({ id: 'tx-1', txHash: '0xabc123' });
-      const nativeTransfer = createMockNativeTransfer({ txId: 'tx-1', toAddress: '0x123abc' });
-      const tokenTransferWithMeta = createMockTokenTransferWithMetadata({ txId: 'tx-1', toAddress: '0x123abc' });
+      const nativeTransfer = createMockNativeTransfer({ txId: 'tx-1', toAddress: MOCK_PERSPECTIVE_ADDRESS });
+      const tokenTransferWithMeta = createMockTokenTransferWithMetadata({ txId: 'tx-1', toAddress: MOCK_PERSPECTIVE_ADDRESS });
 
       vi.mocked(transactionRepository.findByTxHash).mockResolvedValue(tx);
       vi.mocked(transactionRepository.findNativeTransfersByTxIds).mockResolvedValue([nativeTransfer]);
@@ -202,7 +211,7 @@ describe('PostgresTransactionService', () => {
       const result = await service.getByChainAndHash({
         chainAlias: 'eth',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.id).toBe('tx-1');
@@ -225,7 +234,7 @@ describe('PostgresTransactionService', () => {
       const result = await service.getByChainAndHash({
         chainAlias: 'eth',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.transfers).toEqual([]);
@@ -242,7 +251,7 @@ describe('PostgresTransactionService', () => {
       const result = await service.getByChainAndHash({
         chainAlias: 'eth-sepolia',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(transactionRepository.findByTxHash).toHaveBeenCalledWith('eth-sepolia', '0xabc123');
@@ -269,7 +278,7 @@ describe('PostgresTransactionService', () => {
       const result = await service.getByChainAndHash({
         chainAlias: 'eth',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.transfers).toHaveLength(4);
@@ -303,7 +312,7 @@ describe('PostgresTransactionService', () => {
       await service.getByChainAndHash({
         chainAlias: 'eth',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       // Both should start before either ends (parallel execution)
@@ -317,8 +326,8 @@ describe('PostgresTransactionService', () => {
       const tx = createMockTransaction({ id: 'tx-1', txHash: '0xabc123' });
       const nativeTransfer = createMockNativeTransfer({
         txId: 'tx-1',
-        fromAddress: '0xsender',
-        toAddress: '0x123abc',
+        fromAddress: MOCK_FROM_ADDRESS,
+        toAddress: MOCK_PERSPECTIVE_ADDRESS,
         amount: '1000000000000000000',
       });
 
@@ -329,7 +338,7 @@ describe('PostgresTransactionService', () => {
       const result = await service.getByChainAndHash({
         chainAlias: 'eth',
         txHash: '0xabc123',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.transfers).toHaveLength(1);
@@ -348,18 +357,18 @@ describe('PostgresTransactionService', () => {
       await expect(
         service.listByChainAliasAndAddress({
           chainAlias: 'eth',
-          address: '0xnonexistent',
+          address: MOCK_NONEXISTENT_ADDRESS,
         })
       ).rejects.toThrow(NotFoundError);
 
       await expect(
         service.listByChainAliasAndAddress({
           chainAlias: 'eth',
-          address: '0xnonexistent',
+          address: MOCK_NONEXISTENT_ADDRESS,
         })
-      ).rejects.toThrow('Address not found: 0xnonexistent on chain eth');
+      ).rejects.toThrow(`Address not found: ${MOCK_NONEXISTENT_ADDRESS} on chain eth`);
 
-      expect(addressRepository.findByAddressAndChainAlias).toHaveBeenCalledWith('0xnonexistent', 'eth');
+      expect(addressRepository.findByAddressAndChainAlias).toHaveBeenCalledWith(MOCK_NONEXISTENT_ADDRESS, 'eth');
     });
 
     it('returns empty transactions for known address with no transactions', async () => {
@@ -371,7 +380,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.transactions).toEqual([]);
@@ -380,7 +389,7 @@ describe('PostgresTransactionService', () => {
         hasMore: false,
       });
 
-      expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith('eth', '0x123abc', {
+      expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith('eth', MOCK_PERSPECTIVE_ADDRESS, {
         cursor: undefined,
         limit: 20,
         sort: 'desc',
@@ -400,7 +409,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         limit: 2,
       });
 
@@ -432,7 +441,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         cursor,
       });
 
@@ -443,7 +452,7 @@ describe('PostgresTransactionService', () => {
       // Verify cursor was passed to repository
       expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith(
         'eth',
-        '0x123abc',
+        MOCK_PERSPECTIVE_ADDRESS,
         expect.objectContaining({
           cursor: expect.objectContaining({
             timestamp: expect.any(Date),
@@ -479,7 +488,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         includeTransfers: true,
       });
 
@@ -506,7 +515,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(result.transactions).toHaveLength(1);
@@ -525,13 +534,13 @@ describe('PostgresTransactionService', () => {
 
       await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         sort: 'asc',
       });
 
       expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith(
         'eth',
-        '0x123abc',
+        MOCK_PERSPECTIVE_ADDRESS,
         expect.objectContaining({ sort: 'asc' })
       );
     });
@@ -545,13 +554,13 @@ describe('PostgresTransactionService', () => {
 
       await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         limit: 500,
       });
 
       expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith(
         'eth',
-        '0x123abc',
+        MOCK_PERSPECTIVE_ADDRESS,
         expect.objectContaining({ limit: 100 })
       );
     });
@@ -565,12 +574,12 @@ describe('PostgresTransactionService', () => {
 
       await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
       expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith(
         'eth',
-        '0x123abc',
+        MOCK_PERSPECTIVE_ADDRESS,
         expect.objectContaining({ limit: 20 })
       );
     });
@@ -586,13 +595,13 @@ describe('PostgresTransactionService', () => {
 
       await service.listByChainAliasAndAddress({
         chainAlias: 'eth-sepolia',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
       });
 
-      expect(addressRepository.findByAddressAndChainAlias).toHaveBeenCalledWith('0x123abc', 'eth-sepolia');
+      expect(addressRepository.findByAddressAndChainAlias).toHaveBeenCalledWith(MOCK_PERSPECTIVE_ADDRESS, 'eth-sepolia');
       expect(transactionRepository.findByChainAliasAndAddress).toHaveBeenCalledWith(
         'eth-sepolia',
-        '0x123abc',
+        MOCK_PERSPECTIVE_ADDRESS,
         expect.any(Object)
       );
     });
@@ -610,7 +619,7 @@ describe('PostgresTransactionService', () => {
 
       const result = await service.listByChainAliasAndAddress({
         chainAlias: 'eth',
-        address: '0x123abc',
+        address: MOCK_PERSPECTIVE_ADDRESS,
         includeTransfers: true,
       });
 
