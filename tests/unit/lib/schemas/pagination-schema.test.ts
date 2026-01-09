@@ -3,6 +3,9 @@ import {
   paginationCursorValidation,
   queryStringPaginationObjectSchema,
   queryStringPaginationSchema,
+  cursorPaginationQuerySchema,
+  cursorPaginationTokensQuerySchema,
+  PAGINATION_DEFAULTS,
 } from '@/src/lib/schemas/pagination-schema.js';
 
 describe('Pagination Schema', () => {
@@ -326,6 +329,202 @@ describe('Pagination Schema', () => {
       );
 
       expect(mockCtx.addIssue).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cursorPaginationQuerySchema', () => {
+    describe('limit parameter validation', () => {
+      it('accepts limit=1 (minimum)', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: 1 });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(1);
+        }
+      });
+
+      it('accepts limit=100 (maximum for standard endpoints)', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: 100 });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(100);
+        }
+      });
+
+      it('rejects limit=101 (exceeds maximum)', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: 101 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]!.message).toBe('limit must be at most 100');
+        }
+      });
+
+      it('rejects limit=0 (below minimum)', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: 0 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]!.message).toBe('limit must be at least 1');
+        }
+      });
+
+      it('rejects negative limit', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: -1 });
+        expect(result.success).toBe(false);
+      });
+
+      it('defaults limit to DEFAULT_LIMIT when not provided', () => {
+        const result = cursorPaginationQuerySchema.safeParse({});
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(PAGINATION_DEFAULTS.DEFAULT_LIMIT);
+        }
+      });
+
+      it('coerces string limit to number', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ limit: '50' });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(50);
+        }
+      });
+    });
+
+    describe('cursor parameter validation', () => {
+      it('accepts valid cursor string', () => {
+        const result = cursorPaginationQuerySchema.safeParse({ cursor: 'abc123' });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBe('abc123');
+        }
+      });
+
+      it('cursor is optional', () => {
+        const result = cursorPaginationQuerySchema.safeParse({});
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBeUndefined();
+        }
+      });
+    });
+  });
+
+  describe('cursorPaginationTokensQuerySchema', () => {
+    describe('limit parameter validation', () => {
+      it('accepts limit=1 (minimum)', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: 1 });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(1);
+        }
+      });
+
+      it('accepts limit=20 (maximum for tokens endpoint)', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: 20 });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(20);
+        }
+      });
+
+      it('rejects limit=21 (exceeds tokens endpoint maximum)', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: 21 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]!.message).toBe('limit must be at most 20');
+        }
+      });
+
+      it('rejects limit=100 (exceeds tokens endpoint maximum)', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: 100 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]!.message).toBe('limit must be at most 20');
+        }
+      });
+
+      it('rejects limit=0 (below minimum)', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: 0 });
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]!.message).toBe('limit must be at least 1');
+        }
+      });
+
+      it('rejects negative limit', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: -1 });
+        expect(result.success).toBe(false);
+      });
+
+      it('defaults limit to DEFAULT_LIMIT when not provided', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({});
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(PAGINATION_DEFAULTS.DEFAULT_LIMIT);
+        }
+      });
+
+      it('coerces string limit to number', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ limit: '15' });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.limit).toBe(15);
+        }
+      });
+
+      it('uses MAX_LIMIT_TOKENS constant value of 20', () => {
+        expect(PAGINATION_DEFAULTS.MAX_LIMIT_TOKENS).toBe(20);
+      });
+    });
+
+    describe('cursor parameter validation', () => {
+      it('accepts valid cursor string', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({ cursor: 'token-cursor-123' });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBe('token-cursor-123');
+        }
+      });
+
+      it('cursor is optional', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({});
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBeUndefined();
+        }
+      });
+    });
+
+    describe('combined parameters', () => {
+      it('accepts cursor with valid limit', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({
+          cursor: 'abc123',
+          limit: 10,
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBe('abc123');
+          expect(result.data.limit).toBe(10);
+        }
+      });
+
+      it('accepts cursor with max limit', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({
+          cursor: 'abc123',
+          limit: 20,
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.cursor).toBe('abc123');
+          expect(result.data.limit).toBe(20);
+        }
+      });
+
+      it('rejects cursor with limit exceeding max', () => {
+        const result = cursorPaginationTokensQuerySchema.safeParse({
+          cursor: 'abc123',
+          limit: 21,
+        });
+        expect(result.success).toBe(false);
+      });
     });
   });
 });
