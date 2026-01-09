@@ -2,6 +2,7 @@ import { logger } from '@/utils/powertools.js';
 import type { TokenPriceRepository, CreateTokenPriceInput } from '@/src/repositories/types.js';
 import { getCoinGeckoClient } from '@/src/services/coingecko/client.js';
 import { handleCoinGeckoError } from '@/src/services/coingecko/index.js';
+import { TokenPrice } from '@/src/domain/value-objects/index.js';
 
 export interface TokenPriceInfo {
   coingeckoId: string;
@@ -24,9 +25,6 @@ export interface PricingServiceConfig {
 
 /** CoinGecko API limit for IDs per request */
 const COINGECKO_MAX_IDS_PER_REQUEST = 250;
-
-/** Supported currencies for CoinGecko price lookups */
-const SUPPORTED_CURRENCIES = new Set(['usd', 'eur', 'gbp', 'jpy', 'btc', 'eth']);
 
 /**
  * Service for fetching and caching token prices from CoinGecko.
@@ -65,13 +63,11 @@ export class PricingService {
       return new Map();
     }
 
-    // Validate and normalize currency
-    const normalizedCurrency = currency.toLowerCase().trim();
-    if (!SUPPORTED_CURRENCIES.has(normalizedCurrency)) {
-      logger.warn('Unsupported currency provided, using default USD', { currency });
-      currency = 'usd';
-    } else {
-      currency = normalizedCurrency;
+    // Validate and normalize currency using domain value object
+    const originalCurrency = currency.toLowerCase().trim();
+    currency = TokenPrice.normalizeCurrency(currency);
+    if (currency !== originalCurrency) {
+      logger.warn('Unsupported currency provided, using default USD', { currency: originalCurrency });
     }
 
     // Deduplicate and filter out empty/invalid IDs
