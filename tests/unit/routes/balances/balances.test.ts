@@ -7,7 +7,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import errorHandlerPlugin from '@/src/plugins/error-handler.js';
 import balanceRoutes from '@/src/routes/balances/index.js';
-import { tokenBalanceQuerySchema } from '@/src/routes/balances/schemas.js';
+import { tokenBalanceQuerySchema, tokenBalanceItemSchema } from '@/src/routes/balances/schemas.js';
 
 // Mock environment variables
 vi.stubEnv('STAGE', 'dev');
@@ -453,6 +453,257 @@ describe('tokenBalanceQuerySchema', () => {
       expect(result.sortBy).toBe('balance');
       expect(result.sortOrder).toBe('asc');
       expect(result.showHiddenTokens).toBe(true);
+    });
+  });
+});
+
+describe('tokenBalanceItemSchema', () => {
+  const validBaseItem = {
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    balance: '1000.00',
+    symbol: 'USDC',
+    decimals: 6,
+    name: 'USD Coin',
+    logo: 'https://example.com/usdc.png',
+    usdValue: '1000.00',
+  };
+
+  describe('spam fields', () => {
+    describe('isSpam field', () => {
+      it('accepts isSpam as true', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'spam',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.isSpam).toBe(true);
+        }
+      });
+
+      it('accepts isSpam as false', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.isSpam).toBe(false);
+        }
+      });
+
+      it('rejects when isSpam is missing', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects non-boolean isSpam values', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: 'true',
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    describe('userSpamOverride field', () => {
+      it('accepts userSpamOverride as "trusted"', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: 'trusted',
+          effectiveSpamStatus: 'trusted',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.userSpamOverride).toBe('trusted');
+        }
+      });
+
+      it('accepts userSpamOverride as "spam"', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: 'spam',
+          effectiveSpamStatus: 'spam',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.userSpamOverride).toBe('spam');
+        }
+      });
+
+      it('accepts userSpamOverride as null', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.userSpamOverride).toBeNull();
+        }
+      });
+
+      it('rejects invalid userSpamOverride values', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: 'invalid',
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    describe('effectiveSpamStatus field', () => {
+      it('accepts effectiveSpamStatus as "spam"', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'spam',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.effectiveSpamStatus).toBe('spam');
+        }
+      });
+
+      it('accepts effectiveSpamStatus as "trusted"', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: 'trusted',
+          effectiveSpamStatus: 'trusted',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.effectiveSpamStatus).toBe('trusted');
+        }
+      });
+
+      it('accepts effectiveSpamStatus as "unknown"', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.effectiveSpamStatus).toBe('unknown');
+        }
+      });
+
+      it('rejects invalid effectiveSpamStatus values', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'invalid',
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects when effectiveSpamStatus is missing', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+        });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    describe('spam field combinations', () => {
+      it('validates complete token with all spam fields', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: 'trusted',
+          effectiveSpamStatus: 'trusted',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data).toMatchObject({
+            address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+            balance: '1000.00',
+            symbol: 'USDC',
+            decimals: 6,
+            name: 'USD Coin',
+            logo: 'https://example.com/usdc.png',
+            usdValue: '1000.00',
+            isSpam: true,
+            userSpamOverride: 'trusted',
+            effectiveSpamStatus: 'trusted',
+          });
+        }
+      });
+
+      it('validates spam token marked as trusted by user', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: true,
+          userSpamOverride: 'trusted',
+          effectiveSpamStatus: 'trusted',
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('validates non-spam token with no override', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: null,
+          effectiveSpamStatus: 'unknown',
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('validates non-spam token marked as spam by user', () => {
+        const result = tokenBalanceItemSchema.safeParse({
+          ...validBaseItem,
+          isSpam: false,
+          userSpamOverride: 'spam',
+          effectiveSpamStatus: 'spam',
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+  });
+
+  describe('existing fields with spam fields', () => {
+    it('validates nullable fields correctly with spam fields', () => {
+      const result = tokenBalanceItemSchema.safeParse({
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        balance: '1000.00',
+        symbol: 'USDC',
+        decimals: 6,
+        name: null,
+        logo: null,
+        usdValue: null,
+        isSpam: false,
+        userSpamOverride: null,
+        effectiveSpamStatus: 'unknown',
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.name).toBeNull();
+        expect(result.data.logo).toBeNull();
+        expect(result.data.usdValue).toBeNull();
+      }
     });
   });
 });

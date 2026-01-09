@@ -83,6 +83,10 @@ export const tokenBalanceItemSchema = z.object({
   name: z.string().nullable(),
   logo: z.string().nullable(),
   usdValue: z.string().nullable(),
+  // Spam-related fields
+  isSpam: z.boolean(),
+  userSpamOverride: z.enum(['trusted', 'spam']).nullable(),
+  effectiveSpamStatus: z.enum(['spam', 'trusted', 'unknown']),
 });
 
 /**
