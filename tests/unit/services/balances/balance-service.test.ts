@@ -1377,4 +1377,268 @@ describe('BalanceService', () => {
       });
     });
   });
+
+  describe('spam filtering helpers', () => {
+    function createEnrichedBalance(overrides: Partial<import('@/src/services/balances/balance-service.js').EnrichedBalance> = {}): import('@/src/services/balances/balance-service.js').EnrichedBalance {
+      return {
+        tokenAddress: '0xtoken',
+        isNative: false,
+        symbol: 'TOKEN',
+        name: 'Test Token',
+        decimals: 18,
+        balance: '1000000000000000000',
+        formattedBalance: '1',
+        usdPrice: 100,
+        usdValue: 100,
+        priceChange24h: null,
+        isPriceStale: false,
+        logoUri: null,
+        coingeckoId: null,
+        spamAnalysis: null,
+        ...overrides,
+      };
+    }
+
+    function createSpamAnalysis(overrides: Partial<import('@/src/services/spam/types.js').SpamAnalysis> = {}): import('@/src/services/spam/types.js').SpamAnalysis {
+      return {
+        blockaid: null,
+        coingecko: { isListed: true, marketCapRank: 100 },
+        heuristics: {
+          suspiciousName: false,
+          namePatterns: [],
+          isUnsolicited: false,
+          contractAgeDays: 365,
+          isNewContract: false,
+          holderDistribution: 'normal',
+        },
+        userOverride: null,
+        classificationUpdatedAt: new Date().toISOString(),
+        summary: { riskLevel: 'safe', reasons: [] },
+        ...overrides,
+      };
+    }
+
+    describe('filterSpamBalances', () => {
+      it('should return all balances when showSpam is true', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'SAFE' }),
+          createEnrichedBalance({
+            symbol: 'SPAM',
+            spamAnalysis: createSpamAnalysis({
+              summary: { riskLevel: 'danger', reasons: ['Detected as spam'] },
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, true);
+
+        expect(result).toHaveLength(2);
+        expect(result.map(b => b.symbol)).toEqual(['SAFE', 'SPAM']);
+      });
+
+      it('should filter out spam tokens when showSpam is false', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'SAFE' }),
+          createEnrichedBalance({
+            symbol: 'SPAM',
+            spamAnalysis: createSpamAnalysis({
+              summary: { riskLevel: 'danger', reasons: ['Detected as spam'] },
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('SAFE');
+      });
+
+      it('should include tokens without spam classification', () => {
+        const balances = [
+          createEnrichedBalance({ symbol: 'NO_CLASSIFICATION', spamAnalysis: null }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('NO_CLASSIFICATION');
+      });
+
+      it('should include user-trusted tokens even if marked as spam', () => {
+        const balances = [
+          createEnrichedBalance({
+            symbol: 'USER_TRUSTED',
+            spamAnalysis: createSpamAnalysis({
+              userOverride: 'trusted',
+              summary: { riskLevel: 'danger', reasons: ['Would be spam but user trusts it'] },
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('USER_TRUSTED');
+      });
+
+      it('should filter out user-marked spam tokens', () => {
+        const balances = [
+          createEnrichedBalance({
+            symbol: 'USER_SPAM',
+            spamAnalysis: createSpamAnalysis({
+              userOverride: 'spam',
+              summary: { riskLevel: 'safe', reasons: [] }, // System says safe but user marked as spam
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(0);
+      });
+
+      it('should prioritize user override over summary classification', () => {
+        const balances = [
+          // User trusted but system says danger
+          createEnrichedBalance({
+            symbol: 'TRUSTED_BY_USER',
+            spamAnalysis: createSpamAnalysis({
+              userOverride: 'trusted',
+              summary: { riskLevel: 'danger', reasons: ['System detected spam'] },
+            }),
+          }),
+          // User marked spam but system says safe
+          createEnrichedBalance({
+            symbol: 'SPAM_BY_USER',
+            spamAnalysis: createSpamAnalysis({
+              userOverride: 'spam',
+              summary: { riskLevel: 'safe', reasons: [] },
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(1);
+        expect(result[0]!.symbol).toBe('TRUSTED_BY_USER');
+      });
+
+      it('should include tokens with safe or warning risk levels', () => {
+        const balances = [
+          createEnrichedBalance({
+            symbol: 'SAFE_TOKEN',
+            spamAnalysis: createSpamAnalysis({
+              summary: { riskLevel: 'safe', reasons: [] },
+            }),
+          }),
+          createEnrichedBalance({
+            symbol: 'WARNING_TOKEN',
+            spamAnalysis: createSpamAnalysis({
+              summary: { riskLevel: 'warning', reasons: ['Minor concerns'] },
+            }),
+          }),
+          createEnrichedBalance({
+            symbol: 'DANGER_TOKEN',
+            spamAnalysis: createSpamAnalysis({
+              summary: { riskLevel: 'danger', reasons: ['Major concerns'] },
+            }),
+          }),
+        ];
+
+        const result = service.filterSpamBalances(balances, false);
+
+        expect(result).toHaveLength(2);
+        expect(result.map(b => b.symbol)).toEqual(['SAFE_TOKEN', 'WARNING_TOKEN']);
+      });
+    });
+
+    describe('computeEffectiveSpamStatus', () => {
+      it('should return unknown when spamAnalysis is null', () => {
+        const balance = createEnrichedBalance({ spamAnalysis: null });
+
+        const result = service.computeEffectiveSpamStatus(balance);
+
+        expect(result).toBe('unknown');
+      });
+
+      it('should return trusted when userOverride is trusted', () => {
+        const balance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: 'trusted',
+            summary: { riskLevel: 'danger', reasons: ['System says spam'] },
+          }),
+        });
+
+        const result = service.computeEffectiveSpamStatus(balance);
+
+        expect(result).toBe('trusted');
+      });
+
+      it('should return spam when userOverride is spam', () => {
+        const balance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: 'spam',
+            summary: { riskLevel: 'safe', reasons: [] },
+          }),
+        });
+
+        const result = service.computeEffectiveSpamStatus(balance);
+
+        expect(result).toBe('spam');
+      });
+
+      it('should return spam when summary riskLevel is danger and no user override', () => {
+        const balance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: null,
+            summary: { riskLevel: 'danger', reasons: ['Detected as spam'] },
+          }),
+        });
+
+        const result = service.computeEffectiveSpamStatus(balance);
+
+        expect(result).toBe('spam');
+      });
+
+      it('should return unknown when riskLevel is safe or warning and no user override', () => {
+        const safeBalance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: null,
+            summary: { riskLevel: 'safe', reasons: [] },
+          }),
+        });
+
+        const warningBalance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: null,
+            summary: { riskLevel: 'warning', reasons: ['Minor warning'] },
+          }),
+        });
+
+        expect(service.computeEffectiveSpamStatus(safeBalance)).toBe('unknown');
+        expect(service.computeEffectiveSpamStatus(warningBalance)).toBe('unknown');
+      });
+
+      it('should prioritize user override over summary classification', () => {
+        // User says trusted, system says danger
+        const trustedBalance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: 'trusted',
+            summary: { riskLevel: 'danger', reasons: ['System detected spam'] },
+          }),
+        });
+
+        // User says spam, system says safe
+        const spamBalance = createEnrichedBalance({
+          spamAnalysis: createSpamAnalysis({
+            userOverride: 'spam',
+            summary: { riskLevel: 'safe', reasons: [] },
+          }),
+        });
+
+        expect(service.computeEffectiveSpamStatus(trustedBalance)).toBe('trusted');
+        expect(service.computeEffectiveSpamStatus(spamBalance)).toBe('spam');
+      });
+    });
+  });
 });

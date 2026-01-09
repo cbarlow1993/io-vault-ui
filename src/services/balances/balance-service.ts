@@ -357,4 +357,69 @@ export class BalanceService {
     return mapping[chain] ?? null;
   }
 
+  /**
+   * Filters balances based on spam status.
+   * When showSpam is true, all balances are returned.
+   * When showSpam is false, spam tokens are filtered out unless the user has trusted them.
+   */
+  filterSpamBalances(
+    balances: EnrichedBalance[],
+    showSpam: boolean
+  ): EnrichedBalance[] {
+    if (showSpam) {
+      return balances;
+    }
+
+    // Filter out spam tokens unless user has trusted override
+    return balances.filter((balance) => {
+      const classification = balance.spamAnalysis;
+      if (!classification) {
+        return true; // No classification = show
+      }
+
+      // User override takes precedence
+      if (classification.userOverride === 'trusted') {
+        return true;
+      }
+      if (classification.userOverride === 'spam') {
+        return false;
+      }
+
+      // If globally marked as spam by summary (riskLevel: 'danger' indicates spam)
+      if (classification.summary?.riskLevel === 'danger') {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  /**
+   * Computes the effective spam status for a balance based on user override and classification.
+   * User override takes precedence over system classification.
+   */
+  computeEffectiveSpamStatus(
+    balance: EnrichedBalance
+  ): 'spam' | 'trusted' | 'unknown' {
+    const classification = balance.spamAnalysis;
+    if (!classification) {
+      return 'unknown';
+    }
+
+    // User override takes precedence
+    if (classification.userOverride === 'trusted') {
+      return 'trusted';
+    }
+    if (classification.userOverride === 'spam') {
+      return 'spam';
+    }
+
+    // Use summary if available (riskLevel: 'danger' indicates spam)
+    if (classification.summary?.riskLevel === 'danger') {
+      return 'spam';
+    }
+
+    return 'unknown';
+  }
+
 }
