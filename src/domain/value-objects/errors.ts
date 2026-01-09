@@ -28,9 +28,12 @@ export class InvalidAmountError extends ValueObjectError {
 export class InvalidAddressError extends ValueObjectError {
   constructor(
     public readonly address: string,
-    public readonly chainAlias?: string
+    public readonly chainAlias?: string,
+    public readonly reason?: string
   ) {
-    super(`Invalid address: ${address}${chainAlias ? ` on ${chainAlias}` : ''}`);
+    const chainPart = chainAlias ? ` on ${chainAlias}` : '';
+    const reasonPart = reason ? ` (${reason})` : '';
+    super(`Invalid address: ${address}${chainPart}${reasonPart}`);
     this.name = 'InvalidAddressError';
   }
 }

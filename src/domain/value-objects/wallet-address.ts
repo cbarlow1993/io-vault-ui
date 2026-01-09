@@ -5,6 +5,79 @@ import { InvalidAddressError } from './errors.js';
 declare const NormalizedAddressBrand: unique symbol;
 export type NormalizedAddress = string & { readonly [NormalizedAddressBrand]: never };
 
+/** Chain type categorization for address validation */
+type ChainType = 'evm' | 'solana' | 'bitcoin' | 'unknown';
+
+/**
+ * Maps chain aliases to their chain type for validation purposes.
+ * EVM chains require 0x prefix, Solana uses base58, Bitcoin has specific formats.
+ */
+const CHAIN_TYPE_MAP: Record<string, ChainType> = {
+  // EVM chains - require 0x prefix
+  eth: 'evm',
+  'eth-mainnet': 'evm',
+  'eth-sepolia': 'evm',
+  'eth-goerli': 'evm',
+  ethereum: 'evm',
+  polygon: 'evm',
+  'polygon-mainnet': 'evm',
+  'polygon-amoy': 'evm',
+  arbitrum: 'evm',
+  'arbitrum-one': 'evm',
+  'arbitrum-nova': 'evm',
+  'arbitrum-sepolia': 'evm',
+  optimism: 'evm',
+  'optimism-mainnet': 'evm',
+  'optimism-sepolia': 'evm',
+  base: 'evm',
+  'base-mainnet': 'evm',
+  'base-sepolia': 'evm',
+  bsc: 'evm',
+  'bsc-mainnet': 'evm',
+  'bsc-testnet': 'evm',
+  'avalanche-c': 'evm',
+  'avalanche-fuji': 'evm',
+  fantom: 'evm',
+  gnosis: 'evm',
+  'zksync-era': 'evm',
+  linea: 'evm',
+  scroll: 'evm',
+  blast: 'evm',
+  zora: 'evm',
+  cronos: 'evm',
+  fuse: 'evm',
+  metis: 'evm',
+  fraxtal: 'evm',
+  xdc: 'evm',
+  dfk: 'evm',
+  'metal-l2': 'evm',
+  morph: 'evm',
+  quai: 'evm',
+  abstract: 'evm',
+  ink: 'evm',
+  lightlink: 'evm',
+  'polygon-zkevm': 'evm',
+  rari: 'evm',
+  'manta-pacific': 'evm',
+  lukso: 'evm',
+  sonic: 'evm',
+  berachain: 'evm',
+  degen: 'evm',
+  xai: 'evm',
+  'flow-evm': 'evm',
+
+  // Solana chains - base58 encoding, 32-44 chars
+  solana: 'solana',
+  'solana-mainnet': 'solana',
+  'solana-devnet': 'solana',
+  'solana-testnet': 'solana',
+
+  // Bitcoin chains - P2PKH, P2SH, Bech32, Taproot formats
+  bitcoin: 'bitcoin',
+  'btc-mainnet': 'bitcoin',
+  'btc-testnet': 'bitcoin',
+};
+
 /**
  * Immutable value object representing a wallet address on a specific chain.
  *
@@ -54,7 +127,101 @@ export class WalletAddress {
     if (trimmed.length === 0) {
       throw new InvalidAddressError('', chainAlias);
     }
+
+    // Perform chain-aware validation
+    const chainType = WalletAddress.getChainType(chainAlias);
+    WalletAddress.validateForChainType(trimmed, chainType, chainAlias);
+
     return new WalletAddress(trimmed, chainAlias);
+  }
+
+  /**
+   * Get the chain type for a given chain alias
+   */
+  private static getChainType(chainAlias: ChainAlias): ChainType {
+    return CHAIN_TYPE_MAP[chainAlias] ?? 'unknown';
+  }
+
+  /**
+   * Validate address format based on chain type
+   */
+  private static validateForChainType(
+    address: string,
+    chainType: ChainType,
+    chainAlias: ChainAlias
+  ): void {
+    switch (chainType) {
+      case 'evm':
+        WalletAddress.validateEvmAddress(address, chainAlias);
+        break;
+      case 'solana':
+        WalletAddress.validateSolanaAddress(address, chainAlias);
+        break;
+      case 'bitcoin':
+        WalletAddress.validateBitcoinAddress(address, chainAlias);
+        break;
+      case 'unknown':
+        // Permissive validation for unknown chains - accept any non-empty address
+        break;
+    }
+  }
+
+  /**
+   * Validate EVM address format (must start with 0x)
+   */
+  private static validateEvmAddress(address: string, chainAlias: ChainAlias): void {
+    if (!address.startsWith('0x')) {
+      throw new InvalidAddressError(address, chainAlias, 'EVM addresses must start with 0x');
+    }
+  }
+
+  /**
+   * Validate Solana address format (base58, 32-44 characters)
+   * Base58 alphabet excludes: 0, O, I, l
+   */
+  private static validateSolanaAddress(address: string, chainAlias: ChainAlias): void {
+    // Check length first (32-44 characters)
+    if (address.length < 32 || address.length > 44) {
+      throw new InvalidAddressError(
+        address,
+        chainAlias,
+        'Solana addresses must be 32-44 characters'
+      );
+    }
+
+    // Check for invalid base58 characters (0, O, I, l)
+    const invalidBase58Chars = /[0OIl]/;
+    if (invalidBase58Chars.test(address)) {
+      throw new InvalidAddressError(
+        address,
+        chainAlias,
+        'Solana addresses must be valid base58 (no 0, O, I, l characters)'
+      );
+    }
+  }
+
+  /**
+   * Validate Bitcoin address format
+   * Supports: P2PKH (1), P2SH (3), Bech32 (bc1), Taproot (bc1p), Testnet (m, n, tb1)
+   */
+  private static validateBitcoinAddress(address: string, chainAlias: ChainAlias): void {
+    // Valid Bitcoin address prefixes
+    const validPrefixes = [
+      '1', // P2PKH mainnet
+      '3', // P2SH mainnet
+      'bc1q', // Bech32 mainnet (SegWit v0)
+      'bc1p', // Taproot mainnet (SegWit v1)
+      'm', // P2PKH testnet
+      'n', // P2PKH testnet
+      '2', // P2SH testnet
+      'tb1', // Bech32 testnet
+    ];
+
+    const isValid = validPrefixes.some((prefix) => address.startsWith(prefix));
+
+    if (!isValid) {
+      throw new InvalidAddressError(address, chainAlias, 'Invalid Bitcoin address format');
+    }
   }
 
   /**
