@@ -5,7 +5,7 @@ import type {
   TokenToClassify,
   ClassificationResult,
 } from '@/src/services/spam/types.js';
-import { TokenClassification, type RiskSummary } from '@/src/domain/entities/index.js';
+import { TokenClassification, SpamClassificationResult, type RiskSummary } from '@/src/domain/entities/index.js';
 import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 export type { RiskSummary };
@@ -26,8 +26,9 @@ export class SpamClassificationService {
       })
     );
 
-    // Merge results from all providers
-    const classification = this.mergeClassifications(providerResults);
+    // Merge results from all providers using domain aggregate
+    const classificationResult = SpamClassificationResult.merge(providerResults);
+    const classification = classificationResult.toJSON() as SpamClassification;
 
     return {
       tokenAddress: WalletAddress.normalizeForComparison(token.address),
@@ -66,35 +67,4 @@ export class SpamClassificationService {
     return tokenClassification.getRiskSummary(userOverride);
   }
 
-  private mergeClassifications(results: Partial<SpamClassification>[]): SpamClassification {
-    const merged: SpamClassification = {
-      blockaid: null,
-      coingecko: {
-        isListed: false,
-        marketCapRank: null,
-      },
-      heuristics: {
-        suspiciousName: false,
-        namePatterns: [],
-        isUnsolicited: false,
-        contractAgeDays: null,
-        isNewContract: false,
-        holderDistribution: 'unknown',
-      },
-    };
-
-    for (const result of results) {
-      if (result.blockaid !== undefined) {
-        merged.blockaid = result.blockaid;
-      }
-      if (result.coingecko !== undefined) {
-        merged.coingecko = result.coingecko;
-      }
-      if (result.heuristics !== undefined) {
-        merged.heuristics = result.heuristics;
-      }
-    }
-
-    return merged;
-  }
 }

@@ -112,6 +112,90 @@ describe('SpamClassificationService', () => {
       expect(result.classification.heuristics).toBeDefined();
       expect(result.classification.coingecko).toBeDefined();
     });
+
+    it('should use defaults when all providers fail', async () => {
+      const failingProvider: SpamClassificationProvider = {
+        name: 'failing',
+        classify: vi.fn().mockRejectedValue(new Error('Provider failed')),
+      };
+
+      service = new SpamClassificationService([failingProvider]);
+
+      const token: TokenToClassify = {
+        chain: 'ethereum',
+        network: 'mainnet',
+        address: '0x123',
+        name: 'Test Token',
+        symbol: 'TEST',
+        coingeckoId: null,
+      };
+
+      const result = await service.classifyToken(token);
+
+      // Domain aggregate defaults should be used
+      expect(result.classification.blockaid).toBeNull();
+      expect(result.classification.coingecko).toEqual({
+        isListed: false,
+        marketCapRank: null,
+      });
+      expect(result.classification.heuristics).toEqual({
+        suspiciousName: false,
+        namePatterns: [],
+        isUnsolicited: false,
+        contractAgeDays: null,
+        isNewContract: false,
+        holderDistribution: 'unknown',
+      });
+    });
+
+    it('should merge provider results with later results overriding earlier ones', async () => {
+      // First provider returns one blockaid result
+      const provider1: SpamClassificationProvider = {
+        name: 'provider1',
+        classify: vi.fn().mockResolvedValue({
+          blockaid: {
+            isMalicious: false,
+            isPhishing: false,
+            riskScore: 0.1,
+            attackTypes: [],
+            checkedAt: '2024-01-01T00:00:00Z',
+            resultType: 'Benign',
+          },
+        }),
+      };
+
+      // Second provider returns a different blockaid result (should override)
+      const provider2: SpamClassificationProvider = {
+        name: 'provider2',
+        classify: vi.fn().mockResolvedValue({
+          blockaid: {
+            isMalicious: true,
+            isPhishing: true,
+            riskScore: 0.95,
+            attackTypes: ['phishing'],
+            checkedAt: '2024-01-02T00:00:00Z',
+            resultType: 'Malicious',
+          },
+        }),
+      };
+
+      service = new SpamClassificationService([provider1, provider2]);
+
+      const token: TokenToClassify = {
+        chain: 'ethereum',
+        network: 'mainnet',
+        address: '0x123',
+        name: 'Test Token',
+        symbol: 'TEST',
+        coingeckoId: null,
+      };
+
+      const result = await service.classifyToken(token);
+
+      // Later provider result should override earlier one
+      expect(result.classification.blockaid?.isMalicious).toBe(true);
+      expect(result.classification.blockaid?.resultType).toBe('Malicious');
+    });
   });
 
   describe('computeRiskSummary', () => {
