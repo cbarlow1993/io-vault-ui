@@ -1,21 +1,26 @@
-interface CursorData {
-  ts: number; // Unix timestamp in ms
-  id: string; // Transaction UUID
-}
+import { TransactionCursor } from '@/src/domain/value-objects/index.js';
 
+/**
+ * Encode a timestamp and transaction ID into a pagination cursor.
+ *
+ * @deprecated Use TransactionCursor.create().encode() directly
+ * @param timestamp - The transaction timestamp
+ * @param txId - The transaction UUID
+ * @returns base64url-encoded cursor string
+ */
 export function encodeCursor(timestamp: Date, txId: string): string {
-  const data: CursorData = { ts: timestamp.getTime(), id: txId };
-  return Buffer.from(JSON.stringify(data)).toString('base64url');
+  return TransactionCursor.create(timestamp, txId).encode();
 }
 
+/**
+ * Decode a pagination cursor back to timestamp and transaction ID.
+ *
+ * @deprecated Use TransactionCursor.decode() directly
+ * @param cursor - The base64url-encoded cursor string
+ * @returns Object with timestamp and txId
+ * @throws Error if cursor is invalid
+ */
 export function decodeCursor(cursor: string): { timestamp: Date; txId: string } {
-  try {
-    const data: CursorData = JSON.parse(Buffer.from(cursor, 'base64url').toString());
-    if (typeof data.ts !== 'number' || typeof data.id !== 'string') {
-      throw new Error('Invalid cursor format');
-    }
-    return { timestamp: new Date(data.ts), txId: data.id };
-  } catch {
-    throw new Error('Invalid cursor');
-  }
+  const decoded = TransactionCursor.decode(cursor);
+  return { timestamp: decoded.timestamp, txId: decoded.transactionId };
 }
