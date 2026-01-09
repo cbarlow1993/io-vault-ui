@@ -167,11 +167,16 @@ export class WalletAddress {
   }
 
   /**
-   * Validate EVM address format (must start with 0x)
+   * Validate EVM address format (must be 0x followed by exactly 40 hex characters)
    */
   private static validateEvmAddress(address: string, chainAlias: ChainAlias): void {
-    if (!address.startsWith('0x')) {
-      throw new InvalidAddressError(address, chainAlias, 'EVM addresses must start with 0x');
+    // EVM addresses must be 0x followed by exactly 40 hex characters (42 total)
+    if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
+      throw new InvalidAddressError(
+        address,
+        chainAlias,
+        'EVM addresses must be 0x followed by 40 hex characters'
+      );
     }
   }
 

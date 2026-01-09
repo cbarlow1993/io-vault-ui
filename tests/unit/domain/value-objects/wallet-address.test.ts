@@ -4,23 +4,26 @@ import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 
 describe('WalletAddress', () => {
   const chainAlias = 'ethereum' as ChainAlias;
+  // Valid EVM address: 0x + 40 hex characters = 42 chars total
+  const validEvmAddress = '0xAbCdEf1234567890AbCdEf1234567890AbCdEf12';
+  const validEvmAddressNormalized = '0xabcdef1234567890abcdef1234567890abcdef12';
 
   describe('create', () => {
     it('creates a WalletAddress from valid string', () => {
-      const addr = WalletAddress.create('0xAbC123', chainAlias);
-      expect(addr.original).toBe('0xAbC123');
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.original).toBe(validEvmAddress);
       expect(addr.chainAlias).toBe('ethereum');
     });
 
     it('normalizes address to lowercase', () => {
-      const addr = WalletAddress.create('0xAbCdEf123456', chainAlias);
-      expect(addr.normalized).toBe('0xabcdef123456');
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.normalized).toBe(validEvmAddressNormalized);
     });
 
     it('trims whitespace', () => {
-      const addr = WalletAddress.create('  0xabc  ', chainAlias);
-      expect(addr.original).toBe('0xabc');
-      expect(addr.normalized).toBe('0xabc');
+      const addr = WalletAddress.create(`  ${validEvmAddress}  `, chainAlias);
+      expect(addr.original).toBe(validEvmAddress);
+      expect(addr.normalized).toBe(validEvmAddressNormalized);
     });
 
     it('throws InvalidAddressError for empty string', () => {
@@ -40,70 +43,70 @@ describe('WalletAddress', () => {
 
   describe('fromNormalized', () => {
     it('creates from already-normalized address', () => {
-      const addr = WalletAddress.fromNormalized('0xabc123', chainAlias);
-      expect(addr.normalized).toBe('0xabc123');
-      expect(addr.original).toBe('0xabc123');
+      const addr = WalletAddress.fromNormalized(validEvmAddressNormalized, chainAlias);
+      expect(addr.normalized).toBe(validEvmAddressNormalized);
+      expect(addr.original).toBe(validEvmAddressNormalized);
     });
   });
 
   describe('equals', () => {
     it('returns true for same normalized address and chain', () => {
-      const a = WalletAddress.create('0xABC', chainAlias);
-      const b = WalletAddress.create('0xabc', chainAlias);
+      const a = WalletAddress.create(validEvmAddress, chainAlias);
+      const b = WalletAddress.create(validEvmAddress.toLowerCase(), chainAlias);
       expect(a.equals(b)).toBe(true);
     });
 
     it('returns false for different addresses', () => {
-      const a = WalletAddress.create('0xABC', chainAlias);
-      const b = WalletAddress.create('0xDEF', chainAlias);
+      const a = WalletAddress.create('0x1111111111111111111111111111111111111111', chainAlias);
+      const b = WalletAddress.create('0x2222222222222222222222222222222222222222', chainAlias);
       expect(a.equals(b)).toBe(false);
     });
 
     it('returns false for same address on different chains', () => {
-      const a = WalletAddress.create('0xABC', 'ethereum' as ChainAlias);
-      const b = WalletAddress.create('0xABC', 'polygon' as ChainAlias);
+      const a = WalletAddress.create(validEvmAddress, 'ethereum' as ChainAlias);
+      const b = WalletAddress.create(validEvmAddress, 'polygon' as ChainAlias);
       expect(a.equals(b)).toBe(false);
     });
   });
 
   describe('matches', () => {
     it('matches case-insensitively', () => {
-      const addr = WalletAddress.create('0xAbC', chainAlias);
-      expect(addr.matches('0xabc')).toBe(true);
-      expect(addr.matches('0xABC')).toBe(true);
-      expect(addr.matches('0xAbC')).toBe(true);
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.matches(validEvmAddress.toLowerCase())).toBe(true);
+      expect(addr.matches(validEvmAddress.toUpperCase())).toBe(true);
+      expect(addr.matches(validEvmAddress)).toBe(true);
     });
 
     it('trims input for matching', () => {
-      const addr = WalletAddress.create('0xabc', chainAlias);
-      expect(addr.matches('  0xabc  ')).toBe(true);
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.matches(`  ${validEvmAddressNormalized}  `)).toBe(true);
     });
 
     it('returns false for non-matching address', () => {
-      const addr = WalletAddress.create('0xabc', chainAlias);
-      expect(addr.matches('0xdef')).toBe(false);
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.matches('0x0000000000000000000000000000000000000000')).toBe(false);
     });
   });
 
   describe('forStorage', () => {
     it('returns normalized address', () => {
-      const addr = WalletAddress.create('0xAbC', chainAlias);
-      expect(addr.forStorage()).toBe('0xabc');
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.forStorage()).toBe(validEvmAddressNormalized);
     });
   });
 
   describe('display', () => {
     it('returns original address', () => {
-      const addr = WalletAddress.create('0xAbC123', chainAlias);
-      expect(addr.display).toBe('0xAbC123');
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.display).toBe(validEvmAddress);
     });
   });
 
   describe('toJSON', () => {
     it('serializes correctly', () => {
-      const addr = WalletAddress.create('0xAbC', chainAlias);
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
       expect(addr.toJSON()).toEqual({
-        address: '0xabc',
+        address: validEvmAddressNormalized,
         chainAlias: 'ethereum',
       });
     });
@@ -111,14 +114,14 @@ describe('WalletAddress', () => {
 
   describe('toString', () => {
     it('returns normalized address', () => {
-      const addr = WalletAddress.create('0xAbC', chainAlias);
-      expect(addr.toString()).toBe('0xabc');
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
+      expect(addr.toString()).toBe(validEvmAddressNormalized);
     });
   });
 
   describe('immutability', () => {
     it('is frozen', () => {
-      const addr = WalletAddress.create('0xabc', chainAlias);
+      const addr = WalletAddress.create(validEvmAddress, chainAlias);
       expect(Object.isFrozen(addr)).toBe(true);
     });
   });
@@ -145,9 +148,39 @@ describe('WalletAddress', () => {
           .toThrow(InvalidAddressError);
       });
 
+      it.each(evmChains)('rejects address that is too short on %s', (chain) => {
+        expect(() => WalletAddress.create('0xabc', chain)).toThrow(InvalidAddressError);
+        expect(() => WalletAddress.create('0x123456789', chain)).toThrow(InvalidAddressError);
+      });
+
+      it.each(evmChains)('rejects address that is too long on %s', (chain) => {
+        // 0x + 41 hex chars = 43 chars (too long)
+        expect(() => WalletAddress.create('0xAbCdEf1234567890AbCdEf1234567890AbCdEf123', chain))
+          .toThrow(InvalidAddressError);
+      });
+
+      it.each(evmChains)('rejects address with invalid hex characters on %s', (chain) => {
+        // Contains 'G' which is not a valid hex character
+        expect(() => WalletAddress.create('0xGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG', chain))
+          .toThrow(InvalidAddressError);
+        // Contains 'Z' which is not a valid hex character
+        expect(() => WalletAddress.create('0x123456789ABCDEF0123456789ABCDEF012345Z78', chain))
+          .toThrow(InvalidAddressError);
+      });
+
       it('includes reason in EVM validation error', () => {
         expect(() => WalletAddress.create('notValidAddress', 'eth' as ChainAlias))
-          .toThrow('EVM addresses must start with 0x');
+          .toThrow('EVM addresses must be 0x followed by 40 hex characters');
+      });
+
+      it('includes reason for short address', () => {
+        expect(() => WalletAddress.create('0xabc', 'eth' as ChainAlias))
+          .toThrow('EVM addresses must be 0x followed by 40 hex characters');
+      });
+
+      it('includes reason for invalid hex characters', () => {
+        expect(() => WalletAddress.create('0xGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG', 'eth' as ChainAlias))
+          .toThrow('EVM addresses must be 0x followed by 40 hex characters');
       });
     });
 
