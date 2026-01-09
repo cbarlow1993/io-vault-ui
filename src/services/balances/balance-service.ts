@@ -36,6 +36,13 @@ export interface BalanceServiceConfig {
   currency?: string;
 }
 
+export interface TokenBalanceOptions {
+  includeHidden?: boolean;
+  showSpam?: boolean;
+  sortBy?: 'balance' | 'usdValue' | 'symbol';
+  sortOrder?: 'asc' | 'desc';
+}
+
 export class BalanceService {
   private readonly currency: string;
 
@@ -44,7 +51,7 @@ export class BalanceService {
     private readonly tokenRepository: TokenRepository,
     private readonly tokenHoldingRepository: TokenHoldingRepository,
     private readonly pricingService: PricingService,
-    private readonly fetcherFactory: (chain: string, network: string) => BalanceFetcher | null,
+    private readonly fetcherFactory: (chainAlias: ChainAlias, network: string) => BalanceFetcher | null,
     config: BalanceServiceConfig = {},
     private readonly spamClassificationService?: SpamClassificationService
   ) {
@@ -64,7 +71,7 @@ export class BalanceService {
   async getBalancesByChainAndAddress(
     chain: string,
     walletAddress: string,
-    options?: { includeHidden?: boolean }
+    options?: TokenBalanceOptions
   ): Promise<EnrichedBalance[]> {
     // Look up address in database
     const address = await this.addressRepository.findByAddressAndChainAlias(walletAddress, chain as ChainAlias);
@@ -86,7 +93,7 @@ export class BalanceService {
     walletAddress: string,
     chain: string,
     network: string,
-    options?: { includeHidden?: boolean }
+    options?: TokenBalanceOptions
   ): Promise<EnrichedBalance[]> {
     // Get balance fetcher for this chain
     const fetcher = this.fetcherFactory(chain, network);

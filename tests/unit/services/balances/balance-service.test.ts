@@ -1,6 +1,6 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BalanceService } from '@/src/services/balances/balance-service.js';
+import { BalanceService, type TokenBalanceOptions } from '@/src/services/balances/balance-service.js';
 import type { AddressRepository, TokenHoldingRepository, TokenRepository } from '@/src/repositories/types.js';
 import type { PricingService } from '@/src/services/balances/pricing-service.js';
 import type { BalanceFetcher } from '@/src/services/balances/fetchers/types.js';
@@ -13,6 +13,7 @@ function createMockAddressRepository() {
   return {
     findById: vi.fn(),
     findByAddressAndChain: vi.fn(),
+    findByAddressAndChainAlias: vi.fn(),
     findByVaultId: vi.fn(),
     findByOrganisationId: vi.fn(),
     findBySubscriptionId: vi.fn(),
@@ -1128,6 +1129,251 @@ describe('BalanceService', () => {
         expect(nativeBalance?.spamAnalysis).not.toBeNull();
         // This is the critical assertion - user override must be found
         expect(nativeBalance?.spamAnalysis?.userOverride).toBe('trusted');
+      });
+    });
+  });
+
+  describe('getBalancesByChainAndAddress', () => {
+    it('should throw NotFoundError when address not found', async () => {
+      vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(null);
+
+      await expect(service.getBalancesByChainAndAddress('ethereum', '0x123')).rejects.toThrow(NotFoundError);
+      await expect(service.getBalancesByChainAndAddress('ethereum', '0x123')).rejects.toThrow(
+        'Address not found: 0x123 on chain ethereum'
+      );
+    });
+
+    it('should return enriched balances for valid chain and address', async () => {
+      const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+      vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+      vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+      vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+      vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+        address: '0x123abc',
+        tokenAddress: null,
+        isNative: true,
+        balance: '1000000000000000000',
+        decimals: 18,
+        symbol: 'ETH',
+        name: 'Ethereum',
+      });
+
+      vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+      vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+      const result = await service.getBalancesByChainAndAddress('ethereum', '0x123abc');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.symbol).toBe('ETH');
+      expect(result[0]!.isNative).toBe(true);
+    });
+
+    describe('TokenBalanceOptions', () => {
+      it('should accept options parameter with all properties', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        // When includeHidden: true, findByAddressId is called
+        vi.mocked(tokenHoldingRepository.findByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        const options: TokenBalanceOptions = {
+          includeHidden: true,
+          showSpam: false,
+          sortBy: 'balance',
+          sortOrder: 'desc',
+        };
+
+        // Should not throw with valid options
+        const result = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', options);
+
+        expect(result).toBeDefined();
+        expect(Array.isArray(result)).toBe(true);
+      });
+
+      it('should accept partial options', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        // Mock both methods since different options use different ones
+        vi.mocked(tokenHoldingRepository.findByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Test with only includeHidden
+        const result1 = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { includeHidden: true });
+        expect(result1).toBeDefined();
+
+        // Test with only showSpam
+        const result2 = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { showSpam: true });
+        expect(result2).toBeDefined();
+
+        // Test with only sortBy
+        const result3 = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { sortBy: 'usdValue' });
+        expect(result3).toBeDefined();
+
+        // Test with only sortOrder
+        const result4 = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { sortOrder: 'asc' });
+        expect(result4).toBeDefined();
+      });
+
+      it('should use findByAddressId when includeHidden is true', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '0',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { includeHidden: true });
+
+        expect(tokenHoldingRepository.findByAddressId).toHaveBeenCalledWith('addr-1');
+        expect(tokenHoldingRepository.findVisibleByAddressId).not.toHaveBeenCalled();
+      });
+
+      it('should use findVisibleByAddressId when includeHidden is false or undefined', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '0',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Test with includeHidden: false
+        await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { includeHidden: false });
+        expect(tokenHoldingRepository.findVisibleByAddressId).toHaveBeenCalledWith('addr-1');
+
+        vi.clearAllMocks();
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '0',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // Test with no options (undefined)
+        await service.getBalancesByChainAndAddress('ethereum', '0x123abc');
+        expect(tokenHoldingRepository.findVisibleByAddressId).toHaveBeenCalledWith('addr-1');
+      });
+
+      it('should accept sortBy values: balance, usdValue, symbol', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // All sortBy values should be accepted without error
+        const sortByValues: TokenBalanceOptions['sortBy'][] = ['balance', 'usdValue', 'symbol'];
+
+        for (const sortBy of sortByValues) {
+          const result = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { sortBy });
+          expect(result).toBeDefined();
+        }
+      });
+
+      it('should accept sortOrder values: asc, desc', async () => {
+        const address = createMockAddress({ address: '0x123abc', chain_alias: 'ethereum' });
+
+        vi.mocked(addressRepository.findByAddressAndChainAlias).mockResolvedValue(address);
+        vi.mocked(tokenHoldingRepository.findVisibleByAddressId).mockResolvedValue([]);
+        vi.mocked(tokenRepository.findVerifiedByChainAlias).mockResolvedValue([]);
+
+        vi.mocked(balanceFetcher.getNativeBalance).mockResolvedValue({
+          address: '0x123abc',
+          tokenAddress: null,
+          isNative: true,
+          balance: '1000000000000000000',
+          decimals: 18,
+          symbol: 'ETH',
+          name: 'Ethereum',
+        });
+
+        vi.mocked(balanceFetcher.getTokenBalances).mockResolvedValue([]);
+        vi.mocked(pricingService.getPrices).mockResolvedValue(new Map());
+
+        // All sortOrder values should be accepted without error
+        const sortOrderValues: TokenBalanceOptions['sortOrder'][] = ['asc', 'desc'];
+
+        for (const sortOrder of sortOrderValues) {
+          const result = await service.getBalancesByChainAndAddress('ethereum', '0x123abc', { sortOrder });
+          expect(result).toBeDefined();
+        }
       });
     });
   });
