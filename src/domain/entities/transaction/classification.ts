@@ -45,6 +45,19 @@ export interface ClassificationData {
 }
 
 /**
+ * Input for the fromDetection factory method.
+ * Contains all the information needed to classify a transaction.
+ */
+export interface DetectionInput {
+  transfers: TransferForClassification[];
+  sender: string;
+  perspectiveAddress: string;
+  isContractDeploy: boolean;
+  isApproval: boolean;
+  hasNativeValue: boolean;
+}
+
+/**
  * Immutable value object representing transaction classification.
  *
  * @example
@@ -97,6 +110,105 @@ export class TransactionClassification {
       'Transaction',
       null
     );
+  }
+
+  /**
+   * Create a classification from transaction detection results.
+   * Encapsulates the classification decision logic with priority ordering:
+   * contract_deploy > approve > mint > burn > swap > transfer > unknown
+   */
+  static fromDetection(input: DetectionInput): TransactionClassification {
+    const { transfers, sender, perspectiveAddress, isContractDeploy, isApproval, hasNativeValue } =
+      input;
+
+    // Priority 1: Contract deployment
+    if (isContractDeploy) {
+      return TransactionClassification.create({
+        type: 'contract_deploy',
+        direction: 'neutral',
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('contract_deploy', 'neutral'),
+      });
+    }
+
+    // Priority 2: Token approval
+    if (isApproval) {
+      return TransactionClassification.create({
+        type: 'approve',
+        direction: 'neutral',
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('approve', 'neutral'),
+      });
+    }
+
+    // Priority 3: Mint (transfer from zero address)
+    if (TransactionClassification.detectMint(transfers)) {
+      const direction = TransactionClassification.computeDirection('mint', 0, 0);
+      return TransactionClassification.create({
+        type: 'mint',
+        direction,
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('mint', direction),
+      });
+    }
+
+    // Priority 4: Burn (transfer to zero address)
+    if (TransactionClassification.detectBurn(transfers)) {
+      const direction = TransactionClassification.computeDirection('burn', 0, 0);
+      return TransactionClassification.create({
+        type: 'burn',
+        direction,
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('burn', direction),
+      });
+    }
+
+    // Priority 5: Swap (bidirectional transfers)
+    if (TransactionClassification.detectSwap(transfers, sender)) {
+      const direction = TransactionClassification.computeDirection('swap', 0, 0);
+      return TransactionClassification.create({
+        type: 'swap',
+        direction,
+        confidence: 'medium',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('swap', direction),
+      });
+    }
+
+    // Priority 6a: Native transfer (value > 0, no token transfers)
+    if (hasNativeValue && transfers.length === 0) {
+      const inCount = WalletAddress.areEqual(perspectiveAddress, sender) ? 0 : 1;
+      const outCount = WalletAddress.areEqual(perspectiveAddress, sender) ? 1 : 0;
+      const direction = TransactionClassification.computeDirection('transfer', inCount, outCount);
+      return TransactionClassification.create({
+        type: 'transfer',
+        direction,
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('transfer', direction),
+      });
+    }
+
+    // Priority 6b: Single token transfer
+    if (transfers.length === 1) {
+      const inCount = transfers.filter((t) => t.direction === 'in').length;
+      const outCount = transfers.filter((t) => t.direction === 'out').length;
+      const direction = TransactionClassification.computeDirection('transfer', inCount, outCount);
+      return TransactionClassification.create({
+        type: 'transfer',
+        direction,
+        confidence: 'high',
+        source: 'custom',
+        label: TransactionClassification.generateLabel('transfer', direction),
+      });
+    }
+
+    // Default: Unknown
+    return TransactionClassification.unknown();
   }
 
   // --- Classification Detection Methods ---

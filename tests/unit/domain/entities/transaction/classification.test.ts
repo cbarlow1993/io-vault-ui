@@ -503,4 +503,135 @@ describe('TransactionClassification', () => {
       });
     });
   });
+
+  describe('fromDetection', () => {
+    it('creates mint classification when mint detected', () => {
+      const transfers = [
+        { from: '0x0000000000000000000000000000000000000000', to: '0xabc', amount: '100' },
+      ];
+      const result = TransactionClassification.fromDetection({
+        transfers,
+        sender: '0xdef',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('mint');
+      expect(result.direction).toBe('in');
+    });
+
+    it('creates swap classification when swap detected', () => {
+      const sender = '0xabc';
+      const transfers = [
+        { from: sender, to: '0xrouter', amount: '100', direction: 'out' as const },
+        { from: '0xrouter', to: sender, amount: '50', direction: 'in' as const },
+      ];
+      const result = TransactionClassification.fromDetection({
+        transfers,
+        sender,
+        perspectiveAddress: sender,
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('swap');
+      expect(result.direction).toBe('neutral');
+    });
+
+    it('creates contract_deploy classification', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [],
+        sender: '0xabc',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: true,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('contract_deploy');
+    });
+
+    it('creates approve classification', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [],
+        sender: '0xabc',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: false,
+        isApproval: true,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('approve');
+    });
+
+    it('creates burn classification when burn detected', () => {
+      const transfers = [
+        { from: '0xabc', to: '0x0000000000000000000000000000000000000000', amount: '100' },
+      ];
+      const result = TransactionClassification.fromDetection({
+        transfers,
+        sender: '0xabc',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('burn');
+      expect(result.direction).toBe('out');
+    });
+
+    it('creates transfer classification for native value transfer', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [],
+        sender: '0xabc',
+        perspectiveAddress: '0xdef',
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: true,
+      });
+      expect(result.type).toBe('transfer');
+      expect(result.direction).toBe('in'); // perspective is recipient
+    });
+
+    it('creates transfer classification for single token transfer', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [{ from: '0xabc', to: '0xdef', amount: '100', direction: 'out' as const }],
+        sender: '0xabc',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('transfer');
+      expect(result.direction).toBe('out');
+    });
+
+    it('returns unknown for unclassifiable transactions', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [
+          { from: '0xabc', to: '0xdef', amount: '100' },
+          { from: '0xghi', to: '0xjkl', amount: '200' },
+        ],
+        sender: '0xabc',
+        perspectiveAddress: '0xzzz',
+        isContractDeploy: false,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('unknown');
+    });
+
+    it('prioritizes contract_deploy over other classifications', () => {
+      const result = TransactionClassification.fromDetection({
+        transfers: [
+          { from: '0x0000000000000000000000000000000000000000', to: '0xabc', amount: '100' },
+        ],
+        sender: '0xabc',
+        perspectiveAddress: '0xabc',
+        isContractDeploy: true,
+        isApproval: false,
+        hasNativeValue: false,
+      });
+      expect(result.type).toBe('contract_deploy');
+    });
+  });
 });
