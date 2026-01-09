@@ -2,45 +2,23 @@
 import type { ChainAlias } from './types.js';
 import type { IChainProvider } from './interfaces.js';
 
-interface CachedEntry {
-  provider: IChainProvider;
-  createdAt: number;
-}
-
+/**
+ * Simple cache for provider instances.
+ * Providers are stateless (config + fetch), so no TTL needed.
+ */
 export class ProviderCache {
-  private cache = new Map<string, CachedEntry>();
-  private readonly maxAge: number;
-
-  constructor(maxAgeMs: number = 5 * 60 * 1000) {
-    this.maxAge = maxAgeMs;
-  }
+  private cache = new Map<string, IChainProvider>();
 
   private getKey(chainAlias: ChainAlias, rpcUrl: string): string {
     return `${chainAlias}:${rpcUrl}`;
   }
 
   get(chainAlias: ChainAlias, rpcUrl: string): IChainProvider | undefined {
-    const key = this.getKey(chainAlias, rpcUrl);
-    const entry = this.cache.get(key);
-
-    if (!entry) {
-      return undefined;
-    }
-
-    if (Date.now() - entry.createdAt >= this.maxAge) {
-      this.cache.delete(key);
-      return undefined;
-    }
-
-    return entry.provider;
+    return this.cache.get(this.getKey(chainAlias, rpcUrl));
   }
 
   set(chainAlias: ChainAlias, rpcUrl: string, provider: IChainProvider): void {
-    const key = this.getKey(chainAlias, rpcUrl);
-    this.cache.set(key, {
-      provider,
-      createdAt: Date.now(),
-    });
+    this.cache.set(this.getKey(chainAlias, rpcUrl), provider);
   }
 
   clear(): void {

@@ -1,5 +1,5 @@
 // packages/chains/tests/unit/core/provider-cache.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ProviderCache } from '../../../src/core/provider-cache.js';
 import type { IChainProvider } from '../../../src/core/interfaces.js';
 
@@ -8,17 +8,13 @@ describe('ProviderCache', () => {
 
   beforeEach(() => {
     cache = new ProviderCache();
-    vi.useFakeTimers();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  const createMockProvider = (chainAlias: string): IChainProvider => ({
-    chainAlias,
-    config: { chainAlias, rpcUrl: '', nativeCurrency: { symbol: 'ETH', decimals: 18 } },
-  } as IChainProvider);
+  const createMockProvider = (chainAlias: string): IChainProvider =>
+    ({
+      chainAlias,
+      config: { chainAlias, rpcUrl: '', nativeCurrency: { symbol: 'ETH', decimals: 18 } },
+    }) as IChainProvider;
 
   it('caches provider by chainAlias:rpcUrl key', () => {
     const provider = createMockProvider('ethereum');
@@ -29,17 +25,6 @@ describe('ProviderCache', () => {
   });
 
   it('returns undefined for uncached provider', () => {
-    const cached = cache.get('ethereum', 'https://rpc.example.com');
-    expect(cached).toBeUndefined();
-  });
-
-  it('returns undefined for expired cache entry', () => {
-    const provider = createMockProvider('ethereum');
-    cache.set('ethereum', 'https://rpc.example.com', provider);
-
-    // Advance time past cache TTL (5 minutes)
-    vi.advanceTimersByTime(6 * 60 * 1000);
-
     const cached = cache.get('ethereum', 'https://rpc.example.com');
     expect(cached).toBeUndefined();
   });
