@@ -9,12 +9,6 @@ import {
 
 // ==================== Path Parameter Schemas ====================
 
-/**
- * Path params for address ID based balance routes
- */
-export const addressIdPathParamsSchema = z.object({
-  addressId: z.uuid(),
-});
 
 /**
  * Base path params for balance routes (ecosystem, chainAlias, address)
@@ -55,6 +49,13 @@ export const tokenBalanceQuerySchema = cursorPaginationTokensQuerySchema.extend(
     .transform((v) => (typeof v === 'string' ? v === 'true' : v))
     .optional()
     .default(false),
+  showSpam: z
+    .union([z.literal('true'), z.literal('false'), z.boolean()])
+    .transform((v) => (typeof v === 'string' ? v === 'true' : v))
+    .optional()
+    .default(false),
+  sortBy: z.enum(['balance', 'usdValue', 'symbol']).optional().default('usdValue'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 // ==================== Response Schemas ====================
@@ -124,7 +125,6 @@ export const balancesByAddressIdResponseSchema = z.object({
 
 // ==================== Type Exports ====================
 
-export type AddressIdPathParams = z.infer<typeof addressIdPathParamsSchema>;
 export type BalancePathParams = z.infer<typeof balancePathParamsSchema>;
 export type TokenBalancePathParams = z.infer<typeof tokenBalancePathParamsSchema>;
 export type TokenBalanceQuery = z.infer<typeof tokenBalanceQuerySchema>;

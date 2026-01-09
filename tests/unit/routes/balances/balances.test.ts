@@ -7,6 +7,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import errorHandlerPlugin from '@/src/plugins/error-handler.js';
 import balanceRoutes from '@/src/routes/balances/index.js';
+import { tokenBalanceQuerySchema } from '@/src/routes/balances/schemas.js';
 
 // Mock environment variables
 vi.stubEnv('STAGE', 'dev');
@@ -16,24 +17,22 @@ vi.stubEnv('COIN_GECKO_REQUEST_TIMEOUT', '5000');
 // Hoisted mock functions that can be used in vi.mock factories
 const {
   mockTokenBalanceFetcher,
-  mockGetNativeTokenMetadata,
-  mockFetchTokenMetadataBulk,
   mockGetNativeTokenUsdValue,
   mockFetchMetadata,
   mockGetAddress,
   mockUpdateAddressTokens,
   mockExplorerGetBalance,
   mockGetBalancesByChainAndAddress,
+  mockGetNativeBalance,
 } = vi.hoisted(() => ({
   mockTokenBalanceFetcher: vi.fn(),
-  mockGetNativeTokenMetadata: vi.fn(),
-  mockFetchTokenMetadataBulk: vi.fn(),
   mockGetNativeTokenUsdValue: vi.fn(),
   mockFetchMetadata: vi.fn(),
   mockGetAddress: vi.fn(),
   mockUpdateAddressTokens: vi.fn(),
   mockExplorerGetBalance: vi.fn(),
   mockGetBalancesByChainAndAddress: vi.fn(),
+  mockGetNativeBalance: vi.fn(),
 }));
 
 // Mock the balance services - using dynamic enum values
@@ -49,15 +48,10 @@ vi.mock('@/src/services/balances/index.js', () => ({
   },
 }));
 
-// Mock the metadata service
-vi.mock('@/src/services/balances/metadata/metadata.js', () => ({
-  getNativeTokenMetadata: (...args: unknown[]) => mockGetNativeTokenMetadata(...args),
-  fetchTokenMetadataBulk: (...args: unknown[]) => mockFetchTokenMetadataBulk(...args),
-}));
-
 // Mock CoinGecko service
 vi.mock('@/src/services/coingecko/index.js', () => ({
   fetchNativeTokenMetadata: (...args: unknown[]) => mockFetchMetadata(...args),
+  fetchNativeTokenMetadataByAlias: (...args: unknown[]) => mockFetchMetadata(...args),
   getNativeTokenUsdPrice: (...args: unknown[]) => mockGetNativeTokenUsdValue(...args),
   getTokenUsdPrice: vi.fn(),
   fetchTokenMetadata: vi.fn(),
@@ -72,6 +66,16 @@ vi.mock('@/src/services/addresses/index.js', () => ({
 // Mock error reporter
 vi.mock('@/src/lib/error-reporter.js', () => ({
   reportErrorToQueue: vi.fn(),
+}));
+
+// Mock @io-vault/chains package (new chains package used by handlers)
+vi.mock('@io-vault/chains', () => ({
+  getChainProvider: vi.fn().mockReturnValue({
+    getNativeBalance: mockGetNativeBalance,
+    config: {
+      nativeCurrency: { decimals: 18, name: 'Ethereum', symbol: 'ETH' },
+    },
+  }),
 }));
 
 // Mock Chain SDK
@@ -114,25 +118,6 @@ const TEST_ORG_ID = 'org-123';
 const TEST_USER_ID = 'user-123';
 const TEST_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 
-const mockTokenBalances = [
-  {
-    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    balance: '1000.00',
-    symbol: 'USDC',
-    decimals: 6,
-    name: 'USD Coin',
-    usdValue: '1000.00',
-  },
-  {
-    address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    balance: '500.00',
-    symbol: 'USDT',
-    decimals: 6,
-    name: 'Tether USD',
-    usdValue: '500.00',
-  },
-];
-
 async function createTestApp() {
   const app = Fastify().withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -164,10 +149,18 @@ async function createTestApp() {
 describe('Balance Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Set default mock implementations
+    // Set default mock implementations for legacy Chain SDK
     mockExplorerGetBalance.mockResolvedValue({
       nativeBalance: '1.5',
       nativeSymbol: 'ETH',
+    });
+    // Set default mock for new chains package
+    mockGetNativeBalance.mockResolvedValue({
+      isNative: true,
+      balance: '1500000000000000000',
+      formattedBalance: '1.5',
+      symbol: 'ETH',
+      decimals: 18,
     });
   });
 
@@ -175,18 +168,14 @@ describe('Balance Routes', () => {
     it('returns native balance for an address', async () => {
       const app = await createTestApp();
 
-      mockGetNativeTokenMetadata.mockResolvedValueOnce({
-        chain: 'eth',
-        PK: 'chain#eth',
-        SK: 'address#eth',
+      // Mock CoinGecko response format
+      mockFetchMetadata.mockResolvedValueOnce({
+        id: 'ethereum',
         name: 'Ethereum',
-        logoUrl: 'https://example.com/eth.png',
-        symbol: 'ETH',
-        updatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
+        symbol: 'eth',
+        image: { small: 'https://example.com/eth.png' },
+        market_data: { current_price: { usd: 3000 } },
       });
-
-      mockGetNativeTokenUsdValue.mockResolvedValueOnce('3000.00');
 
       const response = await app.inject({
         method: 'GET',
@@ -203,8 +192,8 @@ describe('Balance Routes', () => {
     it('returns native balance without metadata when metadata fetch fails', async () => {
       const app = await createTestApp();
 
-      mockGetNativeTokenMetadata.mockRejectedValueOnce(new Error('Metadata fetch failed'));
-      mockGetNativeTokenUsdValue.mockResolvedValueOnce('3000.00');
+      // CoinGecko returns null when metadata fetch fails
+      mockFetchMetadata.mockResolvedValueOnce(null);
 
       const response = await app.inject({
         method: 'GET',
@@ -372,6 +361,98 @@ describe('Balance Routes', () => {
       });
 
       expect(response.statusCode).toBe(400);
+    });
+  });
+});
+
+describe('tokenBalanceQuerySchema', () => {
+  describe('showSpam parameter', () => {
+    it('defaults to false when not provided', () => {
+      const result = tokenBalanceQuerySchema.parse({});
+      expect(result.showSpam).toBe(false);
+    });
+
+    it('accepts string "true" and transforms to boolean true', () => {
+      const result = tokenBalanceQuerySchema.parse({ showSpam: 'true' });
+      expect(result.showSpam).toBe(true);
+    });
+
+    it('accepts string "false" and transforms to boolean false', () => {
+      const result = tokenBalanceQuerySchema.parse({ showSpam: 'false' });
+      expect(result.showSpam).toBe(false);
+    });
+
+    it('accepts boolean true', () => {
+      const result = tokenBalanceQuerySchema.parse({ showSpam: true });
+      expect(result.showSpam).toBe(true);
+    });
+
+    it('accepts boolean false', () => {
+      const result = tokenBalanceQuerySchema.parse({ showSpam: false });
+      expect(result.showSpam).toBe(false);
+    });
+  });
+
+  describe('sortBy parameter', () => {
+    it('defaults to "usdValue" when not provided', () => {
+      const result = tokenBalanceQuerySchema.parse({});
+      expect(result.sortBy).toBe('usdValue');
+    });
+
+    it('accepts "balance"', () => {
+      const result = tokenBalanceQuerySchema.parse({ sortBy: 'balance' });
+      expect(result.sortBy).toBe('balance');
+    });
+
+    it('accepts "usdValue"', () => {
+      const result = tokenBalanceQuerySchema.parse({ sortBy: 'usdValue' });
+      expect(result.sortBy).toBe('usdValue');
+    });
+
+    it('accepts "symbol"', () => {
+      const result = tokenBalanceQuerySchema.parse({ sortBy: 'symbol' });
+      expect(result.sortBy).toBe('symbol');
+    });
+
+    it('rejects invalid sortBy values', () => {
+      expect(() => tokenBalanceQuerySchema.parse({ sortBy: 'invalid' })).toThrow();
+    });
+  });
+
+  describe('sortOrder parameter', () => {
+    it('defaults to "desc" when not provided', () => {
+      const result = tokenBalanceQuerySchema.parse({});
+      expect(result.sortOrder).toBe('desc');
+    });
+
+    it('accepts "asc"', () => {
+      const result = tokenBalanceQuerySchema.parse({ sortOrder: 'asc' });
+      expect(result.sortOrder).toBe('asc');
+    });
+
+    it('accepts "desc"', () => {
+      const result = tokenBalanceQuerySchema.parse({ sortOrder: 'desc' });
+      expect(result.sortOrder).toBe('desc');
+    });
+
+    it('rejects invalid sortOrder values', () => {
+      expect(() => tokenBalanceQuerySchema.parse({ sortOrder: 'invalid' })).toThrow();
+    });
+  });
+
+  describe('combined parameters', () => {
+    it('parses all parameters together', () => {
+      const result = tokenBalanceQuerySchema.parse({
+        showSpam: 'true',
+        sortBy: 'balance',
+        sortOrder: 'asc',
+        showHiddenTokens: 'true',
+      });
+
+      expect(result.showSpam).toBe(true);
+      expect(result.sortBy).toBe('balance');
+      expect(result.sortOrder).toBe('asc');
+      expect(result.showHiddenTokens).toBe(true);
     });
   });
 });
