@@ -5,6 +5,7 @@ import type {
   ReconciliationJob as ReconciliationJobRow,
   ReconciliationAuditLog as ReconciliationAuditLogRow,
 } from '@/src/lib/database/types.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 import type {
   ReconciliationJob,
   ReconciliationJobRepository,
@@ -114,7 +115,7 @@ export class PostgresReconciliationRepository implements ReconciliationJobReposi
     // Build base query with case-insensitive address matching
     const baseQuery = this.db
       .selectFrom('reconciliation_jobs')
-      .where(sql`LOWER(address)`, '=', address.toLowerCase())
+      .where(sql`LOWER(address)`, '=', WalletAddress.normalizeForComparison(address))
       .where('chain_alias', '=', chainAlias);
 
     // Execute data and count queries in parallel
@@ -266,7 +267,7 @@ export class PostgresReconciliationRepository implements ReconciliationJobReposi
     const result = await this.db
       .selectFrom('reconciliation_jobs')
       .selectAll()
-      .where(sql`LOWER(address)`, '=', address.toLowerCase())
+      .where(sql`LOWER(address)`, '=', WalletAddress.normalizeForComparison(address))
       .where('chain_alias', '=', chainAlias)
       .where((eb) =>
         eb.or([eb('status', '=', 'pending'), eb('status', '=', 'running')])
