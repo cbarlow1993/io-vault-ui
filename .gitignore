@@ -23,6 +23,7 @@
 .eslintcache
 .db
 tsconfig.tsbuildinfo
+.worktrees/
 
 # debug
 npm-debug.log*
