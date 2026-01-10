@@ -2,6 +2,7 @@ import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { type Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 import type { Database, TokenHolding as TokenHoldingRow } from '@/src/lib/database/types.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 import type { TokenHolding, CreateTokenHoldingInput, TokenHoldingRepository } from '@/src/repositories/types.js';
 
 /**
@@ -144,7 +145,7 @@ export class PostgresTokenHoldingRepository implements TokenHoldingRepository {
       .where('address_id', '=', addressId)
       .where((eb) =>
         tokenAddress
-          ? eb(sql`LOWER(token_address)`, '=', tokenAddress.toLowerCase())
+          ? eb(sql`LOWER(token_address)`, '=', TokenAddress.normalizeForComparison(tokenAddress))
           : eb('token_address', 'is', null)
       )
       .returningAll()
@@ -175,7 +176,7 @@ export class PostgresTokenHoldingRepository implements TokenHoldingRepository {
           .where('address_id', '=', addressId)
           .where((eb) =>
             tokenAddress
-              ? eb(sql`LOWER(token_address)`, '=', tokenAddress.toLowerCase())
+              ? eb(sql`LOWER(token_address)`, '=', TokenAddress.normalizeForComparison(tokenAddress))
               : eb('token_address', 'is', null)
           )
           .returningAll()
