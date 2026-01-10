@@ -17,6 +17,7 @@ import type {
   TokenTransferWithMetadata,
 } from '@/src/repositories/types.js';
 import { TransactionMapper, AddressMapper } from './mappers/index.js';
+import { TransactionHash, WalletAddress } from '@/src/domain/value-objects/index.js';
 
 /** Native token decimals (ETH, MATIC, etc. all use 18 decimals) */
 const NATIVE_TOKEN_DECIMALS = 18;
@@ -129,7 +130,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
       .selectFrom('transactions')
       .selectAll()
       .where('chain_alias', '=', chainAlias)
-      .where('tx_hash', '=', txHash.toLowerCase())
+      .where('tx_hash', '=', TransactionHash.normalizeForComparison(txHash))
       .executeTakeFirst();
 
     return result ? mapToTransactionWithDomain(result) : null;
