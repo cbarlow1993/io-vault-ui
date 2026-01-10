@@ -35,3 +35,18 @@ export const CHAINS = [
   'avalanche',
   'solana',
 ] as const;
+
+export type Chain = (typeof CHAINS)[number];
+
+export const CHAIN_LABELS: Record<Chain, string> = {
+  ethereum: 'Ethereum',
+  bitcoin: 'Bitcoin',
+  polygon: 'Polygon',
+  arbitrum: 'Arbitrum',
+  optimism: 'Optimism',
+  avalanche: 'Avalanche',
+  solana: 'Solana',
+};
+
+// Alias for STATUS_LABELS
+export const STATUS_LABELS = TRANSACTION_STATUS_LABELS;

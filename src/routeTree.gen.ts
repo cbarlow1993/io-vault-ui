@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as ManagerRouteRouteImport } from './routes/manager/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
 import { Route as AppRouteRouteImport } from './routes/app/route'
@@ -17,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppComplianceRouteRouteImport } from './routes/_app/compliance/route'
 import { Route as ManagerUsersIndexRouteImport } from './routes/manager/users/index'
 import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dashboard.index'
 import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
@@ -25,25 +27,38 @@ import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.inde
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
 import { Route as AppBooksIndexRouteImport } from './routes/app/books/index'
 import { Route as AppAccountIndexRouteImport } from './routes/app/account.index'
+import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 import { Route as ApiRestSplatRouteImport } from './routes/api/rest.$'
 import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
 import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as AppComplianceReportsRouteImport } from './routes/_app/compliance/reports'
+import { Route as AppComplianceAlertsRouteImport } from './routes/_app/compliance/alerts'
+import { Route as AppComplianceTransactionsRouteRouteImport } from './routes/_app/compliance/transactions/route'
+import { Route as AppComplianceAddressesRouteRouteImport } from './routes/_app/compliance/addresses/route'
 import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
 import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
 import { Route as ManagerBooksNewIndexRouteImport } from './routes/manager/books/new.index'
 import { Route as ManagerBooksIdIndexRouteImport } from './routes/manager/books/$id.index'
 import { Route as AppBooksIdIndexRouteImport } from './routes/app/books/$id.index'
+import { Route as AppComplianceTransactionsIndexRouteImport } from './routes/_app/compliance/transactions/index'
+import { Route as AppComplianceAddressesIndexRouteImport } from './routes/_app/compliance/addresses/index'
 import { Route as ApiOpenapiAuthSchemaRouteImport } from './routes/api/openapi/auth.schema'
 import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/app.schema'
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
+import { Route as AppComplianceTransactionsIdRouteImport } from './routes/_app/compliance/transactions/$id'
+import { Route as AppComplianceAddressesAddressRouteImport } from './routes/_app/compliance/addresses/$address'
 import { Route as ManagerUsersIdUpdateIndexRouteImport } from './routes/manager/users/$id.update.index'
 import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerRouteRoute = ManagerRouteRouteImport.update({
@@ -80,6 +95,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AppComplianceRouteRoute = AppComplianceRouteRouteImport.update({
+  id: '/compliance',
+  path: '/compliance',
+  getParentRoute: () => AppRoute,
 } as any)
 const ManagerUsersIndexRoute = ManagerUsersIndexRouteImport.update({
   id: '/users/',
@@ -121,6 +141,11 @@ const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
   path: '/account/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppComplianceIndexRoute = AppComplianceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppComplianceRouteRoute,
+} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
@@ -146,6 +171,28 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppComplianceReportsRoute = AppComplianceReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppComplianceRouteRoute,
+} as any)
+const AppComplianceAlertsRoute = AppComplianceAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AppComplianceRouteRoute,
+} as any)
+const AppComplianceTransactionsRouteRoute =
+  AppComplianceTransactionsRouteRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AppComplianceRouteRoute,
+  } as any)
+const AppComplianceAddressesRouteRoute =
+  AppComplianceAddressesRouteRouteImport.update({
+    id: '/addresses',
+    path: '/addresses',
+    getParentRoute: () => AppComplianceRouteRoute,
+  } as any)
 const ManagerUsersNewIndexRoute = ManagerUsersNewIndexRouteImport.update({
   id: '/users/new/',
   path: '/users/new/',
@@ -171,6 +218,18 @@ const AppBooksIdIndexRoute = AppBooksIdIndexRouteImport.update({
   path: '/books/$id/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppComplianceTransactionsIndexRoute =
+  AppComplianceTransactionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppComplianceTransactionsRouteRoute,
+  } as any)
+const AppComplianceAddressesIndexRoute =
+  AppComplianceAddressesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppComplianceAddressesRouteRoute,
+  } as any)
 const ApiOpenapiAuthSchemaRoute = ApiOpenapiAuthSchemaRouteImport.update({
   id: '/schema',
   path: '/schema',
@@ -186,6 +245,18 @@ const ApiDevEmailTemplateRoute = ApiDevEmailTemplateRouteImport.update({
   path: '/api/dev/email/$template',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppComplianceTransactionsIdRoute =
+  AppComplianceTransactionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AppComplianceTransactionsRouteRoute,
+  } as any)
+const AppComplianceAddressesAddressRoute =
+  AppComplianceAddressesAddressRouteImport.update({
+    id: '/$address',
+    path: '/$address',
+    getParentRoute: () => AppComplianceAddressesRouteRoute,
+  } as any)
 const ManagerUsersIdUpdateIndexRoute =
   ManagerUsersIdUpdateIndexRouteImport.update({
     id: '/users/$id/update/',
@@ -205,14 +276,20 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/compliance': typeof AppComplianceRouteRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
+  '/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
+  '/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/compliance/reports': typeof AppComplianceReportsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/compliance/': typeof AppComplianceIndexRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
@@ -221,9 +298,13 @@ export interface FileRoutesByFullPath {
   '/manager/books': typeof ManagerBooksIndexRoute
   '/manager/dashboard': typeof ManagerDashboardIndexRoute
   '/manager/users': typeof ManagerUsersIndexRoute
+  '/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
+  '/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
+  '/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
   '/app/books/$id': typeof AppBooksIdIndexRoute
   '/manager/books/$id': typeof ManagerBooksIdIndexRoute
   '/manager/books/new': typeof ManagerBooksNewIndexRoute
@@ -238,11 +319,14 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/login': typeof LoginIndexRoute
   '/manager': typeof ManagerIndexRoute
+  '/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/compliance/reports': typeof AppComplianceReportsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/compliance': typeof AppComplianceIndexRoute
   '/app/account': typeof AppAccountIndexRoute
   '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
@@ -251,9 +335,13 @@ export interface FileRoutesByTo {
   '/manager/books': typeof ManagerBooksIndexRoute
   '/manager/dashboard': typeof ManagerDashboardIndexRoute
   '/manager/users': typeof ManagerUsersIndexRoute
+  '/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
+  '/compliance/addresses': typeof AppComplianceAddressesIndexRoute
+  '/compliance/transactions': typeof AppComplianceTransactionsIndexRoute
   '/app/books/$id': typeof AppBooksIdIndexRoute
   '/manager/books/$id': typeof ManagerBooksIdIndexRoute
   '/manager/books/new': typeof ManagerBooksNewIndexRoute
@@ -268,15 +356,22 @@ export interface FileRoutesById {
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
+  '/_app': typeof AppRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/_app/compliance': typeof AppComplianceRouteRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
   '/manager/': typeof ManagerIndexRoute
+  '/_app/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
+  '/_app/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
+  '/_app/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/_app/compliance/reports': typeof AppComplianceReportsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/_app/compliance/': typeof AppComplianceIndexRoute
   '/app/account/': typeof AppAccountIndexRoute
   '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
@@ -285,9 +380,13 @@ export interface FileRoutesById {
   '/manager/books/': typeof ManagerBooksIndexRoute
   '/manager/dashboard/': typeof ManagerDashboardIndexRoute
   '/manager/users/': typeof ManagerUsersIndexRoute
+  '/_app/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/_app/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
+  '/_app/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
+  '/_app/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
   '/app/books/$id/': typeof AppBooksIdIndexRoute
   '/manager/books/$id/': typeof ManagerBooksIdIndexRoute
   '/manager/books/new/': typeof ManagerBooksNewIndexRoute
@@ -304,14 +403,20 @@ export interface FileRouteTypes {
     | '/login'
     | '/manager'
     | '/logout'
+    | '/compliance'
     | '/app/'
     | '/login/'
     | '/manager/'
+    | '/compliance/addresses'
+    | '/compliance/transactions'
+    | '/compliance/alerts'
+    | '/compliance/reports'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/compliance/'
     | '/app/account'
     | '/app/books'
     | '/login/error'
@@ -320,9 +425,13 @@ export interface FileRouteTypes {
     | '/manager/books'
     | '/manager/dashboard'
     | '/manager/users'
+    | '/compliance/addresses/$address'
+    | '/compliance/transactions/$id'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
+    | '/compliance/addresses/'
+    | '/compliance/transactions/'
     | '/app/books/$id'
     | '/manager/books/$id'
     | '/manager/books/new'
@@ -337,11 +446,14 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/manager'
+    | '/compliance/alerts'
+    | '/compliance/reports'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/compliance'
     | '/app/account'
     | '/app/books'
     | '/login/error'
@@ -350,9 +462,13 @@ export interface FileRouteTypes {
     | '/manager/books'
     | '/manager/dashboard'
     | '/manager/users'
+    | '/compliance/addresses/$address'
+    | '/compliance/transactions/$id'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
+    | '/compliance/addresses'
+    | '/compliance/transactions'
     | '/app/books/$id'
     | '/manager/books/$id'
     | '/manager/books/new'
@@ -366,15 +482,22 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/manager'
+    | '/_app'
     | '/logout'
+    | '/_app/compliance'
     | '/app/'
     | '/login/'
     | '/manager/'
+    | '/_app/compliance/addresses'
+    | '/_app/compliance/transactions'
+    | '/_app/compliance/alerts'
+    | '/_app/compliance/reports'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/_app/compliance/'
     | '/app/account/'
     | '/app/books/'
     | '/login/error/'
@@ -383,9 +506,13 @@ export interface FileRouteTypes {
     | '/manager/books/'
     | '/manager/dashboard/'
     | '/manager/users/'
+    | '/_app/compliance/addresses/$address'
+    | '/_app/compliance/transactions/$id'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
+    | '/_app/compliance/addresses/'
+    | '/_app/compliance/transactions/'
     | '/app/books/$id/'
     | '/manager/books/$id/'
     | '/manager/books/new/'
@@ -400,6 +527,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
   ManagerRouteRoute: typeof ManagerRouteRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
   LogoutRoute: typeof LogoutRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOpenapiAppRoute: typeof ApiOpenapiAppRouteWithChildren
@@ -416,6 +544,13 @@ declare module '@tanstack/react-router' {
       path: '/logout'
       fullPath: '/logout'
       preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager': {
@@ -466,6 +601,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_app/compliance': {
+      id: '/_app/compliance'
+      path: '/compliance'
+      fullPath: '/compliance'
+      preLoaderRoute: typeof AppComplianceRouteRouteImport
+      parentRoute: typeof AppRoute
     }
     '/manager/users/': {
       id: '/manager/users/'
@@ -523,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/compliance/': {
+      id: '/_app/compliance/'
+      path: '/'
+      fullPath: '/compliance/'
+      preLoaderRoute: typeof AppComplianceIndexRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
@@ -557,6 +706,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/compliance/reports': {
+      id: '/_app/compliance/reports'
+      path: '/reports'
+      fullPath: '/compliance/reports'
+      preLoaderRoute: typeof AppComplianceReportsRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
+    '/_app/compliance/alerts': {
+      id: '/_app/compliance/alerts'
+      path: '/alerts'
+      fullPath: '/compliance/alerts'
+      preLoaderRoute: typeof AppComplianceAlertsRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
+    '/_app/compliance/transactions': {
+      id: '/_app/compliance/transactions'
+      path: '/transactions'
+      fullPath: '/compliance/transactions'
+      preLoaderRoute: typeof AppComplianceTransactionsRouteRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
+    '/_app/compliance/addresses': {
+      id: '/_app/compliance/addresses'
+      path: '/addresses'
+      fullPath: '/compliance/addresses'
+      preLoaderRoute: typeof AppComplianceAddressesRouteRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
     }
     '/manager/users/new/': {
       id: '/manager/users/new/'
@@ -593,6 +770,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBooksIdIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/compliance/transactions/': {
+      id: '/_app/compliance/transactions/'
+      path: '/'
+      fullPath: '/compliance/transactions/'
+      preLoaderRoute: typeof AppComplianceTransactionsIndexRouteImport
+      parentRoute: typeof AppComplianceTransactionsRouteRoute
+    }
+    '/_app/compliance/addresses/': {
+      id: '/_app/compliance/addresses/'
+      path: '/'
+      fullPath: '/compliance/addresses/'
+      preLoaderRoute: typeof AppComplianceAddressesIndexRouteImport
+      parentRoute: typeof AppComplianceAddressesRouteRoute
+    }
     '/api/openapi/auth/schema': {
       id: '/api/openapi/auth/schema'
       path: '/schema'
@@ -613,6 +804,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/dev/email/$template'
       preLoaderRoute: typeof ApiDevEmailTemplateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/compliance/transactions/$id': {
+      id: '/_app/compliance/transactions/$id'
+      path: '/$id'
+      fullPath: '/compliance/transactions/$id'
+      preLoaderRoute: typeof AppComplianceTransactionsIdRouteImport
+      parentRoute: typeof AppComplianceTransactionsRouteRoute
+    }
+    '/_app/compliance/addresses/$address': {
+      id: '/_app/compliance/addresses/$address'
+      path: '/$address'
+      fullPath: '/compliance/addresses/$address'
+      preLoaderRoute: typeof AppComplianceAddressesAddressRouteImport
+      parentRoute: typeof AppComplianceAddressesRouteRoute
     }
     '/manager/users/$id/update/': {
       id: '/manager/users/$id/update/'
@@ -697,6 +902,69 @@ const ManagerRouteRouteWithChildren = ManagerRouteRoute._addFileChildren(
   ManagerRouteRouteChildren,
 )
 
+interface AppComplianceAddressesRouteRouteChildren {
+  AppComplianceAddressesAddressRoute: typeof AppComplianceAddressesAddressRoute
+  AppComplianceAddressesIndexRoute: typeof AppComplianceAddressesIndexRoute
+}
+
+const AppComplianceAddressesRouteRouteChildren: AppComplianceAddressesRouteRouteChildren =
+  {
+    AppComplianceAddressesAddressRoute: AppComplianceAddressesAddressRoute,
+    AppComplianceAddressesIndexRoute: AppComplianceAddressesIndexRoute,
+  }
+
+const AppComplianceAddressesRouteRouteWithChildren =
+  AppComplianceAddressesRouteRoute._addFileChildren(
+    AppComplianceAddressesRouteRouteChildren,
+  )
+
+interface AppComplianceTransactionsRouteRouteChildren {
+  AppComplianceTransactionsIdRoute: typeof AppComplianceTransactionsIdRoute
+  AppComplianceTransactionsIndexRoute: typeof AppComplianceTransactionsIndexRoute
+}
+
+const AppComplianceTransactionsRouteRouteChildren: AppComplianceTransactionsRouteRouteChildren =
+  {
+    AppComplianceTransactionsIdRoute: AppComplianceTransactionsIdRoute,
+    AppComplianceTransactionsIndexRoute: AppComplianceTransactionsIndexRoute,
+  }
+
+const AppComplianceTransactionsRouteRouteWithChildren =
+  AppComplianceTransactionsRouteRoute._addFileChildren(
+    AppComplianceTransactionsRouteRouteChildren,
+  )
+
+interface AppComplianceRouteRouteChildren {
+  AppComplianceAddressesRouteRoute: typeof AppComplianceAddressesRouteRouteWithChildren
+  AppComplianceTransactionsRouteRoute: typeof AppComplianceTransactionsRouteRouteWithChildren
+  AppComplianceAlertsRoute: typeof AppComplianceAlertsRoute
+  AppComplianceReportsRoute: typeof AppComplianceReportsRoute
+  AppComplianceIndexRoute: typeof AppComplianceIndexRoute
+}
+
+const AppComplianceRouteRouteChildren: AppComplianceRouteRouteChildren = {
+  AppComplianceAddressesRouteRoute:
+    AppComplianceAddressesRouteRouteWithChildren,
+  AppComplianceTransactionsRouteRoute:
+    AppComplianceTransactionsRouteRouteWithChildren,
+  AppComplianceAlertsRoute: AppComplianceAlertsRoute,
+  AppComplianceReportsRoute: AppComplianceReportsRoute,
+  AppComplianceIndexRoute: AppComplianceIndexRoute,
+}
+
+const AppComplianceRouteRouteWithChildren =
+  AppComplianceRouteRoute._addFileChildren(AppComplianceRouteRouteChildren)
+
+interface AppRouteChildren {
+  AppComplianceRouteRoute: typeof AppComplianceRouteRouteWithChildren
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppComplianceRouteRoute: AppComplianceRouteRouteWithChildren,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 interface ApiOpenapiAppRouteChildren {
   ApiOpenapiAppSchemaRoute: typeof ApiOpenapiAppSchemaRoute
 }
@@ -726,6 +994,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   LoginRouteRoute: LoginRouteRouteWithChildren,
   ManagerRouteRoute: ManagerRouteRouteWithChildren,
+  AppRoute: AppRouteWithChildren,
   LogoutRoute: LogoutRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOpenapiAppRoute: ApiOpenapiAppRouteWithChildren,
