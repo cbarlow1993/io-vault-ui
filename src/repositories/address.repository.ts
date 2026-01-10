@@ -1,6 +1,7 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { type Kysely, sql } from 'kysely';
 import type { Address, AddressToken, Database } from '@/src/lib/database/types.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 import type {
   AddressRepository,
   AddressWithDomain,
@@ -72,7 +73,7 @@ export class PostgresAddressRepository implements AddressRepository {
     const result = await this.db
       .selectFrom('addresses')
       .selectAll()
-      .where(sql`LOWER(address)`, '=', address.toLowerCase())
+      .where(sql`LOWER(address)`, '=', WalletAddress.normalizeForComparison(address))
       .where('chain_alias', '=', chainAlias)
       .executeTakeFirst();
 
