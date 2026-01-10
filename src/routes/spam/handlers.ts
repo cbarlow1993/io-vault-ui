@@ -13,6 +13,7 @@ import type {
   BulkSpamOverrideParams,
   BulkSpamOverrideBody,
 } from '@/src/routes/spam/schemas.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 
 // ==================== Helper Functions ====================
 
@@ -49,7 +50,8 @@ const NATIVE_TOKEN_IDENTIFIER = 'native';
  * Returns null for native token, otherwise lowercases the address.
  */
 function normalizeTokenAddress(tokenAddress: string): string | null {
-  return tokenAddress.toLowerCase() === NATIVE_TOKEN_IDENTIFIER ? null : tokenAddress.toLowerCase();
+  const normalized = TokenAddress.normalizeForComparison(tokenAddress);
+  return normalized === NATIVE_TOKEN_IDENTIFIER ? null : normalized;
 }
 
 /**
