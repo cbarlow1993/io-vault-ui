@@ -1,6 +1,7 @@
 import type { Kysely } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 import type { Database, TokenPrice as TokenPriceRow } from '@/src/lib/database/types.js';
+import { TokenPrice as TokenPriceVO } from '@/src/domain/value-objects/index.js';
 import type { TokenPrice, CreateTokenPriceInput, TokenPriceRepository } from '@/src/repositories/types.js';
 
 /**
@@ -28,7 +29,7 @@ export class PostgresTokenPriceRepository implements TokenPriceRepository {
       .selectFrom('token_prices')
       .selectAll()
       .where('coingecko_id', '=', coingeckoId)
-      .where('currency', '=', currency.toLowerCase())
+      .where('currency', '=', TokenPriceVO.normalizeCurrency(currency))
       .executeTakeFirst();
 
     return result ? mapToTokenPrice(result) : null;
@@ -43,7 +44,7 @@ export class PostgresTokenPriceRepository implements TokenPriceRepository {
       .selectFrom('token_prices')
       .selectAll()
       .where('coingecko_id', 'in', coingeckoIds)
-      .where('currency', '=', currency.toLowerCase())
+      .where('currency', '=', TokenPriceVO.normalizeCurrency(currency))
       .execute();
 
     return results.map(mapToTokenPrice);
@@ -65,7 +66,7 @@ export class PostgresTokenPriceRepository implements TokenPriceRepository {
       .selectFrom('token_prices')
       .selectAll()
       .where('coingecko_id', 'in', coingeckoIds)
-      .where('currency', '=', currency.toLowerCase())
+      .where('currency', '=', TokenPriceVO.normalizeCurrency(currency))
       .where('fetched_at', '>', cutoffTime)
       .execute();
 
@@ -82,7 +83,7 @@ export class PostgresTokenPriceRepository implements TokenPriceRepository {
     const values = inputs.map((input) => ({
       id: uuidv4(),
       coingecko_id: input.coingeckoId,
-      currency: input.currency.toLowerCase(),
+      currency: TokenPriceVO.normalizeCurrency(input.currency),
       price: input.price,
       price_change_24h: input.priceChange24h ?? null,
       market_cap: input.marketCap ?? null,
