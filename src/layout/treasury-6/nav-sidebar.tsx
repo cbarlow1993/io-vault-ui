@@ -8,6 +8,7 @@ import {
   KeyIcon,
   ListChecksIcon,
   SettingsIcon,
+  ShieldAlertIcon,
   ShieldCheckIcon,
   UsersIcon,
 } from 'lucide-react';
@@ -82,6 +83,7 @@ const navItems: NavItem[] = [
   },
   { title: 'Identities', icon: UsersIcon, url: '/identities' },
   { title: 'Address Book', icon: BookUserIcon, url: '/address-book' },
+  { title: 'Compliance', icon: ShieldAlertIcon, url: '/compliance' },
   { title: 'Settings', icon: SettingsIcon, url: '/settings' },
 ];
 
@@ -123,7 +125,7 @@ const NavMenu = () => {
 
   // Check if nav item is active - use startsWith for items with sub-pages
   const isNavItemActive = (itemUrl: string) => {
-    // For items with sub-pages (settings, identities, vaults, signers, address-book, policies)
+    // For items with sub-pages (settings, identities, vaults, signers, address-book, policies, compliance)
     if (
       itemUrl === '/settings' ||
       itemUrl === '/identities' ||
@@ -131,7 +133,8 @@ const NavMenu = () => {
       itemUrl === '/signers' ||
       itemUrl === '/address-book' ||
       itemUrl === '/policies/whitelists' ||
-      itemUrl === '/policies/transactions'
+      itemUrl === '/policies/transactions' ||
+      itemUrl === '/compliance'
     ) {
       return pathname.startsWith(itemUrl);
     }
