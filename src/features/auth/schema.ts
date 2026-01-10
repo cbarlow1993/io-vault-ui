@@ -39,3 +39,16 @@ export const zFormFieldsOnboarding = () =>
   z.object({
     name: zu.fieldText.required(),
   });
+
+export type FormFieldsSignUpOrganization = z.infer<
+  ReturnType<typeof zFormFieldsSignUpOrganization>
+>;
+export const zFormFieldsSignUpOrganization = () =>
+  z.object({
+    organizationName: z
+      .string({
+        error: t('auth:common.organization.required'),
+      })
+      .min(2, t('auth:common.organization.minLength'))
+      .max(100, t('auth:common.organization.maxLength')),
+  });

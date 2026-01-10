@@ -5,11 +5,78 @@
 
 @theme {
   --font-sans:
-    'Inter Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-display:
+    'DM Sans Variable', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-terminal:
+    'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono:
+    'IBM Plex Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo,
+    Consolas, 'DejaVu Sans Mono', monospace;
+  --font-serif:
+    'Source Serif 4 Variable', 'Source Serif 4', Georgia, 'Times New Roman',
+    serif;
+  --font-geometric:
+    'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-inter:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --color-*: initial;
   --color-white: #fff;
   --color-black: #000;
+
+  /* Brand Blue - #0d47a1 as base (500) */
+  --color-brand-50: oklch(0.97 0.02 255);
+  --color-brand-100: oklch(0.93 0.045 258);
+  --color-brand-200: oklch(0.85 0.09 260);
+  --color-brand-300: oklch(0.72 0.12 261);
+  --color-brand-400: oklch(0.55 0.14 261);
+  --color-brand-500: oklch(0.369 0.144 260.2); /* #0d47a1 */
+  --color-brand-600: oklch(0.32 0.13 260);
+  --color-brand-700: oklch(0.27 0.11 260);
+  --color-brand-800: oklch(0.22 0.09 260);
+  --color-brand-900: oklch(0.18 0.07 260);
+  --color-brand-950: oklch(0.14 0.05 260);
+
+  /* Terminal Cyan - data/trading accent */
+  --color-terminal-50: oklch(0.97 0.04 195);
+  --color-terminal-100: oklch(0.93 0.08 195);
+  --color-terminal-200: oklch(0.85 0.12 195);
+  --color-terminal-300: oklch(0.75 0.14 195);
+  --color-terminal-400: oklch(0.65 0.15 195);
+  --color-terminal-500: oklch(0.55 0.14 195);
+  --color-terminal-600: oklch(0.45 0.12 195);
+  --color-terminal-700: oklch(0.35 0.10 195);
+  --color-terminal-800: oklch(0.25 0.08 195);
+  --color-terminal-900: oklch(0.18 0.06 195);
+  --color-terminal-950: oklch(0.12 0.04 195);
+
+  /* Gold/Amber - premium banking accent */
+  --color-gold-50: oklch(0.98 0.02 85);
+  --color-gold-100: oklch(0.95 0.05 85);
+  --color-gold-200: oklch(0.90 0.10 80);
+  --color-gold-300: oklch(0.82 0.14 75);
+  --color-gold-400: oklch(0.75 0.16 70);
+  --color-gold-500: oklch(0.68 0.15 65);
+  --color-gold-600: oklch(0.58 0.13 60);
+  --color-gold-700: oklch(0.48 0.11 55);
+  --color-gold-800: oklch(0.38 0.08 50);
+  --color-gold-900: oklch(0.28 0.05 45);
+  --color-gold-950: oklch(0.18 0.03 40);
+
+  /* Indigo/Purple - modern fintech accent */
+  --color-indigo-50: oklch(0.97 0.02 280);
+  --color-indigo-100: oklch(0.93 0.05 275);
+  --color-indigo-200: oklch(0.87 0.10 270);
+  --color-indigo-300: oklch(0.76 0.15 268);
+  --color-indigo-400: oklch(0.64 0.20 265);
+  --color-indigo-500: oklch(0.53 0.22 262);
+  --color-indigo-600: oklch(0.45 0.20 260);
+  --color-indigo-700: oklch(0.38 0.17 258);
+  --color-indigo-800: oklch(0.30 0.13 255);
+  --color-indigo-900: oklch(0.24 0.09 252);
+  --color-indigo-950: oklch(0.16 0.05 250);
 
   --color-neutral-50: oklch(0.985 0 0);
   --color-neutral-100: oklch(0.967 0.001 286.375);

@@ -2,7 +2,15 @@ import { ThemeProvider } from 'next-themes';
 import type { ReactNode } from 'react';
 import '@/lib/dayjs/config';
 import '@/lib/i18n';
+import '@fontsource-variable/dm-sans';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/outfit';
+import '@fontsource-variable/source-serif-4';
+import '@fontsource-variable/space-grotesk';
+
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
 
 import { QueryClientProvider } from '@/lib/tanstack-query/provider';
 

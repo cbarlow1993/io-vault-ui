@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16.1
+    image: postgres:18.1
     env_file:
       - .env
     ports:

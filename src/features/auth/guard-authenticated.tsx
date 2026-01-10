@@ -5,7 +5,6 @@ import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
 import { authClient } from '@/features/auth/client';
-import { PageOnboarding } from '@/features/auth/page-onboarding';
 import { Permission, Role } from '@/features/auth/permissions';
 
 export const GuardAuthenticated = ({
@@ -37,10 +36,8 @@ export const GuardAuthenticated = ({
     return null;
   }
 
-  // Check if onboarding is done
-  if (!session.data.user.onboardedAt) {
-    return <PageOnboarding />;
-  }
+  // Note: Onboarding is now handled via the onboarding checklist on /overview
+  // Users can access the app even if not fully onboarded
 
   // Unauthorized if the user permission do not match
   if (

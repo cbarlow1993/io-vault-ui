@@ -10,45 +10,87 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LogoutRouteImport } from './routes/logout'
-import { Route as ManagerRouteRouteImport } from './routes/manager/route'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as SignUpRouteRouteImport } from './routes/sign-up/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
-import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ManagerIndexRouteImport } from './routes/manager/index'
+import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
-import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as ManagerUsersIndexRouteImport } from './routes/manager/users/index'
-import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dashboard.index'
-import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
-import { Route as ManagerAccountIndexRouteImport } from './routes/manager/account.index'
+import { Route as AppOverviewRouteImport } from './routes/_app/overview'
+import { Route as AppVaultsRouteRouteImport } from './routes/_app/vaults/route'
+import { Route as AppSignersRouteRouteImport } from './routes/_app/signers/route'
+import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
+import { Route as AppPoliciesRouteRouteImport } from './routes/_app/policies/route'
+import { Route as AppOperationsRouteRouteImport } from './routes/_app/operations/route'
+import { Route as AppIdentitiesRouteRouteImport } from './routes/_app/identities/route'
+import { Route as AppAddressBookRouteRouteImport } from './routes/_app/address-book/route'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
-import { Route as AppBooksIndexRouteImport } from './routes/app/books/index'
-import { Route as AppAccountIndexRouteImport } from './routes/app/account.index'
+import { Route as AppVaultsIndexRouteImport } from './routes/_app/vaults/index'
+import { Route as AppSignersIndexRouteImport } from './routes/_app/signers/index'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
+import { Route as AppIdentitiesIndexRouteImport } from './routes/_app/identities/index'
+import { Route as AppAddressBookIndexRouteImport } from './routes/_app/address-book/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 import { Route as ApiRestSplatRouteImport } from './routes/api/rest.$'
 import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
 import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
-import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
-import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
-import { Route as ManagerBooksNewIndexRouteImport } from './routes/manager/books/new.index'
-import { Route as ManagerBooksIdIndexRouteImport } from './routes/manager/books/$id.index'
-import { Route as AppBooksIdIndexRouteImport } from './routes/app/books/$id.index'
+import { Route as AppVaultsNewRouteImport } from './routes/_app/vaults/new'
+import { Route as AppSignersNewRouteImport } from './routes/_app/signers/new'
+import { Route as AppSettingsWorkspacesRouteImport } from './routes/_app/settings/workspaces'
+import { Route as AppSettingsRolesRouteImport } from './routes/_app/settings/roles'
+import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
+import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
+import { Route as AppSettingsBackupsRouteImport } from './routes/_app/settings/backups'
+import { Route as AppSettingsAuditRouteImport } from './routes/_app/settings/audit'
+import { Route as AppIdentitiesNewRouteImport } from './routes/_app/identities/new'
+import { Route as AppVaultsVaultIdRouteRouteImport } from './routes/_app/vaults/$vaultId/route'
+import { Route as AppSignersSignerIdRouteRouteImport } from './routes/_app/signers/$signerId/route'
+import { Route as AppSettingsTeamsRouteRouteImport } from './routes/_app/settings/teams/route'
+import { Route as AppPoliciesWhitelistsRouteRouteImport } from './routes/_app/policies/whitelists/route'
+import { Route as AppPoliciesTransactionsRouteRouteImport } from './routes/_app/policies/transactions/route'
+import { Route as AppOperationsOperationIdRouteRouteImport } from './routes/_app/operations/$operationId/route'
+import { Route as AppIdentitiesIdentityIdRouteRouteImport } from './routes/_app/identities/$identityId/route'
+import { Route as AppVaultsVaultIdIndexRouteImport } from './routes/_app/vaults/$vaultId/index'
+import { Route as AppSignersSignerIdIndexRouteImport } from './routes/_app/signers/$signerId/index'
+import { Route as AppSettingsTeamsIndexRouteImport } from './routes/_app/settings/teams/index'
+import { Route as AppSettingsGovernanceIndexRouteImport } from './routes/_app/settings/governance/index'
+import { Route as AppPoliciesWhitelistsIndexRouteImport } from './routes/_app/policies/whitelists/index'
+import { Route as AppPoliciesTransactionsIndexRouteImport } from './routes/_app/policies/transactions/index'
+import { Route as AppIdentitiesIdentityIdIndexRouteImport } from './routes/_app/identities/$identityId/index'
 import { Route as ApiOpenapiAuthSchemaRouteImport } from './routes/api/openapi/auth.schema'
 import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/app.schema'
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
-import { Route as ManagerUsersIdUpdateIndexRouteImport } from './routes/manager/users/$id.update.index'
-import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
+import { Route as AppVaultsVaultIdEditRouteImport } from './routes/_app/vaults/$vaultId/edit'
+import { Route as AppSettingsTeamsTeamIdRouteImport } from './routes/_app/settings/teams/$teamId'
+import { Route as AppSettingsGovernancePendingRouteImport } from './routes/_app/settings/governance/pending'
+import { Route as AppPoliciesWhitelistsNewRouteImport } from './routes/_app/policies/whitelists/new'
+import { Route as AppIdentitiesIdentityIdEditRouteImport } from './routes/_app/identities/$identityId/edit'
+import { Route as AppVaultsVaultIdAddressesRouteRouteImport } from './routes/_app/vaults/$vaultId/addresses/route'
+import { Route as AppPoliciesWhitelistsWhitelistIdRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/route'
+import { Route as AppVaultsVaultIdAddressesIndexRouteImport } from './routes/_app/vaults/$vaultId/addresses/index'
+import { Route as AppPoliciesWhitelistsWhitelistIdIndexRouteImport } from './routes/_app/policies/whitelists/$whitelistId/index'
+import { Route as AppVaultsVaultIdAddressesNewRouteImport } from './routes/_app/vaults/$vaultId/addresses/new'
+import { Route as AppPoliciesWhitelistsWhitelistIdEditRouteImport } from './routes/_app/policies/whitelists/$whitelistId/edit'
+import { Route as AppVaultsVaultIdAddressesAddressIdRouteRouteImport } from './routes/_app/vaults/$vaultId/addresses/$addressId/route'
+import { Route as AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/route'
+import { Route as AppVaultsVaultIdAddressesAddressIdIndexRouteImport } from './routes/_app/vaults/$vaultId/addresses/$addressId/index'
+import { Route as AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/$versionNumber/route'
+import { Route as AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/$versionNumber/index'
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerRouteRoute = ManagerRouteRouteImport.update({
-  id: '/manager',
-  path: '/manager',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRouteRoute = SignUpRouteRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRouteRoute = LoginRouteRouteImport.update({
@@ -56,50 +98,60 @@ const LoginRouteRoute = LoginRouteRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerIndexRoute = ManagerIndexRouteImport.update({
+const SignUpIndexRoute = SignUpIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ManagerRouteRoute,
+  getParentRoute: () => SignUpRouteRoute,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRouteRoute,
+const AppOverviewRoute = AppOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppRoute,
 } as any)
-const ManagerUsersIndexRoute = ManagerUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppVaultsRouteRoute = AppVaultsRouteRouteImport.update({
+  id: '/vaults',
+  path: '/vaults',
+  getParentRoute: () => AppRoute,
 } as any)
-const ManagerDashboardIndexRoute = ManagerDashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppSignersRouteRoute = AppSignersRouteRouteImport.update({
+  id: '/signers',
+  path: '/signers',
+  getParentRoute: () => AppRoute,
 } as any)
-const ManagerBooksIndexRoute = ManagerBooksIndexRouteImport.update({
-  id: '/books/',
-  path: '/books/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
 } as any)
-const ManagerAccountIndexRoute = ManagerAccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppPoliciesRouteRoute = AppPoliciesRouteRouteImport.update({
+  id: '/policies',
+  path: '/policies',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOperationsRouteRoute = AppOperationsRouteRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIdentitiesRouteRoute = AppIdentitiesRouteRouteImport.update({
+  id: '/identities',
+  path: '/identities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAddressBookRouteRoute = AppAddressBookRouteRouteImport.update({
+  id: '/address-book',
+  path: '/address-book',
+  getParentRoute: () => AppRoute,
 } as any)
 const LoginVerifyIndexRoute = LoginVerifyIndexRouteImport.update({
   id: '/verify/',
@@ -111,15 +163,30 @@ const LoginErrorIndexRoute = LoginErrorIndexRouteImport.update({
   path: '/error/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
-const AppBooksIndexRoute = AppBooksIndexRouteImport.update({
-  id: '/books/',
-  path: '/books/',
-  getParentRoute: () => AppRouteRoute,
+const AppVaultsIndexRoute = AppVaultsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppVaultsRouteRoute,
 } as any)
-const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => AppRouteRoute,
+const AppSignersIndexRoute = AppSignersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSignersRouteRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppIdentitiesIndexRoute = AppIdentitiesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppIdentitiesRouteRoute,
+} as any)
+const AppAddressBookIndexRoute = AppAddressBookIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAddressBookRouteRoute,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -146,31 +213,129 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerUsersNewIndexRoute = ManagerUsersNewIndexRouteImport.update({
-  id: '/users/new/',
-  path: '/users/new/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppVaultsNewRoute = AppVaultsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppVaultsRouteRoute,
 } as any)
-const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
-  id: '/users/$id/',
-  path: '/users/$id/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppSignersNewRoute = AppSignersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppSignersRouteRoute,
 } as any)
-const ManagerBooksNewIndexRoute = ManagerBooksNewIndexRouteImport.update({
-  id: '/books/new/',
-  path: '/books/new/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppSettingsWorkspacesRoute = AppSettingsWorkspacesRouteImport.update({
+  id: '/workspaces',
+  path: '/workspaces',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const ManagerBooksIdIndexRoute = ManagerBooksIdIndexRouteImport.update({
-  id: '/books/$id/',
-  path: '/books/$id/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppSettingsRolesRoute = AppSettingsRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const AppBooksIdIndexRoute = AppBooksIdIndexRouteImport.update({
-  id: '/books/$id/',
-  path: '/books/$id/',
-  getParentRoute: () => AppRouteRoute,
+const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
+const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsBackupsRoute = AppSettingsBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsAuditRoute = AppSettingsAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppIdentitiesNewRoute = AppIdentitiesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppIdentitiesRouteRoute,
+} as any)
+const AppVaultsVaultIdRouteRoute = AppVaultsVaultIdRouteRouteImport.update({
+  id: '/$vaultId',
+  path: '/$vaultId',
+  getParentRoute: () => AppVaultsRouteRoute,
+} as any)
+const AppSignersSignerIdRouteRoute = AppSignersSignerIdRouteRouteImport.update({
+  id: '/$signerId',
+  path: '/$signerId',
+  getParentRoute: () => AppSignersRouteRoute,
+} as any)
+const AppSettingsTeamsRouteRoute = AppSettingsTeamsRouteRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppPoliciesWhitelistsRouteRoute =
+  AppPoliciesWhitelistsRouteRouteImport.update({
+    id: '/whitelists',
+    path: '/whitelists',
+    getParentRoute: () => AppPoliciesRouteRoute,
+  } as any)
+const AppPoliciesTransactionsRouteRoute =
+  AppPoliciesTransactionsRouteRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AppPoliciesRouteRoute,
+  } as any)
+const AppOperationsOperationIdRouteRoute =
+  AppOperationsOperationIdRouteRouteImport.update({
+    id: '/$operationId',
+    path: '/$operationId',
+    getParentRoute: () => AppOperationsRouteRoute,
+  } as any)
+const AppIdentitiesIdentityIdRouteRoute =
+  AppIdentitiesIdentityIdRouteRouteImport.update({
+    id: '/$identityId',
+    path: '/$identityId',
+    getParentRoute: () => AppIdentitiesRouteRoute,
+  } as any)
+const AppVaultsVaultIdIndexRoute = AppVaultsVaultIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppVaultsVaultIdRouteRoute,
+} as any)
+const AppSignersSignerIdIndexRoute = AppSignersSignerIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSignersSignerIdRouteRoute,
+} as any)
+const AppSettingsTeamsIndexRoute = AppSettingsTeamsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsTeamsRouteRoute,
+} as any)
+const AppSettingsGovernanceIndexRoute =
+  AppSettingsGovernanceIndexRouteImport.update({
+    id: '/governance/',
+    path: '/governance/',
+    getParentRoute: () => AppSettingsRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsIndexRoute =
+  AppPoliciesWhitelistsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
+  } as any)
+const AppPoliciesTransactionsIndexRoute =
+  AppPoliciesTransactionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppPoliciesTransactionsRouteRoute,
+  } as any)
+const AppIdentitiesIdentityIdIndexRoute =
+  AppIdentitiesIdentityIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppIdentitiesIdentityIdRouteRoute,
+  } as any)
 const ApiOpenapiAuthSchemaRoute = ApiOpenapiAuthSchemaRouteImport.update({
   id: '/schema',
   path: '/schema',
@@ -186,220 +351,499 @@ const ApiDevEmailTemplateRoute = ApiDevEmailTemplateRouteImport.update({
   path: '/api/dev/email/$template',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerUsersIdUpdateIndexRoute =
-  ManagerUsersIdUpdateIndexRouteImport.update({
-    id: '/users/$id/update/',
-    path: '/users/$id/update/',
-    getParentRoute: () => ManagerRouteRoute,
+const AppVaultsVaultIdEditRoute = AppVaultsVaultIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => AppVaultsVaultIdRouteRoute,
+} as any)
+const AppSettingsTeamsTeamIdRoute = AppSettingsTeamsTeamIdRouteImport.update({
+  id: '/$teamId',
+  path: '/$teamId',
+  getParentRoute: () => AppSettingsTeamsRouteRoute,
+} as any)
+const AppSettingsGovernancePendingRoute =
+  AppSettingsGovernancePendingRouteImport.update({
+    id: '/governance/pending',
+    path: '/governance/pending',
+    getParentRoute: () => AppSettingsRouteRoute,
   } as any)
-const ManagerBooksIdUpdateIndexRoute =
-  ManagerBooksIdUpdateIndexRouteImport.update({
-    id: '/books/$id/update/',
-    path: '/books/$id/update/',
-    getParentRoute: () => ManagerRouteRoute,
+const AppPoliciesWhitelistsNewRoute =
+  AppPoliciesWhitelistsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
+  } as any)
+const AppIdentitiesIdentityIdEditRoute =
+  AppIdentitiesIdentityIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppIdentitiesIdentityIdRouteRoute,
+  } as any)
+const AppVaultsVaultIdAddressesRouteRoute =
+  AppVaultsVaultIdAddressesRouteRouteImport.update({
+    id: '/addresses',
+    path: '/addresses',
+    getParentRoute: () => AppVaultsVaultIdRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdRouteRoute =
+  AppPoliciesWhitelistsWhitelistIdRouteRouteImport.update({
+    id: '/$whitelistId',
+    path: '/$whitelistId',
+    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
+  } as any)
+const AppVaultsVaultIdAddressesIndexRoute =
+  AppVaultsVaultIdAddressesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdIndexRoute =
+  AppPoliciesWhitelistsWhitelistIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+  } as any)
+const AppVaultsVaultIdAddressesNewRoute =
+  AppVaultsVaultIdAddressesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdEditRoute =
+  AppPoliciesWhitelistsWhitelistIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+  } as any)
+const AppVaultsVaultIdAddressesAddressIdRouteRoute =
+  AppVaultsVaultIdAddressesAddressIdRouteRouteImport.update({
+    id: '/$addressId',
+    path: '/$addressId',
+    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute =
+  AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport.update({
+    id: '/versions',
+    path: '/versions',
+    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+  } as any)
+const AppVaultsVaultIdAddressesAddressIdIndexRoute =
+  AppVaultsVaultIdAddressesAddressIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppVaultsVaultIdAddressesAddressIdRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute =
+  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport.update({
+    id: '/$versionNumber',
+    path: '/$versionNumber',
+    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute,
+  } as any)
+const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute =
+  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
-  '/manager': typeof ManagerRouteRouteWithChildren
+  '/sign-up': typeof SignUpRouteRouteWithChildren
   '/logout': typeof LogoutRoute
-  '/app/': typeof AppIndexRoute
+  '/address-book': typeof AppAddressBookRouteRouteWithChildren
+  '/identities': typeof AppIdentitiesRouteRouteWithChildren
+  '/operations': typeof AppOperationsRouteRouteWithChildren
+  '/policies': typeof AppPoliciesRouteRouteWithChildren
+  '/settings': typeof AppSettingsRouteRouteWithChildren
+  '/signers': typeof AppSignersRouteRouteWithChildren
+  '/vaults': typeof AppVaultsRouteRouteWithChildren
+  '/overview': typeof AppOverviewRoute
   '/login/': typeof LoginIndexRoute
-  '/manager/': typeof ManagerIndexRoute
+  '/sign-up/': typeof SignUpIndexRoute
+  '/identities/$identityId': typeof AppIdentitiesIdentityIdRouteRouteWithChildren
+  '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
+  '/policies/transactions': typeof AppPoliciesTransactionsRouteRouteWithChildren
+  '/policies/whitelists': typeof AppPoliciesWhitelistsRouteRouteWithChildren
+  '/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
+  '/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
+  '/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/identities/new': typeof AppIdentitiesNewRoute
+  '/settings/audit': typeof AppSettingsAuditRoute
+  '/settings/backups': typeof AppSettingsBackupsRoute
+  '/settings/billing': typeof AppSettingsBillingRoute
+  '/settings/members': typeof AppSettingsMembersRoute
+  '/settings/roles': typeof AppSettingsRolesRoute
+  '/settings/workspaces': typeof AppSettingsWorkspacesRoute
+  '/signers/new': typeof AppSignersNewRoute
+  '/vaults/new': typeof AppVaultsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/app/account': typeof AppAccountIndexRoute
-  '/app/books': typeof AppBooksIndexRoute
+  '/address-book/': typeof AppAddressBookIndexRoute
+  '/identities/': typeof AppIdentitiesIndexRoute
+  '/settings/': typeof AppSettingsIndexRoute
+  '/signers/': typeof AppSignersIndexRoute
+  '/vaults/': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
-  '/manager/account': typeof ManagerAccountIndexRoute
-  '/manager/books': typeof ManagerBooksIndexRoute
-  '/manager/dashboard': typeof ManagerDashboardIndexRoute
-  '/manager/users': typeof ManagerUsersIndexRoute
+  '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
+  '/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
+  '/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
+  '/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
+  '/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
+  '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
-  '/app/books/$id': typeof AppBooksIdIndexRoute
-  '/manager/books/$id': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new': typeof ManagerUsersNewIndexRoute
-  '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
+  '/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
+  '/policies/transactions/': typeof AppPoliciesTransactionsIndexRoute
+  '/policies/whitelists/': typeof AppPoliciesWhitelistsIndexRoute
+  '/settings/governance': typeof AppSettingsGovernanceIndexRoute
+  '/settings/teams/': typeof AppSettingsTeamsIndexRoute
+  '/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
+  '/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
+  '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  '/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
+  '/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
+  '/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
+  '/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
+  '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+  '/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
+  '/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/logout': typeof LogoutRoute
-  '/app': typeof AppIndexRoute
+  '/operations': typeof AppOperationsRouteRouteWithChildren
+  '/policies': typeof AppPoliciesRouteRouteWithChildren
+  '/overview': typeof AppOverviewRoute
   '/login': typeof LoginIndexRoute
-  '/manager': typeof ManagerIndexRoute
+  '/sign-up': typeof SignUpIndexRoute
+  '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
+  '/identities/new': typeof AppIdentitiesNewRoute
+  '/settings/audit': typeof AppSettingsAuditRoute
+  '/settings/backups': typeof AppSettingsBackupsRoute
+  '/settings/billing': typeof AppSettingsBillingRoute
+  '/settings/members': typeof AppSettingsMembersRoute
+  '/settings/roles': typeof AppSettingsRolesRoute
+  '/settings/workspaces': typeof AppSettingsWorkspacesRoute
+  '/signers/new': typeof AppSignersNewRoute
+  '/vaults/new': typeof AppVaultsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/app/account': typeof AppAccountIndexRoute
-  '/app/books': typeof AppBooksIndexRoute
+  '/address-book': typeof AppAddressBookIndexRoute
+  '/identities': typeof AppIdentitiesIndexRoute
+  '/settings': typeof AppSettingsIndexRoute
+  '/signers': typeof AppSignersIndexRoute
+  '/vaults': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
-  '/manager/account': typeof ManagerAccountIndexRoute
-  '/manager/books': typeof ManagerBooksIndexRoute
-  '/manager/dashboard': typeof ManagerDashboardIndexRoute
-  '/manager/users': typeof ManagerUsersIndexRoute
+  '/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
+  '/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
+  '/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
+  '/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
+  '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
-  '/app/books/$id': typeof AppBooksIdIndexRoute
-  '/manager/books/$id': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new': typeof ManagerUsersNewIndexRoute
-  '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
+  '/identities/$identityId': typeof AppIdentitiesIdentityIdIndexRoute
+  '/policies/transactions': typeof AppPoliciesTransactionsIndexRoute
+  '/policies/whitelists': typeof AppPoliciesWhitelistsIndexRoute
+  '/settings/governance': typeof AppSettingsGovernanceIndexRoute
+  '/settings/teams': typeof AppSettingsTeamsIndexRoute
+  '/signers/$signerId': typeof AppSignersSignerIdIndexRoute
+  '/vaults/$vaultId': typeof AppVaultsVaultIdIndexRoute
+  '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
+  '/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
+  '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
+  '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesIndexRoute
+  '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
+  '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
-  '/manager': typeof ManagerRouteRouteWithChildren
+  '/sign-up': typeof SignUpRouteRouteWithChildren
+  '/_app': typeof AppRouteWithChildren
   '/logout': typeof LogoutRoute
-  '/app/': typeof AppIndexRoute
+  '/_app/address-book': typeof AppAddressBookRouteRouteWithChildren
+  '/_app/identities': typeof AppIdentitiesRouteRouteWithChildren
+  '/_app/operations': typeof AppOperationsRouteRouteWithChildren
+  '/_app/policies': typeof AppPoliciesRouteRouteWithChildren
+  '/_app/settings': typeof AppSettingsRouteRouteWithChildren
+  '/_app/signers': typeof AppSignersRouteRouteWithChildren
+  '/_app/vaults': typeof AppVaultsRouteRouteWithChildren
+  '/_app/overview': typeof AppOverviewRoute
   '/login/': typeof LoginIndexRoute
-  '/manager/': typeof ManagerIndexRoute
+  '/sign-up/': typeof SignUpIndexRoute
+  '/_app/identities/$identityId': typeof AppIdentitiesIdentityIdRouteRouteWithChildren
+  '/_app/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
+  '/_app/policies/transactions': typeof AppPoliciesTransactionsRouteRouteWithChildren
+  '/_app/policies/whitelists': typeof AppPoliciesWhitelistsRouteRouteWithChildren
+  '/_app/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
+  '/_app/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
+  '/_app/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/_app/identities/new': typeof AppIdentitiesNewRoute
+  '/_app/settings/audit': typeof AppSettingsAuditRoute
+  '/_app/settings/backups': typeof AppSettingsBackupsRoute
+  '/_app/settings/billing': typeof AppSettingsBillingRoute
+  '/_app/settings/members': typeof AppSettingsMembersRoute
+  '/_app/settings/roles': typeof AppSettingsRolesRoute
+  '/_app/settings/workspaces': typeof AppSettingsWorkspacesRoute
+  '/_app/signers/new': typeof AppSignersNewRoute
+  '/_app/vaults/new': typeof AppVaultsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/app/account/': typeof AppAccountIndexRoute
-  '/app/books/': typeof AppBooksIndexRoute
+  '/_app/address-book/': typeof AppAddressBookIndexRoute
+  '/_app/identities/': typeof AppIdentitiesIndexRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/signers/': typeof AppSignersIndexRoute
+  '/_app/vaults/': typeof AppVaultsIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
-  '/manager/account/': typeof ManagerAccountIndexRoute
-  '/manager/books/': typeof ManagerBooksIndexRoute
-  '/manager/dashboard/': typeof ManagerDashboardIndexRoute
-  '/manager/users/': typeof ManagerUsersIndexRoute
+  '/_app/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  '/_app/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
+  '/_app/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
+  '/_app/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
+  '/_app/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
+  '/_app/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
+  '/_app/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
-  '/app/books/$id/': typeof AppBooksIdIndexRoute
-  '/manager/books/$id/': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new/': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new/': typeof ManagerUsersNewIndexRoute
-  '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
+  '/_app/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
+  '/_app/policies/transactions/': typeof AppPoliciesTransactionsIndexRoute
+  '/_app/policies/whitelists/': typeof AppPoliciesWhitelistsIndexRoute
+  '/_app/settings/governance/': typeof AppSettingsGovernanceIndexRoute
+  '/_app/settings/teams/': typeof AppSettingsTeamsIndexRoute
+  '/_app/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
+  '/_app/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
+  '/_app/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/_app/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  '/_app/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
+  '/_app/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
+  '/_app/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
+  '/_app/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
+  '/_app/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+  '/_app/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
+  '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
     | '/login'
-    | '/manager'
+    | '/sign-up'
     | '/logout'
-    | '/app/'
+    | '/address-book'
+    | '/identities'
+    | '/operations'
+    | '/policies'
+    | '/settings'
+    | '/signers'
+    | '/vaults'
+    | '/overview'
     | '/login/'
-    | '/manager/'
+    | '/sign-up/'
+    | '/identities/$identityId'
+    | '/operations/$operationId'
+    | '/policies/transactions'
+    | '/policies/whitelists'
+    | '/settings/teams'
+    | '/signers/$signerId'
+    | '/vaults/$vaultId'
+    | '/identities/new'
+    | '/settings/audit'
+    | '/settings/backups'
+    | '/settings/billing'
+    | '/settings/members'
+    | '/settings/roles'
+    | '/settings/workspaces'
+    | '/signers/new'
+    | '/vaults/new'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/app/account'
-    | '/app/books'
+    | '/address-book/'
+    | '/identities/'
+    | '/settings/'
+    | '/signers/'
+    | '/vaults/'
     | '/login/error'
     | '/login/verify'
-    | '/manager/account'
-    | '/manager/books'
-    | '/manager/dashboard'
-    | '/manager/users'
+    | '/policies/whitelists/$whitelistId'
+    | '/vaults/$vaultId/addresses'
+    | '/identities/$identityId/edit'
+    | '/policies/whitelists/new'
+    | '/settings/governance/pending'
+    | '/settings/teams/$teamId'
+    | '/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
-    | '/app/books/$id'
-    | '/manager/books/$id'
-    | '/manager/books/new'
-    | '/manager/users/$id'
-    | '/manager/users/new'
-    | '/manager/books/$id/update'
-    | '/manager/users/$id/update'
+    | '/identities/$identityId/'
+    | '/policies/transactions/'
+    | '/policies/whitelists/'
+    | '/settings/governance'
+    | '/settings/teams/'
+    | '/signers/$signerId/'
+    | '/vaults/$vaultId/'
+    | '/policies/whitelists/$whitelistId/versions'
+    | '/vaults/$vaultId/addresses/$addressId'
+    | '/policies/whitelists/$whitelistId/edit'
+    | '/vaults/$vaultId/addresses/new'
+    | '/policies/whitelists/$whitelistId/'
+    | '/vaults/$vaultId/addresses/'
+    | '/policies/whitelists/$whitelistId/versions/$versionNumber'
+    | '/vaults/$vaultId/addresses/$addressId/'
+    | '/policies/whitelists/$whitelistId/versions/$versionNumber/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/logout'
-    | '/app'
+    | '/operations'
+    | '/policies'
+    | '/overview'
     | '/login'
-    | '/manager'
+    | '/sign-up'
+    | '/operations/$operationId'
+    | '/identities/new'
+    | '/settings/audit'
+    | '/settings/backups'
+    | '/settings/billing'
+    | '/settings/members'
+    | '/settings/roles'
+    | '/settings/workspaces'
+    | '/signers/new'
+    | '/vaults/new'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/app/account'
-    | '/app/books'
+    | '/address-book'
+    | '/identities'
+    | '/settings'
+    | '/signers'
+    | '/vaults'
     | '/login/error'
     | '/login/verify'
-    | '/manager/account'
-    | '/manager/books'
-    | '/manager/dashboard'
-    | '/manager/users'
+    | '/identities/$identityId/edit'
+    | '/policies/whitelists/new'
+    | '/settings/governance/pending'
+    | '/settings/teams/$teamId'
+    | '/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
-    | '/app/books/$id'
-    | '/manager/books/$id'
-    | '/manager/books/new'
-    | '/manager/users/$id'
-    | '/manager/users/new'
-    | '/manager/books/$id/update'
-    | '/manager/users/$id/update'
+    | '/identities/$identityId'
+    | '/policies/transactions'
+    | '/policies/whitelists'
+    | '/settings/governance'
+    | '/settings/teams'
+    | '/signers/$signerId'
+    | '/vaults/$vaultId'
+    | '/policies/whitelists/$whitelistId/versions'
+    | '/policies/whitelists/$whitelistId/edit'
+    | '/vaults/$vaultId/addresses/new'
+    | '/policies/whitelists/$whitelistId'
+    | '/vaults/$vaultId/addresses'
+    | '/vaults/$vaultId/addresses/$addressId'
+    | '/policies/whitelists/$whitelistId/versions/$versionNumber'
   id:
     | '__root__'
     | '/'
-    | '/app'
     | '/login'
-    | '/manager'
+    | '/sign-up'
+    | '/_app'
     | '/logout'
-    | '/app/'
+    | '/_app/address-book'
+    | '/_app/identities'
+    | '/_app/operations'
+    | '/_app/policies'
+    | '/_app/settings'
+    | '/_app/signers'
+    | '/_app/vaults'
+    | '/_app/overview'
     | '/login/'
-    | '/manager/'
+    | '/sign-up/'
+    | '/_app/identities/$identityId'
+    | '/_app/operations/$operationId'
+    | '/_app/policies/transactions'
+    | '/_app/policies/whitelists'
+    | '/_app/settings/teams'
+    | '/_app/signers/$signerId'
+    | '/_app/vaults/$vaultId'
+    | '/_app/identities/new'
+    | '/_app/settings/audit'
+    | '/_app/settings/backups'
+    | '/_app/settings/billing'
+    | '/_app/settings/members'
+    | '/_app/settings/roles'
+    | '/_app/settings/workspaces'
+    | '/_app/signers/new'
+    | '/_app/vaults/new'
     | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/app/account/'
-    | '/app/books/'
+    | '/_app/address-book/'
+    | '/_app/identities/'
+    | '/_app/settings/'
+    | '/_app/signers/'
+    | '/_app/vaults/'
     | '/login/error/'
     | '/login/verify/'
-    | '/manager/account/'
-    | '/manager/books/'
-    | '/manager/dashboard/'
-    | '/manager/users/'
+    | '/_app/policies/whitelists/$whitelistId'
+    | '/_app/vaults/$vaultId/addresses'
+    | '/_app/identities/$identityId/edit'
+    | '/_app/policies/whitelists/new'
+    | '/_app/settings/governance/pending'
+    | '/_app/settings/teams/$teamId'
+    | '/_app/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/api/openapi/auth/schema'
-    | '/app/books/$id/'
-    | '/manager/books/$id/'
-    | '/manager/books/new/'
-    | '/manager/users/$id/'
-    | '/manager/users/new/'
-    | '/manager/books/$id/update/'
-    | '/manager/users/$id/update/'
+    | '/_app/identities/$identityId/'
+    | '/_app/policies/transactions/'
+    | '/_app/policies/whitelists/'
+    | '/_app/settings/governance/'
+    | '/_app/settings/teams/'
+    | '/_app/signers/$signerId/'
+    | '/_app/vaults/$vaultId/'
+    | '/_app/policies/whitelists/$whitelistId/versions'
+    | '/_app/vaults/$vaultId/addresses/$addressId'
+    | '/_app/policies/whitelists/$whitelistId/edit'
+    | '/_app/vaults/$vaultId/addresses/new'
+    | '/_app/policies/whitelists/$whitelistId/'
+    | '/_app/vaults/$vaultId/addresses/'
+    | '/_app/policies/whitelists/$whitelistId/versions/$versionNumber'
+    | '/_app/vaults/$vaultId/addresses/$addressId/'
+    | '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRouteWithChildren
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
-  ManagerRouteRoute: typeof ManagerRouteRouteWithChildren
+  SignUpRouteRoute: typeof SignUpRouteRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
   LogoutRoute: typeof LogoutRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOpenapiAppRoute: typeof ApiOpenapiAppRouteWithChildren
@@ -418,11 +862,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager': {
-      id: '/manager'
-      path: '/manager'
-      fullPath: '/manager'
-      preLoaderRoute: typeof ManagerRouteRouteImport
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -432,13 +883,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -446,12 +890,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/': {
-      id: '/manager/'
+    '/sign-up/': {
+      id: '/sign-up/'
       path: '/'
-      fullPath: '/manager/'
-      preLoaderRoute: typeof ManagerIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+      fullPath: '/sign-up/'
+      preLoaderRoute: typeof SignUpIndexRouteImport
+      parentRoute: typeof SignUpRouteRoute
     }
     '/login/': {
       id: '/login/'
@@ -460,40 +904,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/_app/overview': {
+      id: '/_app/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof AppOverviewRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/manager/users/': {
-      id: '/manager/users/'
-      path: '/users'
-      fullPath: '/manager/users'
-      preLoaderRoute: typeof ManagerUsersIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/vaults': {
+      id: '/_app/vaults'
+      path: '/vaults'
+      fullPath: '/vaults'
+      preLoaderRoute: typeof AppVaultsRouteRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/manager/dashboard/': {
-      id: '/manager/dashboard/'
-      path: '/dashboard'
-      fullPath: '/manager/dashboard'
-      preLoaderRoute: typeof ManagerDashboardIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/signers': {
+      id: '/_app/signers'
+      path: '/signers'
+      fullPath: '/signers'
+      preLoaderRoute: typeof AppSignersRouteRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/manager/books/': {
-      id: '/manager/books/'
-      path: '/books'
-      fullPath: '/manager/books'
-      preLoaderRoute: typeof ManagerBooksIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/manager/account/': {
-      id: '/manager/account/'
-      path: '/account'
-      fullPath: '/manager/account'
-      preLoaderRoute: typeof ManagerAccountIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/policies': {
+      id: '/_app/policies'
+      path: '/policies'
+      fullPath: '/policies'
+      preLoaderRoute: typeof AppPoliciesRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/operations': {
+      id: '/_app/operations'
+      path: '/operations'
+      fullPath: '/operations'
+      preLoaderRoute: typeof AppOperationsRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/identities': {
+      id: '/_app/identities'
+      path: '/identities'
+      fullPath: '/identities'
+      preLoaderRoute: typeof AppIdentitiesRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/address-book': {
+      id: '/_app/address-book'
+      path: '/address-book'
+      fullPath: '/address-book'
+      preLoaderRoute: typeof AppAddressBookRouteRouteImport
+      parentRoute: typeof AppRoute
     }
     '/login/verify/': {
       id: '/login/verify/'
@@ -509,19 +974,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginErrorIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
-    '/app/books/': {
-      id: '/app/books/'
-      path: '/books'
-      fullPath: '/app/books'
-      preLoaderRoute: typeof AppBooksIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/_app/vaults/': {
+      id: '/_app/vaults/'
+      path: '/'
+      fullPath: '/vaults/'
+      preLoaderRoute: typeof AppVaultsIndexRouteImport
+      parentRoute: typeof AppVaultsRouteRoute
     }
-    '/app/account/': {
-      id: '/app/account/'
-      path: '/account'
-      fullPath: '/app/account'
-      preLoaderRoute: typeof AppAccountIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/_app/signers/': {
+      id: '/_app/signers/'
+      path: '/'
+      fullPath: '/signers/'
+      preLoaderRoute: typeof AppSignersIndexRouteImport
+      parentRoute: typeof AppSignersRouteRoute
+    }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/identities/': {
+      id: '/_app/identities/'
+      path: '/'
+      fullPath: '/identities/'
+      preLoaderRoute: typeof AppIdentitiesIndexRouteImport
+      parentRoute: typeof AppIdentitiesRouteRoute
+    }
+    '/_app/address-book/': {
+      id: '/_app/address-book/'
+      path: '/'
+      fullPath: '/address-book/'
+      preLoaderRoute: typeof AppAddressBookIndexRouteImport
+      parentRoute: typeof AppAddressBookRouteRoute
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -558,40 +1044,166 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/users/new/': {
-      id: '/manager/users/new/'
-      path: '/users/new'
-      fullPath: '/manager/users/new'
-      preLoaderRoute: typeof ManagerUsersNewIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/vaults/new': {
+      id: '/_app/vaults/new'
+      path: '/new'
+      fullPath: '/vaults/new'
+      preLoaderRoute: typeof AppVaultsNewRouteImport
+      parentRoute: typeof AppVaultsRouteRoute
     }
-    '/manager/users/$id/': {
-      id: '/manager/users/$id/'
-      path: '/users/$id'
-      fullPath: '/manager/users/$id'
-      preLoaderRoute: typeof ManagerUsersIdIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/signers/new': {
+      id: '/_app/signers/new'
+      path: '/new'
+      fullPath: '/signers/new'
+      preLoaderRoute: typeof AppSignersNewRouteImport
+      parentRoute: typeof AppSignersRouteRoute
     }
-    '/manager/books/new/': {
-      id: '/manager/books/new/'
-      path: '/books/new'
-      fullPath: '/manager/books/new'
-      preLoaderRoute: typeof ManagerBooksNewIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/settings/workspaces': {
+      id: '/_app/settings/workspaces'
+      path: '/workspaces'
+      fullPath: '/settings/workspaces'
+      preLoaderRoute: typeof AppSettingsWorkspacesRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
     }
-    '/manager/books/$id/': {
-      id: '/manager/books/$id/'
-      path: '/books/$id'
-      fullPath: '/manager/books/$id'
-      preLoaderRoute: typeof ManagerBooksIdIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/settings/roles': {
+      id: '/_app/settings/roles'
+      path: '/roles'
+      fullPath: '/settings/roles'
+      preLoaderRoute: typeof AppSettingsRolesRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
     }
-    '/app/books/$id/': {
-      id: '/app/books/$id/'
-      path: '/books/$id'
-      fullPath: '/app/books/$id'
-      preLoaderRoute: typeof AppBooksIdIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/_app/settings/members': {
+      id: '/_app/settings/members'
+      path: '/members'
+      fullPath: '/settings/members'
+      preLoaderRoute: typeof AppSettingsMembersRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/billing': {
+      id: '/_app/settings/billing'
+      path: '/billing'
+      fullPath: '/settings/billing'
+      preLoaderRoute: typeof AppSettingsBillingRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/backups': {
+      id: '/_app/settings/backups'
+      path: '/backups'
+      fullPath: '/settings/backups'
+      preLoaderRoute: typeof AppSettingsBackupsRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/audit': {
+      id: '/_app/settings/audit'
+      path: '/audit'
+      fullPath: '/settings/audit'
+      preLoaderRoute: typeof AppSettingsAuditRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/identities/new': {
+      id: '/_app/identities/new'
+      path: '/new'
+      fullPath: '/identities/new'
+      preLoaderRoute: typeof AppIdentitiesNewRouteImport
+      parentRoute: typeof AppIdentitiesRouteRoute
+    }
+    '/_app/vaults/$vaultId': {
+      id: '/_app/vaults/$vaultId'
+      path: '/$vaultId'
+      fullPath: '/vaults/$vaultId'
+      preLoaderRoute: typeof AppVaultsVaultIdRouteRouteImport
+      parentRoute: typeof AppVaultsRouteRoute
+    }
+    '/_app/signers/$signerId': {
+      id: '/_app/signers/$signerId'
+      path: '/$signerId'
+      fullPath: '/signers/$signerId'
+      preLoaderRoute: typeof AppSignersSignerIdRouteRouteImport
+      parentRoute: typeof AppSignersRouteRoute
+    }
+    '/_app/settings/teams': {
+      id: '/_app/settings/teams'
+      path: '/teams'
+      fullPath: '/settings/teams'
+      preLoaderRoute: typeof AppSettingsTeamsRouteRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/policies/whitelists': {
+      id: '/_app/policies/whitelists'
+      path: '/whitelists'
+      fullPath: '/policies/whitelists'
+      preLoaderRoute: typeof AppPoliciesWhitelistsRouteRouteImport
+      parentRoute: typeof AppPoliciesRouteRoute
+    }
+    '/_app/policies/transactions': {
+      id: '/_app/policies/transactions'
+      path: '/transactions'
+      fullPath: '/policies/transactions'
+      preLoaderRoute: typeof AppPoliciesTransactionsRouteRouteImport
+      parentRoute: typeof AppPoliciesRouteRoute
+    }
+    '/_app/operations/$operationId': {
+      id: '/_app/operations/$operationId'
+      path: '/$operationId'
+      fullPath: '/operations/$operationId'
+      preLoaderRoute: typeof AppOperationsOperationIdRouteRouteImport
+      parentRoute: typeof AppOperationsRouteRoute
+    }
+    '/_app/identities/$identityId': {
+      id: '/_app/identities/$identityId'
+      path: '/$identityId'
+      fullPath: '/identities/$identityId'
+      preLoaderRoute: typeof AppIdentitiesIdentityIdRouteRouteImport
+      parentRoute: typeof AppIdentitiesRouteRoute
+    }
+    '/_app/vaults/$vaultId/': {
+      id: '/_app/vaults/$vaultId/'
+      path: '/'
+      fullPath: '/vaults/$vaultId/'
+      preLoaderRoute: typeof AppVaultsVaultIdIndexRouteImport
+      parentRoute: typeof AppVaultsVaultIdRouteRoute
+    }
+    '/_app/signers/$signerId/': {
+      id: '/_app/signers/$signerId/'
+      path: '/'
+      fullPath: '/signers/$signerId/'
+      preLoaderRoute: typeof AppSignersSignerIdIndexRouteImport
+      parentRoute: typeof AppSignersSignerIdRouteRoute
+    }
+    '/_app/settings/teams/': {
+      id: '/_app/settings/teams/'
+      path: '/'
+      fullPath: '/settings/teams/'
+      preLoaderRoute: typeof AppSettingsTeamsIndexRouteImport
+      parentRoute: typeof AppSettingsTeamsRouteRoute
+    }
+    '/_app/settings/governance/': {
+      id: '/_app/settings/governance/'
+      path: '/governance'
+      fullPath: '/settings/governance'
+      preLoaderRoute: typeof AppSettingsGovernanceIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/policies/whitelists/': {
+      id: '/_app/policies/whitelists/'
+      path: '/'
+      fullPath: '/policies/whitelists/'
+      preLoaderRoute: typeof AppPoliciesWhitelistsIndexRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
+    }
+    '/_app/policies/transactions/': {
+      id: '/_app/policies/transactions/'
+      path: '/'
+      fullPath: '/policies/transactions/'
+      preLoaderRoute: typeof AppPoliciesTransactionsIndexRouteImport
+      parentRoute: typeof AppPoliciesTransactionsRouteRoute
+    }
+    '/_app/identities/$identityId/': {
+      id: '/_app/identities/$identityId/'
+      path: '/'
+      fullPath: '/identities/$identityId/'
+      preLoaderRoute: typeof AppIdentitiesIdentityIdIndexRouteImport
+      parentRoute: typeof AppIdentitiesIdentityIdRouteRoute
     }
     '/api/openapi/auth/schema': {
       id: '/api/openapi/auth/schema'
@@ -614,40 +1226,120 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDevEmailTemplateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager/users/$id/update/': {
-      id: '/manager/users/$id/update/'
-      path: '/users/$id/update'
-      fullPath: '/manager/users/$id/update'
-      preLoaderRoute: typeof ManagerUsersIdUpdateIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/vaults/$vaultId/edit': {
+      id: '/_app/vaults/$vaultId/edit'
+      path: '/edit'
+      fullPath: '/vaults/$vaultId/edit'
+      preLoaderRoute: typeof AppVaultsVaultIdEditRouteImport
+      parentRoute: typeof AppVaultsVaultIdRouteRoute
     }
-    '/manager/books/$id/update/': {
-      id: '/manager/books/$id/update/'
-      path: '/books/$id/update'
-      fullPath: '/manager/books/$id/update'
-      preLoaderRoute: typeof ManagerBooksIdUpdateIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+    '/_app/settings/teams/$teamId': {
+      id: '/_app/settings/teams/$teamId'
+      path: '/$teamId'
+      fullPath: '/settings/teams/$teamId'
+      preLoaderRoute: typeof AppSettingsTeamsTeamIdRouteImport
+      parentRoute: typeof AppSettingsTeamsRouteRoute
+    }
+    '/_app/settings/governance/pending': {
+      id: '/_app/settings/governance/pending'
+      path: '/governance/pending'
+      fullPath: '/settings/governance/pending'
+      preLoaderRoute: typeof AppSettingsGovernancePendingRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/policies/whitelists/new': {
+      id: '/_app/policies/whitelists/new'
+      path: '/new'
+      fullPath: '/policies/whitelists/new'
+      preLoaderRoute: typeof AppPoliciesWhitelistsNewRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
+    }
+    '/_app/identities/$identityId/edit': {
+      id: '/_app/identities/$identityId/edit'
+      path: '/edit'
+      fullPath: '/identities/$identityId/edit'
+      preLoaderRoute: typeof AppIdentitiesIdentityIdEditRouteImport
+      parentRoute: typeof AppIdentitiesIdentityIdRouteRoute
+    }
+    '/_app/vaults/$vaultId/addresses': {
+      id: '/_app/vaults/$vaultId/addresses'
+      path: '/addresses'
+      fullPath: '/vaults/$vaultId/addresses'
+      preLoaderRoute: typeof AppVaultsVaultIdAddressesRouteRouteImport
+      parentRoute: typeof AppVaultsVaultIdRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId': {
+      id: '/_app/policies/whitelists/$whitelistId'
+      path: '/$whitelistId'
+      fullPath: '/policies/whitelists/$whitelistId'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
+    }
+    '/_app/vaults/$vaultId/addresses/': {
+      id: '/_app/vaults/$vaultId/addresses/'
+      path: '/'
+      fullPath: '/vaults/$vaultId/addresses/'
+      preLoaderRoute: typeof AppVaultsVaultIdAddressesIndexRouteImport
+      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId/': {
+      id: '/_app/policies/whitelists/$whitelistId/'
+      path: '/'
+      fullPath: '/policies/whitelists/$whitelistId/'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdIndexRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+    }
+    '/_app/vaults/$vaultId/addresses/new': {
+      id: '/_app/vaults/$vaultId/addresses/new'
+      path: '/new'
+      fullPath: '/vaults/$vaultId/addresses/new'
+      preLoaderRoute: typeof AppVaultsVaultIdAddressesNewRouteImport
+      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId/edit': {
+      id: '/_app/policies/whitelists/$whitelistId/edit'
+      path: '/edit'
+      fullPath: '/policies/whitelists/$whitelistId/edit'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdEditRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+    }
+    '/_app/vaults/$vaultId/addresses/$addressId': {
+      id: '/_app/vaults/$vaultId/addresses/$addressId'
+      path: '/$addressId'
+      fullPath: '/vaults/$vaultId/addresses/$addressId'
+      preLoaderRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRouteImport
+      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId/versions': {
+      id: '/_app/policies/whitelists/$whitelistId/versions'
+      path: '/versions'
+      fullPath: '/policies/whitelists/$whitelistId/versions'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+    }
+    '/_app/vaults/$vaultId/addresses/$addressId/': {
+      id: '/_app/vaults/$vaultId/addresses/$addressId/'
+      path: '/'
+      fullPath: '/vaults/$vaultId/addresses/$addressId/'
+      preLoaderRoute: typeof AppVaultsVaultIdAddressesAddressIdIndexRouteImport
+      parentRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId/versions/$versionNumber': {
+      id: '/_app/policies/whitelists/$whitelistId/versions/$versionNumber'
+      path: '/$versionNumber'
+      fullPath: '/policies/whitelists/$whitelistId/versions/$versionNumber'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute
+    }
+    '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/': {
+      id: '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/'
+      path: '/'
+      fullPath: '/policies/whitelists/$whitelistId/versions/$versionNumber/'
+      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport
+      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute
     }
   }
 }
-
-interface AppRouteRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
-  AppAccountIndexRoute: typeof AppAccountIndexRoute
-  AppBooksIndexRoute: typeof AppBooksIndexRoute
-  AppBooksIdIndexRoute: typeof AppBooksIdIndexRoute
-}
-
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
-  AppAccountIndexRoute: AppAccountIndexRoute,
-  AppBooksIndexRoute: AppBooksIndexRoute,
-  AppBooksIdIndexRoute: AppBooksIdIndexRoute,
-}
-
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
 
 interface LoginRouteRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
@@ -665,37 +1357,335 @@ const LoginRouteRouteWithChildren = LoginRouteRoute._addFileChildren(
   LoginRouteRouteChildren,
 )
 
-interface ManagerRouteRouteChildren {
-  ManagerIndexRoute: typeof ManagerIndexRoute
-  ManagerAccountIndexRoute: typeof ManagerAccountIndexRoute
-  ManagerBooksIndexRoute: typeof ManagerBooksIndexRoute
-  ManagerDashboardIndexRoute: typeof ManagerDashboardIndexRoute
-  ManagerUsersIndexRoute: typeof ManagerUsersIndexRoute
-  ManagerBooksIdIndexRoute: typeof ManagerBooksIdIndexRoute
-  ManagerBooksNewIndexRoute: typeof ManagerBooksNewIndexRoute
-  ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
-  ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
-  ManagerBooksIdUpdateIndexRoute: typeof ManagerBooksIdUpdateIndexRoute
-  ManagerUsersIdUpdateIndexRoute: typeof ManagerUsersIdUpdateIndexRoute
+interface SignUpRouteRouteChildren {
+  SignUpIndexRoute: typeof SignUpIndexRoute
 }
 
-const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
-  ManagerIndexRoute: ManagerIndexRoute,
-  ManagerAccountIndexRoute: ManagerAccountIndexRoute,
-  ManagerBooksIndexRoute: ManagerBooksIndexRoute,
-  ManagerDashboardIndexRoute: ManagerDashboardIndexRoute,
-  ManagerUsersIndexRoute: ManagerUsersIndexRoute,
-  ManagerBooksIdIndexRoute: ManagerBooksIdIndexRoute,
-  ManagerBooksNewIndexRoute: ManagerBooksNewIndexRoute,
-  ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
-  ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,
-  ManagerBooksIdUpdateIndexRoute: ManagerBooksIdUpdateIndexRoute,
-  ManagerUsersIdUpdateIndexRoute: ManagerUsersIdUpdateIndexRoute,
+const SignUpRouteRouteChildren: SignUpRouteRouteChildren = {
+  SignUpIndexRoute: SignUpIndexRoute,
 }
 
-const ManagerRouteRouteWithChildren = ManagerRouteRoute._addFileChildren(
-  ManagerRouteRouteChildren,
+const SignUpRouteRouteWithChildren = SignUpRouteRoute._addFileChildren(
+  SignUpRouteRouteChildren,
 )
+
+interface AppAddressBookRouteRouteChildren {
+  AppAddressBookIndexRoute: typeof AppAddressBookIndexRoute
+}
+
+const AppAddressBookRouteRouteChildren: AppAddressBookRouteRouteChildren = {
+  AppAddressBookIndexRoute: AppAddressBookIndexRoute,
+}
+
+const AppAddressBookRouteRouteWithChildren =
+  AppAddressBookRouteRoute._addFileChildren(AppAddressBookRouteRouteChildren)
+
+interface AppIdentitiesIdentityIdRouteRouteChildren {
+  AppIdentitiesIdentityIdEditRoute: typeof AppIdentitiesIdentityIdEditRoute
+  AppIdentitiesIdentityIdIndexRoute: typeof AppIdentitiesIdentityIdIndexRoute
+}
+
+const AppIdentitiesIdentityIdRouteRouteChildren: AppIdentitiesIdentityIdRouteRouteChildren =
+  {
+    AppIdentitiesIdentityIdEditRoute: AppIdentitiesIdentityIdEditRoute,
+    AppIdentitiesIdentityIdIndexRoute: AppIdentitiesIdentityIdIndexRoute,
+  }
+
+const AppIdentitiesIdentityIdRouteRouteWithChildren =
+  AppIdentitiesIdentityIdRouteRoute._addFileChildren(
+    AppIdentitiesIdentityIdRouteRouteChildren,
+  )
+
+interface AppIdentitiesRouteRouteChildren {
+  AppIdentitiesIdentityIdRouteRoute: typeof AppIdentitiesIdentityIdRouteRouteWithChildren
+  AppIdentitiesNewRoute: typeof AppIdentitiesNewRoute
+  AppIdentitiesIndexRoute: typeof AppIdentitiesIndexRoute
+}
+
+const AppIdentitiesRouteRouteChildren: AppIdentitiesRouteRouteChildren = {
+  AppIdentitiesIdentityIdRouteRoute:
+    AppIdentitiesIdentityIdRouteRouteWithChildren,
+  AppIdentitiesNewRoute: AppIdentitiesNewRoute,
+  AppIdentitiesIndexRoute: AppIdentitiesIndexRoute,
+}
+
+const AppIdentitiesRouteRouteWithChildren =
+  AppIdentitiesRouteRoute._addFileChildren(AppIdentitiesRouteRouteChildren)
+
+interface AppOperationsRouteRouteChildren {
+  AppOperationsOperationIdRouteRoute: typeof AppOperationsOperationIdRouteRoute
+}
+
+const AppOperationsRouteRouteChildren: AppOperationsRouteRouteChildren = {
+  AppOperationsOperationIdRouteRoute: AppOperationsOperationIdRouteRoute,
+}
+
+const AppOperationsRouteRouteWithChildren =
+  AppOperationsRouteRoute._addFileChildren(AppOperationsRouteRouteChildren)
+
+interface AppPoliciesTransactionsRouteRouteChildren {
+  AppPoliciesTransactionsIndexRoute: typeof AppPoliciesTransactionsIndexRoute
+}
+
+const AppPoliciesTransactionsRouteRouteChildren: AppPoliciesTransactionsRouteRouteChildren =
+  {
+    AppPoliciesTransactionsIndexRoute: AppPoliciesTransactionsIndexRoute,
+  }
+
+const AppPoliciesTransactionsRouteRouteWithChildren =
+  AppPoliciesTransactionsRouteRoute._addFileChildren(
+    AppPoliciesTransactionsRouteRouteChildren,
+  )
+
+interface AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren {
+  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
+}
+
+const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren =
+  {
+    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute:
+      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute,
+  }
+
+const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren =
+  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute._addFileChildren(
+    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren,
+  )
+
+interface AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren {
+  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+}
+
+const AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren =
+  {
+    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute:
+      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren,
+  }
+
+const AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren =
+  AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute._addFileChildren(
+    AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren,
+  )
+
+interface AppPoliciesWhitelistsWhitelistIdRouteRouteChildren {
+  AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  AppPoliciesWhitelistsWhitelistIdEditRoute: typeof AppPoliciesWhitelistsWhitelistIdEditRoute
+  AppPoliciesWhitelistsWhitelistIdIndexRoute: typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
+}
+
+const AppPoliciesWhitelistsWhitelistIdRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdRouteRouteChildren =
+  {
+    AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute:
+      AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren,
+    AppPoliciesWhitelistsWhitelistIdEditRoute:
+      AppPoliciesWhitelistsWhitelistIdEditRoute,
+    AppPoliciesWhitelistsWhitelistIdIndexRoute:
+      AppPoliciesWhitelistsWhitelistIdIndexRoute,
+  }
+
+const AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren =
+  AppPoliciesWhitelistsWhitelistIdRouteRoute._addFileChildren(
+    AppPoliciesWhitelistsWhitelistIdRouteRouteChildren,
+  )
+
+interface AppPoliciesWhitelistsRouteRouteChildren {
+  AppPoliciesWhitelistsWhitelistIdRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  AppPoliciesWhitelistsNewRoute: typeof AppPoliciesWhitelistsNewRoute
+  AppPoliciesWhitelistsIndexRoute: typeof AppPoliciesWhitelistsIndexRoute
+}
+
+const AppPoliciesWhitelistsRouteRouteChildren: AppPoliciesWhitelistsRouteRouteChildren =
+  {
+    AppPoliciesWhitelistsWhitelistIdRouteRoute:
+      AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren,
+    AppPoliciesWhitelistsNewRoute: AppPoliciesWhitelistsNewRoute,
+    AppPoliciesWhitelistsIndexRoute: AppPoliciesWhitelistsIndexRoute,
+  }
+
+const AppPoliciesWhitelistsRouteRouteWithChildren =
+  AppPoliciesWhitelistsRouteRoute._addFileChildren(
+    AppPoliciesWhitelistsRouteRouteChildren,
+  )
+
+interface AppPoliciesRouteRouteChildren {
+  AppPoliciesTransactionsRouteRoute: typeof AppPoliciesTransactionsRouteRouteWithChildren
+  AppPoliciesWhitelistsRouteRoute: typeof AppPoliciesWhitelistsRouteRouteWithChildren
+}
+
+const AppPoliciesRouteRouteChildren: AppPoliciesRouteRouteChildren = {
+  AppPoliciesTransactionsRouteRoute:
+    AppPoliciesTransactionsRouteRouteWithChildren,
+  AppPoliciesWhitelistsRouteRoute: AppPoliciesWhitelistsRouteRouteWithChildren,
+}
+
+const AppPoliciesRouteRouteWithChildren =
+  AppPoliciesRouteRoute._addFileChildren(AppPoliciesRouteRouteChildren)
+
+interface AppSettingsTeamsRouteRouteChildren {
+  AppSettingsTeamsTeamIdRoute: typeof AppSettingsTeamsTeamIdRoute
+  AppSettingsTeamsIndexRoute: typeof AppSettingsTeamsIndexRoute
+}
+
+const AppSettingsTeamsRouteRouteChildren: AppSettingsTeamsRouteRouteChildren = {
+  AppSettingsTeamsTeamIdRoute: AppSettingsTeamsTeamIdRoute,
+  AppSettingsTeamsIndexRoute: AppSettingsTeamsIndexRoute,
+}
+
+const AppSettingsTeamsRouteRouteWithChildren =
+  AppSettingsTeamsRouteRoute._addFileChildren(
+    AppSettingsTeamsRouteRouteChildren,
+  )
+
+interface AppSettingsRouteRouteChildren {
+  AppSettingsTeamsRouteRoute: typeof AppSettingsTeamsRouteRouteWithChildren
+  AppSettingsAuditRoute: typeof AppSettingsAuditRoute
+  AppSettingsBackupsRoute: typeof AppSettingsBackupsRoute
+  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
+  AppSettingsMembersRoute: typeof AppSettingsMembersRoute
+  AppSettingsRolesRoute: typeof AppSettingsRolesRoute
+  AppSettingsWorkspacesRoute: typeof AppSettingsWorkspacesRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppSettingsGovernancePendingRoute: typeof AppSettingsGovernancePendingRoute
+  AppSettingsGovernanceIndexRoute: typeof AppSettingsGovernanceIndexRoute
+}
+
+const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
+  AppSettingsTeamsRouteRoute: AppSettingsTeamsRouteRouteWithChildren,
+  AppSettingsAuditRoute: AppSettingsAuditRoute,
+  AppSettingsBackupsRoute: AppSettingsBackupsRoute,
+  AppSettingsBillingRoute: AppSettingsBillingRoute,
+  AppSettingsMembersRoute: AppSettingsMembersRoute,
+  AppSettingsRolesRoute: AppSettingsRolesRoute,
+  AppSettingsWorkspacesRoute: AppSettingsWorkspacesRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppSettingsGovernancePendingRoute: AppSettingsGovernancePendingRoute,
+  AppSettingsGovernanceIndexRoute: AppSettingsGovernanceIndexRoute,
+}
+
+const AppSettingsRouteRouteWithChildren =
+  AppSettingsRouteRoute._addFileChildren(AppSettingsRouteRouteChildren)
+
+interface AppSignersSignerIdRouteRouteChildren {
+  AppSignersSignerIdIndexRoute: typeof AppSignersSignerIdIndexRoute
+}
+
+const AppSignersSignerIdRouteRouteChildren: AppSignersSignerIdRouteRouteChildren =
+  {
+    AppSignersSignerIdIndexRoute: AppSignersSignerIdIndexRoute,
+  }
+
+const AppSignersSignerIdRouteRouteWithChildren =
+  AppSignersSignerIdRouteRoute._addFileChildren(
+    AppSignersSignerIdRouteRouteChildren,
+  )
+
+interface AppSignersRouteRouteChildren {
+  AppSignersSignerIdRouteRoute: typeof AppSignersSignerIdRouteRouteWithChildren
+  AppSignersNewRoute: typeof AppSignersNewRoute
+  AppSignersIndexRoute: typeof AppSignersIndexRoute
+}
+
+const AppSignersRouteRouteChildren: AppSignersRouteRouteChildren = {
+  AppSignersSignerIdRouteRoute: AppSignersSignerIdRouteRouteWithChildren,
+  AppSignersNewRoute: AppSignersNewRoute,
+  AppSignersIndexRoute: AppSignersIndexRoute,
+}
+
+const AppSignersRouteRouteWithChildren = AppSignersRouteRoute._addFileChildren(
+  AppSignersRouteRouteChildren,
+)
+
+interface AppVaultsVaultIdAddressesAddressIdRouteRouteChildren {
+  AppVaultsVaultIdAddressesAddressIdIndexRoute: typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
+}
+
+const AppVaultsVaultIdAddressesAddressIdRouteRouteChildren: AppVaultsVaultIdAddressesAddressIdRouteRouteChildren =
+  {
+    AppVaultsVaultIdAddressesAddressIdIndexRoute:
+      AppVaultsVaultIdAddressesAddressIdIndexRoute,
+  }
+
+const AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren =
+  AppVaultsVaultIdAddressesAddressIdRouteRoute._addFileChildren(
+    AppVaultsVaultIdAddressesAddressIdRouteRouteChildren,
+  )
+
+interface AppVaultsVaultIdAddressesRouteRouteChildren {
+  AppVaultsVaultIdAddressesAddressIdRouteRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  AppVaultsVaultIdAddressesNewRoute: typeof AppVaultsVaultIdAddressesNewRoute
+  AppVaultsVaultIdAddressesIndexRoute: typeof AppVaultsVaultIdAddressesIndexRoute
+}
+
+const AppVaultsVaultIdAddressesRouteRouteChildren: AppVaultsVaultIdAddressesRouteRouteChildren =
+  {
+    AppVaultsVaultIdAddressesAddressIdRouteRoute:
+      AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren,
+    AppVaultsVaultIdAddressesNewRoute: AppVaultsVaultIdAddressesNewRoute,
+    AppVaultsVaultIdAddressesIndexRoute: AppVaultsVaultIdAddressesIndexRoute,
+  }
+
+const AppVaultsVaultIdAddressesRouteRouteWithChildren =
+  AppVaultsVaultIdAddressesRouteRoute._addFileChildren(
+    AppVaultsVaultIdAddressesRouteRouteChildren,
+  )
+
+interface AppVaultsVaultIdRouteRouteChildren {
+  AppVaultsVaultIdAddressesRouteRoute: typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
+  AppVaultsVaultIdEditRoute: typeof AppVaultsVaultIdEditRoute
+  AppVaultsVaultIdIndexRoute: typeof AppVaultsVaultIdIndexRoute
+}
+
+const AppVaultsVaultIdRouteRouteChildren: AppVaultsVaultIdRouteRouteChildren = {
+  AppVaultsVaultIdAddressesRouteRoute:
+    AppVaultsVaultIdAddressesRouteRouteWithChildren,
+  AppVaultsVaultIdEditRoute: AppVaultsVaultIdEditRoute,
+  AppVaultsVaultIdIndexRoute: AppVaultsVaultIdIndexRoute,
+}
+
+const AppVaultsVaultIdRouteRouteWithChildren =
+  AppVaultsVaultIdRouteRoute._addFileChildren(
+    AppVaultsVaultIdRouteRouteChildren,
+  )
+
+interface AppVaultsRouteRouteChildren {
+  AppVaultsVaultIdRouteRoute: typeof AppVaultsVaultIdRouteRouteWithChildren
+  AppVaultsNewRoute: typeof AppVaultsNewRoute
+  AppVaultsIndexRoute: typeof AppVaultsIndexRoute
+}
+
+const AppVaultsRouteRouteChildren: AppVaultsRouteRouteChildren = {
+  AppVaultsVaultIdRouteRoute: AppVaultsVaultIdRouteRouteWithChildren,
+  AppVaultsNewRoute: AppVaultsNewRoute,
+  AppVaultsIndexRoute: AppVaultsIndexRoute,
+}
+
+const AppVaultsRouteRouteWithChildren = AppVaultsRouteRoute._addFileChildren(
+  AppVaultsRouteRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppAddressBookRouteRoute: typeof AppAddressBookRouteRouteWithChildren
+  AppIdentitiesRouteRoute: typeof AppIdentitiesRouteRouteWithChildren
+  AppOperationsRouteRoute: typeof AppOperationsRouteRouteWithChildren
+  AppPoliciesRouteRoute: typeof AppPoliciesRouteRouteWithChildren
+  AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
+  AppSignersRouteRoute: typeof AppSignersRouteRouteWithChildren
+  AppVaultsRouteRoute: typeof AppVaultsRouteRouteWithChildren
+  AppOverviewRoute: typeof AppOverviewRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAddressBookRouteRoute: AppAddressBookRouteRouteWithChildren,
+  AppIdentitiesRouteRoute: AppIdentitiesRouteRouteWithChildren,
+  AppOperationsRouteRoute: AppOperationsRouteRouteWithChildren,
+  AppPoliciesRouteRoute: AppPoliciesRouteRouteWithChildren,
+  AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
+  AppSignersRouteRoute: AppSignersRouteRouteWithChildren,
+  AppVaultsRouteRoute: AppVaultsRouteRouteWithChildren,
+  AppOverviewRoute: AppOverviewRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface ApiOpenapiAppRouteChildren {
   ApiOpenapiAppSchemaRoute: typeof ApiOpenapiAppSchemaRoute
@@ -723,9 +1713,9 @@ const ApiOpenapiAuthRouteWithChildren = ApiOpenapiAuthRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRouteWithChildren,
   LoginRouteRoute: LoginRouteRouteWithChildren,
-  ManagerRouteRoute: ManagerRouteRouteWithChildren,
+  SignUpRouteRoute: SignUpRouteRouteWithChildren,
+  AppRoute: AppRouteWithChildren,
   LogoutRoute: LogoutRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOpenapiAppRoute: ApiOpenapiAppRouteWithChildren,

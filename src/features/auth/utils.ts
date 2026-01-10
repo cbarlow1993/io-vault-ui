@@ -2,7 +2,6 @@ import { useRouter, useSearch } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
 import { authClient } from '@/features/auth/client';
-import { Role } from '@/features/auth/permissions';
 
 export const useRedirectAfterLogin = () => {
   const search = useSearch({ strict: false });
@@ -26,49 +25,10 @@ export const useRedirectAfterLogin = () => {
         return;
       }
 
-      const userRole = session.data?.user.role;
-
-      if (!userRole) {
-        router.navigate({
-          replace: true,
-          to: '/',
-        });
-        return;
-      }
-
-      if (
-        authClient.admin.checkRolePermission({
-          role: userRole as Role,
-          permission: {
-            apps: ['manager'],
-          },
-        })
-      ) {
-        router.navigate({
-          replace: true,
-          to: '/manager',
-        });
-        return;
-      }
-
-      if (
-        authClient.admin.checkRolePermission({
-          role: userRole as Role,
-          permission: {
-            apps: ['app'],
-          },
-        })
-      ) {
-        router.navigate({
-          replace: true,
-          to: '/app',
-        });
-        return;
-      }
-
+      // All authenticated users go to overview
       router.navigate({
         replace: true,
-        to: '/',
+        to: '/overview',
       });
     };
 
