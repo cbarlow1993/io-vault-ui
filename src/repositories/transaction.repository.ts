@@ -142,7 +142,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
   ): Promise<{ data: Transaction[]; total: number }> {
     const limit = options?.limit ?? 50;
     const offset = options?.offset ?? 0;
-    const normalizedAddress = address.toLowerCase();
+    const normalizedAddress = WalletAddress.normalizeForComparison(address);
 
     // Build base query for the join
     let baseQuery = this.db
@@ -203,7 +203,7 @@ export class PostgresTransactionRepository implements TransactionRepository {
   ): Promise<TransactionListResult> {
     const { cursor, limit, sort, direction: directionFilter } = options;
     const sortDirection = sort === 'asc' ? 'asc' : 'desc';
-    const normalizedAddress = address.toLowerCase();
+    const normalizedAddress = WalletAddress.normalizeForComparison(address);
 
     let query = this.db
       .selectFrom('address_transactions as at')
