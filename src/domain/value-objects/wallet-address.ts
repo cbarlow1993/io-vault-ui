@@ -81,11 +81,13 @@ const CHAIN_TYPE_MAP: Record<string, ChainType> = {
 /**
  * Immutable value object representing a wallet address on a specific chain.
  *
- * Consolidates address normalization logic from:
- * - src/lib/lowercase.ts:1 (lowercase utility)
- * - src/repositories/address.repository.ts:73 (LOWER(address))
- * - src/services/transactions/transfer-enricher.ts:39 (perspectiveAddress.toLowerCase())
- * - src/services/spam/spam-classification-service.ts:34 (token.address.toLowerCase())
+ * Consolidates all address normalization logic that was previously scattered across:
+ * - Repository SQL queries (LOWER(address) in WHERE clauses)
+ * - Service methods (address.toLowerCase() comparisons)
+ * - Route handlers (address normalization for matching)
+ *
+ * All address normalization should now flow through this value object or use
+ * the static `normalizeForComparison()` method for quick comparisons.
  *
  * Automatically normalizes addresses to lowercase for consistent comparison
  * while preserving original case for display purposes where needed.
