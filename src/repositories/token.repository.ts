@@ -2,6 +2,7 @@ import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { type Kysely, sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 import type { Database, Token as TokenRow, SpamClassification } from '@/src/lib/database/types.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 import type { Token, CreateTokenMetadataInput, TokenRepository } from '@/src/repositories/types.js';
 
 /**
@@ -51,7 +52,7 @@ export class PostgresTokenRepository implements TokenRepository {
       .selectFrom('tokens')
       .selectAll()
       .where('chain_alias', '=', chainAlias)
-      .where(sql`LOWER(address)`, '=', address.toLowerCase())
+      .where(sql`LOWER(address)`, '=', TokenAddress.normalizeForComparison(address))
       .executeTakeFirst();
 
     return result ? mapToToken(result) : null;
