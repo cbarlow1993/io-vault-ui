@@ -64,11 +64,10 @@ export class PricingService {
     }
 
     // Validate and normalize currency using domain value object
-    const originalCurrency = currency.toLowerCase().trim();
-    currency = TokenPrice.normalizeCurrency(currency);
-    if (currency !== originalCurrency) {
-      logger.warn('Unsupported currency provided, using default USD', { currency: originalCurrency });
+    if (!TokenPrice.isSupportedCurrency(currency)) {
+      logger.warn('Unsupported currency provided, using default USD', { currency });
     }
+    currency = TokenPrice.normalizeCurrency(currency);
 
     // Deduplicate and filter out empty/invalid IDs
     const uniqueIds = [...new Set(coingeckoIds)].filter(id => id && id.trim().length > 0);
