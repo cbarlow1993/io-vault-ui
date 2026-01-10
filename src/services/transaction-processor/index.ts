@@ -19,6 +19,7 @@ import type {
   TokenInfo,
   ClassificationResult,
 } from '@/src/services/transaction-processor/types.js';
+import { WalletAddress, TokenAddress } from '@/src/domain/value-objects/index.js';
 
 // Chain type helpers using SDK chain aliases
 const evmAliases = Object.values(EvmChainAliases) as string[];
@@ -136,8 +137,9 @@ export class TransactionProcessor {
     // 3. Classify the transaction
     const defaultPerspective =
       rawTx.type === 'evm' ? rawTx.from : rawTx.instructions[0]?.accounts[0] ?? '';
+    const perspectiveAddr = WalletAddress.create(forAddress ?? defaultPerspective, chainAlias);
     const classification = await this.classifier.classify(rawTx, {
-      perspectiveAddress: forAddress ?? defaultPerspective,
+      perspectiveAddress: perspectiveAddr,
       chainAlias,
     });
 
@@ -160,7 +162,7 @@ export class TransactionProcessor {
 
     for (const transfer of classification.transfers) {
       if (transfer.type === 'token' && transfer.token?.address) {
-        addresses.add(transfer.token.address.toLowerCase());
+        addresses.add(TokenAddress.normalizeForComparison(transfer.token.address));
       }
     }
 
