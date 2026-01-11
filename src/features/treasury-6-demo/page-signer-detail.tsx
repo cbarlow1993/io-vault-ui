@@ -23,32 +23,12 @@ import {
   getSignerSignatureActivities,
   getSignerVaults,
   type SignerSignatureActivity,
-  type SignerStatus,
   type SignerType,
   type SignerVaultSummary,
 } from './data/signers';
+import { getStatusStyles } from './lib/status-styles';
 
-const getStatusStyles = (status: SignerStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'revoked':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
-
-const getVaultStatusStyles = (status: SignerVaultSummary['status']) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'revoked':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
+const getVaultStatusStyles = getStatusStyles;
 
 const getSignatureStatusIcon = (status: SignerSignatureActivity['status']) => {
   switch (status) {

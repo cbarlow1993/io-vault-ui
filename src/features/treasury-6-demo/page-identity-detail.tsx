@@ -44,6 +44,7 @@ import {
   getAddressBookEntriesByIdentityId,
   type AddressBookEntry,
 } from './data/address-book';
+import { getStatusStyles } from './lib/status-styles';
 
 // Tab types
 type TabType = 'accounts' | 'profile';
@@ -583,17 +584,6 @@ const LinkedContactRow = ({ contact }: { contact: IndividualIdentity }) => {
 
 // Linked vault row component
 const LinkedVaultRow = ({ vault }: { vault: Vault }) => {
-  const getVaultStatusStyles = (status: Vault['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-positive-100 text-positive-700';
-      case 'pending':
-        return 'bg-warning-100 text-warning-700';
-      case 'revoked':
-        return 'bg-neutral-100 text-neutral-500';
-    }
-  };
-
   return (
     <Link
       to="/vaults/$vaultId"
@@ -611,7 +601,7 @@ const LinkedVaultRow = ({ vault }: { vault: Vault }) => {
       <span
         className={cn(
           'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-          getVaultStatusStyles(vault.status)
+          getStatusStyles(vault.status)
         )}
       >
         {vault.status}

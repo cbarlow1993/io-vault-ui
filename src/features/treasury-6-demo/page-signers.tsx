@@ -1,8 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
   AlertTriangleIcon,
-  CheckIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
@@ -28,6 +26,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { FilterSelect } from './components/filter-select';
+import {
+  getHealthLabel,
+  getHealthStyles,
+  getStatusStyles,
+} from './lib/status-styles';
+
 import {
   PageLayout,
   PageLayoutContent,
@@ -44,59 +49,8 @@ import {
   isVersionOutdated,
   LATEST_VERSIONS,
   type RegisteredSigner,
-  type SignerHealthStatus,
-  type SignerStatus,
   type SignerType,
 } from './data/signers';
-
-// Simple filter select matching Swiss design aesthetic
-type FilterSelectOption = { id: string; label: string };
-
-const FilterSelect = <T extends FilterSelectOption>({
-  options,
-  value,
-  onChange,
-  className,
-}: {
-  options: readonly T[];
-  value: T | null;
-  onChange: (value: T) => void;
-  className?: string;
-}) => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'flex h-7 items-center justify-between gap-2 border border-neutral-200 bg-neutral-50 px-2 text-xs text-neutral-900 hover:bg-neutral-100 focus:border-neutral-400 focus:outline-none',
-            className
-          )}
-        >
-          <span className="truncate">{value?.label ?? 'Select...'}</span>
-          <ChevronDownIcon className="size-3 shrink-0 text-neutral-400" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="min-w-[120px] rounded-none p-0"
-      >
-        {options.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            onClick={() => onChange(option)}
-            className="flex cursor-pointer items-center justify-between gap-2 rounded-none px-2 py-1.5 text-xs"
-          >
-            <span>{option.label}</span>
-            {value?.id === option.id && (
-              <CheckIcon className="size-3 text-neutral-900" />
-            )}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
 
 type SelectOption = { id: string; label: string };
 
@@ -121,17 +75,6 @@ const PAGE_SIZE_OPTIONS_SELECT: SelectOption[] = [
   { id: '50', label: '50' },
 ];
 
-const getStatusStyles = (status: SignerStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'revoked':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
-
 const getTypeIcon = (type: SignerType) => {
   switch (type) {
     case 'ios':
@@ -153,38 +96,12 @@ const getTypeLabel = (type: SignerType) => {
   }
 };
 
-const getHealthIndicatorStyles = (health: SignerHealthStatus) => {
-  switch (health) {
-    case 'online':
-      return 'bg-positive-500';
-    case 'idle':
-      return 'bg-warning-500';
-    case 'offline':
-      return 'bg-neutral-400';
-    case 'unknown':
-      return 'bg-neutral-300';
-  }
-};
-
-const getHealthLabel = (health: SignerHealthStatus) => {
-  switch (health) {
-    case 'online':
-      return 'Online';
-    case 'idle':
-      return 'Idle';
-    case 'offline':
-      return 'Offline';
-    case 'unknown':
-      return 'Unknown';
-  }
-};
-
 const HealthIndicator = ({ signer }: { signer: RegisteredSigner }) => {
   const health = getSignerHealthStatus(signer);
   return (
     <div className="flex items-center gap-1.5">
       <span
-        className={cn('size-2 rounded-full', getHealthIndicatorStyles(health))}
+        className={cn('size-2 rounded-full', getHealthStyles(health))}
         title={getHealthLabel(health)}
       />
       <span className="text-neutral-500">{signer.lastSeen ?? 'Never'}</span>

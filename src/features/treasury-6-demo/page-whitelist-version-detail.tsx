@@ -41,6 +41,7 @@ import {
   type WhitelistEntry,
   type WhitelistStatus,
 } from './data/whitelists';
+import { getStatusStyles } from './lib/status-styles';
 
 // Change types that represent actual edits/modifications and significant workflow events
 const EDIT_CHANGE_TYPES: WhitelistChangeType[] = [
@@ -56,23 +57,6 @@ const EDIT_CHANGE_TYPES: WhitelistChangeType[] = [
 
 // Mock required approvers for demo (in real app, this would come from the policy config)
 const REQUIRED_APPROVERS = ['Alice Chen', 'Bob Martinez', 'Charlie Kim'];
-
-const getStatusStyles = (status: WhitelistStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'draft':
-      return 'bg-brand-100 text-brand-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'superseded':
-      return 'bg-neutral-100 text-neutral-500';
-    case 'expired':
-      return 'bg-neutral-100 text-neutral-500';
-    case 'revoked':
-      return 'bg-negative-100 text-negative-600';
-  }
-};
 
 const getStatusIcon = (status: WhitelistStatus) => {
   switch (status) {

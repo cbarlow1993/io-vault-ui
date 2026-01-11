@@ -52,17 +52,7 @@ import {
   type Signature,
   type VaultStatus,
 } from './data/vaults';
-
-const getStatusStyles = (status: VaultStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'revoked':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
+import { getStatusStyles } from './lib/status-styles';
 
 const getSignatureStatusIcon = (status: Signature['status']) => {
   switch (status) {

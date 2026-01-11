@@ -47,6 +47,7 @@ import {
   type PolicyVersionStatus,
   type SpendingLimit,
 } from './data/transaction-policies';
+import { getStatusStyles } from './lib/status-styles';
 
 // Change types that represent actual edits/modifications and significant workflow events
 const EDIT_CHANGE_TYPES: PolicyChangeType[] = [
@@ -74,19 +75,6 @@ const EDIT_CHANGE_TYPES: PolicyChangeType[] = [
 
 // Mock required approvers for demo (in real app, this would come from the policy config)
 const REQUIRED_APPROVERS = ['Alice Chen', 'Bob Martinez', 'Charlie Kim'];
-
-const getStatusStyles = (status: PolicyVersionStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'draft':
-      return 'bg-brand-100 text-brand-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'superseded':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
 
 const getStatusIcon = (status: PolicyVersionStatus) => {
   switch (status) {

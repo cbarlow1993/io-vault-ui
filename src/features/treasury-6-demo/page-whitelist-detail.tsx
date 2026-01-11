@@ -2,7 +2,6 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import {
   AlertTriangleIcon,
   CheckIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
@@ -64,72 +63,11 @@ import {
   type WhitelistEntry,
   type WhitelistStatus,
 } from './data/whitelists';
-
-// Filter select component
-type FilterSelectOption = { id: string; label: string };
-
-const FilterSelect = <T extends FilterSelectOption>({
-  options,
-  value,
-  onChange,
-  className,
-}: {
-  options: readonly T[];
-  value: T | null;
-  onChange: (value: T) => void;
-  className?: string;
-}) => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'flex h-7 items-center justify-between gap-2 border border-neutral-200 bg-neutral-50 px-2 text-xs text-neutral-900 hover:bg-neutral-100 focus:border-neutral-400 focus:outline-none',
-            className
-          )}
-        >
-          <span className="truncate">{value?.label ?? 'Select...'}</span>
-          <ChevronDownIcon className="size-3 shrink-0 text-neutral-400" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="min-w-[120px] rounded-none p-0"
-      >
-        {options.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            onClick={() => onChange(option)}
-            className="flex cursor-pointer items-center justify-between gap-2 rounded-none px-2 py-1.5 text-xs"
-          >
-            <span>{option.label}</span>
-            {value?.id === option.id && (
-              <CheckIcon className="size-3 text-neutral-900" />
-            )}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-const getStatusStyles = (status: WhitelistStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'draft':
-      return 'bg-brand-100 text-brand-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'superseded':
-      return 'bg-neutral-100 text-neutral-500';
-    case 'expired':
-      return 'bg-neutral-100 text-neutral-500';
-    case 'revoked':
-      return 'bg-negative-100 text-negative-600';
-  }
-};
+import {
+  FilterSelect,
+  type FilterSelectOption,
+} from './components/filter-select';
+import { getStatusStyles } from './lib/status-styles';
 
 const getStatusIcon = (status: WhitelistStatus) => {
   switch (status) {

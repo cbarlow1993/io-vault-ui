@@ -33,21 +33,11 @@ import {
   type PaymentMethod,
   type PlanTier,
 } from './data/settings';
+import { getStatusStyles } from './lib/status-styles';
 
 const getCardIcon = (_type: PaymentMethod['type']) => {
   // In a real app, you'd use brand-specific icons
   return <CreditCardIcon className="size-5 text-neutral-500" />;
-};
-
-const getStatusStyles = (status: 'paid' | 'pending' | 'failed') => {
-  switch (status) {
-    case 'paid':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'failed':
-      return 'bg-negative-100 text-negative-700';
-  }
 };
 
 export const PageSettingsBilling = () => {

@@ -41,17 +41,7 @@ import {
   type MemberStatus,
   type PlatformRoleId,
 } from './data/settings';
-
-const getStatusStyles = (status: MemberStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'deactivated':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
+import { getStatusStyles } from './lib/status-styles';
 
 const getRoleStyles = (role: PlatformRoleId) => {
   switch (role) {

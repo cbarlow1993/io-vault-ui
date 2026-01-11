@@ -1,12 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import {
-  CheckIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  CopyIcon,
   MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
@@ -26,62 +23,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { FilterSelect } from './components/filter-select';
+import { getStatusStyles } from './lib/status-styles';
+
 import {
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
 } from '@/layout/treasury-6';
 
-import { allVaults, type VaultStatus } from './data/vaults';
-
-// Simple filter select matching Swiss design aesthetic
-type FilterSelectOption = { id: string; label: string };
-
-const FilterSelect = <T extends FilterSelectOption>({
-  options,
-  value,
-  onChange,
-  className,
-}: {
-  options: readonly T[];
-  value: T | null;
-  onChange: (value: T) => void;
-  className?: string;
-}) => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'flex h-7 items-center justify-between gap-2 border border-neutral-200 bg-neutral-50 px-2 text-xs text-neutral-900 hover:bg-neutral-100 focus:border-neutral-400 focus:outline-none',
-            className
-          )}
-        >
-          <span className="truncate">{value?.label ?? 'Select...'}</span>
-          <ChevronDownIcon className="size-3 shrink-0 text-neutral-400" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="min-w-[120px] rounded-none p-0"
-      >
-        {options.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            onClick={() => onChange(option)}
-            className="flex cursor-pointer items-center justify-between gap-2 rounded-none px-2 py-1.5 text-xs"
-          >
-            <span>{option.label}</span>
-            {value?.id === option.id && (
-              <CheckIcon className="size-3 text-neutral-900" />
-            )}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
+import { allVaults } from './data/vaults';
 
 type SelectOption = { id: string; label: string };
 
@@ -98,17 +49,6 @@ const PAGE_SIZE_OPTIONS_SELECT: SelectOption[] = [
   { id: '25', label: '25' },
   { id: '50', label: '50' },
 ];
-
-const getStatusStyles = (status: VaultStatus) => {
-  switch (status) {
-    case 'active':
-      return 'bg-positive-100 text-positive-700';
-    case 'pending':
-      return 'bg-warning-100 text-warning-700';
-    case 'revoked':
-      return 'bg-neutral-100 text-neutral-500';
-  }
-};
 
 const DEFAULT_STATUS = STATUS_OPTIONS[0]!;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS_SELECT[0]!;
