@@ -2,14 +2,10 @@ import { Link, useParams } from '@tanstack/react-router';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useState, type ChangeEvent } from 'react';
 
-import { Button } from '@/components/ui/button';
-import {
-  CHAIN_LABELS,
-  STATUS_LABELS,
-  TRANSACTION_TYPE_LABELS,
-} from '@/features/compliance';
+import { CHAIN_LABELS, TRANSACTION_TYPE_LABELS } from '@/features/compliance';
 import { type Chain } from '@/features/compliance/constants';
 import {
+  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -46,124 +42,139 @@ export const PageComplianceAddressDossier = () => {
 
   return (
     <PageLayout>
-      <PageLayoutTopBar>
+      <PageLayoutTopBar
+        endActions={
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleToggleWatchlist}
+              className={
+                dossier.isWatchlisted
+                  ? 'flex h-7 items-center gap-1.5 bg-warning-500 px-2 text-xs font-medium text-white hover:bg-warning-600'
+                  : 'flex h-7 items-center gap-1.5 border border-neutral-200 bg-neutral-50 px-2 text-xs font-medium text-neutral-600 hover:bg-neutral-100'
+              }
+            >
+              {dossier.isWatchlisted ? (
+                <>
+                  <EyeIcon className="size-3.5" />
+                  Watching
+                </>
+              ) : (
+                <>
+                  <EyeOffIcon className="size-3.5" />
+                  Add to Watchlist
+                </>
+              )}
+            </button>
+            <div className="h-4 w-px bg-neutral-200" />
+            <NotificationButton />
+          </div>
+        }
+      >
         <PageLayoutTopBarTitle>
           <div className="flex items-center gap-2">
-            <Link to="/" className="text-neutral-500 hover:text-neutral-700">
+            <Link
+              to="/compliance"
+              className="text-neutral-500 hover:text-neutral-700"
+            >
               Compliance
             </Link>
             <span className="text-neutral-400">/</span>
-            <Link to="/" className="text-neutral-500 hover:text-neutral-700">
+            <Link
+              to="/compliance/addresses"
+              className="text-neutral-500 hover:text-neutral-700"
+            >
               Addresses
             </Link>
             <span className="text-neutral-400">/</span>
-            <span className="max-w-[200px] truncate">{address}</span>
+            <span className="max-w-[180px] truncate font-mono text-xs">
+              {address}
+            </span>
           </div>
         </PageLayoutTopBarTitle>
       </PageLayoutTopBar>
-      <PageLayoutContent>
-        <div className="space-y-6">
+      <PageLayoutContent containerClassName="py-4">
+        <div className="space-y-4">
           {/* Address Summary */}
-          <div className="rounded-lg border border-neutral-200 bg-white p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-neutral-900">
-                  Address Dossier
-                </h2>
-                <p className="mt-1 font-mono text-sm text-neutral-500">
-                  {dossier.address}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <RiskBadge level={dossier.riskLevel} />
-                <Button
-                  variant={dossier.isWatchlisted ? 'default' : 'secondary'}
-                  size="sm"
-                  onClick={handleToggleWatchlist}
-                  className={
-                    dossier.isWatchlisted
-                      ? 'bg-warning-500 hover:bg-warning-600'
-                      : ''
-                  }
-                >
-                  {dossier.isWatchlisted ? (
-                    <>
-                      <EyeIcon className="mr-1 h-4 w-4" />
-                      Watching
-                    </>
-                  ) : (
-                    <>
-                      <EyeOffIcon className="mr-1 h-4 w-4" />
-                      Add to Watchlist
-                    </>
-                  )}
-                </Button>
-              </div>
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2">
+              <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                Address Dossier
+              </h2>
+              <RiskBadge level={dossier.riskLevel} />
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-5">
-              <div>
-                <div className="text-xs font-medium text-neutral-500">
-                  Chain
-                </div>
-                <div className="mt-1 text-sm text-neutral-900">
-                  {CHAIN_LABELS[dossier.chain as Chain]}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium text-neutral-500">
-                  Label
-                </div>
-                <div className="mt-1 text-sm text-neutral-900">
-                  {dossier.label || 'Unlabeled'}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium text-neutral-500">
-                  Total Transactions
-                </div>
-                <div className="mt-1 text-sm text-neutral-900">
-                  {dossier.transactionCount}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium text-neutral-500">
-                  Total Volume
-                </div>
-                <div className="mt-1 text-sm text-neutral-900">
-                  {dossier.totalVolume} {dossier.token}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-medium text-neutral-500">
-                  Last Activity
-                </div>
-                <div className="mt-1 text-sm text-neutral-900">
-                  {dossier.lastActivity.toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+            <div className="p-3">
+              <p className="font-mono text-xs text-neutral-500">
+                {dossier.address}
+              </p>
 
-            {dossier.tags.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1">
-                {dossier.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="mt-4 grid grid-cols-5 gap-px bg-neutral-200">
+                <div className="bg-white p-2">
+                  <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Chain
+                  </div>
+                  <div className="mt-0.5 text-xs text-neutral-900">
+                    {CHAIN_LABELS[dossier.chain as Chain]}
+                  </div>
+                </div>
+                <div className="bg-white p-2">
+                  <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Label
+                  </div>
+                  <div className="mt-0.5 text-xs text-neutral-900">
+                    {dossier.label || 'Unlabeled'}
+                  </div>
+                </div>
+                <div className="bg-white p-2">
+                  <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Total Transactions
+                  </div>
+                  <div className="mt-0.5 text-xs text-neutral-900 tabular-nums">
+                    {dossier.transactionCount}
+                  </div>
+                </div>
+                <div className="bg-white p-2">
+                  <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Total Volume
+                  </div>
+                  <div className="mt-0.5 text-xs text-neutral-900 tabular-nums">
+                    {dossier.totalVolume} {dossier.token}
+                  </div>
+                </div>
+                <div className="bg-white p-2">
+                  <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Last Activity
+                  </div>
+                  <div className="mt-0.5 text-xs text-neutral-900 tabular-nums">
+                    {dossier.lastActivity.toLocaleDateString()}
+                  </div>
+                </div>
               </div>
-            )}
+
+              {dossier.tags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {dossier.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-600"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Provider Assessments */}
-          <div>
-            <h3 className="mb-4 text-lg font-semibold text-neutral-900">
-              Risk Assessments
-            </h3>
-            <div className="grid gap-4 md:grid-cols-3">
+          <div className="border border-neutral-200 bg-white">
+            <div className="border-b border-neutral-200 px-3 py-2">
+              <h3 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                Risk Assessments
+              </h3>
+            </div>
+            <div className="grid grid-cols-3 gap-px bg-neutral-200">
               {dossier.assessments.map((assessment) => (
                 <ProviderAssessmentCard
                   key={assessment.provider}
@@ -173,35 +184,38 @@ export const PageComplianceAddressDossier = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             {/* Recent Transactions */}
-            <div className="rounded-lg border border-neutral-200 bg-white p-4">
-              <h4 className="font-semibold text-neutral-900">
-                Recent Transactions
-              </h4>
-              <div className="mt-4 space-y-3">
+            <div className="border border-neutral-200 bg-white">
+              <div className="border-b border-neutral-200 px-3 py-2">
+                <h4 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                  Recent Transactions
+                </h4>
+              </div>
+              <div className="divide-y divide-neutral-100">
                 {dossier.recentTransactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between border-b border-neutral-100 pb-3 last:border-0"
+                    className="flex items-center justify-between px-3 py-2"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-neutral-900">
+                        <span className="text-xs font-medium text-neutral-900">
                           {TRANSACTION_TYPE_LABELS[tx.type]}
                         </span>
                         <StatusBadge status={tx.status} />
                       </div>
-                      <div className="mt-1 text-sm text-neutral-600">
+                      <div className="mt-0.5 text-xs text-neutral-600 tabular-nums">
                         {tx.amount} {tx.token}
                       </div>
-                      <div className="mt-1 font-mono text-xs text-neutral-400">
+                      <div className="mt-0.5 font-mono text-[10px] text-neutral-400">
                         {tx.hash}
                       </div>
                     </div>
                     <Link
-                      to="/"
-                      className="text-sm text-brand-600 hover:text-brand-700"
+                      to="/compliance/transactions/$id"
+                      params={{ id: tx.id }}
+                      className="text-xs text-brand-600 hover:text-brand-700"
                     >
                       View
                     </Link>
@@ -211,28 +225,31 @@ export const PageComplianceAddressDossier = () => {
             </div>
 
             {/* Related Addresses */}
-            <div className="rounded-lg border border-neutral-200 bg-white p-4">
-              <h4 className="font-semibold text-neutral-900">
-                Related Addresses
-              </h4>
-              <div className="mt-4 space-y-3">
+            <div className="border border-neutral-200 bg-white">
+              <div className="border-b border-neutral-200 px-3 py-2">
+                <h4 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                  Related Addresses
+                </h4>
+              </div>
+              <div className="divide-y divide-neutral-100">
                 {dossier.relatedAddresses.map((related) => (
                   <div
                     key={related.address}
-                    className="flex items-center justify-between border-b border-neutral-100 pb-3 last:border-0"
+                    className="flex items-center justify-between px-3 py-2"
                   >
                     <div>
-                      <div className="font-mono text-sm text-neutral-900">
+                      <div className="font-mono text-xs text-neutral-900">
                         {related.address.slice(0, 20)}...
                       </div>
-                      <div className="mt-1 text-xs text-neutral-500">
+                      <div className="mt-0.5 text-[10px] text-neutral-500">
                         {related.relationship} • {related.transactionCount}{' '}
                         transactions
                       </div>
                     </div>
                     <Link
-                      to="/"
-                      className="text-sm text-brand-600 hover:text-brand-700"
+                      to="/compliance/addresses/$address"
+                      params={{ address: related.address }}
+                      className="text-xs text-brand-600 hover:text-brand-700"
                     >
                       View
                     </Link>
@@ -243,45 +260,48 @@ export const PageComplianceAddressDossier = () => {
           </div>
 
           {/* Notes Section */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             {/* Add Note */}
-            <div className="rounded-lg border border-neutral-200 bg-white p-4">
-              <h4 className="font-semibold text-neutral-900">Add Note</h4>
-              <div className="mt-3">
+            <div className="border border-neutral-200 bg-white">
+              <div className="border-b border-neutral-200 px-3 py-2">
+                <h4 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                  Add Note
+                </h4>
+              </div>
+              <div className="p-3">
                 <textarea
                   placeholder="Enter your notes about this address..."
                   value={note}
                   onChange={handleNoteChange}
                   rows={3}
-                  className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                  className="w-full border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
                 />
-                <Button
+                <button
+                  type="button"
                   onClick={handleAddNote}
-                  size="sm"
-                  className="mt-2"
                   disabled={!note.trim()}
+                  className="mt-2 h-7 bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600 disabled:opacity-50"
                 >
                   Add Note
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* Previous Notes */}
             {dossier.notes.length > 0 && (
-              <div className="rounded-lg border border-neutral-200 bg-white p-4">
-                <h4 className="font-semibold text-neutral-900">
-                  Notes History
-                </h4>
-                <div className="mt-3 space-y-3">
+              <div className="border border-neutral-200 bg-white">
+                <div className="border-b border-neutral-200 px-3 py-2">
+                  <h4 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                    Notes History
+                  </h4>
+                </div>
+                <div className="divide-y divide-neutral-100">
                   {dossier.notes.map((n) => (
-                    <div
-                      key={n.id}
-                      className="border-l-2 border-neutral-200 pl-3"
-                    >
-                      <div className="text-sm text-neutral-900">
+                    <div key={n.id} className="px-3 py-2">
+                      <div className="text-xs text-neutral-900">
                         {n.content}
                       </div>
-                      <div className="mt-1 text-xs text-neutral-500">
+                      <div className="mt-1 text-[10px] text-neutral-500 tabular-nums">
                         {n.author} • {n.timestamp.toLocaleString()}
                       </div>
                     </div>

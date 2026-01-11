@@ -21,9 +21,9 @@ interface RequiresAttentionProps {
 
 export const RequiresAttention = ({ items }: RequiresAttentionProps) => {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-neutral-900">
+    <div className="border border-neutral-200 bg-white">
+      <div className="border-b border-neutral-200 px-3 py-2">
+        <h3 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
           Requires Attention
         </h3>
       </div>
@@ -33,24 +33,24 @@ export const RequiresAttention = ({ items }: RequiresAttentionProps) => {
             key={item.id}
             to="/compliance/transactions/$id"
             params={{ id: item.id }}
-            className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
+            className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-50"
           >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm text-neutral-900">
+                <span className="font-mono text-xs text-neutral-900">
                   {item.transactionHash.slice(0, 10)}...
                 </span>
                 {item.isAutoEscalated && (
-                  <AlertTriangleIcon className="h-3.5 w-3.5 text-warning-500" />
+                  <AlertTriangleIcon className="size-3.5 text-warning-500" />
                 )}
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-[10px] text-neutral-500 tabular-nums">
                 {item.amount} {item.token}
               </div>
             </div>
             <RiskBadge level={item.riskLevel} />
-            <div className="flex items-center gap-1 text-xs text-neutral-500">
-              <ClockIcon className="h-3 w-3" />
+            <div className="flex items-center gap-1 text-[10px] text-neutral-500 tabular-nums">
+              <ClockIcon className="size-3" />
               {item.waitingTime}
             </div>
           </Link>

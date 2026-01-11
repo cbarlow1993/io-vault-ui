@@ -1,7 +1,6 @@
 import { Link, useParams } from '@tanstack/react-router';
 import {
   ArrowDownIcon,
-  ArrowLeftIcon,
   ArrowUpIcon,
   ArrowUpRightIcon,
   BanIcon,
@@ -29,11 +28,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -311,7 +310,14 @@ export const PageAddressDetail = () => {
     return (
       <PageLayout>
         <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Address Not Found</PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Vaults', href: '/vaults' },
+              { label: vaultId, href: `/vaults/${vaultId}` },
+              { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
+              { label: 'Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
@@ -321,9 +327,8 @@ export const PageAddressDetail = () => {
             <Link
               to="/vaults/$vaultId/addresses"
               params={{ vaultId }}
-              className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
+              className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
-              <ArrowLeftIcon className="size-4" />
               Back to Addresses
             </Link>
           </div>
@@ -383,18 +388,14 @@ export const PageAddressDetail = () => {
           </div>
         }
       >
-        <div className="flex items-center gap-3">
-          <Link
-            to="/vaults/$vaultId/addresses"
-            params={{ vaultId }}
-            className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <PageLayoutTopBarTitle>
-            {address.alias ?? 'Address Details'}
-          </PageLayoutTopBarTitle>
-        </div>
+        <Breadcrumbs
+          items={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: vault.name, href: `/vaults/${vaultId}` },
+            { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
+            { label: address.alias ?? 'Address Details' },
+          ]}
+        />
       </PageLayoutTopBar>
 
       <PageLayoutContent containerClassName="py-4">

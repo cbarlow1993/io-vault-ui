@@ -66,40 +66,39 @@ const eventConfig: Record<
 
 export const TransactionTimeline = ({ events }: TransactionTimelineProps) => {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <h4 className="font-semibold text-neutral-900">Timeline</h4>
-      <div className="mt-4 space-y-4">
+    <div className="border border-neutral-200 bg-white">
+      <div className="border-b border-neutral-200 px-3 py-2">
+        <h4 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+          Timeline
+        </h4>
+      </div>
+      <div className="space-y-3 p-3">
         {events.map((event, index) => {
           const config = eventConfig[event.type];
           const Icon = config.icon;
           const isLast = index === events.length - 1;
 
           return (
-            <div key={event.id} className="relative flex gap-3">
+            <div key={event.id} className="relative flex gap-2">
               {!isLast && (
-                <div className="absolute top-6 left-[11px] h-full w-px bg-neutral-200" />
+                <div className="absolute top-5 left-[9px] h-full w-px bg-neutral-200" />
               )}
-              <div
-                className={cn(
-                  'relative z-10 rounded-full bg-white p-1',
-                  config.color
-                )}
-              >
-                <Icon className="h-4 w-4" />
+              <div className={cn('relative z-10 bg-white p-0.5', config.color)}>
+                <Icon className="size-3.5" />
               </div>
-              <div className="flex-1 pb-4">
-                <div className="text-sm text-neutral-900">
+              <div className="min-w-0 flex-1 pb-3">
+                <div className="text-xs text-neutral-900">
                   {config.label}
                   {event.actor && (
                     <span className="text-neutral-500"> by {event.actor}</span>
                   )}
                 </div>
                 {event.message && (
-                  <div className="mt-1 text-sm text-neutral-600">
+                  <div className="mt-0.5 text-xs text-neutral-600">
                     {event.message}
                   </div>
                 )}
-                <div className="mt-1 text-xs text-neutral-400">
+                <div className="mt-0.5 text-[10px] text-neutral-400 tabular-nums">
                   {event.timestamp.toLocaleString()}
                 </div>
               </div>

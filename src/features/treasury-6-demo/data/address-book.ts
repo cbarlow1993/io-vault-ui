@@ -147,3 +147,12 @@ export const getIdentitiesForLinking = (): {
     type: identity.type,
   }));
 };
+
+// Get address book entries for a specific identity
+export const getAddressBookEntriesByIdentityId = (
+  identityId: string
+): AddressBookEntry[] => {
+  return getAllAddressBookEntries().filter(
+    (entry) => entry.identity?.id === identityId
+  );
+};

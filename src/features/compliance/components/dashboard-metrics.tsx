@@ -7,37 +7,54 @@ interface MetricCardProps {
   value: number | string;
   change?: number;
   changeLabel?: string;
+  valueClassName?: string;
 }
 
-const MetricCard = ({ label, value, change, changeLabel }: MetricCardProps) => {
+const MetricCard = ({
+  label,
+  value,
+  change,
+  changeLabel,
+  valueClassName,
+}: MetricCardProps) => {
   const isPositive = change !== undefined && change >= 0;
   const hasChange = change !== undefined;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <div className="text-sm font-medium text-neutral-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold text-neutral-900">
+    <div className="bg-white p-3">
+      <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+        {label}
+      </p>
+      <p
+        className={cn(
+          'mt-1 text-lg font-semibold text-neutral-900 tabular-nums',
+          valueClassName
+        )}
+      >
         {value}
-      </div>
+      </p>
       {hasChange && (
         <div className="mt-1 flex items-center gap-1">
           {isPositive ? (
-            <ArrowUpIcon className="h-3 w-3 text-positive-600" />
+            <ArrowUpIcon className="size-2.5 text-positive-600" />
           ) : (
-            <ArrowDownIcon className="h-3 w-3 text-negative-600" />
+            <ArrowDownIcon className="size-2.5 text-negative-600" />
           )}
           <span
             className={cn(
-              'text-xs font-medium',
+              'text-[10px] font-medium',
               isPositive ? 'text-positive-600' : 'text-negative-600'
             )}
           >
             {Math.abs(change)}%
           </span>
           {changeLabel && (
-            <span className="text-xs text-neutral-500">{changeLabel}</span>
+            <span className="text-[10px] text-neutral-500">{changeLabel}</span>
           )}
         </div>
+      )}
+      {!hasChange && changeLabel && (
+        <p className="mt-1 text-[10px] text-neutral-400">{changeLabel}</p>
       )}
     </div>
   );
@@ -59,7 +76,7 @@ export const DashboardMetrics = ({
   highRiskAlerts,
 }: DashboardMetricsProps) => {
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-4 gap-px bg-neutral-200">
       <MetricCard
         label="Pending Reviews"
         value={pendingL1 + pendingL2}
@@ -70,8 +87,14 @@ export const DashboardMetrics = ({
         label="Approval Rate"
         value={`${approvalRate}%`}
         change={2.3}
+        valueClassName="text-positive-600"
       />
-      <MetricCard label="High Risk Alerts" value={highRiskAlerts} change={-5} />
+      <MetricCard
+        label="High Risk Alerts"
+        value={highRiskAlerts}
+        change={-5}
+        valueClassName={highRiskAlerts > 0 ? 'text-negative-600' : undefined}
+      />
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import { Link, useParams } from '@tanstack/react-router';
 import {
   AlertTriangleIcon,
-  ArrowLeftIcon,
   CheckIcon,
   ClockIcon,
   EditIcon,
   HistoryIcon,
   LockIcon,
   PlusIcon,
+  RotateCcwIcon,
   SendIcon,
   ShieldCheckIcon,
   TrashIcon,
@@ -15,22 +15,32 @@ import {
   XCircleIcon,
   XIcon,
 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/tailwind/utils';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
   getWhitelistById,
   type WhitelistChange,
   type WhitelistChangeType,
+  type WhitelistEntry,
   type WhitelistStatus,
 } from './data/whitelists';
 
@@ -190,16 +200,16 @@ export const PageWhitelistVersionDetail = () => {
     return (
       <PageLayout>
         <PageLayoutTopBar>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/policies/whitelists/$whitelistId"
-              params={{ whitelistId }}
-              className="text-neutral-400 hover:text-neutral-600"
-            >
-              <ArrowLeftIcon className="size-4" />
-            </Link>
-            <PageLayoutTopBarTitle>Version Not Found</PageLayoutTopBarTitle>
-          </div>
+          <Breadcrumbs
+            items={[
+              { label: 'Whitelists', href: '/policies/whitelists' },
+              {
+                label: whitelistId,
+                href: `/policies/whitelists/${whitelistId}`,
+              },
+              { label: 'Version Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
@@ -244,26 +254,60 @@ export const PageWhitelistVersionDetail = () => {
     );
   }, [approvedApprovers]);
 
+  const isDraft = version.status === 'draft';
+
+  // State for delete confirmation dialog
+  const [entryToDelete, setEntryToDelete] = useState<WhitelistEntry | null>(
+    null
+  );
+
   return (
     <PageLayout>
       <PageLayoutTopBar
         endActions={
           <div className="flex items-center gap-3">
+            {isDraft && (
+              <>
+                {/* Reset Draft - clears all edits and bases on previous version */}
+                <Button
+                  variant="secondary"
+                  className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+                >
+                  <RotateCcwIcon className="mr-1.5 size-3.5" />
+                  Reset Draft
+                </Button>
+                {/* Cancel - discards unsaved changes */}
+                <Button
+                  variant="secondary"
+                  className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+                >
+                  <XIcon className="mr-1.5 size-3.5" />
+                  Cancel
+                </Button>
+                {/* Submit for Approval - primary CTA */}
+                <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
+                  <SendIcon className="mr-1.5 size-3.5" />
+                  Submit for Approval
+                </Button>
+                {/* Separator */}
+                <div className="h-5 w-px bg-neutral-200" />
+              </>
+            )}
             <NotificationButton />
           </div>
         }
       >
         <div className="flex items-center gap-3">
-          <Link
-            to="/policies/whitelists/$whitelistId"
-            params={{ whitelistId }}
-            className="text-neutral-400 hover:text-neutral-600"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <PageLayoutTopBarTitle>
-            {whitelist.name} - Version {version.version}
-          </PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Whitelists', href: '/policies/whitelists' },
+              {
+                label: whitelist.name,
+                href: `/policies/whitelists/${whitelistId}`,
+              },
+              { label: `Version ${version.version}` },
+            ]}
+          />
           {isCurrentVersion && (
             <span className="rounded bg-brand-100 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
               Current
@@ -405,6 +449,94 @@ export const PageWhitelistVersionDetail = () => {
             </div>
           )}
 
+          {/* Whitelist Entries */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+              <div>
+                <h2 className="text-sm font-semibold text-neutral-900">
+                  Entries
+                </h2>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  {whitelist.entries.length}{' '}
+                  {whitelist.entries.length === 1 ? 'address' : 'addresses'} in
+                  this whitelist
+                </p>
+              </div>
+              {isDraft && (
+                <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
+                  <PlusIcon className="mr-1.5 size-3.5" />
+                  Add Entry
+                </Button>
+              )}
+            </div>
+            <div className="divide-y divide-neutral-100">
+              {whitelist.entries.length === 0 ? (
+                <div className="px-4 py-8 text-center text-neutral-500">
+                  <p className="text-sm">No entries in this whitelist yet.</p>
+                  {isDraft && (
+                    <p className="mt-1 text-xs">
+                      Click "Add Entry" to add addresses to this whitelist.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                whitelist.entries.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center justify-between px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-medium',
+                          entry.type === 'address'
+                            ? 'bg-brand-100 text-brand-700'
+                            : entry.type === 'contract'
+                              ? 'bg-terminal-100 text-terminal-700'
+                              : 'bg-indigo-100 text-indigo-700'
+                        )}
+                      >
+                        {entry.type === 'address'
+                          ? 'A'
+                          : entry.type === 'contract'
+                            ? 'C'
+                            : 'E'}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-neutral-900">
+                            {entry.label}
+                          </p>
+                          <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
+                            {entry.chain}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 font-mono text-xs text-neutral-500">
+                          {entry.address}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400">
+                        Added by {entry.addedBy}
+                      </span>
+                      {isDraft && (
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="size-7 rounded-none border-neutral-200 text-neutral-400 hover:border-negative-300 hover:bg-negative-50 hover:text-negative-600"
+                          onClick={() => setEntryToDelete(entry)}
+                        >
+                          <TrashIcon className="size-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
           {/* Approval Information - Only show for pending, active, and superseded statuses */}
           {version.status !== 'draft' && (
             <div className="border border-neutral-200 bg-white">
@@ -524,36 +656,6 @@ export const PageWhitelistVersionDetail = () => {
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Draft Status - Show submit for approval prompt */}
-          {version.status === 'draft' && (
-            <div className="border border-neutral-200 bg-white">
-              <div className="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
-                <h2 className="text-sm font-semibold text-neutral-900">
-                  Approval Status
-                </h2>
-              </div>
-              <div className="p-6 text-center">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand-100">
-                  <SendIcon className="size-6 text-brand-600" />
-                </div>
-                <p className="mt-3 text-sm font-medium text-neutral-900">
-                  Not yet submitted
-                </p>
-                <p className="mt-1 text-xs text-neutral-500">
-                  This draft version has not been submitted for approval yet.
-                  <br />
-                  Submit when all changes are ready for review.
-                </p>
-                <button
-                  type="button"
-                  className="mt-4 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-                >
-                  Submit for Approval
-                </button>
               </div>
             </div>
           )}
@@ -692,6 +794,93 @@ export const PageWhitelistVersionDetail = () => {
           </div>
         </div>
       </PageLayoutContent>
+
+      {/* Remove Entry Confirmation Dialog */}
+      <Dialog
+        open={entryToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setEntryToDelete(null);
+        }}
+      >
+        <DialogContent className="max-w-md rounded-none sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center bg-negative-100">
+                <AlertTriangleIcon className="size-5 text-negative-600" />
+              </div>
+              <div>
+                <DialogTitle className="text-base text-negative-700">
+                  Remove Entry
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  This action cannot be undone
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-neutral-700">
+              Are you sure you want to remove{' '}
+              <span className="font-semibold text-neutral-900">
+                {entryToDelete?.label}
+              </span>{' '}
+              from this whitelist?
+            </p>
+
+            {entryToDelete && (
+              <div className="border border-neutral-200 bg-neutral-50 p-3">
+                <h4 className="mb-2 text-xs font-semibold text-neutral-700">
+                  Entry Details
+                </h4>
+                <dl className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <dt className="text-neutral-500">Address</dt>
+                    <dd className="max-w-[200px] truncate font-mono text-neutral-900">
+                      {entryToDelete.address}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-neutral-500">Chain</dt>
+                    <dd className="text-neutral-900">{entryToDelete.chain}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-neutral-500">Added by</dt>
+                    <dd className="text-neutral-900">
+                      {entryToDelete.addedBy}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="border-t border-neutral-200 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setEntryToDelete(null)}
+              className="h-8 rounded-none border-neutral-200 px-4 text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                // TODO: Implement entry removal
+                console.log('Removing entry:', entryToDelete?.id);
+                setEntryToDelete(null);
+              }}
+              className={cn(
+                'h-8 rounded-none px-4 text-xs text-white',
+                'bg-negative-600 hover:bg-negative-700'
+              )}
+            >
+              Remove Entry
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 };

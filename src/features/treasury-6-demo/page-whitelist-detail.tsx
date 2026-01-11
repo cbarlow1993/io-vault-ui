@@ -1,7 +1,6 @@
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import {
   AlertTriangleIcon,
-  ArrowLeftIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -54,11 +53,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -379,15 +378,12 @@ export const PageWhitelistDetail = () => {
     return (
       <PageLayout>
         <PageLayoutTopBar>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/policies/whitelists"
-              className="text-neutral-400 hover:text-neutral-600"
-            >
-              <ArrowLeftIcon className="size-4" />
-            </Link>
-            <PageLayoutTopBarTitle>Whitelist Not Found</PageLayoutTopBarTitle>
-          </div>
+          <Breadcrumbs
+            items={[
+              { label: 'Whitelists', href: '/policies/whitelists' },
+              { label: 'Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
@@ -432,13 +428,12 @@ export const PageWhitelistDetail = () => {
         }
       >
         <div className="flex items-center gap-3">
-          <Link
-            to="/policies/whitelists"
-            className="text-neutral-400 hover:text-neutral-600"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <PageLayoutTopBarTitle>{whitelist.name}</PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Whitelists', href: '/policies/whitelists' },
+              { label: whitelist.name },
+            ]}
+          />
           <span
             className={cn(
               'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',

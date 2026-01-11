@@ -1,6 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router';
 import {
-  ArrowLeftIcon,
   BanknoteIcon,
   BuildingIcon,
   CalendarIcon,
@@ -24,11 +23,11 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -43,6 +42,13 @@ import {
   type KycStatus,
 } from './data/identities';
 import { getVaultsByIdentityId, type Vault } from './data/vaults';
+import {
+  getAddressBookEntriesByIdentityId,
+  type AddressBookEntry,
+} from './data/address-book';
+
+// Tab types
+type TabType = 'accounts' | 'profile';
 
 const getKycStatusStyles = (status: KycStatus) => {
   switch (status) {
@@ -87,12 +93,16 @@ export const PageIdentityDetail = () => {
   const { identityId } = useParams({ from: '/_app/identities/$identityId' });
   const identity = getIdentityById(identityId);
 
+  // Tab state - accounts is the default/landing tab
+  const [activeTab, setActiveTab] = useState<TabType>('accounts');
+
   // Expandable sections state
   const [contactsExpanded, setContactsExpanded] = useState(false);
   const [vaultsExpanded, setVaultsExpanded] = useState(true);
   const [bankAccountsExpanded, setBankAccountsExpanded] = useState(true);
   const [walletAddressesExpanded, setWalletAddressesExpanded] = useState(true);
   const [kycHistoryExpanded, setKycHistoryExpanded] = useState(true);
+  const [addressBookExpanded, setAddressBookExpanded] = useState(true);
 
   // Pagination state
   const ITEMS_PER_PAGE = 5;
@@ -101,12 +111,18 @@ export const PageIdentityDetail = () => {
   const [bankAccountsPage, setBankAccountsPage] = useState(1);
   const [walletAddressesPage, setWalletAddressesPage] = useState(1);
   const [kycHistoryPage, setKycHistoryPage] = useState(1);
+  const [addressBookPage, setAddressBookPage] = useState(1);
 
   if (!identity) {
     return (
       <PageLayout>
         <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Identity Not Found</PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Identities', href: '/identities' },
+              { label: 'Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
@@ -115,10 +131,9 @@ export const PageIdentityDetail = () => {
             </p>
             <Link
               to="/identities"
-              className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
+              className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
-              <ArrowLeftIcon className="size-4" />
-              Back to Identities
+              Return to identities
             </Link>
           </div>
         </PageLayoutContent>
@@ -137,6 +152,7 @@ export const PageIdentityDetail = () => {
     ? getLinkedCorporate(identity.id)
     : undefined;
   const linkedVaults = getVaultsByIdentityId(identity.id);
+  const addressBookEntries = getAddressBookEntriesByIdentityId(identity.id);
 
   return (
     <PageLayout>
@@ -160,517 +176,383 @@ export const PageIdentityDetail = () => {
           </div>
         }
       >
-        <div className="flex items-center gap-3">
-          <Link
-            to="/identities"
-            className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <div
-            className={cn(
-              'flex size-7 items-center justify-center rounded-full',
-              identity.type === 'corporate' ? 'bg-blue-100' : 'bg-purple-100'
-            )}
-          >
-            <TypeIcon
-              className={cn(
-                'size-3.5',
-                identity.type === 'corporate'
-                  ? 'text-blue-600'
-                  : 'text-purple-600'
-              )}
-            />
-          </div>
-          <PageLayoutTopBarTitle>{displayName}</PageLayoutTopBarTitle>
-          <span
-            className={cn(
-              'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-              getTypeStyles(identity.type)
-            )}
-          >
-            {identity.type}
-          </span>
-          <span
-            className={cn(
-              'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-              getKycStatusStyles(identity.kycStatus)
-            )}
-          >
-            {identity.kycStatus}
-          </span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { label: 'Identities', href: '/identities' },
+            { label: displayName },
+          ]}
+        />
       </PageLayoutTopBar>
-      <PageLayoutContent containerClassName="py-4">
-        <div className="space-y-6">
-          {/* Identity Info */}
-          <div className="grid grid-cols-4 gap-px bg-neutral-200">
-            <div className="bg-white p-4">
-              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                {identity.type === 'corporate' ? 'Jurisdiction' : 'Role'}
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900">
-                {isCorporateIdentity(identity)
-                  ? (identity.jurisdiction ?? '—')
-                  : isIndividualIdentity(identity)
-                    ? (identity.role ?? '—')
-                    : '—'}
-              </p>
-            </div>
-            <div className="bg-white p-4">
-              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                KYC Status
-              </p>
-              <p className="mt-1 flex items-center gap-2">
-                <span
-                  className={cn(
-                    'inline-block rounded px-1.5 py-0.5 text-xs font-medium capitalize',
-                    getKycStatusStyles(identity.kycStatus)
-                  )}
-                >
-                  {identity.kycStatus}
-                </span>
-              </p>
-            </div>
-            <div className="bg-white p-4">
-              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Verified Date
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900 tabular-nums">
-                {identity.kycVerifiedAt ?? '—'}
-              </p>
-            </div>
-            <div className="bg-white p-4">
-              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Expires
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900 tabular-nums">
-                {identity.kycExpiresAt ?? '—'}
-              </p>
-            </div>
-          </div>
-
-          {/* Corporate-specific: Registration Number */}
-          {isCorporateIdentity(identity) && identity.registrationNumber && (
-            <div className="border border-neutral-200 bg-white p-4">
-              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Registration Number
-              </p>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="font-mono text-sm text-neutral-900">
-                  {identity.registrationNumber}
-                </span>
-                <button
-                  type="button"
-                  className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                >
-                  <CopyIcon className="size-3" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Individual-specific: Contact Info */}
-          {isIndividualIdentity(identity) &&
-            (identity.email || identity.phone) && (
-              <div className="grid grid-cols-2 gap-px bg-neutral-200">
-                {identity.email && (
-                  <div className="flex items-center gap-3 bg-white p-4">
-                    <MailIcon className="size-4 text-neutral-400" />
-                    <div>
-                      <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                        Email
-                      </p>
-                      <p className="mt-0.5 text-sm text-neutral-900">
-                        {identity.email}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {identity.phone && (
-                  <div className="flex items-center gap-3 bg-white p-4">
-                    <PhoneIcon className="size-4 text-neutral-400" />
-                    <div>
-                      <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                        Phone
-                      </p>
-                      <p className="mt-0.5 text-sm text-neutral-900">
-                        {identity.phone}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+      <PageLayoutContent containerClassName="py-0">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-neutral-200 bg-white">
+          <button
+            type="button"
+            onClick={() => setActiveTab('accounts')}
+            className={cn(
+              'flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors',
+              activeTab === 'accounts'
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700'
             )}
+          >
+            <KeyIcon className="size-3.5" />
+            <span>Accounts</span>
+            <span
+              className={cn(
+                'rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
+                activeTab === 'accounts'
+                  ? 'bg-brand-100 text-brand-700'
+                  : 'bg-neutral-100 text-neutral-600'
+              )}
+            >
+              {linkedVaults.length + addressBookEntries.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('profile')}
+            className={cn(
+              'flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors',
+              activeTab === 'profile'
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700'
+            )}
+          >
+            <UserIcon className="size-3.5" />
+            <span>Profile</span>
+          </button>
+        </div>
 
-          {/* Individual-specific: Linked Corporate */}
-          {isIndividualIdentity(identity) && linkedCorporate && (
-            <div className="border border-neutral-200 bg-white">
-              <div className="border-b border-neutral-200 px-4 py-3">
-                <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
-                  Linked Organization
-                </h2>
-              </div>
-              <Link
-                to="/identities/$identityId"
-                params={{ identityId: linkedCorporate.id }}
-                className="flex items-center gap-3 p-4 hover:bg-neutral-50"
+        {/* Tab Content */}
+        <div className="py-4">
+          {activeTab === 'accounts' && (
+            <div className="space-y-6">
+              {/* Linked Vaults */}
+              <CollapsibleSection
+                title="Vaults"
+                description="Vaults assigned to this identity"
+                count={linkedVaults.length}
+                countLabel="vault"
+                expanded={vaultsExpanded}
+                onToggle={() => setVaultsExpanded(!vaultsExpanded)}
+                emptyState={
+                  linkedVaults.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                      <KeyIcon className="mx-auto size-8 text-neutral-300" />
+                      <p className="mt-2 text-sm text-neutral-500">
+                        No linked vaults
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        This identity is not linked to any vaults
+                      </p>
+                    </div>
+                  ) : undefined
+                }
               >
-                <div className="bg-blue-100 flex size-8 items-center justify-center rounded-full">
-                  <BuildingIcon className="text-blue-600 size-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-neutral-900">
-                    {linkedCorporate.displayName ?? linkedCorporate.name}
-                  </p>
-                  {linkedCorporate.jurisdiction && (
-                    <p className="text-xs text-neutral-500">
-                      {linkedCorporate.jurisdiction}
-                    </p>
-                  )}
-                </div>
-                <span
-                  className={cn(
-                    'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-                    getKycStatusStyles(linkedCorporate.kycStatus)
-                  )}
-                >
-                  {linkedCorporate.kycStatus}
-                </span>
-                <ChevronRightIcon className="size-4 text-neutral-400" />
-              </Link>
+                {linkedVaults.length > 0 && (
+                  <>
+                    <div className="divide-y divide-neutral-100">
+                      {linkedVaults
+                        .slice(
+                          (vaultsPage - 1) * ITEMS_PER_PAGE,
+                          vaultsPage * ITEMS_PER_PAGE
+                        )
+                        .map((vault) => (
+                          <LinkedVaultRow key={vault.id} vault={vault} />
+                        ))}
+                    </div>
+                    {linkedVaults.length > ITEMS_PER_PAGE && (
+                      <Pagination
+                        currentPage={vaultsPage}
+                        totalItems={linkedVaults.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                        onPageChange={setVaultsPage}
+                      />
+                    )}
+                  </>
+                )}
+              </CollapsibleSection>
+
+              {/* Address Book Entries */}
+              <CollapsibleSection
+                title="Address Book"
+                description="Saved addresses linked to this identity"
+                count={addressBookEntries.length}
+                countLabel="address"
+                expanded={addressBookExpanded}
+                onToggle={() => setAddressBookExpanded(!addressBookExpanded)}
+                emptyState={
+                  addressBookEntries.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                      <MapPinIcon className="mx-auto size-8 text-neutral-300" />
+                      <p className="mt-2 text-sm text-neutral-500">
+                        No address book entries
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        No addresses have been linked to this identity
+                      </p>
+                    </div>
+                  ) : undefined
+                }
+              >
+                {addressBookEntries.length > 0 && (
+                  <>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
+                          <th className="px-4 py-2 font-medium text-neutral-500">
+                            Label
+                          </th>
+                          <th className="px-4 py-2 font-medium text-neutral-500">
+                            Address
+                          </th>
+                          <th className="px-4 py-2 font-medium text-neutral-500">
+                            Chain
+                          </th>
+                          <th className="px-4 py-2 font-medium text-neutral-500">
+                            Type
+                          </th>
+                          <th className="px-4 py-2 font-medium text-neutral-500">
+                            Added
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100">
+                        {addressBookEntries
+                          .slice(
+                            (addressBookPage - 1) * ITEMS_PER_PAGE,
+                            addressBookPage * ITEMS_PER_PAGE
+                          )
+                          .map((entry) => (
+                            <tr key={entry.id} className="hover:bg-neutral-50">
+                              <td className="px-4 py-2.5 font-medium text-neutral-900">
+                                {entry.label}
+                              </td>
+                              <td className="px-4 py-2.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="max-w-[280px] truncate font-mono text-neutral-600">
+                                    {entry.address}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                                  >
+                                    <CopyIcon className="size-3" />
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="px-4 py-2.5">
+                                <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
+                                  {entry.chain}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2.5">
+                                <span
+                                  className={cn(
+                                    'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+                                    entry.type === 'identity'
+                                      ? 'bg-purple-100 text-purple-700'
+                                      : 'bg-blue-100 text-blue-700'
+                                  )}
+                                >
+                                  {entry.type}
+                                </span>
+                              </td>
+                              <td className="px-4 py-2.5 text-neutral-500 tabular-nums">
+                                {entry.createdAt}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                    {addressBookEntries.length > ITEMS_PER_PAGE && (
+                      <Pagination
+                        currentPage={addressBookPage}
+                        totalItems={addressBookEntries.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                        onPageChange={setAddressBookPage}
+                      />
+                    )}
+                  </>
+                )}
+              </CollapsibleSection>
             </div>
           )}
 
-          {/* Corporate-specific: Linked Contacts */}
-          {isCorporateIdentity(identity) && linkedContacts.length > 0 && (
-            <CollapsibleSection
-              title="Linked Contacts"
-              description="Individuals linked to this organization"
-              count={linkedContacts.length}
-              countLabel="contact"
-              expanded={contactsExpanded}
-              onToggle={() => setContactsExpanded(!contactsExpanded)}
-            >
-              <div className="divide-y divide-neutral-100">
-                {linkedContacts
-                  .slice(
-                    (contactsPage - 1) * ITEMS_PER_PAGE,
-                    contactsPage * ITEMS_PER_PAGE
-                  )
-                  .map((contact) => (
-                    <LinkedContactRow key={contact.id} contact={contact} />
-                  ))}
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
+              {/* Identity Info */}
+              <div className="grid grid-cols-4 gap-px bg-neutral-200">
+                <div className="bg-white p-4">
+                  <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    {identity.type === 'corporate' ? 'Jurisdiction' : 'Role'}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-neutral-900">
+                    {isCorporateIdentity(identity)
+                      ? (identity.jurisdiction ?? '—')
+                      : isIndividualIdentity(identity)
+                        ? (identity.role ?? '—')
+                        : '—'}
+                  </p>
+                </div>
+                <div className="bg-white p-4">
+                  <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    KYC Status
+                  </p>
+                  <p className="mt-1 flex items-center gap-2">
+                    <span
+                      className={cn(
+                        'inline-block rounded px-1.5 py-0.5 text-xs font-medium capitalize',
+                        getKycStatusStyles(identity.kycStatus)
+                      )}
+                    >
+                      {identity.kycStatus}
+                    </span>
+                  </p>
+                </div>
+                <div className="bg-white p-4">
+                  <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Verified Date
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-neutral-900 tabular-nums">
+                    {identity.kycVerifiedAt ?? '—'}
+                  </p>
+                </div>
+                <div className="bg-white p-4">
+                  <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Expires
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-neutral-900 tabular-nums">
+                    {identity.kycExpiresAt ?? '—'}
+                  </p>
+                </div>
               </div>
-              {linkedContacts.length > ITEMS_PER_PAGE && (
-                <Pagination
-                  currentPage={contactsPage}
-                  totalItems={linkedContacts.length}
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  onPageChange={setContactsPage}
-                />
+
+              {/* Corporate-specific: Registration Number */}
+              {isCorporateIdentity(identity) && identity.registrationNumber && (
+                <div className="border border-neutral-200 bg-white p-4">
+                  <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Registration Number
+                  </p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="font-mono text-sm text-neutral-900">
+                      {identity.registrationNumber}
+                    </span>
+                    <button
+                      type="button"
+                      className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                    >
+                      <CopyIcon className="size-3" />
+                    </button>
+                  </div>
+                </div>
               )}
-            </CollapsibleSection>
-          )}
 
-          {/* Linked Vaults */}
-          {linkedVaults.length > 0 && (
-            <CollapsibleSection
-              title="Linked Vaults"
-              description="Vaults linked to this identity"
-              count={linkedVaults.length}
-              countLabel="vault"
-              expanded={vaultsExpanded}
-              onToggle={() => setVaultsExpanded(!vaultsExpanded)}
-            >
-              <div className="divide-y divide-neutral-100">
-                {linkedVaults
-                  .slice(
-                    (vaultsPage - 1) * ITEMS_PER_PAGE,
-                    vaultsPage * ITEMS_PER_PAGE
-                  )
-                  .map((vault) => (
-                    <LinkedVaultRow key={vault.id} vault={vault} />
-                  ))}
-              </div>
-              {linkedVaults.length > ITEMS_PER_PAGE && (
-                <Pagination
-                  currentPage={vaultsPage}
-                  totalItems={linkedVaults.length}
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  onPageChange={setVaultsPage}
-                />
-              )}
-            </CollapsibleSection>
-          )}
-
-          {/* Bank Accounts */}
-          <CollapsibleSection
-            title="Bank Accounts"
-            description="Registered bank accounts for this identity"
-            count={identity.bankAccounts.length}
-            countLabel="account"
-            expanded={bankAccountsExpanded}
-            onToggle={() => setBankAccountsExpanded(!bankAccountsExpanded)}
-            emptyState={
-              identity.bankAccounts.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <BanknoteIcon className="mx-auto size-8 text-neutral-300" />
-                  <p className="mt-2 text-sm text-neutral-500">
-                    No bank accounts
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    No bank accounts have been added to this identity
-                  </p>
-                </div>
-              ) : undefined
-            }
-          >
-            {identity.bankAccounts.length > 0 && (
-              <>
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Bank
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Account Name
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Account Number
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        SWIFT/BIC
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Currency
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {identity.bankAccounts
-                      .slice(
-                        (bankAccountsPage - 1) * ITEMS_PER_PAGE,
-                        bankAccountsPage * ITEMS_PER_PAGE
-                      )
-                      .map((account) => (
-                        <tr key={account.id} className="hover:bg-neutral-50">
-                          <td className="px-4 py-2.5 font-medium text-neutral-900">
-                            {account.bankName}
-                          </td>
-                          <td className="px-4 py-2.5 text-neutral-600">
-                            {account.accountName}
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-neutral-600">
-                                {account.iban ?? account.accountNumber}
-                              </span>
-                              <button
-                                type="button"
-                                className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                              >
-                                <CopyIcon className="size-3" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="px-4 py-2.5 font-mono text-neutral-500">
-                            {account.swiftCode ?? '—'}
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
-                              {account.currency}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-                {identity.bankAccounts.length > ITEMS_PER_PAGE && (
-                  <Pagination
-                    currentPage={bankAccountsPage}
-                    totalItems={identity.bankAccounts.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setBankAccountsPage}
-                  />
-                )}
-              </>
-            )}
-          </CollapsibleSection>
-
-          {/* Wallet Addresses */}
-          <CollapsibleSection
-            title="Wallet Addresses"
-            description="Crypto wallet addresses for this identity"
-            count={identity.walletAddresses.length}
-            countLabel="wallet"
-            expanded={walletAddressesExpanded}
-            onToggle={() =>
-              setWalletAddressesExpanded(!walletAddressesExpanded)
-            }
-            emptyState={
-              identity.walletAddresses.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <WalletIcon className="mx-auto size-8 text-neutral-300" />
-                  <p className="mt-2 text-sm text-neutral-500">
-                    No wallet addresses
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    No wallet addresses have been added to this identity
-                  </p>
-                </div>
-              ) : undefined
-            }
-          >
-            {identity.walletAddresses.length > 0 && (
-              <>
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Label
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Address
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Chain
-                      </th>
-                      <th className="px-4 py-2 font-medium text-neutral-500">
-                        Added
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {identity.walletAddresses
-                      .slice(
-                        (walletAddressesPage - 1) * ITEMS_PER_PAGE,
-                        walletAddressesPage * ITEMS_PER_PAGE
-                      )
-                      .map((wallet) => (
-                        <tr key={wallet.id} className="hover:bg-neutral-50">
-                          <td className="px-4 py-2.5 font-medium text-neutral-900">
-                            {wallet.label}
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <span className="max-w-[280px] truncate font-mono text-neutral-600">
-                                {wallet.address}
-                              </span>
-                              <button
-                                type="button"
-                                className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                              >
-                                <CopyIcon className="size-3" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
-                              {wallet.chain}
-                            </span>
-                          </td>
-                          <td className="px-4 py-2.5 text-neutral-500 tabular-nums">
-                            {wallet.addedAt}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-                {identity.walletAddresses.length > ITEMS_PER_PAGE && (
-                  <Pagination
-                    currentPage={walletAddressesPage}
-                    totalItems={identity.walletAddresses.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setWalletAddressesPage}
-                  />
-                )}
-              </>
-            )}
-          </CollapsibleSection>
-
-          {/* KYC History */}
-          <CollapsibleSection
-            title="KYC History"
-            description="Verification events and audit trail"
-            count={identity.kycHistory.length}
-            countLabel="event"
-            expanded={kycHistoryExpanded}
-            onToggle={() => setKycHistoryExpanded(!kycHistoryExpanded)}
-            emptyState={
-              identity.kycHistory.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <CalendarIcon className="mx-auto size-8 text-neutral-300" />
-                  <p className="mt-2 text-sm text-neutral-500">
-                    No KYC history
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    No verification events have been recorded
-                  </p>
-                </div>
-              ) : undefined
-            }
-          >
-            {identity.kycHistory.length > 0 && (
-              <>
-                <div className="divide-y divide-neutral-100">
-                  {identity.kycHistory
-                    .slice(
-                      (kycHistoryPage - 1) * ITEMS_PER_PAGE,
-                      kycHistoryPage * ITEMS_PER_PAGE
-                    )
-                    .map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex items-start gap-3 px-4 py-3"
-                      >
-                        <div className="mt-0.5">
-                          {getKycEventIcon(event.action)}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-neutral-900">
-                            {event.description}
+              {/* Individual-specific: Contact Info */}
+              {isIndividualIdentity(identity) &&
+                (identity.email || identity.phone) && (
+                  <div className="grid grid-cols-2 gap-px bg-neutral-200">
+                    {identity.email && (
+                      <div className="flex items-center gap-3 bg-white p-4">
+                        <MailIcon className="size-4 text-neutral-400" />
+                        <div>
+                          <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                            Email
                           </p>
-                          <div className="mt-1 flex items-center gap-3 text-[11px] text-neutral-500">
-                            <span className="tabular-nums">{event.date}</span>
-                            <span>by {event.performedBy}</span>
-                            {event.documentRef && (
-                              <span className="font-mono text-neutral-400">
-                                {event.documentRef}
-                              </span>
-                            )}
-                          </div>
+                          <p className="mt-0.5 text-sm text-neutral-900">
+                            {identity.email}
+                          </p>
                         </div>
-                        <span
-                          className={cn(
-                            'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-                            event.action === 'verified' ||
-                              event.action === 'renewed'
-                              ? 'bg-positive-100 text-positive-700'
-                              : event.action === 'rejected'
-                                ? 'bg-negative-100 text-negative-700'
-                                : event.action === 'expired'
-                                  ? 'bg-neutral-100 text-neutral-500'
-                                  : 'bg-blue-100 text-blue-700'
-                          )}
-                        >
-                          {event.action.replace('_', ' ')}
-                        </span>
                       </div>
-                    ))}
-                </div>
-                {identity.kycHistory.length > ITEMS_PER_PAGE && (
-                  <Pagination
-                    currentPage={kycHistoryPage}
-                    totalItems={identity.kycHistory.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={setKycHistoryPage}
-                  />
+                    )}
+                    {identity.phone && (
+                      <div className="flex items-center gap-3 bg-white p-4">
+                        <PhoneIcon className="size-4 text-neutral-400" />
+                        <div>
+                          <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                            Phone
+                          </p>
+                          <p className="mt-0.5 text-sm text-neutral-900">
+                            {identity.phone}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </>
-            )}
-          </CollapsibleSection>
+
+              {/* Individual-specific: Linked Corporate */}
+              {isIndividualIdentity(identity) && linkedCorporate && (
+                <div className="border border-neutral-200 bg-white">
+                  <div className="border-b border-neutral-200 px-4 py-3">
+                    <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                      Linked Organization
+                    </h2>
+                  </div>
+                  <Link
+                    to="/identities/$identityId"
+                    params={{ identityId: linkedCorporate.id }}
+                    className="flex items-center gap-3 p-4 hover:bg-neutral-50"
+                  >
+                    <div className="bg-blue-100 flex size-8 items-center justify-center rounded-full">
+                      <BuildingIcon className="text-blue-600 size-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-neutral-900">
+                        {linkedCorporate.displayName ?? linkedCorporate.name}
+                      </p>
+                      {linkedCorporate.jurisdiction && (
+                        <p className="text-xs text-neutral-500">
+                          {linkedCorporate.jurisdiction}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+                        getKycStatusStyles(linkedCorporate.kycStatus)
+                      )}
+                    >
+                      {linkedCorporate.kycStatus}
+                    </span>
+                    <ChevronRightIcon className="size-4 text-neutral-400" />
+                  </Link>
+                </div>
+              )}
+
+              {/* Corporate-specific: Linked Contacts */}
+              {isCorporateIdentity(identity) && linkedContacts.length > 0 && (
+                <CollapsibleSection
+                  title="Linked Contacts"
+                  description="Individuals linked to this organization"
+                  count={linkedContacts.length}
+                  countLabel="contact"
+                  expanded={contactsExpanded}
+                  onToggle={() => setContactsExpanded(!contactsExpanded)}
+                >
+                  <div className="divide-y divide-neutral-100">
+                    {linkedContacts
+                      .slice(
+                        (contactsPage - 1) * ITEMS_PER_PAGE,
+                        contactsPage * ITEMS_PER_PAGE
+                      )
+                      .map((contact) => (
+                        <LinkedContactRow key={contact.id} contact={contact} />
+                      ))}
+                  </div>
+                  {linkedContacts.length > ITEMS_PER_PAGE && (
+                    <Pagination
+                      currentPage={contactsPage}
+                      totalItems={linkedContacts.length}
+                      itemsPerPage={ITEMS_PER_PAGE}
+                      onPageChange={setContactsPage}
+                    />
+                  )}
+                </CollapsibleSection>
+              )}
+            </div>
+          )}
         </div>
       </PageLayoutContent>
     </PageLayout>
@@ -734,9 +616,7 @@ const LinkedVaultRow = ({ vault }: { vault: Vault }) => {
       </div>
       <div className="flex-1">
         <p className="text-sm font-medium text-neutral-900">{vault.name}</p>
-        <p className="text-xs text-neutral-500">
-          {vault.threshold}/{vault.signers.length} signers
-        </p>
+        <p className="text-xs text-neutral-500">Threshold: {vault.threshold}</p>
       </div>
       <span className="text-xs text-neutral-400">{vault.createdAt}</span>
       <span

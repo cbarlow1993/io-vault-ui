@@ -1,13 +1,10 @@
 import { Link, useParams } from '@tanstack/react-router';
 import {
-  ArrowLeftIcon,
   CheckCircleIcon,
   ClockIcon,
   CopyIcon,
-  KeyIcon,
   MinusIcon,
   PlusIcon,
-  RefreshCwIcon,
   ServerIcon,
   SmartphoneIcon,
 } from 'lucide-react';
@@ -18,11 +15,11 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -465,15 +462,12 @@ export const PageOperationDetail = () => {
     return (
       <PageLayout>
         <PageLayoutTopBar endActions={<NotificationButton />}>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/vaults"
-              className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
-            >
-              <ArrowLeftIcon className="size-4" />
-            </Link>
-            <PageLayoutTopBarTitle>Operation Not Found</PageLayoutTopBarTitle>
-          </div>
+          <Breadcrumbs
+            items={[
+              { label: 'Vaults', href: '/vaults' },
+              { label: 'Operation Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center text-neutral-500">
@@ -517,37 +511,21 @@ export const PageOperationDetail = () => {
           </div>
         }
       >
-        <div className="flex items-center gap-3">
-          <Link
-            to="/vaults/$vaultId"
-            params={{ vaultId: operation.vaultId }}
-            className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <div
-            className={cn(
-              'flex size-8 items-center justify-center',
-              operation.type === 'signature'
-                ? 'bg-blue-100 text-blue-600'
-                : 'bg-purple-100 text-purple-600'
-            )}
-          >
-            {operation.type === 'signature' ? (
-              <KeyIcon className="size-4" />
-            ) : (
-              <RefreshCwIcon className="size-4" />
-            )}
-          </div>
-          <PageLayoutTopBarTitle>
-            {operation.type === 'signature'
-              ? 'Signature Request'
-              : 'Reshare Request'}
-          </PageLayoutTopBarTitle>
-          <span className="text-xs text-neutral-500">
-            {operation.vaultName}
-          </span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { label: 'Vaults', href: '/vaults' },
+            {
+              label: operation.vaultName,
+              href: `/vaults/${operation.vaultId}`,
+            },
+            {
+              label:
+                operation.type === 'signature'
+                  ? 'Signature Request'
+                  : 'Reshare Request',
+            },
+          ]}
+        />
       </PageLayoutTopBar>
 
       <PageLayoutContent containerClassName="py-4">

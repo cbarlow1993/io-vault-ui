@@ -23,7 +23,7 @@ export const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+        'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium',
         statusStyles[status],
         className
       )}

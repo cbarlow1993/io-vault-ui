@@ -3,9 +3,13 @@ import {
   BuildingIcon,
   CheckIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
   CopyIcon,
-  ExternalLinkIcon,
   LinkIcon,
+  MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
   UserIcon,
@@ -30,6 +34,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -117,8 +122,16 @@ const CHAIN_FILTER_OPTIONS: FilterSelectOption[] = [
   ...CHAIN_OPTIONS,
 ];
 
+const PAGE_SIZE_OPTIONS: FilterSelectOption[] = [
+  { id: '5', label: '5' },
+  { id: '10', label: '10' },
+  { id: '25', label: '25' },
+  { id: '50', label: '50' },
+];
+
 const DEFAULT_TYPE_FILTER = TYPE_FILTER_OPTIONS[0]!;
 const DEFAULT_CHAIN_FILTER = CHAIN_FILTER_OPTIONS[0]!;
+const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[1]!;
 
 const truncateAddress = (address: string) => {
   if (address.length <= 16) return address;
@@ -369,12 +382,12 @@ const AddAddressDialog = ({
 // Address Row Component
 const AddressRow = ({ entry }: { entry: AddressBookEntry }) => {
   return (
-    <tr className="border-b border-neutral-100 hover:bg-neutral-50/50">
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-3">
+    <tr className="cursor-pointer hover:bg-neutral-50">
+      <td className="px-3 py-2">
+        <div className="flex items-center gap-2">
           <div
             className={cn(
-              'flex size-8 items-center justify-center rounded-full',
+              'flex size-7 items-center justify-center rounded-full',
               entry.identity
                 ? entry.identity.type === 'corporate'
                   ? 'bg-blue-100'
@@ -384,58 +397,57 @@ const AddressRow = ({ entry }: { entry: AddressBookEntry }) => {
           >
             {entry.identity ? (
               entry.identity.type === 'corporate' ? (
-                <BuildingIcon className="text-blue-600 size-4" />
+                <BuildingIcon className="text-blue-600 size-3.5" />
               ) : (
-                <UserIcon className="text-purple-600 size-4" />
+                <UserIcon className="text-purple-600 size-3.5" />
               )
             ) : (
-              <LinkIcon className="size-4 text-neutral-500" />
+              <LinkIcon className="size-3.5 text-neutral-500" />
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-neutral-900">
+            <p className="font-medium text-neutral-900">
               {entry.label || 'Unnamed'}
             </p>
             {entry.identity && (
-              <Link
-                to="/identities/$identityId"
-                params={{ identityId: entry.identity.id }}
-                className="text-xs text-neutral-500 hover:text-brand-600 hover:underline"
-              >
+              <p className="text-[10px] text-neutral-400">
                 {entry.identity.displayName ?? entry.identity.name}
-              </Link>
+              </p>
             )}
           </div>
         </div>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-2">
         <div className="flex items-center gap-2">
-          <code className="font-mono text-xs text-neutral-700">
+          <code className="font-mono text-neutral-600">
             {truncateAddress(entry.address)}
           </code>
           <button
             type="button"
-            onClick={() => copyToClipboard(entry.address)}
+            onClick={(e) => {
+              e.stopPropagation();
+              copyToClipboard(entry.address);
+            }}
             className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
           >
-            <CopyIcon className="size-3.5" />
+            <CopyIcon className="size-3" />
           </button>
         </div>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-2">
         <span
           className={cn(
-            'rounded px-2 py-0.5 text-xs font-medium',
+            'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium',
             getChainColor(entry.chain)
           )}
         >
           {entry.chain}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-3 py-2">
         <span
           className={cn(
-            'rounded px-2 py-0.5 text-xs font-medium',
+            'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium',
             entry.type === 'identity'
               ? 'bg-brand-50 text-brand-700'
               : 'bg-neutral-100 text-neutral-600'
@@ -444,36 +456,69 @@ const AddressRow = ({ entry }: { entry: AddressBookEntry }) => {
           {entry.type === 'identity' ? 'Identity' : 'Standalone'}
         </span>
       </td>
-      <td className="px-4 py-3 text-xs text-neutral-500">
+      <td className="px-3 py-2 text-neutral-500 tabular-nums">
         {new Date(entry.createdAt).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'short',
           day: 'numeric',
         })}
       </td>
-      <td className="px-4 py-3">
-        {entry.identity && (
-          <Link
-            to="/identities/$identityId"
-            params={{ identityId: entry.identity.id }}
-            className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700"
-          >
-            View Identity
-            <ExternalLinkIcon className="size-3" />
-          </Link>
-        )}
+      <td className="px-3 py-2 text-right">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreHorizontalIcon className="size-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40 rounded-none">
+            {entry.identity && (
+              <>
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer rounded-none text-xs"
+                >
+                  <Link
+                    to="/identities/$identityId"
+                    params={{ identityId: entry.identity.id }}
+                  >
+                    View Identity
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-negative-600">
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </td>
     </tr>
   );
 };
 
 export const PageAddressBook = () => {
+  // Filter state
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] =
     useState<FilterSelectOption>(DEFAULT_TYPE_FILTER);
   const [chainFilter, setChainFilter] =
     useState<FilterSelectOption>(DEFAULT_CHAIN_FILTER);
   const [showAddDialog, setShowAddDialog] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSizeOption, setPageSizeOption] =
+    useState<FilterSelectOption>(DEFAULT_PAGE_SIZE);
+  const pageSize = Number(pageSizeOption.id);
 
   // Get data
   const identityAddresses = getIdentityAddresses();
@@ -510,10 +555,42 @@ export const PageAddressBook = () => {
     return result;
   }, [allAddresses, typeFilter, chainFilter, search]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAddresses.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedAddresses = filteredAddresses.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    handleFilterChange();
+  };
+
+  const handleTypeChange = (value: FilterSelectOption) => {
+    setTypeFilter(value);
+    handleFilterChange();
+  };
+
+  const handleChainChange = (value: FilterSelectOption) => {
+    setChainFilter(value);
+    handleFilterChange();
+  };
+
+  const handlePageSizeChange = (value: FilterSelectOption) => {
+    setPageSizeOption(value);
+    setCurrentPage(1);
+  };
+
   const clearFilters = () => {
     setSearch('');
     setTypeFilter(DEFAULT_TYPE_FILTER);
     setChainFilter(DEFAULT_CHAIN_FILTER);
+    setCurrentPage(1);
   };
 
   const hasActiveFilters =
@@ -526,7 +603,7 @@ export const PageAddressBook = () => {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setShowAddDialog(true)}
-              className="h-8 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
             >
               <PlusIcon className="mr-1.5 size-3.5" />
               Add Address
@@ -537,47 +614,60 @@ export const PageAddressBook = () => {
         }
       >
         <PageLayoutTopBarTitle>Address Book</PageLayoutTopBarTitle>
+        <span className="text-xs text-neutral-400">
+          {identityAddresses.length} linked to identities
+        </span>
       </PageLayoutTopBar>
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="border border-neutral-200 bg-white p-4">
-              <p className="text-xs font-medium text-neutral-500">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-4 gap-px bg-neutral-200">
+            <div className="bg-white p-3">
+              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
                 Total Addresses
               </p>
-              <p className="mt-1 text-2xl font-semibold text-neutral-900">
+              <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
                 {allAddresses.length}
               </p>
             </div>
-            <div className="border border-neutral-200 bg-white p-4">
-              <p className="text-xs font-medium text-neutral-500">
+            <div className="bg-white p-3">
+              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
                 Linked to Identities
               </p>
-              <p className="mt-1 text-2xl font-semibold text-brand-600">
+              <p className="mt-1 text-lg font-semibold text-brand-600 tabular-nums">
                 {identityAddresses.length}
               </p>
             </div>
-            <div className="border border-neutral-200 bg-white p-4">
-              <p className="text-xs font-medium text-neutral-500">Standalone</p>
-              <p className="mt-1 text-2xl font-semibold text-neutral-600">
+            <div className="bg-white p-3">
+              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                Standalone
+              </p>
+              <p className="mt-1 text-lg font-semibold text-neutral-600 tabular-nums">
                 {standaloneAddresses.length}
+              </p>
+            </div>
+            <div className="bg-white p-3">
+              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                Chains
+              </p>
+              <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
+                {getAvailableChains().length}
               </p>
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center justify-between border border-neutral-200 bg-white p-3">
+          {/* Filter Bar */}
+          <div className="flex items-center justify-between border border-neutral-200 bg-white px-3 py-2">
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
-                <SearchIcon className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-neutral-400" />
+                <SearchIcon className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-neutral-400" />
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Search addresses..."
-                  className="h-7 w-56 border border-neutral-200 bg-neutral-50 pr-3 pl-8 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+                  className="h-7 w-48 border border-neutral-200 bg-neutral-50 pr-2 pl-7 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
                 />
               </div>
 
@@ -585,7 +675,7 @@ export const PageAddressBook = () => {
               <FilterSelect
                 options={TYPE_FILTER_OPTIONS}
                 value={typeFilter}
-                onChange={setTypeFilter}
+                onChange={handleTypeChange}
                 className="w-36"
               />
 
@@ -593,15 +683,16 @@ export const PageAddressBook = () => {
               <FilterSelect
                 options={CHAIN_FILTER_OPTIONS}
                 value={chainFilter}
-                onChange={setChainFilter}
+                onChange={handleChainChange}
                 className="w-28"
               />
 
+              {/* Clear Filters */}
               {hasActiveFilters && (
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-700"
+                  className="flex h-7 items-center gap-1 px-2 text-xs text-neutral-500 hover:text-neutral-900"
                 >
                   <XIcon className="size-3" />
                   Clear
@@ -609,56 +700,191 @@ export const PageAddressBook = () => {
               )}
             </div>
 
-            <p className="text-xs text-neutral-500">
-              {filteredAddresses.length} address
-              {filteredAddresses.length !== 1 ? 'es' : ''}
-            </p>
+            {/* Results count */}
+            <span className="text-xs text-neutral-500">
+              {filteredAddresses.length}{' '}
+              {filteredAddresses.length === 1 ? 'result' : 'results'}
+            </span>
           </div>
 
           {/* Table */}
           <div className="border border-neutral-200 bg-white">
-            <table className="w-full">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2">
+              <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                Address Book
+              </h2>
+            </div>
+            <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-neutral-200 bg-neutral-50">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600">
+                <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
+                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Label / Identity
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600">
+                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Address
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600">
+                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Chain
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600">
+                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Type
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600">
+                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Added
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600" />
+                  <th className="px-3 py-2 text-right font-medium text-neutral-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredAddresses.length === 0 ? (
+              <tbody className="divide-y divide-neutral-100">
+                {paginatedAddresses.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center">
-                      <p className="text-sm text-neutral-500">
-                        No addresses found
-                      </p>
-                      <p className="mt-1 text-xs text-neutral-400">
-                        {hasActiveFilters
-                          ? 'Try adjusting your filters'
-                          : 'Add addresses to your address book'}
-                      </p>
+                    <td
+                      colSpan={6}
+                      className="px-3 py-8 text-center text-neutral-500"
+                    >
+                      No addresses found matching your filters.
                     </td>
                   </tr>
                 ) : (
-                  filteredAddresses.map((entry) => (
+                  paginatedAddresses.map((entry) => (
                     <AddressRow key={entry.id} entry={entry} />
                   ))
                 )}
               </tbody>
             </table>
+
+            {/* Pagination */}
+            {filteredAddresses.length > 0 && (
+              <div className="flex items-center justify-between border-t border-neutral-200 px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-neutral-500">
+                    Rows per page:
+                  </span>
+                  <FilterSelect
+                    options={PAGE_SIZE_OPTIONS}
+                    value={pageSizeOption}
+                    onChange={handlePageSizeChange}
+                    className="w-16"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <span className="mr-2 text-xs text-neutral-500">
+                    {startIndex + 1}-
+                    {Math.min(endIndex, filteredAddresses.length)} of{' '}
+                    {filteredAddresses.length}
+                  </span>
+
+                  {/* First page */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className={cn(
+                      'flex size-7 items-center justify-center border border-neutral-200',
+                      currentPage === 1
+                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
+                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                    )}
+                  >
+                    <ChevronsLeftIcon className="size-3.5" />
+                  </button>
+
+                  {/* Previous page */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className={cn(
+                      'flex size-7 items-center justify-center border border-neutral-200',
+                      currentPage === 1
+                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
+                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                    )}
+                  >
+                    <ChevronLeftIcon className="size-3.5" />
+                  </button>
+
+                  {/* Page numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        if (page === 1 || page === totalPages) return true;
+                        if (Math.abs(page - currentPage) <= 1) return true;
+                        return false;
+                      })
+                      .reduce<(number | 'ellipsis')[]>(
+                        (acc, page, idx, arr) => {
+                          if (idx > 0 && page - (arr[idx - 1] as number) > 1) {
+                            acc.push('ellipsis');
+                          }
+                          acc.push(page);
+                          return acc;
+                        },
+                        []
+                      )
+                      .map((item, idx) =>
+                        item === 'ellipsis' ? (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-1 text-xs text-neutral-400"
+                          >
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => setCurrentPage(item)}
+                            className={cn(
+                              'flex size-7 items-center justify-center border text-xs',
+                              currentPage === item
+                                ? 'border-neutral-900 bg-neutral-900 font-medium text-white'
+                                : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+                            )}
+                          >
+                            {item}
+                          </button>
+                        )
+                      )}
+                  </div>
+
+                  {/* Next page */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={cn(
+                      'flex size-7 items-center justify-center border border-neutral-200',
+                      currentPage === totalPages || totalPages === 0
+                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
+                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                    )}
+                  >
+                    <ChevronRightIcon className="size-3.5" />
+                  </button>
+
+                  {/* Last page */}
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={cn(
+                      'flex size-7 items-center justify-center border border-neutral-200',
+                      currentPage === totalPages || totalPages === 0
+                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
+                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
+                    )}
+                  >
+                    <ChevronsRightIcon className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </PageLayoutContent>

@@ -49,9 +49,9 @@ const activityConfig: Record<
 
 export const RecentActivity = ({ activities }: RecentActivityProps) => {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-200 px-4 py-3">
-        <h3 className="text-sm font-semibold text-neutral-900">
+    <div className="border border-neutral-200 bg-white">
+      <div className="border-b border-neutral-200 px-3 py-2">
+        <h3 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
           Recent Activity
         </h3>
       </div>
@@ -62,21 +62,21 @@ export const RecentActivity = ({ activities }: RecentActivityProps) => {
           return (
             <div
               key={activity.id}
-              className="flex items-center gap-3 px-4 py-3"
+              className="flex items-center gap-3 px-3 py-2"
             >
-              <Icon className={cn('h-4 w-4', config.color)} />
+              <Icon className={cn('size-3.5', config.color)} />
               <div className="min-w-0 flex-1">
-                <div className="text-sm text-neutral-900">
+                <div className="text-xs text-neutral-900">
                   <span className="font-medium">{activity.actor}</span>{' '}
                   <span className="text-neutral-500">
                     {config.label.toLowerCase()}
                   </span>{' '}
-                  <span className="font-mono text-xs">
+                  <span className="font-mono text-[10px]">
                     {activity.transactionHash.slice(0, 10)}...
                   </span>
                 </div>
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-[10px] text-neutral-500 tabular-nums">
                 {activity.timestamp.toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',

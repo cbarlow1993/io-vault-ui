@@ -1,6 +1,5 @@
 import { Link, useParams } from '@tanstack/react-router';
 import {
-  ArrowLeftIcon,
   CheckCircleIcon,
   ChevronRightIcon,
   ClockIcon,
@@ -14,11 +13,11 @@ import {
 import { cn } from '@/lib/tailwind/utils';
 
 import {
+  Breadcrumbs,
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -95,7 +94,12 @@ export const PageSignerDetail = () => {
     return (
       <PageLayout>
         <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Signer Not Found</PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Signers', href: '/signers' },
+              { label: 'Not Found' },
+            ]}
+          />
         </PageLayoutTopBar>
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
@@ -104,10 +108,9 @@ export const PageSignerDetail = () => {
             </p>
             <Link
               to="/signers"
-              className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
+              className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
-              <ArrowLeftIcon className="size-4" />
-              Back to Signers
+              Return to signers
             </Link>
           </div>
         </PageLayoutContent>
@@ -125,13 +128,12 @@ export const PageSignerDetail = () => {
         }
       >
         <div className="flex items-center gap-3">
-          <Link
-            to="/signers"
-            className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
-          >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <PageLayoutTopBarTitle>{signer.name}</PageLayoutTopBarTitle>
+          <Breadcrumbs
+            items={[
+              { label: 'Signers', href: '/signers' },
+              { label: signer.name },
+            ]}
+          />
           <span
             className={cn(
               'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
@@ -215,7 +217,6 @@ export const PageSignerDetail = () => {
           <div className="border border-neutral-200 bg-white">
             <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
               <div className="flex items-center gap-2">
-                <KeyIcon className="size-4 text-neutral-500" />
                 <div>
                   <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
                     Associated Vaults
@@ -275,7 +276,7 @@ export const PageSignerDetail = () => {
                         </Link>
                       </td>
                       <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
-                        {vault.threshold} of {vault.totalSigners}
+                        {vault.threshold}
                       </td>
                       <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
                         {vault.totalSigners}

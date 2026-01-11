@@ -1,6 +1,54 @@
+import { Link } from '@tanstack/react-router';
+import { ChevronRightIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/tailwind/utils';
+
+// Breadcrumb types and component
+export type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
+export const Breadcrumbs = (props: {
+  items: BreadcrumbItem[];
+  className?: string;
+}) => {
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className={cn('flex items-center gap-1', props.className)}
+    >
+      {props.items.map((item, index) => {
+        const isLast = index === props.items.length - 1;
+        return (
+          <div key={index} className="flex items-center gap-1">
+            {index > 0 && (
+              <ChevronRightIcon className="size-3 text-neutral-400" />
+            )}
+            {isLast || !item.href ? (
+              <span
+                className={cn(
+                  'text-xs',
+                  isLast ? 'font-medium text-neutral-900' : 'text-neutral-500'
+                )}
+              >
+                {item.label}
+              </span>
+            ) : (
+              <Link
+                to={item.href}
+                className="text-xs text-neutral-500 hover:text-neutral-900 hover:underline"
+              >
+                {item.label}
+              </Link>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+};
 
 export const PageLayout = (props: {
   children?: ReactNode;

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   AlertTriangleIcon,
   ArrowRightLeftIcon,
@@ -184,6 +184,8 @@ const DEFAULT_SCOPE = SCOPE_OPTIONS[0]!;
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[1]!;
 
 export const PageTransactionPolicies = () => {
+  const navigate = useNavigate();
+
   // Filter state
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<SelectOption | null>(
@@ -451,165 +453,232 @@ export const PageTransactionPolicies = () => {
                     </td>
                   </tr>
                 ) : (
-                  paginatedPolicies.map((policy) => (
-                    <tr
-                      key={policy.id}
-                      className="cursor-pointer hover:bg-neutral-50"
-                    >
-                      <td className="px-3 py-2">
-                        <div className="flex items-start gap-2">
-                          <span
-                            className={cn(
-                              'mt-0.5 inline-flex rounded px-1 py-0.5 text-[9px] font-bold uppercase',
-                              getPriorityStyles(policy.priority)
-                            )}
-                          >
-                            {getPriorityLabel(policy.priority)}
-                          </span>
-                          <div>
-                            <p className="font-medium text-neutral-900">
-                              {policy.name}
-                            </p>
-                            <p className="mt-0.5 max-w-[200px] truncate text-[10px] text-neutral-400">
-                              {policy.description}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-1.5">
-                          {policy.scope === 'global' ? (
-                            <GlobeIcon className="size-3 text-neutral-400" />
-                          ) : (
-                            <KeyIcon className="size-3 text-neutral-400" />
-                          )}
-                          <div className="flex flex-col">
-                            <span className="text-neutral-600 capitalize">
-                              {policy.scope}
+                  paginatedPolicies.map((policy) => {
+                    // Check if policy has a draft version in progress
+                    const hasDraftVersion = policy.versions?.some(
+                      (v) => v.status === 'draft'
+                    );
+                    // Check if policy has a pending version awaiting approval
+                    const hasPendingVersion = policy.versions?.some(
+                      (v) => v.status === 'pending'
+                    );
+
+                    return (
+                      <tr
+                        key={policy.id}
+                        className="group cursor-pointer hover:bg-neutral-50"
+                        onClick={() => {
+                          navigate({
+                            to: '/policies/transactions/$policyId',
+                            params: { policyId: policy.id },
+                          });
+                        }}
+                      >
+                        <td className="px-3 py-2">
+                          <div className="flex items-start gap-2">
+                            <span
+                              className={cn(
+                                'mt-0.5 inline-flex rounded px-1 py-0.5 text-[9px] font-bold uppercase',
+                                getPriorityStyles(policy.priority)
+                              )}
+                            >
+                              {getPriorityLabel(policy.priority)}
                             </span>
-                            {policy.vaultName && (
-                              <span className="text-[10px] text-neutral-400">
-                                {policy.vaultName}
-                              </span>
-                            )}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-neutral-900">
+                                  {policy.name}
+                                </p>
+                                {hasDraftVersion && (
+                                  <span className="inline-flex items-center gap-0.5 rounded bg-brand-100 px-1 py-0.5 text-[9px] font-medium text-brand-700">
+                                    <FileTextIcon className="size-2.5" />
+                                    Draft
+                                  </span>
+                                )}
+                                {hasPendingVersion && (
+                                  <span className="inline-flex items-center gap-0.5 rounded bg-warning-100 px-1 py-0.5 text-[9px] font-medium text-warning-700">
+                                    <ClockIcon className="size-2.5" />
+                                    Pending
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-0.5 max-w-[200px] truncate text-[10px] text-neutral-400">
+                                {policy.description}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex flex-col gap-1">
+                        </td>
+                        <td className="px-3 py-2">
                           <div className="flex items-center gap-1.5">
-                            {getApprovalTypeIcon(policy.approvalType)}
-                            <span className="font-mono text-xs font-medium text-neutral-900">
-                              {formatApprovalRequirement(
-                                policy.approvalRequirement
+                            {policy.scope === 'global' ? (
+                              <GlobeIcon className="size-3 text-neutral-400" />
+                            ) : (
+                              <KeyIcon className="size-3 text-neutral-400" />
+                            )}
+                            <div className="flex flex-col">
+                              <span className="text-neutral-600 capitalize">
+                                {policy.scope}
+                              </span>
+                              {policy.vaultName && (
+                                <span className="text-[10px] text-neutral-400">
+                                  {policy.vaultName}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1.5">
+                              {getApprovalTypeIcon(policy.approvalType)}
+                              <span className="font-mono text-xs font-medium text-neutral-900">
+                                {formatApprovalRequirement(
+                                  policy.approvalRequirement
+                                )}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-neutral-400 capitalize">
+                              {policy.approvalType}
+                              {policy.approvalRequirement.timeoutHours && (
+                                <span className="ml-1">
+                                  · {policy.approvalRequirement.timeoutHours}h
+                                  timeout
+                                </span>
                               )}
                             </span>
                           </div>
-                          <span className="text-[10px] text-neutral-400 capitalize">
-                            {policy.approvalType}
-                            {policy.approvalRequirement.timeoutHours && (
-                              <span className="ml-1">
-                                · {policy.approvalRequirement.timeoutHours}h
-                                timeout
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">
-                        {policy.spendingLimits &&
-                        policy.spendingLimits.length > 0 ? (
-                          <div className="flex flex-col gap-0.5">
-                            {policy.spendingLimits
-                              .slice(0, 2)
-                              .map((limit, idx) => (
-                                <span
-                                  key={idx}
-                                  className="font-mono text-[10px] text-neutral-600"
-                                >
-                                  {formatSpendingLimit(limit)}
+                        </td>
+                        <td className="px-3 py-2">
+                          {policy.spendingLimits &&
+                          policy.spendingLimits.length > 0 ? (
+                            <div className="flex flex-col gap-0.5">
+                              {policy.spendingLimits
+                                .slice(0, 2)
+                                .map((limit, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="font-mono text-[10px] text-neutral-600"
+                                  >
+                                    {formatSpendingLimit(limit)}
+                                  </span>
+                                ))}
+                              {policy.spendingLimits.length > 2 && (
+                                <span className="text-[10px] text-neutral-400">
+                                  +{policy.spendingLimits.length - 2} more
                                 </span>
-                              ))}
-                            {policy.spendingLimits.length > 2 && (
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-neutral-400">No limits</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2">
+                          <span
+                            className={cn(
+                              'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+                              getStatusStyles(policy.status)
+                            )}
+                          >
+                            {getStatusIcon(policy.status)}
+                            {policy.status}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex flex-col">
+                            <span className="font-mono text-neutral-900 tabular-nums">
+                              {policy.triggerCount.toLocaleString()}
+                            </span>
+                            {policy.lastTriggered && (
                               <span className="text-[10px] text-neutral-400">
-                                +{policy.spendingLimits.length - 2} more
+                                Last: {policy.lastTriggered}
                               </span>
                             )}
                           </div>
-                        ) : (
-                          <span className="text-neutral-400">No limits</span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2">
-                        <span
-                          className={cn(
-                            'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-                            getStatusStyles(policy.status)
-                          )}
-                        >
-                          {getStatusIcon(policy.status)}
-                          {policy.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex flex-col">
-                          <span className="font-mono text-neutral-900 tabular-nums">
-                            {policy.triggerCount.toLocaleString()}
-                          </span>
-                          {policy.lastTriggered && (
-                            <span className="text-[10px] text-neutral-400">
-                              Last: {policy.lastTriggered}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                              onClick={(e) => e.stopPropagation()}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontalIcon className="size-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="w-40 rounded-none"
                             >
-                              <MoreHorizontalIcon className="size-4" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-40 rounded-none"
-                          >
-                            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
-                              Edit Policy
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
-                              View History
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {policy.status === 'active' ? (
-                              <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-warning-600">
-                                Disable
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer rounded-none text-xs"
+                              >
+                                <Link
+                                  to="/policies/transactions/$policyId"
+                                  params={{ policyId: policy.id }}
+                                >
+                                  View Details
+                                </Link>
                               </DropdownMenuItem>
-                            ) : policy.status === 'disabled' ? (
-                              <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
-                                Enable
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer rounded-none text-xs"
+                              >
+                                <Link
+                                  to="/policies/transactions/$policyId/versions/$versionNumber"
+                                  params={{
+                                    policyId: policy.id,
+                                    versionNumber: String(
+                                      hasDraftVersion
+                                        ? (policy.versions?.find(
+                                            (v) => v.status === 'draft'
+                                          )?.version ?? policy.currentVersion)
+                                        : policy.currentVersion
+                                    ),
+                                  }}
+                                >
+                                  {hasDraftVersion
+                                    ? 'Edit Draft'
+                                    : 'View Current Version'}
+                                </Link>
                               </DropdownMenuItem>
-                            ) : policy.status === 'draft' ? (
-                              <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
-                                Submit for Review
+                              <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer rounded-none text-xs"
+                              >
+                                <Link
+                                  to="/policies/transactions/$policyId"
+                                  params={{ policyId: policy.id }}
+                                  search={{ tab: 'history' }}
+                                >
+                                  View History
+                                </Link>
                               </DropdownMenuItem>
-                            ) : policy.status === 'pending' ? (
-                              <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
-                                Approve
-                              </DropdownMenuItem>
-                            ) : null}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))
+                              <DropdownMenuSeparator />
+                              {policy.status === 'active' ? (
+                                <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-warning-600">
+                                  Disable
+                                </DropdownMenuItem>
+                              ) : policy.status === 'disabled' ? (
+                                <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
+                                  Enable
+                                </DropdownMenuItem>
+                              ) : policy.status === 'draft' ? (
+                                <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
+                                  Submit for Review
+                                </DropdownMenuItem>
+                              ) : policy.status === 'pending' ? (
+                                <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-positive-600">
+                                  Approve
+                                </DropdownMenuItem>
+                              ) : null}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

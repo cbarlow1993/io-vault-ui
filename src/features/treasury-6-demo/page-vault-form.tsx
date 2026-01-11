@@ -90,6 +90,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
   // Form state
   const [name, setName] = useState(vault?.name ?? '');
   const [threshold, setThreshold] = useState(vault?.threshold ?? 2);
+  const [allowDerivedAddresses, setAllowDerivedAddresses] = useState(false);
   const [selectedIdentityId, setSelectedIdentityId] = useState<
     string | undefined
   >(vault?.identityId);
@@ -162,6 +163,8 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
       threshold,
       signers: selectedSigners,
       identityId: selectedIdentityId,
+      allowDerivedAddresses:
+        mode === 'create' ? allowDerivedAddresses : undefined,
     });
     // Navigate back to the vault list or detail page
     if (mode === 'edit' && vaultId) {
@@ -208,6 +211,27 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
       <PageLayoutTopBar
         endActions={
           <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCancel}
+              className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!isValid}
+              className={cn(
+                'h-7 rounded-none px-3 text-xs font-medium',
+                isValid
+                  ? 'bg-brand-500 text-white hover:bg-brand-600'
+                  : 'cursor-not-allowed bg-neutral-200 text-neutral-400'
+              )}
+            >
+              {mode === 'create' ? 'Create Vault' : 'Request Reshare'}
+            </Button>
             <NotificationButton />
           </div>
         }
@@ -355,6 +379,41 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
               )}
             </div>
           </div>
+
+          {/* Allow Derived Addresses (Create mode only) */}
+          {mode === 'create' && (
+            <div className="border border-neutral-200 bg-white">
+              <div className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
+                    Allow Derived Addresses
+                  </h2>
+                  <p className="mt-0.5 text-[11px] text-neutral-500">
+                    Enable generation of multiple addresses from this vault
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={allowDerivedAddresses}
+                  onClick={() =>
+                    setAllowDerivedAddresses(!allowDerivedAddresses)
+                  }
+                  className={cn(
+                    'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none',
+                    allowDerivedAddresses ? 'bg-brand-500' : 'bg-neutral-200'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'pointer-events-none block size-4 rounded-full bg-white shadow-lg ring-0 transition-transform',
+                      allowDerivedAddresses ? 'translate-x-4' : 'translate-x-0'
+                    )}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Threshold Section */}
           <div className="border border-neutral-200 bg-white">
@@ -579,31 +638,6 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                 </span>
               </div>
             )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 border-t border-neutral-200 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleCancel}
-              className="h-9 rounded-none border-neutral-300 px-4 text-sm font-medium"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!isValid}
-              className={cn(
-                'h-9 rounded-none px-4 text-sm font-medium',
-                isValid
-                  ? 'bg-brand-500 text-white hover:bg-brand-600'
-                  : 'cursor-not-allowed bg-neutral-200 text-neutral-400'
-              )}
-            >
-              {mode === 'create' ? 'Create Vault' : 'Request Reshare'}
-            </Button>
           </div>
         </div>
       </PageLayoutContent>
