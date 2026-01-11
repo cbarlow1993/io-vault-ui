@@ -241,16 +241,24 @@ export function DataTable<TData>({
           </tr>
         </thead>
 
-        {/* Loading state */}
+        {/* Table body with aria-live for state announcements */}
         {isLoading ? (
-          (loadingState ?? (
+          loadingState ? (
+            <tbody aria-live="polite" aria-busy="true">
+              <tr>
+                <td colSpan={columns.length}>{loadingState}</td>
+              </tr>
+            </tbody>
+          ) : (
             <DataTableSkeleton
               columnCount={columns.length}
-              rowCount={pagination.pageSize}
+              rowCount={Math.max(1, pagination.pageSize)}
+              aria-live="polite"
+              aria-busy={true}
             />
-          ))
+          )
         ) : isError ? (
-          <tbody>
+          <tbody aria-live="polite">
             <tr>
               <td colSpan={columns.length}>
                 {errorState ?? defaultErrorState}
@@ -258,7 +266,7 @@ export function DataTable<TData>({
             </tr>
           </tbody>
         ) : data.length === 0 ? (
-          <tbody>
+          <tbody aria-live="polite">
             <tr>
               <td colSpan={columns.length}>
                 {emptyState ?? defaultEmptyState}
@@ -266,7 +274,7 @@ export function DataTable<TData>({
             </tr>
           </tbody>
         ) : (
-          <tbody className="divide-y divide-neutral-100">
+          <tbody className="divide-y divide-neutral-100" aria-live="polite">
             {table.getRowModel().rows.map((row) => {
               const isSelected = selectedRowId === row.id;
               return (
