@@ -70,6 +70,7 @@
     "@tanstack/react-router": "1.132.47",
     "@tanstack/react-router-devtools": "1.132.51",
     "@tanstack/react-start": "1.132.51",
+    "@tanstack/react-table": "^8.21.3",
     "@tanstack/zod-adapter": "1.132.47",
     "@uidotdev/usehooks": "2.4.1",
     "better-auth": "1.4.5",
