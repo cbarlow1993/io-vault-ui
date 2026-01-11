@@ -6,19 +6,17 @@ import {
   LayoutGridIcon,
   ScrollTextIcon,
   ShieldCheckIcon,
-  UsersIcon,
   Users2Icon,
+  UsersIcon,
 } from 'lucide-react';
 import { type ReactNode } from 'react';
 
 import { cn } from '@/lib/tailwind/utils';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 const settingsNavItems = [
@@ -51,15 +49,7 @@ export const SettingsLayout = ({
 
   return (
     <PageLayout>
-      <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
-          </div>
-        }
-      >
-        <PageLayoutTopBarTitle>Settings</PageLayoutTopBarTitle>
-      </PageLayoutTopBar>
+      <PageLayoutTopBar title="Settings" />
       <PageLayoutContent containerClassName="py-0">
         <div className="flex min-h-[calc(100vh-48px)]">
           {/* Settings Sidebar */}

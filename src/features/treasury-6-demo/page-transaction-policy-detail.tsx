@@ -47,8 +47,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -300,14 +298,12 @@ export const PageTransactionPolicyDetail = () => {
   if (!policy) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Transaction Policies', href: '/policies/transactions' },
-              { label: 'Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Transaction Policies', href: '/policies/transactions' },
+            { label: 'Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -328,35 +324,11 @@ export const PageTransactionPolicyDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            {policy.status === 'active' && !draftVersion && (
-              <Button
-                asChild
-                variant="secondary"
-                className="h-7 rounded-none px-3 text-xs font-medium"
-              >
-                <Link
-                  to="/policies/transactions/$policyId/versions/$versionNumber"
-                  params={{ policyId, versionNumber: 'new' }}
-                >
-                  <PlusIcon className="mr-1.5 size-3.5" />
-                  Create New Version
-                </Link>
-              </Button>
-            )}
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
-        }
-      >
-        <div className="flex items-center gap-3">
-          <Breadcrumbs
-            items={[
-              { label: 'Transaction Policies', href: '/policies/transactions' },
-              { label: policy.name },
-            ]}
-          />
+        breadcrumbs={[
+          { label: 'Transaction Policies', href: '/policies/transactions' },
+          { label: policy.name },
+        ]}
+        status={
           <span
             className={cn(
               'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
@@ -366,8 +338,25 @@ export const PageTransactionPolicyDetail = () => {
             {getStatusIcon(policy.status)}
             {policy.status}
           </span>
-        </div>
-      </PageLayoutTopBar>
+        }
+        actions={
+          policy.status === 'active' && !draftVersion ? (
+            <Button
+              asChild
+              variant="secondary"
+              className="h-7 rounded-none px-3 text-xs font-medium"
+            >
+              <Link
+                to="/policies/transactions/$policyId/versions/$versionNumber"
+                params={{ policyId, versionNumber: 'new' }}
+              >
+                <PlusIcon className="mr-1.5 size-3.5" />
+                Create New Version
+              </Link>
+            </Button>
+          ) : undefined
+        }
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">
           {/* Pending approval banner */}

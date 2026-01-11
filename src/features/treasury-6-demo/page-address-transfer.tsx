@@ -1,9 +1,4 @@
-import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearch,
-} from '@tanstack/react-router';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { ChevronDownIcon, SendIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,16 +7,13 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
 } from '@/layout/treasury-6';
 
+import { type ChainId, chains, getChainById } from './data/addresses';
 import { getVaultById } from './data/vaults';
-
-import { chains, getChainById, type ChainId } from './data/addresses';
 
 // =============================================================================
 // Chain ID Mapping (short form to full ChainId)
@@ -224,15 +216,13 @@ export const PageAddressTransfer = () => {
   if (!chainData) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-              { label: 'Chain Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+            { label: 'Chain Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">Unknown chain: {chain}</p>
@@ -245,8 +235,17 @@ export const PageAddressTransfer = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+          {
+            label: 'Address',
+            href: `/vaults/${vaultId}/chain/${chain}/addresses/${address}`,
+          },
+          { label: 'Create Transfer' },
+        ]}
+        actions={
+          <>
             <Button
               type="button"
               variant="secondary"
@@ -263,22 +262,9 @@ export const PageAddressTransfer = () => {
               <SendIcon className="mr-1.5 size-3.5" />
               Create Transfer
             </Button>
-            <NotificationButton />
-          </div>
+          </>
         }
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Vaults', href: '/vaults' },
-            { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-            {
-              label: 'Address',
-              href: `/vaults/${vaultId}/chain/${chain}/addresses/${address}`,
-            },
-            { label: 'Create Transfer' },
-          ]}
-        />
-      </PageLayoutTopBar>
+      />
 
       <PageLayoutContent containerClassName="py-4">
         <div className="mx-auto max-w-2xl space-y-6">

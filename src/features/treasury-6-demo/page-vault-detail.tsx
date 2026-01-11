@@ -34,8 +34,6 @@ import {
 } from '@/components/ui/dialog';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -125,14 +123,12 @@ export const PageVaultDetail = () => {
   if (!vault) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: 'Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: 'Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -153,9 +149,22 @@ export const PageVaultDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: vault.name },
+        ]}
+        status={
+          <span
+            className={cn(
+              'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+              getStatusStyles(vault.status)
+            )}
+          >
+            {vault.status}
+          </span>
+        }
+        actions={
+          <>
             {vault.status === 'active' && !pendingReshare && (
               <Button
                 asChild
@@ -172,26 +181,9 @@ export const PageVaultDetail = () => {
               <KeyIcon className="mr-1.5 size-3.5" />
               Sign Message
             </Button>
-          </div>
+          </>
         }
-      >
-        <div className="flex items-center gap-3">
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: vault.name },
-            ]}
-          />
-          <span
-            className={cn(
-              'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-              getStatusStyles(vault.status)
-            )}
-          >
-            {vault.status}
-          </span>
-        </div>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">
           {/* Pending Reshare Banner */}

@@ -25,7 +25,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -185,9 +184,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
   if (mode === 'edit' && !vault) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Vault Not Found</PageLayoutTopBarTitle>
-        </PageLayoutTopBar>
+        <PageLayoutTopBar title="Vault Not Found" />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -209,8 +206,8 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
+        actions={
+          <>
             <Button
               type="button"
               variant="secondary"
@@ -232,8 +229,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
             >
               {mode === 'create' ? 'Create Vault' : 'Request Reshare'}
             </Button>
-            <NotificationButton />
-          </div>
+          </>
         }
       >
         <div className="flex items-center gap-3">

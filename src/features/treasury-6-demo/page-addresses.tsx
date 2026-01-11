@@ -22,11 +22,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -184,9 +182,7 @@ export const PageAddresses = () => {
   if (!vault) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Vault Not Found</PageLayoutTopBarTitle>
-        </PageLayoutTopBar>
+        <PageLayoutTopBar title="Vault Not Found" />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -216,33 +212,22 @@ export const PageAddresses = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
-            <Button
-              asChild
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <Link to="/vaults/$vaultId/addresses/new" params={{ vaultId }}>
-                <PlusIcon className="mr-1.5 size-3.5" />
-                New Address
-              </Link>
-            </Button>
-          </div>
-        }
-      >
-        <div className="flex items-center gap-3">
-          <Link
-            to="/vaults/$vaultId"
-            params={{ vaultId }}
-            className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
+        breadcrumbs={[
+          { label: vault.name, href: `/vaults/${vaultId}` },
+          { label: 'Addresses' },
+        ]}
+        actions={
+          <Button
+            asChild
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <ArrowLeftIcon className="size-4" />
-          </Link>
-          <PageLayoutTopBarTitle>{vault.name}</PageLayoutTopBarTitle>
-          <span className="text-sm text-neutral-400">/ Addresses</span>
-        </div>
-      </PageLayoutTopBar>
+            <Link to="/vaults/$vaultId/addresses/new" params={{ vaultId }}>
+              <PlusIcon className="mr-1.5 size-3.5" />
+              New Address
+            </Link>
+          </Button>
+        }
+      />
 
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">

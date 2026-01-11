@@ -27,11 +27,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -239,27 +237,20 @@ export const PageTreasury6Identities = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <Link to="/identities/new">
-                <PlusIcon className="mr-1.5 size-3.5" />
-                Add Identity
-              </Link>
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+        title="Identities"
+        subtitle={`${verifiedCount} verified identities`}
+        actions={
+          <Button
+            asChild
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <Link to="/identities/new">
+              <PlusIcon className="mr-1.5 size-3.5" />
+              Add Identity
+            </Link>
+          </Button>
         }
-      >
-        <PageLayoutTopBarTitle>Identities</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">
-          {verifiedCount} verified identities
-        </span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
           {/* Summary Cards */}

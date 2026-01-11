@@ -29,8 +29,6 @@ import {
 import { cn } from '@/lib/tailwind/utils';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -199,18 +197,16 @@ export const PageWhitelistVersionDetail = () => {
   if (!whitelist || !version) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Whitelists', href: '/policies/whitelists' },
-              {
-                label: whitelistId,
-                href: `/policies/whitelists/${whitelistId}`,
-              },
-              { label: 'Version Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Whitelists', href: '/policies/whitelists' },
+            {
+              label: whitelistId,
+              href: `/policies/whitelists/${whitelistId}`,
+            },
+            { label: 'Version Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -264,66 +260,60 @@ export const PageWhitelistVersionDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            {isDraft && (
-              <>
-                {/* Reset Draft - clears all edits and bases on previous version */}
-                <Button
-                  variant="secondary"
-                  className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
-                >
-                  <RotateCcwIcon className="mr-1.5 size-3.5" />
-                  Reset Draft
-                </Button>
-                {/* Cancel - discards unsaved changes */}
-                <Button
-                  variant="secondary"
-                  className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
-                >
-                  <XIcon className="mr-1.5 size-3.5" />
-                  Cancel
-                </Button>
-                {/* Submit for Approval - primary CTA */}
-                <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
-                  <SendIcon className="mr-1.5 size-3.5" />
-                  Submit for Approval
-                </Button>
-                {/* Separator */}
-                <div className="h-5 w-px bg-neutral-200" />
-              </>
+        breadcrumbs={[
+          { label: 'Whitelists', href: '/policies/whitelists' },
+          {
+            label: whitelist.name,
+            href: `/policies/whitelists/${whitelistId}`,
+          },
+          { label: `Version ${version.version}` },
+        ]}
+        status={
+          <>
+            {isCurrentVersion && (
+              <span className="rounded bg-brand-100 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
+                Current
+              </span>
             )}
-            <NotificationButton />
-          </div>
-        }
-      >
-        <div className="flex items-center gap-3">
-          <Breadcrumbs
-            items={[
-              { label: 'Whitelists', href: '/policies/whitelists' },
-              {
-                label: whitelist.name,
-                href: `/policies/whitelists/${whitelistId}`,
-              },
-              { label: `Version ${version.version}` },
-            ]}
-          />
-          {isCurrentVersion && (
-            <span className="rounded bg-brand-100 px-1.5 py-0.5 text-[10px] font-medium text-brand-700">
-              Current
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+                getStatusStyles(version.status)
+              )}
+            >
+              {getStatusIcon(version.status)}
+              {version.status}
             </span>
-          )}
-          <span
-            className={cn(
-              'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-              getStatusStyles(version.status)
-            )}
-          >
-            {getStatusIcon(version.status)}
-            {version.status}
-          </span>
-        </div>
-      </PageLayoutTopBar>
+          </>
+        }
+        actions={
+          isDraft ? (
+            <>
+              {/* Reset Draft - clears all edits and bases on previous version */}
+              <Button
+                variant="secondary"
+                className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+              >
+                <RotateCcwIcon className="mr-1.5 size-3.5" />
+                Reset Draft
+              </Button>
+              {/* Cancel - discards unsaved changes */}
+              <Button
+                variant="secondary"
+                className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+              >
+                <XIcon className="mr-1.5 size-3.5" />
+                Cancel
+              </Button>
+              {/* Submit for Approval - primary CTA */}
+              <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
+                <SendIcon className="mr-1.5 size-3.5" />
+                Submit for Approval
+              </Button>
+            </>
+          ) : undefined
+        }
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">
           {/* Version Summary */}

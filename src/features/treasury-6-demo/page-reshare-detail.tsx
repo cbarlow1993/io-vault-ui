@@ -15,8 +15,6 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -559,15 +557,13 @@ export const PageReshareDetail = () => {
   if (!reshare) {
     return (
       <PageLayout>
-        <PageLayoutTopBar endActions={<NotificationButton />}>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-              { label: 'Reshare Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+            { label: 'Reshare Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center text-neutral-500">
             <p className="text-sm">
@@ -587,38 +583,29 @@ export const PageReshareDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            {reshare.status === 'pending' && (
-              <>
-                <Button
-                  variant="secondary"
-                  className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
-                >
-                  Cancel Request
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+          { label: 'Reshare Operation' },
+        ]}
+        actions={
+          reshare.status === 'pending' ? (
+            <>
+              <Button
+                variant="secondary"
+                className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+              >
+                Cancel Request
+              </Button>
+              {isReady && (
+                <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
+                  Execute Reshare
                 </Button>
-                {isReady && (
-                  <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
-                    Execute Reshare
-                  </Button>
-                )}
-              </>
-            )}
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+              )}
+            </>
+          ) : undefined
         }
-      >
-        <div className="flex items-center gap-3">
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-              { label: 'Reshare Operation' },
-            ]}
-          />
-        </div>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="mx-auto max-w-4xl space-y-6">
           {/* Status Card */}

@@ -28,8 +28,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -309,16 +307,14 @@ export const PageAddressDetail = () => {
   if (!address || !vault) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: vaultId, href: `/vaults/${vaultId}` },
-              { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
-              { label: 'Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: vaultId, href: `/vaults/${vaultId}` },
+            { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
+            { label: 'Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -375,28 +371,22 @@ export const PageAddressDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
-            <Button
-              onClick={() => setShowTransferForm(true)}
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <SendIcon className="mr-1.5 size-3.5" />
-              Transfer
-            </Button>
-          </div>
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: vault.name, href: `/vaults/${vaultId}` },
+          { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
+          { label: address.alias ?? 'Address Details' },
+        ]}
+        actions={
+          <Button
+            onClick={() => setShowTransferForm(true)}
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <SendIcon className="mr-1.5 size-3.5" />
+            Transfer
+          </Button>
         }
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Vaults', href: '/vaults' },
-            { label: vault.name, href: `/vaults/${vaultId}` },
-            { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
-            { label: address.alias ?? 'Address Details' },
-          ]}
-        />
-      </PageLayoutTopBar>
+      />
 
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">

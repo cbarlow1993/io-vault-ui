@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -229,9 +228,7 @@ const WhitelistFormContent = ({ mode, whitelistId }: WhitelistFormProps) => {
   if (mode === 'edit' && !existingWhitelist) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Whitelist Not Found</PageLayoutTopBarTitle>
-        </PageLayoutTopBar>
+        <PageLayoutTopBar title="Whitelist Not Found" />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -252,14 +249,7 @@ const WhitelistFormContent = ({ mode, whitelistId }: WhitelistFormProps) => {
 
   return (
     <PageLayout>
-      <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
-        }
-      >
+      <PageLayoutTopBar>
         <div className="flex items-center gap-3">
           <button
             type="button"

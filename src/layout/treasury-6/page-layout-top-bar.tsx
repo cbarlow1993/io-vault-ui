@@ -46,11 +46,15 @@ export const PageLayoutTopBar = ({
   // Determine if using new declarative API or legacy children API
   const useDeclarativeApi = !children && (breadcrumbs || title);
 
-  // Determine end actions: new API uses ActionsSlot, legacy uses endActions directly
-  const endContent = useDeclarativeApi ? (
+  // Determine end actions:
+  // - `actions` prop uses ActionsSlot (auto divider + NotificationButton) - works with both APIs
+  // - `endActions` prop is legacy escape hatch (manual handling)
+  const endContent = actions ? (
     <ActionsSlot actions={actions} />
   ) : endActions ? (
     <div className="flex items-center gap-3">{endActions}</div>
+  ) : useDeclarativeApi ? (
+    <ActionsSlot />
   ) : null;
 
   return (

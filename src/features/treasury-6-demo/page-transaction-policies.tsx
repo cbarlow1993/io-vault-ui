@@ -37,11 +37,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -284,22 +282,15 @@ export const PageTransactionPolicies = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
-              <PlusIcon className="mr-1.5 size-3.5" />
-              Create Policy
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+        title="Transaction Policies"
+        subtitle={`${activePolicies} active policies`}
+        actions={
+          <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
+            <PlusIcon className="mr-1.5 size-3.5" />
+            Create Policy
+          </Button>
         }
-      >
-        <PageLayoutTopBarTitle>Transaction Policies</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">
-          {activePolicies} active policies
-        </span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
           {/* Summary Cards */}

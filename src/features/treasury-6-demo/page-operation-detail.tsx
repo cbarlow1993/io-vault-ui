@@ -15,8 +15,6 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -461,14 +459,12 @@ export const PageOperationDetail = () => {
   if (!operation) {
     return (
       <PageLayout>
-        <PageLayoutTopBar endActions={<NotificationButton />}>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: 'Operation Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: 'Operation Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center text-neutral-500">
             <p className="text-sm">
@@ -492,8 +488,21 @@ export const PageOperationDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          {
+            label: operation.vaultName,
+            href: `/vaults/${operation.vaultId}`,
+          },
+          {
+            label:
+              operation.type === 'signature'
+                ? 'Signature Request'
+                : 'Reshare Request',
+          },
+        ]}
+        actions={
+          <>
             <Button
               variant="secondary"
               className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
@@ -506,27 +515,9 @@ export const PageOperationDetail = () => {
                 {operation.type === 'signature' ? 'Transaction' : 'Reshare'}
               </Button>
             )}
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+          </>
         }
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Vaults', href: '/vaults' },
-            {
-              label: operation.vaultName,
-              href: `/vaults/${operation.vaultId}`,
-            },
-            {
-              label:
-                operation.type === 'signature'
-                  ? 'Signature Request'
-                  : 'Reshare Request',
-            },
-          ]}
-        />
-      </PageLayoutTopBar>
+      />
 
       <PageLayoutContent containerClassName="py-4">
         <div className="mx-auto max-w-4xl space-y-4">

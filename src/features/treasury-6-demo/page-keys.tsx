@@ -27,11 +27,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import { allVaults, type VaultStatus } from './data/vaults';
@@ -193,27 +191,20 @@ export const PageTreasury6Keys = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <Link to="/vaults/new">
-                <PlusIcon className="mr-1.5 size-3.5" />
-                Create Vault
-              </Link>
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+        title="Vaults"
+        subtitle={`${allVaults.filter((v) => v.status === 'active').length} active vaults`}
+        actions={
+          <Button
+            asChild
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <Link to="/vaults/new">
+              <PlusIcon className="mr-1.5 size-3.5" />
+              Create Vault
+            </Link>
+          </Button>
         }
-      >
-        <PageLayoutTopBarTitle>Vaults</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">
-          {allVaults.filter((v) => v.status === 'active').length} active vaults
-        </span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
           {/* Summary Cards */}

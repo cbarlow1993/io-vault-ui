@@ -35,8 +35,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -844,15 +842,13 @@ export const PageAddressAssets = () => {
   if (!chainData) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Vaults', href: '/vaults' },
-              { label: 'Vault', href: `/vaults/${vaultId}` },
-              { label: 'Chain Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vault', href: `/vaults/${vaultId}` },
+            { label: 'Chain Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">Unknown chain: {chain}</p>
@@ -940,33 +936,26 @@ export const PageAddressAssets = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+          { label: 'Assets' },
+        ]}
+        actions={
+          <Button
+            asChild
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <Link
+              to="/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
+              params={{ vaultId, chain, address }}
             >
-              <Link
-                to="/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
-                params={{ vaultId, chain, address }}
-              >
-                <PlusIcon className="mr-1.5 size-3.5" />
-                Create Transfer
-              </Link>
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+              <PlusIcon className="mr-1.5 size-3.5" />
+              Create Transfer
+            </Link>
+          </Button>
         }
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Vaults', href: '/vaults' },
-            { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-            { label: 'Assets' },
-          ]}
-        />
-      </PageLayoutTopBar>
+      />
 
       <PageLayoutContent containerClassName="py-4">
         <div className="mx-auto max-w-5xl space-y-6">

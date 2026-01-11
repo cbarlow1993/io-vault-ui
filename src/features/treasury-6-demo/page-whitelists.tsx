@@ -33,11 +33,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import {
@@ -253,27 +251,20 @@ export const PageWhitelists = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <Link to="/policies/whitelists/new">
-                <PlusIcon className="mr-1.5 size-3.5" />
-                Create Whitelist
-              </Link>
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+        title="Whitelists"
+        subtitle={`${activeWhitelists} active whitelists`}
+        actions={
+          <Button
+            asChild
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <Link to="/policies/whitelists/new">
+              <PlusIcon className="mr-1.5 size-3.5" />
+              Create Whitelist
+            </Link>
+          </Button>
         }
-      >
-        <PageLayoutTopBarTitle>Whitelists</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">
-          {activeWhitelists} active whitelists
-        </span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
           {/* Summary Cards */}

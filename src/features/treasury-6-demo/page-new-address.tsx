@@ -2,9 +2,9 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import {
   ArrowLeftIcon,
   CheckIcon,
+  InfoIcon,
   PlusIcon,
   XIcon,
-  InfoIcon,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -12,27 +12,26 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
-import { chains, type ChainId } from './data/addresses';
+import { type ChainId, chains } from './data/addresses';
 import {
   allIdentities,
-  isCorporateIdentity,
   type Identity,
+  isCorporateIdentity,
 } from './data/identities';
 import { getVaultById } from './data/vaults';
 
@@ -57,9 +56,7 @@ export const PageNewAddress = () => {
   if (!vault) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Vault Not Found</PageLayoutTopBarTitle>
-        </PageLayoutTopBar>
+        <PageLayoutTopBar title="Vault Not Found" />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -128,13 +125,7 @@ export const PageNewAddress = () => {
 
   return (
     <PageLayout>
-      <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
-          </div>
-        }
-      >
+      <PageLayoutTopBar>
         <div className="flex items-center gap-3">
           <Link
             to="/vaults/$vaultId/addresses"

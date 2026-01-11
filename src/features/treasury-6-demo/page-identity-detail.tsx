@@ -23,8 +23,6 @@ import { cn } from '@/lib/tailwind/utils';
 import { Button } from '@/components/ui/button';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -116,14 +114,12 @@ export const PageIdentityDetail = () => {
   if (!identity) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Identities', href: '/identities' },
-              { label: 'Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Identities', href: '/identities' },
+            { label: 'Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -157,32 +153,25 @@ export const PageIdentityDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              variant="secondary"
-              className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+        breadcrumbs={[
+          { label: 'Identities', href: '/identities' },
+          { label: displayName },
+        ]}
+        actions={
+          <Button
+            asChild
+            variant="secondary"
+            className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+          >
+            <Link
+              to="/identities/$identityId/edit"
+              params={{ identityId: identity.id }}
             >
-              <Link
-                to="/identities/$identityId/edit"
-                params={{ identityId: identity.id }}
-              >
-                Edit
-              </Link>
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+              Edit
+            </Link>
+          </Button>
         }
-      >
-        <Breadcrumbs
-          items={[
-            { label: 'Identities', href: '/identities' },
-            { label: displayName },
-          ]}
-        />
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-0">
         {/* Tab Navigation */}
         <div className="flex border-b border-neutral-200 bg-white">

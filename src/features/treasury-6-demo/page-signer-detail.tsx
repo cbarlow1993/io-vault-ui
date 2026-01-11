@@ -121,16 +121,6 @@ export const PageSignerDetail = () => {
           { label: 'Signers', href: '/signers' },
           { label: signer.name },
         ]}
-        status={
-          <span
-            className={cn(
-              'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-              getStatusStyles(signer.status)
-            )}
-          >
-            {signer.status}
-          </span>
-        }
       />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">

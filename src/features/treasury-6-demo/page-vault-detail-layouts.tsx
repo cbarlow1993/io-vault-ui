@@ -1,6 +1,4 @@
-import { Link } from '@tanstack/react-router';
 import {
-  ArrowLeftIcon,
   CheckCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -29,11 +27,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 // Mock data for prototypes
@@ -992,45 +988,36 @@ export const PageVaultDetailLayouts = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-2">
-            <NotificationButton />
-          </div>
+        breadcrumbs={[
+          { label: 'Vaults', href: '/vaults' },
+          { label: mockVault.name },
+        ]}
+        status={<StatusBadge status={mockVault.status} />}
+        actions={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="secondary"
+                className="h-8 rounded-none border-neutral-300 px-3 text-xs font-medium"
+              >
+                Actions
+                <ChevronDownIcon className="ml-1.5 size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-none">
+              <DropdownMenuItem className="rounded-none text-xs">
+                Reshare Keys
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-none text-xs">
+                Edit Vault
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-none text-xs text-negative-600">
+                Revoke Vault
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         }
-      >
-        <Link
-          to="/vaults"
-          className="flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900"
-        >
-          <ArrowLeftIcon className="size-4" />
-          Back
-        </Link>
-        <PageLayoutTopBarTitle>{mockVault.name}</PageLayoutTopBarTitle>
-        <StatusBadge status={mockVault.status} />
-        <div className="flex-1" />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="secondary"
-              className="h-8 rounded-none border-neutral-300 px-3 text-xs font-medium"
-            >
-              Actions
-              <ChevronDownIcon className="ml-1.5 size-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-none">
-            <DropdownMenuItem className="rounded-none text-xs">
-              Reshare Keys
-            </DropdownMenuItem>
-            <DropdownMenuItem className="rounded-none text-xs">
-              Edit Vault
-            </DropdownMenuItem>
-            <DropdownMenuItem className="rounded-none text-xs text-negative-600">
-              Revoke Vault
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </PageLayoutTopBar>
+      />
 
       <PageLayoutContent>
         {/* Layout Switcher */}

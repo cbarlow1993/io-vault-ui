@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -294,9 +293,7 @@ const IdentityFormContent = ({ mode, identityId }: IdentityFormProps) => {
   if (mode === 'edit' && !existingIdentity) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <PageLayoutTopBarTitle>Identity Not Found</PageLayoutTopBarTitle>
-        </PageLayoutTopBar>
+        <PageLayoutTopBar title="Identity Not Found" />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -317,14 +314,7 @@ const IdentityFormContent = ({ mode, identityId }: IdentityFormProps) => {
 
   return (
     <PageLayout>
-      <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
-        }
-      >
+      <PageLayoutTopBar>
         <div className="flex items-center gap-3">
           <button
             type="button"

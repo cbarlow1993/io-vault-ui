@@ -3,11 +3,9 @@ import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import { OnboardingChecklist } from './components/onboarding-checklist';
@@ -227,22 +225,19 @@ export const PageTreasury6Dashboard = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
+        title="Overview"
+        subtitle="January 14, 2025"
+        actions={
+          <>
             <span className="text-xs text-neutral-400">
               Last updated: 14:32:05 UTC
             </span>
             <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
               New Transfer
             </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+          </>
         }
-      >
-        <PageLayoutTopBarTitle>Overview</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">January 14, 2025</span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         {/* Main 2/3 - 1/3 Layout */}
         <div className="grid grid-cols-12 gap-4">
