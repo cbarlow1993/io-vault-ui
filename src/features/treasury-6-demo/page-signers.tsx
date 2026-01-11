@@ -29,11 +29,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
-  PageLayoutTopBarTitle,
 } from '@/layout/treasury-6';
 
 import { NewSignerModal } from './components/new-signer-modal';
@@ -338,26 +336,18 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setIsNewSignerModalOpen(true)}
-              className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              <PlusIcon className="mr-1.5 size-3.5" />
-              New Signer
-            </Button>
-            <div className="h-4 w-px bg-neutral-200" />
-            <NotificationButton />
-          </div>
+        title="Signers"
+        subtitle={`${allSigners.filter((s) => s.status === 'active').length} active signers`}
+        actions={
+          <Button
+            onClick={() => setIsNewSignerModalOpen(true)}
+            className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
+          >
+            <PlusIcon className="mr-1.5 size-3.5" />
+            New Signer
+          </Button>
         }
-      >
-        <PageLayoutTopBarTitle>Signers</PageLayoutTopBarTitle>
-        <span className="text-xs text-neutral-400">
-          {allSigners.filter((s) => s.status === 'active').length} active
-          signers
-        </span>
-      </PageLayoutTopBar>
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-4">
           {/* Summary Cards */}

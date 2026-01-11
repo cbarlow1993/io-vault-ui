@@ -13,8 +13,6 @@ import {
 import { cn } from '@/lib/tailwind/utils';
 
 import {
-  Breadcrumbs,
-  NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
@@ -93,14 +91,12 @@ export const PageSignerDetail = () => {
   if (!signer) {
     return (
       <PageLayout>
-        <PageLayoutTopBar>
-          <Breadcrumbs
-            items={[
-              { label: 'Signers', href: '/signers' },
-              { label: 'Not Found' },
-            ]}
-          />
-        </PageLayoutTopBar>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Signers', href: '/signers' },
+            { label: 'Not Found' },
+          ]}
+        />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
@@ -121,19 +117,11 @@ export const PageSignerDetail = () => {
   return (
     <PageLayout>
       <PageLayoutTopBar
-        endActions={
-          <div className="flex items-center gap-3">
-            <NotificationButton />
-          </div>
-        }
-      >
-        <div className="flex items-center gap-3">
-          <Breadcrumbs
-            items={[
-              { label: 'Signers', href: '/signers' },
-              { label: signer.name },
-            ]}
-          />
+        breadcrumbs={[
+          { label: 'Signers', href: '/signers' },
+          { label: signer.name },
+        ]}
+        status={
           <span
             className={cn(
               'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
@@ -142,8 +130,8 @@ export const PageSignerDetail = () => {
           >
             {signer.status}
           </span>
-        </div>
-      </PageLayoutTopBar>
+        }
+      />
       <PageLayoutContent containerClassName="py-4">
         <div className="space-y-6">
           {/* Signer Info */}
