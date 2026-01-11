@@ -21,8 +21,6 @@ type PageLayoutTopBarProps = {
   breadcrumbs?: BreadcrumbItem[];
   showHomeIcon?: boolean;
   title?: string;
-  subtitle?: string;
-  status?: ReactNode;
   actions?: ReactNode;
 
   // Legacy/escape hatch API
@@ -36,8 +34,6 @@ export const PageLayoutTopBar = ({
   breadcrumbs,
   showHomeIcon,
   title,
-  subtitle,
-  status,
   actions,
   children,
   endActions,
@@ -72,11 +68,7 @@ export const PageLayoutTopBar = ({
             )}
             <div className="flex items-center gap-2">
               {title && <PageLayoutTopBarTitle>{title}</PageLayoutTopBarTitle>}
-              {status}
             </div>
-            {subtitle && (
-              <span className="text-xs text-neutral-400">{subtitle}</span>
-            )}
           </div>
         ) : (
           children

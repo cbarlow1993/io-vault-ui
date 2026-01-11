@@ -283,7 +283,6 @@ export const PageTransactionPolicies = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Transaction Policies"
-        subtitle={`${activePolicies} active policies`}
         actions={
           <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
             <PlusIcon className="mr-1.5 size-3.5" />

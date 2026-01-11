@@ -24,12 +24,6 @@ Add declarative props to `PageLayoutTopBar` that handle common patterns automati
   // Title - rendered as h1
   title="Signer Details"
 
-  // Optional subtitle
-  subtitle="Last active 2 hours ago"
-
-  // Status badge next to title
-  status={<Badge variant="positive">Active</Badge>}
-
   // Primary CTA(s) - auto-wrapped with divider + NotificationButton
   actions={<Button>Edit Signer</Button>}
 

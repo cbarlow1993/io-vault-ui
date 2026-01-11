@@ -226,7 +226,6 @@ export const PageTreasury6Dashboard = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Overview"
-        subtitle="January 14, 2025"
         actions={
           <>
             <span className="text-xs text-neutral-400">

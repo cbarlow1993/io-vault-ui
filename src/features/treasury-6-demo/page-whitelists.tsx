@@ -252,7 +252,6 @@ export const PageWhitelists = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Whitelists"
-        subtitle={`${activeWhitelists} active whitelists`}
         actions={
           <Button
             asChild

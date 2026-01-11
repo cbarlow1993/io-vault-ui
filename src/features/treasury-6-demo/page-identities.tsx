@@ -238,7 +238,6 @@ export const PageTreasury6Identities = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Identities"
-        subtitle={`${verifiedCount} verified identities`}
         actions={
           <Button
             asChild

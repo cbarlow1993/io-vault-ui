@@ -598,7 +598,6 @@ export const PageAddressBook = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Address Book"
-        subtitle={`${identityAddresses.length} linked to identities`}
         actions={
           <Button
             onClick={() => setShowAddDialog(true)}

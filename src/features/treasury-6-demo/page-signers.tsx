@@ -337,7 +337,6 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
     <PageLayout>
       <PageLayoutTopBar
         title="Signers"
-        subtitle={`${allSigners.filter((s) => s.status === 'active').length} active signers`}
         actions={
           <Button
             onClick={() => setIsNewSignerModalOpen(true)}

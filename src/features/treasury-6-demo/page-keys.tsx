@@ -192,7 +192,6 @@ export const PageTreasury6Keys = () => {
     <PageLayout>
       <PageLayoutTopBar
         title="Vaults"
-        subtitle={`${allVaults.filter((v) => v.status === 'active').length} active vaults`}
         actions={
           <Button
             asChild
