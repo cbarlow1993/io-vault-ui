@@ -36,6 +36,7 @@ export function DataTableToolbar<TData>({
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
+              aria-label={searchPlaceholder}
               className="h-7 w-48 border border-neutral-200 bg-neutral-50 pr-2 pl-7 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
             />
           </div>
@@ -67,3 +68,5 @@ export function DataTableToolbar<TData>({
     </div>
   );
 }
+
+DataTableToolbar.displayName = 'DataTableToolbar';

@@ -1,12 +1,12 @@
 import {
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
   type PaginationState,
   type SortingState,
+  useReactTable,
   type VisibilityState,
 } from '@tanstack/react-table';
 import { AlertTriangleIcon, InboxIcon } from 'lucide-react';
@@ -109,12 +109,13 @@ export function DataTable<TData>({
   const isServerSide =
     rowCount !== undefined && onPaginationChange !== undefined;
 
+  // Guard against division by zero
+  const safePageSize = Math.max(1, pagination.pageSize);
+
   const table = useReactTable({
     data,
     columns,
-    pageCount: isServerSide
-      ? Math.ceil(rowCount / pagination.pageSize)
-      : undefined,
+    pageCount: isServerSide ? Math.ceil(rowCount / safePageSize) : undefined,
     state: {
       pagination,
       sorting,
@@ -156,13 +157,22 @@ export function DataTable<TData>({
   });
 
   const totalRows = rowCount ?? data.length;
-  const pageCount = Math.ceil(totalRows / pagination.pageSize);
+  const pageCount = Math.ceil(totalRows / safePageSize);
 
   // Clone toolbar children with table instance
+  // Uses displayName to handle wrapped components (memo, forwardRef, HOCs)
   const toolbarWithTable = useMemo(() => {
     return Children.map(children, (child) => {
-      if (isValidElement(child) && child.type === DataTableToolbar) {
-        return cloneElement(child, { table } as React.Attributes);
+      if (isValidElement(child)) {
+        const childType = child.type as React.ComponentType & {
+          displayName?: string;
+        };
+        const isToolbar =
+          childType === DataTableToolbar ||
+          childType.displayName === 'DataTableToolbar';
+        if (isToolbar) {
+          return cloneElement(child, { table } as React.Attributes);
+        }
       }
       return child;
     });
@@ -263,9 +273,20 @@ export function DataTable<TData>({
                 <tr
                   key={row.id}
                   onClick={() => onRowClick?.(row.original)}
+                  onKeyDown={(e) => {
+                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onRowClick(row.original);
+                    }
+                  }}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? 'button' : undefined}
                   className={cn(
-                    onRowClick && 'cursor-pointer',
-                    isSelected ? 'bg-neutral-50' : 'hover:bg-neutral-50'
+                    onRowClick &&
+                      'cursor-pointer focus:ring-2 focus:ring-brand-500 focus:outline-none focus:ring-inset',
+                    isSelected
+                      ? 'bg-brand-50 hover:bg-brand-100'
+                      : 'hover:bg-neutral-50'
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -283,8 +304,8 @@ export function DataTable<TData>({
         )}
       </table>
 
-      {/* Pagination */}
-      {totalRows > 0 && (
+      {/* Pagination - hidden during loading/error states */}
+      {totalRows > 0 && !isLoading && !isError && (
         <DataTablePagination
           pageIndex={pagination.pageIndex}
           pageSize={pagination.pageSize}
@@ -296,7 +317,6 @@ export function DataTable<TData>({
             table.setPageSize(pageSize);
             table.setPageIndex(0);
           }}
-          disabled={isLoading}
         />
       )}
     </div>

@@ -1,11 +1,12 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { Meta } from '@storybook/react-vite';
+import type { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
+
+import { FilterSelect } from '@/features/treasury-6-demo/components/filter-select';
 
 import { DataTable } from './data-table';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableToolbar } from './data-table-toolbar';
-import { FilterSelect } from '@/features/treasury-6-demo/components/filter-select';
 
 export default {
   title: 'DataTable',

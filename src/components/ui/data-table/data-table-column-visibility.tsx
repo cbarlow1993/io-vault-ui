@@ -41,10 +41,13 @@ export function DataTableColumnVisibility<TData>({
         <DropdownMenuSeparator />
         {columns.map((column) => {
           const header = column.columnDef.header;
+          // Convert camelCase to Title Case with spaces
+          const humanizeColumnId = (id: string) =>
+            id
+              .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before uppercase letters
+              .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
           const columnName =
-            typeof header === 'string'
-              ? header
-              : column.id.charAt(0).toUpperCase() + column.id.slice(1);
+            typeof header === 'string' ? header : humanizeColumnId(column.id);
 
           return (
             <DropdownMenuCheckboxItem

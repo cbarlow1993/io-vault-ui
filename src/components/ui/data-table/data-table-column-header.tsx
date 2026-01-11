@@ -18,6 +18,14 @@ export function DataTableColumnHeader<TData, TValue>({
     return <span className={className}>{title}</span>;
   }
 
+  const sortDirection = column.getIsSorted();
+  const sortLabel =
+    sortDirection === 'asc'
+      ? `Sort ${title} descending`
+      : sortDirection === 'desc'
+        ? `Clear ${title} sort`
+        : `Sort ${title} ascending`;
+
   return (
     <button
       type="button"
@@ -26,11 +34,12 @@ export function DataTableColumnHeader<TData, TValue>({
         className
       )}
       onClick={() => column.toggleSorting()}
+      aria-label={sortLabel}
     >
       {title}
-      {column.getIsSorted() === 'asc' ? (
+      {sortDirection === 'asc' ? (
         <ArrowUpIcon className="size-3" />
-      ) : column.getIsSorted() === 'desc' ? (
+      ) : sortDirection === 'desc' ? (
         <ArrowDownIcon className="size-3" />
       ) : (
         <ChevronsUpDownIcon className="size-3 text-neutral-400" />

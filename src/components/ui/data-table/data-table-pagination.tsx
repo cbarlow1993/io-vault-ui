@@ -7,11 +7,6 @@ import {
 
 import { cn } from '@/lib/tailwind/utils';
 
-import {
-  FilterSelect,
-  type FilterSelectOption,
-} from '@/features/treasury-6-demo/components/filter-select';
-
 interface DataTablePaginationProps {
   pageIndex: number;
   pageSize: number;
@@ -38,16 +33,6 @@ export function DataTablePagination({
   const startIndex = pageIndex * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalRows);
 
-  // Page size options for FilterSelect
-  const pageSizeSelectOptions: FilterSelectOption[] = pageSizeOptions.map(
-    (size) => ({
-      id: String(size),
-      label: String(size),
-    })
-  );
-  const currentPageSizeOption =
-    pageSizeSelectOptions.find((opt) => opt.id === String(pageSize)) ?? null;
-
   // Generate page numbers with ellipsis
   const getPageNumbers = (): (number | 'ellipsis')[] => {
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -71,15 +56,27 @@ export function DataTablePagination({
   const isLastPage = currentPage === totalPages || totalPages === 0;
 
   return (
-    <div className="flex items-center justify-between border-t border-neutral-200 px-3 py-2">
+    <nav
+      aria-label="Table pagination"
+      className="flex items-center justify-between border-t border-neutral-200 px-3 py-2"
+    >
       <div className="flex items-center gap-2">
-        <span className="text-xs text-neutral-500">Rows per page:</span>
-        <FilterSelect
-          options={pageSizeSelectOptions}
-          value={currentPageSizeOption}
-          onChange={(option) => onPageSizeChange(Number(option.id))}
-          className="w-16"
-        />
+        <label htmlFor="page-size-select" className="text-xs text-neutral-500">
+          Rows per page:
+        </label>
+        <select
+          id="page-size-select"
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          disabled={disabled}
+          className="h-7 w-16 border border-neutral-200 bg-neutral-50 px-2 text-xs text-neutral-600 focus:border-neutral-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {pageSizeOptions.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-center gap-1">
@@ -94,6 +91,7 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(0)}
           disabled={disabled || isFirstPage}
+          aria-label="Go to first page"
           className={cn(
             'flex size-7 items-center justify-center border border-neutral-200',
             disabled || isFirstPage
@@ -109,6 +107,7 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={disabled || isFirstPage}
+          aria-label="Go to previous page"
           className={cn(
             'flex size-7 items-center justify-center border border-neutral-200',
             disabled || isFirstPage
@@ -135,6 +134,8 @@ export function DataTablePagination({
                 type="button"
                 onClick={() => onPageChange(item - 1)}
                 disabled={disabled}
+                aria-label={`Go to page ${item}`}
+                aria-current={currentPage === item ? 'page' : undefined}
                 className={cn(
                   'flex size-7 items-center justify-center border text-xs',
                   currentPage === item
@@ -153,6 +154,7 @@ export function DataTablePagination({
           type="button"
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={disabled || isLastPage}
+          aria-label="Go to next page"
           className={cn(
             'flex size-7 items-center justify-center border border-neutral-200',
             disabled || isLastPage
@@ -166,8 +168,9 @@ export function DataTablePagination({
         {/* Last page */}
         <button
           type="button"
-          onClick={() => onPageChange(totalPages - 1)}
+          onClick={() => onPageChange(Math.max(0, totalPages - 1))}
           disabled={disabled || isLastPage}
+          aria-label="Go to last page"
           className={cn(
             'flex size-7 items-center justify-center border border-neutral-200',
             disabled || isLastPage
@@ -178,6 +181,6 @@ export function DataTablePagination({
           <ChevronsRightIcon className="size-3.5" />
         </button>
       </div>
-    </div>
+    </nav>
   );
 }
