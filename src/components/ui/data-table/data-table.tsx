@@ -195,7 +195,7 @@ export function DataTable<TData>({
         <Button
           onClick={onRetry}
           className="mt-4 h-8 rounded-none px-4 text-xs"
-          variant="outline"
+          variant="secondary"
         >
           Try again
         </Button>

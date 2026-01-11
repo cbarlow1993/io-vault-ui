@@ -1,10 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
   AlertTriangleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
@@ -18,6 +15,7 @@ import { useMemo, useState } from 'react';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,19 +24,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { FilterSelect } from './components/filter-select';
-import {
-  getHealthLabel,
-  getHealthStyles,
-  getStatusStyles,
-} from './lib/status-styles';
-
 import {
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
 } from '@/layout/treasury-6';
 
+import { FilterSelect } from './components/filter-select';
 import { NewSignerModal } from './components/new-signer-modal';
 import { RenameSignerModal } from './components/rename-signer-modal';
 import { RevokeSignerModal } from './components/revoke-signer-modal';
@@ -51,6 +43,11 @@ import {
   type RegisteredSigner,
   type SignerType,
 } from './data/signers';
+import {
+  getHealthLabel,
+  getHealthStyles,
+  getStatusStyles,
+} from './lib/status-styles';
 
 type SelectOption = { id: string; label: string };
 
@@ -66,13 +63,6 @@ const TYPE_OPTIONS: SelectOption[] = [
   { id: 'ios', label: 'iOS' },
   { id: 'android', label: 'Android' },
   { id: 'virtual', label: 'Virtual' },
-];
-
-const PAGE_SIZE_OPTIONS_SELECT: SelectOption[] = [
-  { id: '5', label: '5' },
-  { id: '10', label: '10' },
-  { id: '25', label: '25' },
-  { id: '50', label: '50' },
 ];
 
 const getTypeIcon = (type: SignerType) => {
@@ -133,7 +123,130 @@ const VersionBadge = ({ signer }: { signer: RegisteredSigner }) => {
 
 const DEFAULT_STATUS = STATUS_OPTIONS[0]!;
 const DEFAULT_TYPE = TYPE_OPTIONS[0]!;
-const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS_SELECT[1]!;
+
+// Columns need to be defined outside the component or memoized to prevent recreation on every render
+const createSignerColumns = (
+  onConfigClick: (signer: RegisteredSigner) => void,
+  onRenameClick: (signer: RegisteredSigner) => void,
+  onRevokeClick: (signer: RegisteredSigner) => void
+): ColumnDef<RegisteredSigner, unknown>[] => [
+  {
+    accessorKey: 'name',
+    header: 'Name',
+    cell: ({ row }) => {
+      const signer = row.original;
+      return (
+        <div>
+          <p className="font-medium text-neutral-900">{signer.name}</p>
+          <p className="text-[10px] text-neutral-400">
+            {signer.owner} · {signer.deviceInfo}
+          </p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: ({ row }) => {
+      const signer = row.original;
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-neutral-400">{getTypeIcon(signer.type)}</span>
+          <span className="text-neutral-600">{getTypeLabel(signer.type)}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'version',
+    header: 'Version',
+    cell: ({ row }) => <VersionBadge signer={row.original} />,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const signer = row.original;
+      return (
+        <span
+          className={cn(
+            'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
+            getStatusStyles(signer.status)
+          )}
+        >
+          {signer.status}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: 'vaultsCount',
+    header: 'Vaults',
+    cell: ({ row }) => (
+      <span className="text-neutral-600 tabular-nums">
+        {row.original.vaultsCount}
+      </span>
+    ),
+  },
+  {
+    id: 'lastSeen',
+    header: 'Last Seen',
+    cell: ({ row }) => <HealthIndicator signer={row.original} />,
+  },
+  {
+    id: 'actions',
+    header: () => <span className="sr-only">Actions</span>,
+    cell: ({ row }) => {
+      const signer = row.original;
+      return (
+        <div className="text-right" onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+              >
+                <MoreHorizontalIcon className="size-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 rounded-none">
+              <DropdownMenuItem
+                asChild
+                className="cursor-pointer rounded-none text-xs"
+              >
+                <Link to="/signers/$signerId" params={{ signerId: signer.id }}>
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onConfigClick(signer)}
+                className="cursor-pointer rounded-none text-xs"
+              >
+                <SettingsIcon className="mr-2 size-3.5" />
+                View Config
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onRenameClick(signer)}
+                className="cursor-pointer rounded-none text-xs"
+              >
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onRevokeClick(signer)}
+                className="cursor-pointer rounded-none text-xs text-negative-600"
+                disabled={signer.status === 'revoked'}
+              >
+                Revoke Signer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
+  },
+];
 
 type PageSignersProps = {
   initialModalOpen?: boolean;
@@ -160,13 +273,6 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
   const [typeFilter, setTypeFilter] = useState<SelectOption | null>(
     DEFAULT_TYPE
   );
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSizeOption, setPageSizeOption] = useState<SelectOption | null>(
-    DEFAULT_PAGE_SIZE
-  );
-  const pageSize = pageSizeOption ? Number(pageSizeOption.id) : 10;
 
   // Filter logic
   const filteredSigners = useMemo(() => {
@@ -198,42 +304,33 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
     });
   }, [search, statusFilter, typeFilter]);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredSigners.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedSigners = filteredSigners.slice(startIndex, endIndex);
-
-  // Reset to page 1 when filters change
-  const handleFilterChange = () => {
-    setCurrentPage(1);
-  };
+  // Memoize columns to prevent recreation on every render
+  const columns = useMemo(
+    () =>
+      createSignerColumns(
+        setConfigModalSigner,
+        setRenameModalSigner,
+        setRevokeModalSigner
+      ),
+    []
+  );
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    handleFilterChange();
   };
 
   const handleStatusChange = (value: SelectOption) => {
     setStatusFilter(value);
-    handleFilterChange();
   };
 
   const handleTypeChange = (value: SelectOption) => {
     setTypeFilter(value);
-    handleFilterChange();
-  };
-
-  const handlePageSizeChange = (value: SelectOption) => {
-    setPageSizeOption(value);
-    setCurrentPage(1);
   };
 
   const clearFilters = () => {
     setSearch('');
     setStatusFilter(DEFAULT_STATUS);
     setTypeFilter(DEFAULT_TYPE);
-    setCurrentPage(1);
   };
 
   const hasActiveFilters =
@@ -354,288 +451,18 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
           </div>
 
           {/* Signers Table */}
-          <div className="border border-neutral-200 bg-white">
-            <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2">
-              <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
-                Registered Signers
-              </h2>
-            </div>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Name
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Type
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Version
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Status
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Vaults
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
-                    Last Seen
-                  </th>
-                  <th className="px-3 py-2 text-right font-medium text-neutral-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {paginatedSigners.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-3 py-8 text-center text-neutral-500"
-                    >
-                      No signers found matching your filters.
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedSigners.map((signer) => (
-                    <tr
-                      key={signer.id}
-                      onClick={() =>
-                        navigate({
-                          to: '/signers/$signerId',
-                          params: { signerId: signer.id },
-                        })
-                      }
-                      className="cursor-pointer hover:bg-neutral-50"
-                    >
-                      <td className="px-3 py-2">
-                        <p className="font-medium text-neutral-900">
-                          {signer.name}
-                        </p>
-                        <p className="text-[10px] text-neutral-400">
-                          {signer.owner} · {signer.deviceInfo}
-                        </p>
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-neutral-400">
-                            {getTypeIcon(signer.type)}
-                          </span>
-                          <span className="text-neutral-600">
-                            {getTypeLabel(signer.type)}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">
-                        <VersionBadge signer={signer} />
-                      </td>
-                      <td className="px-3 py-2">
-                        <span
-                          className={cn(
-                            'inline-block rounded px-1.5 py-0.5 text-[10px] font-medium capitalize',
-                            getStatusStyles(signer.status)
-                          )}
-                        >
-                          {signer.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <span className="text-neutral-600 tabular-nums">
-                          {signer.vaultsCount}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <HealthIndicator signer={signer} />
-                      </td>
-                      <td
-                        className="px-3 py-2 text-right"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                            >
-                              <MoreHorizontalIcon className="size-4" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-40 rounded-none"
-                          >
-                            <DropdownMenuItem
-                              asChild
-                              className="cursor-pointer rounded-none text-xs"
-                            >
-                              <Link
-                                to="/signers/$signerId"
-                                params={{ signerId: signer.id }}
-                              >
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setConfigModalSigner(signer)}
-                              className="cursor-pointer rounded-none text-xs"
-                            >
-                              <SettingsIcon className="mr-2 size-3.5" />
-                              View Config
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setRenameModalSigner(signer)}
-                              className="cursor-pointer rounded-none text-xs"
-                            >
-                              Rename
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setRevokeModalSigner(signer)}
-                              className="cursor-pointer rounded-none text-xs text-negative-600"
-                              disabled={signer.status === 'revoked'}
-                            >
-                              Revoke Signer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-
-            {/* Pagination */}
-            {filteredSigners.length > 0 && (
-              <div className="flex items-center justify-between border-t border-neutral-200 px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-neutral-500">
-                    Rows per page:
-                  </span>
-                  <FilterSelect
-                    options={PAGE_SIZE_OPTIONS_SELECT}
-                    value={pageSizeOption}
-                    onChange={handlePageSizeChange}
-                    className="w-16"
-                  />
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <span className="mr-2 text-xs text-neutral-500">
-                    {startIndex + 1}-
-                    {Math.min(endIndex, filteredSigners.length)} of{' '}
-                    {filteredSigners.length}
-                  </span>
-
-                  {/* First page */}
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
-                    className={cn(
-                      'flex size-7 items-center justify-center border border-neutral-200',
-                      currentPage === 1
-                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
-                    )}
-                  >
-                    <ChevronsLeftIcon className="size-3.5" />
-                  </button>
-
-                  {/* Previous page */}
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className={cn(
-                      'flex size-7 items-center justify-center border border-neutral-200',
-                      currentPage === 1
-                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
-                    )}
-                  >
-                    <ChevronLeftIcon className="size-3.5" />
-                  </button>
-
-                  {/* Page numbers */}
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter((page) => {
-                        if (page === 1 || page === totalPages) return true;
-                        if (Math.abs(page - currentPage) <= 1) return true;
-                        return false;
-                      })
-                      .reduce<(number | 'ellipsis')[]>(
-                        (acc, page, idx, arr) => {
-                          if (idx > 0 && page - (arr[idx - 1] as number) > 1) {
-                            acc.push('ellipsis');
-                          }
-                          acc.push(page);
-                          return acc;
-                        },
-                        []
-                      )
-                      .map((item, idx) =>
-                        item === 'ellipsis' ? (
-                          <span
-                            key={`ellipsis-${idx}`}
-                            className="px-1 text-xs text-neutral-400"
-                          >
-                            ...
-                          </span>
-                        ) : (
-                          <button
-                            key={item}
-                            type="button"
-                            onClick={() => setCurrentPage(item)}
-                            className={cn(
-                              'flex size-7 items-center justify-center border text-xs',
-                              currentPage === item
-                                ? 'border-neutral-900 bg-neutral-900 font-medium text-white'
-                                : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
-                            )}
-                          >
-                            {item}
-                          </button>
-                        )
-                      )}
-                  </div>
-
-                  {/* Next page */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className={cn(
-                      'flex size-7 items-center justify-center border border-neutral-200',
-                      currentPage === totalPages || totalPages === 0
-                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
-                    )}
-                  >
-                    <ChevronRightIcon className="size-3.5" />
-                  </button>
-
-                  {/* Last page */}
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className={cn(
-                      'flex size-7 items-center justify-center border border-neutral-200',
-                      currentPage === totalPages || totalPages === 0
-                        ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-                        : 'bg-white text-neutral-600 hover:bg-neutral-50'
-                    )}
-                  >
-                    <ChevronsRightIcon className="size-3.5" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <DataTable
+            columns={columns}
+            data={filteredSigners}
+            getRowId={(row) => row.id}
+            onRowClick={(row) =>
+              navigate({
+                to: '/signers/$signerId',
+                params: { signerId: row.id },
+              })
+            }
+            pageSizeOptions={[5, 10, 25, 50]}
+          />
         </div>
       </PageLayoutContent>
 
