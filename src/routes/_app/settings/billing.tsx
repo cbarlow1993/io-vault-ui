@@ -2,6 +2,15 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { envClient } from '@/env/client';
 import { PageSettingsBilling } from '@/features/settings/page-settings-billing';
+import { ChargebeeProvider } from '@/lib/chargebee';
+
+function BillingPageWithProvider() {
+  return (
+    <ChargebeeProvider>
+      <PageSettingsBilling />
+    </ChargebeeProvider>
+  );
+}
 
 export const Route = createFileRoute('/_app/settings/billing')({
   beforeLoad: () => {
@@ -9,5 +18,5 @@ export const Route = createFileRoute('/_app/settings/billing')({
       throw redirect({ to: '/settings/members' });
     }
   },
-  component: PageSettingsBilling,
+  component: BillingPageWithProvider,
 });
