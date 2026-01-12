@@ -6,6 +6,7 @@ import { performance } from 'node:perf_hooks';
 
 import { envClient } from '@/env/client';
 import { Permission } from '@/features/auth/permissions';
+import { getAuthProvider } from '@/lib/auth';
 import { auth } from '@/server/auth';
 import { db } from '@/server/db';
 import { logger } from '@/server/logger';
@@ -17,7 +18,14 @@ const base = os
   .use(async ({ next, context }) => {
     const start = performance.now();
 
-    const session = await auth.api.getSession({ headers: getRequestHeaders() });
+    // Use the auth provider abstraction to support both Clerk and better-auth modes
+    const authProvider = getAuthProvider();
+    const headers = getRequestHeaders();
+
+    // Construct a minimal request for the auth provider
+    // The auth provider needs a Request object for Clerk's authenticateRequest
+    const request = new Request('http://localhost/api', { headers });
+    const sessionData = await authProvider.getSession(request);
 
     const duration = performance.now() - start;
 
@@ -28,8 +36,8 @@ const base = os
 
     return await next({
       context: {
-        user: session?.user,
-        session: session?.session,
+        user: sessionData?.user,
+        session: sessionData?.session,
         db,
       },
     });
