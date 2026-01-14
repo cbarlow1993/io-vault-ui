@@ -5,12 +5,11 @@ import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
 import { envClient } from '@/env/client';
-import { Permission } from '@/features/auth/permissions';
 import { getAuthProvider } from '@/lib/auth';
-import { auth } from '@/server/auth';
-import { db } from '@/server/db';
 import { logger } from '@/server/logger';
-import { timingStore } from '@/server/timing-store';
+
+// TODO: Permission type will be re-added when vault API is integrated
+// import { Permission } from '@/lib/auth/permissions';
 
 const base = os
   .$context<ResponseHeadersPluginContext>()
@@ -18,11 +17,10 @@ const base = os
   .use(async ({ next, context }) => {
     const start = performance.now();
 
-    // Use the auth provider abstraction to support both Clerk and better-auth modes
+    // Use the Clerk auth provider
     const authProvider = getAuthProvider();
 
     // Get the full request object from TanStack Start
-    // This includes all headers, cookies, and URL needed for Clerk's authenticateRequest
     const request = getRequest();
     const sessionData = await authProvider.getSession(request);
 
@@ -37,7 +35,6 @@ const base = os
       context: {
         user: sessionData?.user,
         session: sessionData?.session,
-        db,
       },
     });
   })
@@ -84,27 +81,6 @@ const base = os
       throw error;
     }
   })
-  // Middleware to add database Server Timing header
-  .use(async ({ next, context }) => {
-    return timingStore.run({ prisma: [] }, async () => {
-      const result = await next();
-
-      // Add the Server-Timing header if there are timings
-      const serverTimingHeader = timingStore
-        .getStore()
-        ?.prisma.map(
-          (timing) =>
-            `db-${timing.model}-${timing.operation};dur=${timing.duration.toFixed(2)}`
-        )
-        .join(', ');
-
-      if (serverTimingHeader) {
-        context.resHeaders?.append('Server-Timing', serverTimingHeader);
-      }
-
-      return result;
-    });
-  })
   // Demo Mode
   .use(async ({ next, procedure }) => {
     if (envClient.VITE_IS_DEMO && procedure['~orpc'].route.method !== 'GET') {
@@ -117,10 +93,12 @@ const base = os
 
 export const publicProcedure = () => base;
 
+// TODO: Re-implement permission checking when vault API is integrated
+// For now, protected procedures only check for authentication
 export const protectedProcedure = ({
-  permission,
+  permission: _permission,
 }: {
-  permission: Permission | null;
+  permission: unknown | null;
 }) =>
   base.use(async ({ context, next }) => {
     const { user, session } = context;
@@ -129,29 +107,9 @@ export const protectedProcedure = ({
       throw new ORPCError('UNAUTHORIZED');
     }
 
-    if (!permission) {
-      return await next({
-        context: {
-          user,
-          session,
-        },
-      });
-    }
-
-    const userHasPermission = await auth.api.userHasPermission({
-      body: {
-        userId: user.id,
-        permission,
-      },
-    });
-
-    if (userHasPermission.error) {
-      throw new ORPCError('INTERNAL_SERVER_ERROR');
-    }
-
-    if (!userHasPermission.success) {
-      throw new ORPCError('FORBIDDEN');
-    }
+    // TODO: Re-implement permission checking with vault API
+    // Permission checking is disabled until we integrate with the vault API
+    // Previously this used better-auth's admin plugin for RBAC
 
     return await next({
       context: {

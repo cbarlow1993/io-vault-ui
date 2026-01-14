@@ -6,11 +6,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { betterAuthClient } from '@/lib/auth/better-auth-client';
 import { cn } from '@/lib/tailwind/utils';
 import { useSession } from '@/hooks/use-session';
-
-import { envClient } from '@/env/client';
 
 import { AccountLayout } from './components/account-layout';
 
@@ -28,7 +25,6 @@ const passwordSchema = z
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function PageAccountSecurity() {
-  const authMode = envClient.VITE_AUTH_MODE ?? 'better-auth';
   const { data: session, isPending } = useSession();
   const { user: clerkUser } = useUser();
 
@@ -44,25 +40,14 @@ export default function PageAccountSecurity() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: PasswordFormData) => {
-      if (authMode === 'clerk') {
-        if (!clerkUser) {
-          throw new Error('User not found');
-        }
-        await clerkUser.updatePassword({
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        });
-        return { success: true };
-      } else {
-        const result = await betterAuthClient.changePassword({
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        });
-        if ('error' in result && result.error) {
-          throw new Error(result.error.message || 'Failed to change password');
-        }
-        return result;
+      if (!clerkUser) {
+        throw new Error('User not found');
       }
+      await clerkUser.updatePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      return { success: true };
     },
     onSuccess: () => {
       toast.success('Password changed successfully');

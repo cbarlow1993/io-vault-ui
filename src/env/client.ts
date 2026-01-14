@@ -31,13 +31,11 @@ export const envClient = createEnv({
       .prefault('false')
       .transform((v) => v === 'true'),
 
-    // Auth mode: 'clerk' for SaaS, 'better-auth' for on-prem
-    VITE_AUTH_MODE: z
-      .enum(['clerk', 'better-auth'])
-      .optional()
-      .prefault('better-auth'),
+    // Auth mode: always 'clerk' (better-auth removed)
+    // TODO: Remove this field when all references are cleaned up
+    VITE_AUTH_MODE: z.enum(['clerk']).optional().prefault('clerk'),
 
-    // Clerk publishable key (only required when VITE_AUTH_MODE='clerk')
+    // Clerk publishable key (required for authentication)
     VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
 
     VITE_ENV_NAME: z

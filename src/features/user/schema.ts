@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { zu } from '@/lib/zod/zod-utils';
 
-import { zRole } from '@/features/auth/permissions';
+import { zRole } from '@/lib/auth/permissions';
 
 export type User = z.infer<ReturnType<typeof zUser>>;
 export const zUser = () =>

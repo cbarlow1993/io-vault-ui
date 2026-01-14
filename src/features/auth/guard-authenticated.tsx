@@ -6,8 +6,11 @@ import { useSession } from '@/hooks/use-session';
 import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
-import { authClient } from '@/features/auth/client';
-import { Permission, Role } from '@/features/auth/permissions';
+import {
+  checkRolePermission,
+  type Permission,
+  type Role,
+} from '@/lib/auth/permissions';
 
 export const GuardAuthenticated = ({
   children,
@@ -44,12 +47,7 @@ export const GuardAuthenticated = ({
   // Unauthorized if the user permission do not match
   if (
     permissionApps &&
-    !authClient.admin.checkRolePermission({
-      role: session.user.role as Role,
-      permission: {
-        apps: permissionApps,
-      },
-    })
+    !checkRolePermission(session.user.role as Role, { apps: permissionApps })
   ) {
     return <PageError type="403" />;
   }

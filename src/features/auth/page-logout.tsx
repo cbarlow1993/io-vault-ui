@@ -8,26 +8,19 @@ import { clearSessionCache } from '@/hooks/use-session';
 import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
-import { envClient } from '@/env/client';
-import { authClient } from '@/features/auth/client';
-
+/**
+ * Logout page - Clerk only mode.
+ * Signs the user out using Clerk and redirects to home.
+ */
 export const PageLogout = () => {
   const navigate = useNavigate();
-  const authMode = envClient.VITE_AUTH_MODE ?? 'better-auth';
   const { isLoaded: clerkLoaded, signOut: clerkSignOut } = useAuth();
   const hasTriggered = useRef(false);
 
   const { mutate, error } = useMutation({
     mutationKey: ['logout'],
     mutationFn: async () => {
-      if (authMode === 'clerk') {
-        await clerkSignOut();
-      } else {
-        const response = await authClient.signOut();
-        if (response.error) {
-          throw response.error;
-        }
-      }
+      await clerkSignOut();
       clearSessionCache();
     },
     onSuccess: () => {
@@ -39,16 +32,13 @@ export const PageLogout = () => {
   });
 
   useEffect(() => {
-    // Only trigger once and ensure Clerk is loaded in Clerk mode
+    // Only trigger once and ensure Clerk is loaded
     if (hasTriggered.current) return;
-
-    if (authMode === 'clerk' && !clerkLoaded) {
-      return;
-    }
+    if (!clerkLoaded) return;
 
     hasTriggered.current = true;
     mutate();
-  }, [authMode, clerkLoaded, mutate]);
+  }, [clerkLoaded, mutate]);
 
   if (error) {
     return <PageError type="unknown-auth-error" />;

@@ -7,11 +7,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { betterAuthClient } from '@/lib/auth/better-auth-client';
 import { cn } from '@/lib/tailwind/utils';
 import { clearSessionCache, useSession } from '@/hooks/use-session';
-
-import { envClient } from '@/env/client';
 
 import { AccountLayout } from './components/account-layout';
 
@@ -23,7 +20,6 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function PageAccountProfile() {
-  const authMode = envClient.VITE_AUTH_MODE ?? 'better-auth';
   const { data: session, isPending } = useSession();
   const { user: clerkUser } = useUser();
   const queryClient = useQueryClient();
@@ -49,24 +45,14 @@ export default function PageAccountProfile() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
-      if (authMode === 'clerk') {
-        if (!clerkUser) {
-          throw new Error('User not found');
-        }
-        await clerkUser.update({
-          firstName: data.name.split(' ')[0] || data.name,
-          lastName: data.name.split(' ').slice(1).join(' ') || undefined,
-        });
-        return { success: true };
-      } else {
-        const result = await betterAuthClient.updateUser({
-          name: data.name,
-        });
-        if ('error' in result && result.error) {
-          throw new Error(result.error.message || 'Failed to update profile');
-        }
-        return result;
+      if (!clerkUser) {
+        throw new Error('User not found');
       }
+      await clerkUser.update({
+        firstName: data.name.split(' ')[0] || data.name,
+        lastName: data.name.split(' ').slice(1).join(' ') || undefined,
+      });
+      return { success: true };
     },
     onSuccess: () => {
       toast.success('Profile updated successfully');
