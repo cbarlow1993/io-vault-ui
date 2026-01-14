@@ -376,12 +376,6 @@ export const PageSettingsMembers = () => {
               >
                 Pending
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setStatusFilter('deactivated')}
-                className="rounded-none text-xs"
-              >
-                Deactivated
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
@@ -414,180 +408,196 @@ export const PageSettingsMembers = () => {
           </DropdownMenu>
         </div>
 
-        {/* Members Table */}
-        <div className="border border-neutral-200">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-100 bg-neutral-50 text-left text-xs">
-                <th className="px-4 py-3 font-medium text-neutral-500">
-                  Member
-                </th>
-                <th className="px-4 py-3 font-medium text-neutral-500">Role</th>
-                <th className="px-4 py-3 font-medium text-neutral-500">
-                  Workspaces
-                </th>
-                <th className="px-4 py-3 font-medium text-neutral-500">
-                  Status
-                </th>
-                <th className="px-4 py-3 font-medium text-neutral-500">
-                  Joined
-                </th>
-                <th className="px-4 py-3 text-right font-medium text-neutral-500">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {filteredMembers.map((member) => (
-                <tr key={member.id} className="hover:bg-neutral-50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100">
-                        <span className="text-xs font-bold text-neutral-600">
-                          {member.name
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-neutral-900">
-                          {member.name}
-                        </p>
-                        <p className="text-xs text-neutral-500">
-                          {member.email}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          disabled={member.platformRole === 'owner'}
-                          className={cn(
-                            'inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium capitalize',
-                            getRoleStyles(member.platformRole),
-                            member.platformRole !== 'owner' &&
-                              'cursor-pointer hover:opacity-80'
-                          )}
-                        >
-                          {member.platformRole}
-                          {member.platformRole !== 'owner' && (
-                            <ChevronDownIcon className="size-3" />
-                          )}
-                        </button>
-                      </DropdownMenuTrigger>
-                      {member.platformRole !== 'owner' && (
-                        <DropdownMenuContent
-                          align="start"
-                          className="rounded-none"
-                        >
-                          {platformRoles
-                            .filter((r) => r.id !== 'owner')
-                            .map((role) => (
-                              <DropdownMenuItem
-                                key={role.id}
-                                onClick={() =>
-                                  handleChangeRole(member.id, role.id)
-                                }
-                                className="rounded-none text-xs capitalize"
-                              >
-                                {role.name}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      )}
-                    </DropdownMenu>
-                  </td>
-                  <td className="px-4 py-3">
-                    {member.workspaceIds.length > 0 ? (
-                      <span className="text-xs text-neutral-600">
-                        {member.workspaceIds.length} workspace
-                        {member.workspaceIds.length !== 1 && 's'}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-neutral-400">None</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        'inline-block rounded px-2 py-0.5 text-xs font-medium capitalize',
-                        getStatusStyles(member.status)
-                      )}
-                    >
-                      {member.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-neutral-600">
-                    {member.joinedAt}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="flex size-7 items-center justify-center text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                        >
-                          <MoreHorizontalIcon className="size-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-none">
-                        {member.status === 'pending' && (
-                          <DropdownMenuItem
-                            onClick={() => handleResendInvite(member.id)}
-                            className="rounded-none text-xs"
-                          >
-                            <MailIcon className="mr-2 size-3.5" />
-                            Resend Invite
-                          </DropdownMenuItem>
-                        )}
-                        {member.platformRole !== 'owner' && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => handleRemove(member.id)}
-                              className="rounded-none text-xs text-negative-600"
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-sm text-neutral-500">Loading members...</div>
+          </div>
+        ) : (
+          <>
+            {/* Members Table */}
+            <div className="border border-neutral-200">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-neutral-100 bg-neutral-50 text-left text-xs">
+                    <th className="px-4 py-3 font-medium text-neutral-500">
+                      Member
+                    </th>
+                    <th className="px-4 py-3 font-medium text-neutral-500">
+                      Role
+                    </th>
+                    <th className="px-4 py-3 font-medium text-neutral-500">
+                      Workspaces
+                    </th>
+                    <th className="px-4 py-3 font-medium text-neutral-500">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 font-medium text-neutral-500">
+                      Joined
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium text-neutral-500">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {filteredMembers.map((member) => (
+                    <tr key={member.id} className="hover:bg-neutral-50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100">
+                            <span className="text-xs font-bold text-neutral-600">
+                              {member.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-neutral-900">
+                              {member.name}
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              {member.email}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              disabled={member.platformRole === 'owner'}
+                              className={cn(
+                                'inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium capitalize',
+                                getRoleStyles(member.platformRole),
+                                member.platformRole !== 'owner' &&
+                                  'cursor-pointer hover:opacity-80'
+                              )}
                             >
-                              <XIcon className="mr-2 size-3.5" />
-                              Remove from Org
-                            </DropdownMenuItem>
-                          </>
+                              {member.platformRole}
+                              {member.platformRole !== 'owner' && (
+                                <ChevronDownIcon className="size-3" />
+                              )}
+                            </button>
+                          </DropdownMenuTrigger>
+                          {member.platformRole !== 'owner' && (
+                            <DropdownMenuContent
+                              align="start"
+                              className="rounded-none"
+                            >
+                              {platformRoles
+                                .filter((r) => r.id !== 'owner')
+                                .map((role) => (
+                                  <DropdownMenuItem
+                                    key={role.id}
+                                    onClick={() =>
+                                      handleChangeRole(member.id, role.id)
+                                    }
+                                    className="rounded-none text-xs capitalize"
+                                  >
+                                    {role.name}
+                                  </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                          )}
+                        </DropdownMenu>
+                      </td>
+                      <td className="px-4 py-3">
+                        {member.workspaceIds.length > 0 ? (
+                          <span className="text-xs text-neutral-600">
+                            {member.workspaceIds.length} workspace
+                            {member.workspaceIds.length !== 1 && 's'}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-neutral-400">None</span>
                         )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredMembers.length === 0 && (
-            <div className="px-4 py-8 text-center">
-              <p className="text-sm text-neutral-500">No members found</p>
-              <p className="mt-1 text-xs text-neutral-400">
-                Try adjusting your search or filters
-              </p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={cn(
+                            'inline-block rounded px-2 py-0.5 text-xs font-medium capitalize',
+                            getStatusStyles(member.status)
+                          )}
+                        >
+                          {member.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-neutral-600">
+                        {member.joinedAt}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="flex size-7 items-center justify-center text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                            >
+                              <MoreHorizontalIcon className="size-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="rounded-none"
+                          >
+                            {member.status === 'pending' && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => handleResendInvite(member.id)}
+                                  className="rounded-none text-xs"
+                                >
+                                  <MailIcon className="mr-2 size-3.5" />
+                                  Resend Invite
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => handleRevokeInvite(member.id)}
+                                  className="rounded-none text-xs text-negative-600"
+                                >
+                                  <XIcon className="mr-2 size-3.5" />
+                                  Revoke Invite
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {member.status === 'active' &&
+                              member.platformRole !== 'owner' && (
+                                <DropdownMenuItem
+                                  onClick={() => handleRemove(member.id)}
+                                  className="rounded-none text-xs text-negative-600"
+                                >
+                                  <XIcon className="mr-2 size-3.5" />
+                                  Remove from Org
+                                </DropdownMenuItem>
+                              )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredMembers.length === 0 && (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm text-neutral-500">No members found</p>
+                  <p className="mt-1 text-xs text-neutral-400">
+                    Try adjusting your search or filters
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-neutral-500">
-          <span>
-            {members.filter((m) => m.status === 'active').length} active
-          </span>
-          <span className="text-neutral-300">•</span>
-          <span>
-            {members.filter((m) => m.status === 'pending').length} pending
-          </span>
-          <span className="text-neutral-300">•</span>
-          <span>
-            {members.filter((m) => m.status === 'deactivated').length}{' '}
-            deactivated
-          </span>
-        </div>
+            {/* Stats */}
+            <div className="flex items-center gap-4 text-xs text-neutral-500">
+              <span>
+                {members.filter((m) => m.status === 'active').length} active
+              </span>
+              <span className="text-neutral-300">•</span>
+              <span>
+                {members.filter((m) => m.status === 'pending').length} pending
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </SettingsLayout>
   );
