@@ -1,3 +1,4 @@
+import { DuplicateError } from '@iofinnet/errors-sdk';
 import {
   Chain,
   type ChainAlias,
@@ -5,15 +6,9 @@ import {
   EcoSystem,
   type Vault as SdkVault,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
-import type {
-  VaultRepository,
-  VaultDetails,
-  CreateVaultInput,
-  CreateVaultCurveInput,
-  CreatedVaultWithCurves,
-} from '@/src/repositories/vault.repository.js';
+import type { VaultRepository, VaultDetails } from '@/src/repositories/vault.repository.js';
 import type { ElipticCurve, TagAssignmentRow } from '@/src/lib/database/types.js';
-import { Vault } from '@/src/domain/entities/index.js';
+import { Vault, type CreateNewVaultData } from '@/src/domain/entities/index.js';
 import { logger } from '@/utils/powertools.js';
 
 export class VaultService {
@@ -96,10 +91,21 @@ export class VaultService {
     return this.vaultRepository.vaultExists(id);
   }
 
-  async createVaultWithCurves(
-    vault: CreateVaultInput,
-    curves: CreateVaultCurveInput[]
-  ): Promise<CreatedVaultWithCurves> {
-    return this.vaultRepository.createVaultWithCurves(vault, curves);
+  /**
+   * Create a vault with curves.
+   * Orchestrates business logic: duplicate check, domain entity creation, persistence.
+   */
+  async createVaultWithCurves(data: CreateNewVaultData): Promise<Vault> {
+    // Business rule: Check for duplicates
+    const exists = await this.vaultRepository.vaultExists(data.id);
+    if (exists) {
+      throw new DuplicateError(`Vault with id ${data.id} already exists`);
+    }
+
+    // Create domain entity (validates domain rules)
+    const vault = Vault.createNew(data);
+
+    // Persist and return
+    return await this.vaultRepository.createVaultWithCurves(vault);
   }
 }
