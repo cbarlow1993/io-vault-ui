@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { zFormFieldsOnboarding } from '@/features/auth/schema';
 import { zUser } from '@/features/user/schema';
+import { getAuthProvider } from '@/lib/auth';
 import { protectedProcedure } from '@/server/orpc';
 
 const tags = ['account'];
@@ -18,13 +19,11 @@ export default {
     .input(zFormFieldsOnboarding())
     .output(z.void())
     .handler(async ({ context, input }) => {
-      context.logger.info('Update user');
-      await context.db.user.update({
-        where: { id: context.user.id },
-        data: {
-          ...input,
-          onboardedAt: new Date(),
-        },
+      context.logger.info('Update user onboarding');
+      const authProvider = getAuthProvider();
+      await authProvider.updateUser(context.user.id, {
+        name: input.name,
+        onboardedAt: new Date(),
       });
     }),
 
@@ -43,12 +42,10 @@ export default {
     )
     .output(z.void())
     .handler(async ({ context, input }) => {
-      context.logger.info('Update user');
-      await context.db.user.update({
-        where: { id: context.user.id },
-        data: {
-          name: input.name ?? '',
-        },
+      context.logger.info('Update user info');
+      const authProvider = getAuthProvider();
+      await authProvider.updateUser(context.user.id, {
+        name: input.name ?? '',
       });
     }),
 };
