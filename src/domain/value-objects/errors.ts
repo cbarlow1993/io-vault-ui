@@ -50,3 +50,19 @@ export class InvalidTransactionHashError extends ValueObjectError {
     this.name = 'InvalidTransactionHashError';
   }
 }
+
+/**
+ * Error for invalid xpub values
+ */
+export class InvalidXpubError extends ValueObjectError {
+  constructor(
+    public readonly xpub: string,
+    public readonly curveType?: string,
+    reason?: string
+  ) {
+    const curvePart = curveType ? ` for ${curveType}` : '';
+    const reasonPart = reason ? ` (${reason})` : '';
+    super(`Invalid xpub: ${xpub}${curvePart}${reasonPart}`);
+    this.name = 'InvalidXpubError';
+  }
+}

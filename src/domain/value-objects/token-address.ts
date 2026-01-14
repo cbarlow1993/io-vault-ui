@@ -124,4 +124,30 @@ export class TokenAddress {
   toString(): string {
     return this.display;
   }
+
+  /**
+   * Normalize a token address for comparison (without creating a TokenAddress instance).
+   * Useful for quick comparisons in services.
+   *
+   * @param address - The token address string, or null for native tokens
+   * @returns Normalized (lowercase, trimmed) address or null
+   */
+  static normalizeForComparison(address: string | null): string | null {
+    if (address === null) return null;
+    return address.toLowerCase().trim();
+  }
+
+  /**
+   * Compare two raw token address strings for equality (case-insensitive).
+   * Handles null values for native token comparisons.
+   *
+   * @param a - First address (or null for native)
+   * @param b - Second address (or null for native)
+   * @returns true if both addresses are equal (case-insensitive) or both null
+   */
+  static areEqual(a: string | null, b: string | null): boolean {
+    if (a === null && b === null) return true;
+    if (a === null || b === null) return false;
+    return TokenAddress.normalizeForComparison(a) === TokenAddress.normalizeForComparison(b);
+  }
 }

@@ -79,4 +79,27 @@ export class TransactionHash {
       chainAlias: this.chainAlias,
     };
   }
+
+  /**
+   * Get the hash for database storage (normalized to lowercase)
+   */
+  forStorage(): string {
+    return this.value.toLowerCase();
+  }
+
+  /**
+   * Normalize any hash string for comparison (without creating a TransactionHash instance).
+   * Useful for quick comparisons in services before creating full value objects.
+   */
+  static normalizeForComparison(hash: string): string {
+    return hash.toLowerCase().trim();
+  }
+
+  /**
+   * Compare two raw hash strings for equality (case-insensitive).
+   * Useful for comparing hashes without chain context.
+   */
+  static areEqual(a: string, b: string): boolean {
+    return TransactionHash.normalizeForComparison(a) === TransactionHash.normalizeForComparison(b);
+  }
 }

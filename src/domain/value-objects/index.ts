@@ -11,6 +11,7 @@ export {
 } from './token-price.js';
 export { ReorgThreshold } from './reorg-threshold.js';
 export { TransactionCursor, InvalidCursorError } from './transaction-cursor.js';
+export { Xpub } from './xpub.js';
 
 // Utilities
 export {
@@ -26,4 +27,5 @@ export {
   InvalidAmountError,
   InvalidAddressError,
   InvalidTransactionHashError,
+  InvalidXpubError,
 } from './errors.js';
