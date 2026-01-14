@@ -341,8 +341,5 @@ export function createClerkProvider(): AuthProvider {
         },
       };
     },
-
-    // Clerk doesn't need a handler - it uses their hosted endpoints
-    handler: undefined,
   };
 }

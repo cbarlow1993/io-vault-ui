@@ -1,6 +1,6 @@
 /**
- * Core authentication types for the pluggable auth abstraction layer.
- * These types provide a unified interface across Clerk (SaaS) and better-auth (on-prem) modes.
+ * Core authentication types for the auth abstraction layer.
+ * These types provide a unified interface for authentication operations.
  */
 
 /**
@@ -95,7 +95,7 @@ export interface AuthProvider {
   /**
    * Provider identifier
    */
-  readonly name: 'clerk' | 'better-auth';
+  readonly name: 'clerk';
 
   /**
    * Whether this provider supports organizations
@@ -195,19 +195,7 @@ export interface AuthProvider {
    * Verify email with token
    */
   verifyEmail?(token: string): Promise<AuthResponse<void>>;
-
-  // ========== Handler for API routes (better-auth only) ==========
-
-  /**
-   * Handle API requests (for better-auth catch-all route)
-   */
-  handler?(request: Request): Promise<Response>;
 }
-
-/**
- * Auth mode configuration
- */
-export type AuthMode = 'clerk' | 'better-auth';
 
 /**
  * Helper type to extract user from session data

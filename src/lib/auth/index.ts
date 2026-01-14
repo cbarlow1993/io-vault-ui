@@ -1,13 +1,9 @@
-import { envServer } from '@/env/server';
-
-import { createBetterAuthProvider } from './better-auth-provider';
 import { createClerkProvider } from './clerk-provider';
-import type { AuthMode, AuthProvider } from './types';
+import type { AuthProvider } from './types';
 
 // Re-export types
 export type {
   AuthContext,
-  AuthMode,
   AuthProvider,
   AuthResponse,
   AuthSession,
@@ -30,14 +26,6 @@ export {
 } from './permissions';
 
 /**
- * Get the current auth mode from environment.
- * Defaults to 'better-auth' for on-prem deployments.
- */
-export function getAuthMode(): AuthMode {
-  return envServer.AUTH_MODE || 'better-auth';
-}
-
-/**
  * Singleton instance of the auth provider.
  * Created lazily on first access.
  */
@@ -45,7 +33,7 @@ let authProviderInstance: AuthProvider | null = null;
 
 /**
  * Get the auth provider for the current deployment mode.
- * Uses factory pattern to create the appropriate provider.
+ * Currently always returns the Clerk provider.
  *
  * @returns The configured auth provider instance
  *
@@ -60,22 +48,9 @@ let authProviderInstance: AuthProvider | null = null;
  * const { data, isPending } = provider.useSession();
  */
 export function getAuthProvider(): AuthProvider {
-  if (authProviderInstance) {
-    return authProviderInstance;
+  if (!authProviderInstance) {
+    authProviderInstance = createClerkProvider();
   }
-
-  const mode = getAuthMode();
-
-  switch (mode) {
-    case 'clerk':
-      authProviderInstance = createClerkProvider();
-      break;
-    case 'better-auth':
-    default:
-      authProviderInstance = createBetterAuthProvider();
-      break;
-  }
-
   return authProviderInstance;
 }
 
@@ -89,24 +64,11 @@ export function resetAuthProvider(): void {
 
 /**
  * Check if currently in Clerk mode.
+ * Always returns true since we only support Clerk now.
  */
 export function isClerkMode(): boolean {
-  return getAuthMode() === 'clerk';
+  return true;
 }
 
-/**
- * Check if currently in better-auth mode.
- */
-export function isBetterAuthMode(): boolean {
-  return getAuthMode() === 'better-auth';
-}
-
-// Export provider factories for direct usage if needed
-export { createBetterAuthProvider } from './better-auth-provider';
+// Export provider factory for direct usage if needed
 export { createClerkProvider } from './clerk-provider';
-
-// Export better-auth client for direct usage when in better-auth mode
-export { betterAuthClient } from './better-auth-client';
-
-// Export the raw better-auth instance for the API route handler
-export { auth as betterAuthInstance } from './better-auth-instance';
