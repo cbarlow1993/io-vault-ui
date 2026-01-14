@@ -95,42 +95,112 @@ export const PageSettingsMembers = () => {
     return matchesSearch && matchesStatus && matchesRole;
   });
 
-  const handleInvite = (e: React.FormEvent) => {
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!organization) return;
+
     const emails = inviteEmails
       .split(',')
-      .map((e) => e.trim())
+      .map((email) => email.trim())
       .filter(Boolean);
+
     if (emails.length === 0) {
       toast.error('Please enter at least one email address');
       return;
     }
-    toast.success(
-      `Invitation sent to ${emails.length} ${emails.length === 1 ? 'person' : 'people'}`
-    );
-    setInviteOpen(false);
-    setInviteEmails('');
-    setInviteRole('member');
+
+    try {
+      for (const email of emails) {
+        await organization.inviteMember({
+          emailAddress: email,
+          role: toClerkRole(inviteRole),
+        });
+      }
+      toast.success(
+        `Invitation sent to ${emails.length} ${emails.length === 1 ? 'person' : 'people'}`
+      );
+      setInviteOpen(false);
+      setInviteEmails('');
+      setInviteRole('member');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to send invitation'
+      );
+    }
   };
 
-  const handleResendInvite = (memberId: string) => {
-    toast.success('Invitation resent');
+  const handleResendInvite = async (invitationId: string) => {
+    if (!organization) return;
+
+    try {
+      // Clerk doesn't have a resend - we revoke and re-invite
+      const invitation = invitations?.data?.find(
+        (inv) => inv.id === invitationId
+      );
+      if (!invitation) return;
+
+      await invitation.revoke();
+      await organization.inviteMember({
+        emailAddress: invitation.emailAddress,
+        role: invitation.role ?? 'org:member',
+      });
+      toast.success('Invitation resent');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to resend invitation'
+      );
+    }
   };
 
-  const handleDeactivate = (memberId: string) => {
-    toast.success('Member deactivated');
+  const handleRevokeInvite = async (invitationId: string) => {
+    try {
+      const invitation = invitations?.data?.find(
+        (inv) => inv.id === invitationId
+      );
+      if (!invitation) return;
+
+      await invitation.revoke();
+      toast.success('Invitation revoked');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to revoke invitation'
+      );
+    }
   };
 
-  const handleReactivate = (memberId: string) => {
-    toast.success('Member reactivated');
+  const handleRemove = async (memberId: string) => {
+    try {
+      const membership = memberships?.data?.find(
+        (m) => m.publicUserData?.userId === memberId || m.id === memberId
+      );
+      if (!membership) return;
+
+      await membership.destroy();
+      toast.success('Member removed from organization');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to remove member'
+      );
+    }
   };
 
-  const handleRemove = (memberId: string) => {
-    toast.success('Member removed from organization');
-  };
+  const handleChangeRole = async (
+    memberId: string,
+    newRole: PlatformRoleId
+  ) => {
+    try {
+      const membership = memberships?.data?.find(
+        (m) => m.publicUserData?.userId === memberId || m.id === memberId
+      );
+      if (!membership) return;
 
-  const handleChangeRole = (memberId: string, newRole: PlatformRoleId) => {
-    toast.success('Role updated');
+      await membership.update({ role: toClerkRole(newRole) });
+      toast.success('Role updated');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update role'
+      );
+    }
   };
 
   return (
@@ -472,25 +542,6 @@ export const PageSettingsMembers = () => {
                           >
                             <MailIcon className="mr-2 size-3.5" />
                             Resend Invite
-                          </DropdownMenuItem>
-                        )}
-                        {member.status === 'active' &&
-                          member.platformRole !== 'owner' && (
-                            <DropdownMenuItem
-                              onClick={() => handleDeactivate(member.id)}
-                              className="rounded-none text-xs"
-                            >
-                              <UserMinusIcon className="mr-2 size-3.5" />
-                              Deactivate
-                            </DropdownMenuItem>
-                          )}
-                        {member.status === 'deactivated' && (
-                          <DropdownMenuItem
-                            onClick={() => handleReactivate(member.id)}
-                            className="rounded-none text-xs"
-                          >
-                            <UserPlusIcon className="mr-2 size-3.5" />
-                            Reactivate
                           </DropdownMenuItem>
                         )}
                         {member.platformRole !== 'owner' && (
