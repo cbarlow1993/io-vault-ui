@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Vault } from '@/src/domain/entities/index.js';
-import { WalletAddress } from '@/src/domain/value-objects/index.js';
+import { Vault, VaultCreationError } from '@/src/domain/entities/index.js';
+import { WalletAddress, VaultCurve } from '@/src/domain/value-objects/index.js';
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 
 describe('Vault', () => {
@@ -15,25 +15,23 @@ describe('Vault', () => {
       const createdAt = new Date('2024-01-01T00:00:00Z');
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
         createdAt,
       });
 
       expect(vault.id).toBe('vault-123');
-      expect(vault.name).toBe('My Vault');
       expect(vault.organizationId).toBe('org-456');
       expect(vault.workspaceId).toBe('ws-789');
       expect(vault.createdAt).toEqual(createdAt);
       expect(vault.addresses).toEqual([]);
       expect(vault.addressCount).toBe(0);
+      expect(vault.curves).toEqual([]);
     });
 
     it('defaults workspaceId to null when not provided', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -44,7 +42,6 @@ describe('Vault', () => {
     it('defaults addresses to empty array when not provided', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -59,7 +56,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1, addr2],
@@ -70,13 +66,183 @@ describe('Vault', () => {
       expect(vault.hasAddress(addr1)).toBe(true);
       expect(vault.hasAddress(addr2)).toBe(true);
     });
+
+    it('creates a Vault with curves', () => {
+      const curve1 = VaultCurve.createNew('secp256k1', 'xpub123');
+      const curve2 = VaultCurve.createNew('ed25519', 'edpub456');
+
+      const vault = Vault.create({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        createdAt: new Date(),
+        curves: [curve1, curve2],
+      });
+
+      expect(vault.curves).toHaveLength(2);
+      expect(vault.hasCurve('secp256k1')).toBe(true);
+      expect(vault.hasCurve('ed25519')).toBe(true);
+    });
+  });
+
+  describe('createNew', () => {
+    it('creates vault with valid curves', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+
+      expect(vault.id).toBe('vault-123');
+      expect(vault.organizationId).toBe('org-456');
+      expect(vault.workspaceId).toBe('ws-789');
+      expect(vault.curves).toHaveLength(1);
+      expect(vault.curves[0].curve).toBe('secp256k1');
+    });
+
+    it('creates vault with multiple curves', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [
+          { curveType: 'secp256k1', xpub: 'xpub...' },
+          { curveType: 'ed25519', xpub: 'edpub...' },
+        ],
+      });
+
+      expect(vault.curves).toHaveLength(2);
+      expect(vault.hasCurve('secp256k1')).toBe(true);
+      expect(vault.hasCurve('ed25519')).toBe(true);
+    });
+
+    it('throws VaultCreationError for empty curves', () => {
+      expect(() =>
+        Vault.createNew({
+          id: 'vault-123',
+          organizationId: 'org-456',
+          workspaceId: 'ws-789',
+          curves: [],
+        })
+      ).toThrow(VaultCreationError);
+      expect(() =>
+        Vault.createNew({
+          id: 'vault-123',
+          organizationId: 'org-456',
+          workspaceId: 'ws-789',
+          curves: [],
+        })
+      ).toThrow('At least one curve is required');
+    });
+
+    it('throws VaultCreationError for duplicate curve types', () => {
+      expect(() =>
+        Vault.createNew({
+          id: 'vault-123',
+          organizationId: 'org-456',
+          workspaceId: 'ws-789',
+          curves: [
+            { curveType: 'secp256k1', xpub: 'xpub1' },
+            { curveType: 'secp256k1', xpub: 'xpub2' },
+          ],
+        })
+      ).toThrow(VaultCreationError);
+      expect(() =>
+        Vault.createNew({
+          id: 'vault-123',
+          organizationId: 'org-456',
+          workspaceId: 'ws-789',
+          curves: [
+            { curveType: 'secp256k1', xpub: 'xpub1' },
+            { curveType: 'secp256k1', xpub: 'xpub2' },
+          ],
+        })
+      ).toThrow('Duplicate curve types not allowed');
+    });
+
+    it('sets createdAt to current date', () => {
+      const before = new Date();
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+      const after = new Date();
+
+      expect(vault.createdAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(vault.createdAt.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
+  });
+
+  describe('getCurveXpub', () => {
+    it('returns xpub for existing curve', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'my-xpub-value' }],
+      });
+
+      expect(vault.getCurveXpub('secp256k1')).toBe('my-xpub-value');
+    });
+
+    it('returns null for non-existent curve', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+
+      expect(vault.getCurveXpub('ed25519')).toBeNull();
+    });
+  });
+
+  describe('hasCurve', () => {
+    it('returns true for existing curve', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+
+      expect(vault.hasCurve('secp256k1')).toBe(true);
+    });
+
+    it('returns false for non-existent curve', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+
+      expect(vault.hasCurve('ed25519')).toBe(false);
+    });
+  });
+
+  describe('withCurves', () => {
+    it('returns new vault with curves', () => {
+      const vault = Vault.create({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        createdAt: new Date(),
+      });
+
+      const curves = [VaultCurve.createNew('secp256k1', 'xpub123')];
+      const updatedVault = vault.withCurves(curves);
+
+      expect(updatedVault.curves).toHaveLength(1);
+      expect(vault.curves).toHaveLength(0); // Original unchanged
+    });
   });
 
   describe('addAddress', () => {
     it('returns a new Vault with the address added', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -92,7 +258,6 @@ describe('Vault', () => {
     it('does not modify the original Vault (immutability)', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -111,7 +276,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -131,7 +295,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [address],
@@ -146,7 +309,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -160,7 +322,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -175,7 +336,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -192,7 +352,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1, addr2],
@@ -210,7 +369,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -229,7 +387,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -245,26 +402,22 @@ describe('Vault', () => {
   describe('toJSON', () => {
     it('serializes correctly with all fields', () => {
       const createdAt = new Date('2024-01-01T00:00:00Z');
-      const addr1 = createTestAddress('0x1234567890123456789012345678901234567890');
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
         createdAt,
-        addresses: [addr1],
       });
 
       const json = vault.toJSON();
 
       expect(json).toEqual({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
         createdAt: '2024-01-01T00:00:00.000Z',
-        addressCount: 1,
+        curves: [],
       });
     });
 
@@ -273,7 +426,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt,
       });
@@ -282,11 +434,33 @@ describe('Vault', () => {
 
       expect(json).toEqual({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         workspaceId: null,
         createdAt: '2024-01-01T00:00:00.000Z',
-        addressCount: 0,
+        curves: [],
+      });
+    });
+  });
+
+  describe('toAPIResponse', () => {
+    it('uses organisationId spelling for API compatibility', () => {
+      const createdAt = new Date('2024-01-01T00:00:00Z');
+
+      const vault = Vault.create({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        createdAt,
+      });
+
+      const response = vault.toAPIResponse();
+
+      expect(response).toEqual({
+        id: 'vault-123',
+        organisationId: 'org-456',
+        workspaceId: 'ws-789',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        curves: [],
       });
     });
   });
@@ -295,7 +469,6 @@ describe('Vault', () => {
     it('entity is frozen', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -308,7 +481,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
         addresses: [addr1],
@@ -316,13 +488,23 @@ describe('Vault', () => {
 
       expect(Object.isFrozen(vault.addresses)).toBe(true);
     });
+
+    it('curves array is frozen', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+      });
+
+      expect(Object.isFrozen(vault.curves)).toBe(true);
+    });
   });
 
   describe('addressCount', () => {
     it('returns correct count for empty vault', () => {
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });
@@ -336,7 +518,6 @@ describe('Vault', () => {
 
       const vault = Vault.create({
         id: 'vault-123',
-        name: 'My Vault',
         organizationId: 'org-456',
         createdAt: new Date(),
       });

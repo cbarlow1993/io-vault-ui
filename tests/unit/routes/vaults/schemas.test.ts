@@ -27,6 +27,33 @@ describe('createVaultBodySchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('should validate with empty curves array (domain validation handles this)', () => {
+    // Note: Empty curves is now valid at schema level - domain entity validates this
+    const body = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      workspaceId: '550e8400-e29b-41d4-a716-446655440001',
+      curves: [],
+    };
+
+    const result = createVaultBodySchema.safeParse(body);
+    expect(result.success).toBe(true);
+  });
+
+  it('should validate with duplicate curve types (domain validation handles this)', () => {
+    // Note: Duplicate curves is now valid at schema level - domain entity validates this
+    const body = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      workspaceId: '550e8400-e29b-41d4-a716-446655440001',
+      curves: [
+        { curveType: 'secp256k1', xpub: 'xpub1...' },
+        { curveType: 'secp256k1', xpub: 'xpub2...' },
+      ],
+    };
+
+    const result = createVaultBodySchema.safeParse(body);
+    expect(result.success).toBe(true);
+  });
+
   it('should reject invalid UUID for id', () => {
     const invalidBody = {
       id: 'not-a-uuid',
@@ -52,37 +79,6 @@ describe('createVaultBodySchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('workspaceId must be a valid UUID');
-    }
-  });
-
-  it('should reject empty curves array', () => {
-    const invalidBody = {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      workspaceId: '550e8400-e29b-41d4-a716-446655440001',
-      curves: [],
-    };
-
-    const result = createVaultBodySchema.safeParse(invalidBody);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('At least one curve is required');
-    }
-  });
-
-  it('should reject duplicate curve types', () => {
-    const invalidBody = {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      workspaceId: '550e8400-e29b-41d4-a716-446655440001',
-      curves: [
-        { curveType: 'secp256k1', xpub: 'xpub1...' },
-        { curveType: 'secp256k1', xpub: 'xpub2...' },
-      ],
-    };
-
-    const result = createVaultBodySchema.safeParse(invalidBody);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Duplicate curve types not allowed');
     }
   });
 

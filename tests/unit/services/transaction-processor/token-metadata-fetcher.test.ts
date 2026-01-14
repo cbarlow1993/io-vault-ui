@@ -48,7 +48,7 @@ describe('TokenMetadataFetcher', () => {
     vi.clearAllMocks();
     fetcher = new TokenMetadataFetcher({
       rpcUrls: {
-        ethereum: 'https://mainnet.infura.io/v3/test',
+        eth: 'https://mainnet.infura.io/v3/test',
       },
     });
   });

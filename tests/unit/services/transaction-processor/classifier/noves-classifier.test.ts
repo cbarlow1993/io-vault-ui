@@ -15,10 +15,20 @@ vi.mock('@noves/noves-sdk', () => ({
 
 import { NovesClassifier } from '@/src/services/transaction-processor/classifier/noves-classifier.js';
 import type { EvmTransactionData, ClassifyOptions } from '@/src/services/transaction-processor/types.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
+
+// Use valid EVM addresses (0x + 40 hex characters)
+const SENDER_ADDR = '0x1111111111111111111111111111111111111111';
+const RECIPIENT_ADDR = '0x2222222222222222222222222222222222222222';
+const OTHER_ADDR = '0x3333333333333333333333333333333333333333';
+const POOL_ADDR = '0x4444444444444444444444444444444444444444';
+const TOKEN_ADDR = '0x5555555555555555555555555555555555555555';
+const USDC_ADDR = '0x6666666666666666666666666666666666666666';
 
 describe('NovesClassifier', () => {
   let classifier: NovesClassifier;
-  const defaultOptions: ClassifyOptions = { perspectiveAddress: '0xsender', chainAlias: 'eth' as ChainAlias };
+  const senderWallet = WalletAddress.create(SENDER_ADDR, 'eth');
+  const defaultOptions: ClassifyOptions = { perspectiveAddress: senderWallet, chainAlias: 'eth' as ChainAlias };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,16 +37,16 @@ describe('NovesClassifier', () => {
 
   const baseTx: EvmTransactionData = {
     type: 'evm',
-    hash: '0xabc123',
-    from: '0xsender',
-    to: '0xrecipient',
+    hash: '0xabc1230000000000000000000000000000000000000000000000000000000000',
+    from: SENDER_ADDR,
+    to: RECIPIENT_ADDR,
     value: '0',
     input: '0x',
     gasUsed: '21000',
     gasPrice: '20000000000',
     logs: [],
     blockNumber: 12345678,
-    blockHash: '0xblockhash',
+    blockHash: '0xblockhash0000000000000000000000000000000000000000000000000000000',
     timestamp: new Date(),
     status: 'success',
   };
@@ -48,8 +58,8 @@ describe('NovesClassifier', () => {
         description: 'Swapped 1 ETH for 2000 USDC on Uniswap',
       },
       transfers: [
-        { action: 'sent', from: { address: '0xsender' }, to: { address: '0xpool' }, amount: '1000000000000000000', token: { address: '0x0', symbol: 'ETH', decimals: 18 } },
-        { action: 'received', from: { address: '0xpool' }, to: { address: '0xsender' }, amount: '2000000000', token: { address: '0xusdc', symbol: 'USDC', decimals: 6 } },
+        { action: 'sent', from: { address: SENDER_ADDR }, to: { address: POOL_ADDR }, amount: '1000000000000000000', token: { address: '0x0', symbol: 'ETH', decimals: 18 } },
+        { action: 'received', from: { address: POOL_ADDR }, to: { address: SENDER_ADDR }, amount: '2000000000', token: { address: USDC_ADDR, symbol: 'USDC', decimals: 6 } },
       ],
     });
 
@@ -86,7 +96,7 @@ describe('NovesClassifier', () => {
       mockGetTransaction.mockResolvedValue({
         classificationData: { type: 'receive', description: 'Received tokens' },
         transfers: [
-          { action: 'received', from: { address: '0xother' }, to: { address: '0xsender' }, amount: '1000', token: { address: '0xtoken', symbol: 'TKN', decimals: 18 } },
+          { action: 'received', from: { address: OTHER_ADDR }, to: { address: SENDER_ADDR }, amount: '1000', token: { address: TOKEN_ADDR, symbol: 'TKN', decimals: 18 } },
         ],
       });
 
@@ -100,7 +110,7 @@ describe('NovesClassifier', () => {
       mockGetTransaction.mockResolvedValue({
         classificationData: { type: 'send', description: 'Sent tokens' },
         transfers: [
-          { action: 'sent', from: { address: '0xsender' }, to: { address: '0xother' }, amount: '1000', token: { address: '0xtoken', symbol: 'TKN', decimals: 18 } },
+          { action: 'sent', from: { address: SENDER_ADDR }, to: { address: OTHER_ADDR }, amount: '1000', token: { address: TOKEN_ADDR, symbol: 'TKN', decimals: 18 } },
         ],
       });
 
@@ -138,7 +148,7 @@ describe('NovesClassifier', () => {
       mockGetTransaction.mockResolvedValue({
         classificationData: { type: 'transfer', description: 'Transferred tokens' },
         transfers: [
-          { action: 'received', from: { address: '0xother' }, to: { address: '0xsender' }, amount: '1000', token: { address: '0xtoken', symbol: 'TKN', decimals: 18 } },
+          { action: 'received', from: { address: OTHER_ADDR }, to: { address: SENDER_ADDR }, amount: '1000', token: { address: TOKEN_ADDR, symbol: 'TKN', decimals: 18 } },
         ],
       });
 

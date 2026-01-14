@@ -2,13 +2,15 @@ import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
 import { describe, it, expect } from 'vitest';
 import { SvmClassifier } from '@/src/services/transaction-processor/classifier/svm-classifier.js';
 import type { SvmTransactionData } from '@/src/services/transaction-processor/types.js';
+import { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 const SYSTEM_PROGRAM = '11111111111111111111111111111111';
 const TOKEN_PROGRAM = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 
 describe('SvmClassifier', () => {
   const classifier = new SvmClassifier();
-  const userWallet = 'UserWa11etAddress111111111111111111111111111';
+  const userWalletStr = 'UserWa11etAddress111111111111111111111111111';
+  const userWallet = WalletAddress.create(userWalletStr, 'solana');
 
   const baseTx: SvmTransactionData = {
     type: 'svm',
@@ -85,10 +87,10 @@ describe('SvmClassifier', () => {
       const tx: SvmTransactionData = {
         ...baseTx,
         preTokenBalances: [
-          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '0', decimals: 6 } },
+          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '0', decimals: 6 } },
         ],
         postTokenBalances: [
-          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '1000000', decimals: 6 } },
+          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '1000000', decimals: 6 } },
         ],
       };
       const result = await classifier.classify(tx, { perspectiveAddress: userWallet });
@@ -100,10 +102,10 @@ describe('SvmClassifier', () => {
       const tx: SvmTransactionData = {
         ...baseTx,
         preTokenBalances: [
-          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '1000000', decimals: 6 } },
+          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '1000000', decimals: 6 } },
         ],
         postTokenBalances: [
-          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '0', decimals: 6 } },
+          { accountIndex: 0, mint: 'TokenMint111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '0', decimals: 6 } },
         ],
       };
       const result = await classifier.classify(tx, { perspectiveAddress: userWallet });
@@ -115,12 +117,12 @@ describe('SvmClassifier', () => {
       const tx: SvmTransactionData = {
         ...baseTx,
         preTokenBalances: [
-          { accountIndex: 0, mint: 'TokenA11111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '1000000', decimals: 6 } },
-          { accountIndex: 1, mint: 'TokenB11111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '0', decimals: 9 } },
+          { accountIndex: 0, mint: 'TokenA11111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '1000000', decimals: 6 } },
+          { accountIndex: 1, mint: 'TokenB11111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '0', decimals: 9 } },
         ],
         postTokenBalances: [
-          { accountIndex: 0, mint: 'TokenA11111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '900000', decimals: 6 } },
-          { accountIndex: 1, mint: 'TokenB11111111111111111111111111', owner: userWallet, uiTokenAmount: { amount: '500000000', decimals: 9 } },
+          { accountIndex: 0, mint: 'TokenA11111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '900000', decimals: 6 } },
+          { accountIndex: 1, mint: 'TokenB11111111111111111111111111', owner: userWalletStr, uiTokenAmount: { amount: '500000000', decimals: 9 } },
         ],
       };
       const result = await classifier.classify(tx, { perspectiveAddress: userWallet });
