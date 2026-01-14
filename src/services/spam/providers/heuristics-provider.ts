@@ -1,5 +1,6 @@
 import type { SpamClassificationProvider, TokenToClassify, SpamClassification, HeuristicsClassification } from '@/src/services/spam/types.js';
 import { TokenName } from '@/src/domain/entities/index.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 
 export class HeuristicsProvider implements SpamClassificationProvider {
   readonly name = 'heuristics';
@@ -23,7 +24,7 @@ export class HeuristicsProvider implements SpamClassificationProvider {
     const results = new Map<string, Partial<SpamClassification>>();
     const classifications = await Promise.all(
       tokens.map(async (token) => ({
-        address: token.address.toLowerCase(),
+        address: TokenAddress.normalizeForComparison(token.address) as string,
         classification: await this.classify(token),
       }))
     );

@@ -12,7 +12,7 @@ import {
   APIConnectionError,
   APIConnectionTimeoutError,
 } from '@coingecko/coingecko-typescript';
-import { TokenPrice } from '@/src/domain/value-objects/index.js';
+import { TokenAddress, TokenPrice } from '@/src/domain/value-objects/index.js';
 
 /**
  * Handle CoinGecko SDK errors with proper discrimination and logging.
@@ -103,7 +103,7 @@ export async function fetchTokenMetadata(
 
   try {
     // CoinGecko API requires lowercase addresses for contract lookups
-    return await client.coins.contract.get(address.toLowerCase(), { id: platform });
+    return await client.coins.contract.get(TokenAddress.normalizeForComparison(address)!, { id: platform });
   } catch (error) {
     return handleCoinGeckoError(error, { chain: chain.Alias, address });
   }
@@ -178,7 +178,7 @@ export async function getTokenUsdPrice(
 
   try {
     // CoinGecko API requires lowercase addresses for contract lookups
-    const data = await client.coins.contract.get(address.toLowerCase(), { id: platform });
+    const data = await client.coins.contract.get(TokenAddress.normalizeForComparison(address)!, { id: platform });
     const price = data.market_data?.current_price?.usd;
 
     // Return null if price is null, undefined, zero, or negative

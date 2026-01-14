@@ -6,7 +6,7 @@ import type { SpamAnalysis, TokenToClassify } from '@/src/services/spam/types.js
 import type { SpamClassificationService } from '@/src/services/spam/spam-classification-service.js';
 import type { BalanceFetcher, RawBalance } from '@/src/services/balances/fetchers/types.js';
 import type { PricingService } from '@/src/services/balances/pricing-service.js';
-import { TokenAmount, getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
+import { TokenAddress, TokenAmount, getNativeCoingeckoId } from '@/src/domain/value-objects/index.js';
 import { SpamAnalysis as SpamAnalysisEntity } from '@/src/domain/entities/index.js';
 
 export interface TokenInfo {
@@ -341,7 +341,7 @@ export class BalanceService {
     // Get the classification key: 'native' for native tokens, lowercase address for tokens
     const classificationKey = balance.isNative
       ? 'native'
-      : balance.tokenAddress!.toLowerCase();
+      : TokenAddress.normalizeForComparison(balance.tokenAddress!)!;
 
     const classificationResult = classifications.get(classificationKey);
     if (!classificationResult) {

@@ -23,3 +23,19 @@ export class InvalidAddressError extends ValueObjectError {
     this.name = 'InvalidAddressError';
   }
 }
+
+/**
+ * Error for invalid transaction hash values
+ */
+export class InvalidTransactionHashError extends ValueObjectError {
+  constructor(
+    public readonly hash: string,
+    public readonly chainAlias?: string,
+    public readonly reason?: string
+  ) {
+    const chainPart = chainAlias ? ` on ${chainAlias}` : '';
+    const reasonPart = reason ? ` (${reason})` : '';
+    super(`Invalid transaction hash: ${hash}${chainPart}${reasonPart}`);
+    this.name = 'InvalidTransactionHashError';
+  }
+}

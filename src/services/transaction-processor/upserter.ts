@@ -13,6 +13,7 @@ import type {
   UpsertOptions,
 } from '@/src/services/transaction-processor/types.js';
 import { calculateDirection } from '@/src/services/transaction-processor/classifier/direction.js';
+import { TransactionHash, WalletAddress } from '@/src/domain/value-objects/index.js';
 
 export class TransactionUpserter implements ITransactionUpserter {
   constructor(private readonly db: Kysely<Database>) {}
@@ -115,7 +116,7 @@ export class TransactionUpserter implements ITransactionUpserter {
       .values({
         id,
         chain_alias: normalized.chainAlias,
-        tx_hash: normalized.txHash.toLowerCase(), // tx hashes are hex, lowercase is safe
+        tx_hash: TransactionHash.normalizeForComparison(normalized.txHash),
         block_number: normalized.blockNumber,
         block_hash: normalized.blockHash,
         tx_index: null,
@@ -229,10 +230,10 @@ export class TransactionUpserter implements ITransactionUpserter {
     const addressMap = new Map<string, string>();
 
     const addAddress = (addr: string) => {
-      const lowerAddr = addr.toLowerCase();
+      const normalizedAddr = WalletAddress.normalizeForComparison(addr);
       // Keep the first occurrence of each address (preserves original casing)
-      if (!addressMap.has(lowerAddr)) {
-        addressMap.set(lowerAddr, addr);
+      if (!addressMap.has(normalizedAddr)) {
+        addressMap.set(normalizedAddr, addr);
       }
     };
 
@@ -276,8 +277,9 @@ export class TransactionUpserter implements ITransactionUpserter {
 
     // Insert address_transactions for each involved address
     for (const [lowerAddr, originalAddr] of addressMap) {
-      // Calculate direction from this address's perspective (use lowercase for comparison)
-      const direction = calculateDirection(classification.type, classification.transfers, lowerAddr);
+      // Calculate direction from this address's perspective using WalletAddress
+      const perspectiveAddr = WalletAddress.fromNormalized(lowerAddr, normalized.chainAlias);
+      const direction = calculateDirection(classification.type, classification.transfers, perspectiveAddr);
 
       await trx
         .insertInto('address_transactions')

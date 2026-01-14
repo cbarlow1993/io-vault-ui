@@ -88,9 +88,14 @@ async function errorHandlerPlugin(fastify: FastifyInstance) {
 
     // Unexpected errors
     logger.error({ error: error, stack: (error as Error).stack }, 'Unhandled error');
+    const isProd = process.env.STAGE === 'prod' || process.env.NODE_ENV === 'production';
     return reply.status(500).send({
       error: 'Internal Server Error',
-      message: 'An unexpected error occurred',
+      message: isProd ? 'An unexpected error occurred' : (error as Error).message,
+      ...(isProd ? {} : {
+        stack: (error as Error).stack,
+        name: (error as Error).name,
+      }),
     });
   });
 }

@@ -4,6 +4,7 @@ import { logger } from '@/utils/powertools.js';
 import { getCoinGeckoPlatform } from '@/src/config/chain-mappings/index.js';
 import { getCoinGeckoClient } from '@/src/services/coingecko/client.js';
 import type { TokenInfo } from '@/src/services/transaction-processor/types.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 
 const ERC20_ABI = [
   'function name() view returns (string)',
@@ -39,14 +40,14 @@ export class TokenMetadataFetcher {
   ): Promise<Partial<TokenInfo>> {
     const rpcUrl = this.rpcUrls[chainAlias];
     if (!rpcUrl) {
-      return { address: address.toLowerCase() };
+      return { address: TokenAddress.normalizeForComparison(address)! };
     }
 
     const provider = new JsonRpcProvider(rpcUrl);
     const contract = new Contract(address, ERC20_ABI, provider);
 
     const result: Partial<TokenInfo> = {
-      address: address.toLowerCase(),
+      address: TokenAddress.normalizeForComparison(address)!,
     };
 
     // Fetch each field separately to handle partial failures
@@ -88,7 +89,7 @@ export class TokenMetadataFetcher {
 
     try {
       const client = getCoinGeckoClient();
-      const data = await client.coins.contract.get(address.toLowerCase(), { id: platform });
+      const data = await client.coins.contract.get(TokenAddress.normalizeForComparison(address)!, { id: platform });
       return {
         coingeckoId: data.id ?? null,
         logoUri: data.image?.large ?? data.image?.small ?? null,
@@ -116,7 +117,7 @@ export class TokenMetadataFetcher {
     ]);
 
     return {
-      address: address.toLowerCase(),
+      address: TokenAddress.normalizeForComparison(address)!,
       name: onChain.name,
       symbol: onChain.symbol,
       decimals: onChain.decimals,

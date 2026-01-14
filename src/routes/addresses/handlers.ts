@@ -269,9 +269,26 @@ export async function generateAddress(
   // 4. Resolve chain and generate address
   const chain = await Chain.fromAlias(chainAlias);
   const wallet = chain.loadWallet(vault);
-  const address = derivationPath
-    ? wallet.deriveHDWallet({ derivationPath }).getAddress()
-    : wallet.getAddress();
+  let address: string;
+  if (derivationPath) {
+    try {
+      logger.info('Attempting HD derivation', { derivationPath, vaultId, chainAlias, vaultCurves: JSON.stringify(vault.curves) });
+      const hdWallet = wallet.deriveHDWallet({ derivationPath });
+      address = hdWallet.getAddress();
+    } catch (hdError) {
+      logger.error('HD derivation failed', {
+        error: hdError,
+        message: (hdError as Error).message,
+        stack: (hdError as Error).stack,
+        derivationPath,
+        vaultId,
+        chainAlias
+      });
+      throw hdError;
+    }
+  } else {
+    address = wallet.getAddress();
+  }
 
   const ecosystem = chain.Config.ecosystem;
   logger.info('Generated address', { address, chainAlias, derivationPath });

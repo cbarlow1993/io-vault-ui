@@ -11,6 +11,7 @@ import type { TransactionProcessor } from '@/src/services/transaction-processor/
 import { RECONCILIATION_RATE_LIMIT } from '@/src/services/reconciliation/config.js';
 import { config } from '@/src/lib/config.js';
 import { logger } from '@/utils/powertools.js';
+import { TransactionHash, WalletAddress } from '@/src/domain/value-objects/index.js';
 
 const CHECKPOINT_INTERVAL = 100;
 /** How often to check for and reset stale running jobs (every 5 minutes) */
@@ -478,7 +479,7 @@ export class ReconciliationWorker {
         continue;
       }
 
-      const hash = txHash.toLowerCase();
+      const hash = TransactionHash.normalizeForComparison(txHash);
 
       // Track this hash as seen from provider (for orphan detection at job completion)
       progress.matchedHashes!.add(hash);
@@ -751,7 +752,7 @@ export class ReconciliationWorker {
             continue;
           }
         }
-        txMap.set(tx.txHash.toLowerCase(), tx);
+        txMap.set(TransactionHash.normalizeForComparison(tx.txHash), tx);
       }
 
       hasMore = result.hasMore;
@@ -799,7 +800,7 @@ export class ReconciliationWorker {
       logger.warn('Skipping transaction without hash', { transaction: providerTx });
       return;
     }
-    const hash = providerTx.transactionHash.toLowerCase();
+    const hash = TransactionHash.normalizeForComparison(providerTx.transactionHash);
     const localTx = localTxMap.get(hash);
 
     if (!localTx) {
@@ -851,11 +852,13 @@ export class ReconciliationWorker {
   private compareTransactions(local: Transaction, provider: ProviderTransaction): string[] {
     const discrepancies: string[] = [];
 
-    if (local.fromAddress.toLowerCase() !== provider.normalized.fromAddress.toLowerCase()) {
+    if (!WalletAddress.areEqual(local.fromAddress, provider.normalized.fromAddress)) {
       discrepancies.push('fromAddress');
     }
-    const localTo = local.toAddress?.toLowerCase() ?? null;
-    const providerTo = provider.normalized.toAddress?.toLowerCase() ?? null;
+    const localTo = local.toAddress ? WalletAddress.normalizeForComparison(local.toAddress) : null;
+    const providerTo = provider.normalized.toAddress
+      ? WalletAddress.normalizeForComparison(provider.normalized.toAddress)
+      : null;
     if (localTo !== providerTo) {
       discrepancies.push('toAddress');
     }

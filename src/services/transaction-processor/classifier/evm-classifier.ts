@@ -27,7 +27,7 @@ export class EvmClassifier implements Classifier {
         direction: t.direction,
       })),
       sender: evmTx.from,
-      perspectiveAddress: options.perspectiveAddress,
+      perspectiveAddress: options.perspectiveAddress.normalized,
       isContractDeploy,
       isApproval,
       hasNativeValue,
@@ -37,7 +37,7 @@ export class EvmClassifier implements Classifier {
     let resultTransfers: ParsedTransfer[];
     if (hasNativeValue && transfers.length === 0) {
       // Native transfer case - build native transfer from tx data
-      const nativeDirection = WalletAddress.areEqual(evmTx.from, options.perspectiveAddress) ? 'out' : 'in';
+      const nativeDirection = WalletAddress.areEqual(evmTx.from, options.perspectiveAddress.normalized) ? 'out' : 'in';
       resultTransfers = [{ type: 'native', direction: nativeDirection, from: evmTx.from, to: evmTx.to!, amount: evmTx.value }];
     } else if (isApproval || isContractDeploy) {
       // Approval and contract deploy have no transfers

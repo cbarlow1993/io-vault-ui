@@ -1,4 +1,5 @@
 import type { ChainAlias } from '@iofinnet/io-core-dapp-utils-chains-sdk';
+import type { WalletAddress } from '@/src/domain/value-objects/index.js';
 
 /**
  * Classification types for transactions.
@@ -34,8 +35,8 @@ export type ClassificationDirection = 'in' | 'out' | 'neutral';
  * Options for classifying a transaction.
  */
 export interface ClassifyOptions {
-  /** Address to calculate direction from */
-  perspectiveAddress: string;
+  /** Wallet address to calculate direction from */
+  perspectiveAddress: WalletAddress;
   /** Chain alias (e.g., 'ethereum-mainnet', 'polygon-mainnet') - used for external API lookups */
   chainAlias?: ChainAlias;
 }

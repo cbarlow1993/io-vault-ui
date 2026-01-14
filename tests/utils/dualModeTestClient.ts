@@ -8,6 +8,9 @@ export interface TestResponse<T = any> {
   status: number;
   data: T;
   headers: Record<string, string | string[] | undefined>;
+  path: string;
+  queryString: string;
+  requestHeaders: Record<string, string | string[] | undefined>;
 }
 
 // Test client entry containing user and client
@@ -50,7 +53,7 @@ class InjectTestClient implements ITestClient {
     private accessToken: string
   ) {}
 
-  private normalizeResponse(response: LightMyRequestResponse): TestResponse {
+  private normalizeResponse(response: LightMyRequestResponse, path: string, queryString: string, requestHeaders: Record<string, string>): TestResponse {
     let data: any;
     try {
       data = response.json();
@@ -62,6 +65,9 @@ class InjectTestClient implements ITestClient {
       status: response.statusCode,
       data,
       headers: response.headers as Record<string, string | string[] | undefined>,
+      path,
+      queryString,
+      requestHeaders,
     };
   }
 
@@ -84,7 +90,7 @@ class InjectTestClient implements ITestClient {
       url: path + queryString,
       headers: this.getAuthHeaders(false), // No content-type for GET
     });
-    return this.normalizeResponse(response);
+    return this.normalizeResponse(response, path, queryString, this.getAuthHeaders(false));
   }
 
   async post(path: string, data?: Record<string, any>): Promise<TestResponse> {
@@ -94,7 +100,7 @@ class InjectTestClient implements ITestClient {
       headers: this.getAuthHeaders(),
       payload: data,
     });
-    return this.normalizeResponse(response);
+    return this.normalizeResponse(response, path, '', this.getAuthHeaders());
   }
 
   async put(path: string, data?: Record<string, any>): Promise<TestResponse> {
@@ -104,7 +110,7 @@ class InjectTestClient implements ITestClient {
       headers: this.getAuthHeaders(),
       payload: data,
     });
-    return this.normalizeResponse(response);
+    return this.normalizeResponse(response, path, '', this.getAuthHeaders());
   }
 
   async patch(path: string, data?: Record<string, any>): Promise<TestResponse> {
@@ -114,7 +120,7 @@ class InjectTestClient implements ITestClient {
       headers: this.getAuthHeaders(),
       payload: data,
     });
-    return this.normalizeResponse(response);
+    return this.normalizeResponse(response, path, '', this.getAuthHeaders());
   }
 
   async delete(path: string): Promise<TestResponse> {
@@ -123,7 +129,7 @@ class InjectTestClient implements ITestClient {
       url: path,
       headers: this.getAuthHeaders(false), // No content-type for DELETE
     });
-    return this.normalizeResponse(response);
+    return this.normalizeResponse(response, path, '', this.getAuthHeaders(false));
   }
 }
 
@@ -147,6 +153,9 @@ class HttpTestClient implements ITestClient {
       status: response.status,
       data: response.data,
       headers: response.headers as Record<string, string | string[] | undefined>,
+      path: response.request.path,
+      queryString: response.request.query,
+      requestHeaders: response.request.headers,
     };
   }
 
@@ -183,8 +192,7 @@ class HttpTestClient implements ITestClient {
       return cached.token;
     }
 
-    // Always use AUTH_API_URL for token retrieval (cloud auth service)
-    const response = await axios.post(`${AUTH_API_URL}/v2/auth/accessToken`, {
+    const response = await axios.post(`${AUTH_API_URL}/v1/auth/accessToken`, {
       clientId: user.clientId,
       clientSecret: user.clientSecret,
     });
@@ -239,10 +247,10 @@ export async function setupTestClients(
     const app = await getOrCreateApp();
     // In local inject mode, use mock token (jose is mocked in vitest.setup.ts)
     // The mock jwtVerify will accept any token and return test user payload
-    const entries = Object.entries(users).map(([key, user]) => {
-      const mockToken = 'mock-jwt-token-for-inject-mode';
-      return [key, { user, client: new InjectTestClient(app, mockToken) }] as const;
-    });
+    const entries = await Promise.all(Object.entries(users).map(async ([key, user]) => {
+      const token = await HttpTestClient.getAccessToken(user, API_URL);
+      return [key, { user, client: new InjectTestClient(app, token) }] as const;
+    }));
     return Object.fromEntries(entries) as unknown as DefaultTestClients;
   }
 

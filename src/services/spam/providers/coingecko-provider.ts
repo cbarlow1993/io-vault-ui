@@ -1,4 +1,5 @@
 import type { SpamClassificationProvider, TokenToClassify, SpamClassification, CoingeckoClassification } from '@/src/services/spam/types.js';
+import { TokenAddress } from '@/packages/chains/src/domain/value-objects/index.js';
 
 /**
  * CoinGecko-based spam classification provider.
@@ -32,7 +33,7 @@ export class CoingeckoProvider implements SpamClassificationProvider {
     const results = new Map<string, Partial<SpamClassification>>();
     const classifications = await Promise.all(
       tokens.map(async (token) => ({
-        address: token.address.toLowerCase(),
+        address: TokenAddress.normalizeForComparison(token.address)!,
         classification: await this.classify(token),
       }))
     );

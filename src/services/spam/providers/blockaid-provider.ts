@@ -4,6 +4,7 @@ import { blockaidClient } from '@/src/lib/clients.js';
 import { mapChainToBlockaidTokenScanChain } from '@/src/config/chain-mappings/index.js';
 import { logger } from '@/utils/powertools.js';
 import type { SpamClassificationProvider, TokenToClassify, SpamClassification, BlockaidClassification } from '@/src/services/spam/types.js';
+import { TokenAddress } from '@/src/domain/value-objects/index.js';
 
 export class BlockaidProvider implements SpamClassificationProvider {
   readonly name = 'blockaid';
@@ -48,7 +49,7 @@ export class BlockaidProvider implements SpamClassificationProvider {
     await Promise.all(
       tokens.map(async (token) => {
         const result = await this.classify(token);
-        results.set(token.address.toLowerCase(), result);
+        results.set(TokenAddress.normalizeForComparison(token.address)!, result);
       })
     );
 
