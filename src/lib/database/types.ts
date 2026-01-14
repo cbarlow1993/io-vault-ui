@@ -11,7 +11,6 @@ export interface VaultDatabase {
 // Vault table
 export interface VaultTable {
   id: string;
-  name: string;
   workspaceId: string;
   organisationId: string;
   createdAt: Date;
@@ -50,6 +49,8 @@ export interface TagAssignmentTable {
 // Vault database type helpers
 export type VaultRow = Selectable<VaultTable>;
 export type VaultCurveRow = Selectable<VaultCurveTable>;
+export type InsertableVault = Insertable<VaultTable>;
+export type InsertableVaultCurve = Insertable<VaultCurveTable>;
 export type TagRow = Selectable<TagTable>;
 export type TagAssignmentRow = Selectable<TagAssignmentTable>;
 
