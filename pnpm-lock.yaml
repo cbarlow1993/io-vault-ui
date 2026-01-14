@@ -20,6 +20,9 @@ importers:
       '@clerk/tanstack-react-start':
         specifier: ^0.27.14
         version: 0.27.14(@tanstack/react-router@1.132.47(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@tanstack/react-start@1.132.51(crossws@0.4.1(srvx@0.8.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.19.3)(yaml@2.8.2)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@clerk/types':
+        specifier: ^4.101.10
+        version: 4.101.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@fontsource-variable/dm-sans':
         specifier: ^5.2.8
         version: 5.2.8

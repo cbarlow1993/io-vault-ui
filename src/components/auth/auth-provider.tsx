@@ -4,6 +4,7 @@ import { ClerkProvider } from '@clerk/tanstack-react-start';
 import { type ReactNode } from 'react';
 
 import { envClient } from '@/env/client';
+import { clerkAppearance } from '@/lib/clerk/appearance';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -33,6 +34,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey}>{children}</ClerkProvider>
+    <ClerkProvider publishableKey={publishableKey} appearance={clerkAppearance}>
+      {children}
+    </ClerkProvider>
   );
 }

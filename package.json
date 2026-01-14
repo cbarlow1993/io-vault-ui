@@ -43,6 +43,7 @@
     "@bearstudio/ui-state": "1.0.2",
     "@clerk/backend": "^2.29.2",
     "@clerk/tanstack-react-start": "^0.27.14",
+    "@clerk/types": "^4.101.10",
     "@fontsource-variable/dm-sans": "^5.2.8",
     "@fontsource-variable/inter": "5.2.8",
     "@fontsource-variable/outfit": "^5.2.8",
