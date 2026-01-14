@@ -8,38 +8,12 @@ const isProd = process.env.NODE_ENV
 
 export const envServer = createEnv({
   server: {
-    DATABASE_URL: z.url(),
-
     // Vault API
     VAULT_API_URL: z.url(),
 
-    // Auth mode: 'clerk' for SaaS, 'better-auth' for on-prem
-    AUTH_MODE: z.enum(['clerk', 'better-auth']).prefault('clerk'),
-
-    // better-auth configuration
-    AUTH_SECRET: z.string(),
-    AUTH_SESSION_EXPIRATION_IN_SECONDS: z.coerce
-      .number()
-      .int()
-      .prefault(2592000), // 30 days by default
-    AUTH_SESSION_UPDATE_AGE_IN_SECONDS: z.coerce.number().int().prefault(86400), // 1 day by default
-    AUTH_TRUSTED_ORIGINS: z
-      .string()
-      .optional()
-      .transform((stringValue) => stringValue?.split(',').map((v) => v.trim())),
-
-    // Clerk configuration (only required when AUTH_MODE='clerk')
+    // Clerk authentication
     CLERK_SECRET_KEY: zOptionalWithReplaceMe(),
     CLERK_PUBLISHABLE_KEY: zOptionalWithReplaceMe(),
-
-    // Social providers (optional)
-    GITHUB_CLIENT_ID: zOptionalWithReplaceMe(),
-    GITHUB_CLIENT_SECRET: zOptionalWithReplaceMe(),
-    GOOGLE_CLIENT_ID: zOptionalWithReplaceMe(),
-    GOOGLE_CLIENT_SECRET: zOptionalWithReplaceMe(),
-
-    EMAIL_SERVER: z.url(),
-    EMAIL_FROM: z.string(),
 
     LOGGER_LEVEL: z
       .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
