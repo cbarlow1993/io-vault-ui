@@ -6,6 +6,7 @@ import reconciliationRoutes from '@/src/routes/reconciliation/index.js';
 import spamRoutes from '@/src/routes/spam/index.js';
 import transactionRoutes, { transactionRoutesV2, vaultTransactionRoutes } from '@/src/routes/transactions/index.js';
 import validateAddressRoutes from '@/src/routes/validate-address.js';
+import vaultRoutes from '@/src/routes/vaults/index.js';
 import { workflowRoutes } from '@/src/routes/transactions/workflow/index.js';
 import { signatureWebhookRoutes } from '@/src/routes/webhooks/signature.js';
 
@@ -21,6 +22,7 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(transactionRoutesV2, { prefix: '/v2/transactions' });
   fastify.register(vaultTransactionRoutes, { prefix: '/v2/vaults/:vaultId/transactions' });
   fastify.register(reconciliationRoutes, { prefix: '/v2/reconciliation' });
+  fastify.register(vaultRoutes, { prefix: '/v2/vaults' });
   fastify.register(spamRoutes, { prefix: '/v2' });
 
   // Workflow routes
