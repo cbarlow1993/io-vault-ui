@@ -28,6 +28,23 @@ export interface VaultWithDetails {
   createdAt: Date;
 }
 
+export interface CreateVaultInput {
+  id: string;
+  workspaceId: string;
+  organisationId: string;
+}
+
+export interface CreateVaultCurveInput {
+  vaultId: string;
+  curve: ElipticCurve;
+  xpub: string;
+}
+
+export interface CreatedVaultWithCurves {
+  vault: VaultRow;
+  curves: VaultCurveRow[];
+}
+
 export interface VaultRepository {
   findById(id: string): Promise<VaultRow | null>;
   findWorkspaceId(vaultId: string): Promise<string | null>;
@@ -41,6 +58,11 @@ export interface VaultRepository {
     organisationId: string;
     workspaceId: string;
   }): Promise<TagAssignmentRow | null>;
+  createVaultWithCurves(
+    vault: CreateVaultInput,
+    curves: CreateVaultCurveInput[]
+  ): Promise<CreatedVaultWithCurves>;
+  vaultExists(id: string): Promise<boolean>;
 }
 
 export class PostgresVaultRepository implements VaultRepository {
@@ -153,5 +175,52 @@ export class PostgresVaultRepository implements VaultRepository {
       .executeTakeFirst();
 
     return result ?? null;
+  }
+
+  async vaultExists(id: string): Promise<boolean> {
+    const result = await this.db
+      .selectFrom('Vault')
+      .select('id')
+      .where('id', '=', id)
+      .executeTakeFirst();
+    return result !== undefined;
+  }
+
+  async createVaultWithCurves(
+    vault: CreateVaultInput,
+    curves: CreateVaultCurveInput[]
+  ): Promise<CreatedVaultWithCurves> {
+    return await this.db.transaction().execute(async (trx) => {
+      // Insert vault
+      const vaultResult = await trx
+        .insertInto('Vault')
+        .values({
+          id: vault.id,
+          workspaceId: vault.workspaceId,
+          organisationId: vault.organisationId,
+          createdAt: new Date(),
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+
+      // Insert curves using raw SQL for enum cast
+      const insertedCurves: VaultCurveRow[] = [];
+      for (const curve of curves) {
+        const curveResult = await sql<VaultCurveRow>`
+          INSERT INTO "VaultCurve" ("vaultId", "curve", "xpub")
+          VALUES (${curve.vaultId}, ${curve.curve}::"ElipticCurve", ${curve.xpub})
+          RETURNING *
+        `.execute(trx);
+
+        if (curveResult.rows[0]) {
+          insertedCurves.push(curveResult.rows[0]);
+        }
+      }
+
+      return {
+        vault: vaultResult,
+        curves: insertedCurves,
+      };
+    });
   }
 }
