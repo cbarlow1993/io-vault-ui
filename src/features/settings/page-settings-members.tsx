@@ -1,14 +1,13 @@
+import { useOrganization } from '@clerk/tanstack-react-start';
 import {
   ChevronDownIcon,
   MailIcon,
   MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
-  UserMinusIcon,
-  UserPlusIcon,
   XIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/tailwind/utils';
@@ -37,12 +36,11 @@ import { getStatusStyles } from '@/features/shared/lib/status-styles';
 
 import { SettingsLayout } from './components/settings-layout';
 import {
-  members,
   type MemberStatus,
   type PlatformRoleId,
   platformRoles,
-  workspaces,
 } from './data/settings';
+import { mapInvitation, mapMembership, toClerkRole } from './lib/clerk-members';
 
 const getRoleStyles = (role: PlatformRoleId) => {
   switch (role) {
@@ -60,6 +58,25 @@ const getRoleStyles = (role: PlatformRoleId) => {
 };
 
 export const PageSettingsMembers = () => {
+  const { organization, memberships, invitations } = useOrganization({
+    memberships: {
+      infinite: true,
+    },
+    invitations: {
+      infinite: true,
+      status: ['pending'],
+    },
+  });
+
+  // Derive members from Clerk data
+  const members = useMemo(() => {
+    const activeMembers = (memberships?.data ?? []).map(mapMembership);
+    const pendingMembers = (invitations?.data ?? []).map(mapInvitation);
+    return [...activeMembers, ...pendingMembers];
+  }, [memberships?.data, invitations?.data]);
+
+  const isLoading = !memberships?.data;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<MemberStatus | 'all'>('all');
   const [roleFilter, setRoleFilter] = useState<PlatformRoleId | 'all'>('all');
