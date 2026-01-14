@@ -11,18 +11,13 @@ export const curveInputSchema = z.object({
 });
 
 /**
- * Schema for creating a vault with curves
+ * Schema for creating a vault with curves.
+ * Note: Domain validation (min curves, no duplicates) is in the Vault entity.
  */
 export const createVaultBodySchema = z.object({
   id: z.string().uuid('id must be a valid UUID'),
   workspaceId: z.string().uuid('workspaceId must be a valid UUID'),
-  curves: z
-    .array(curveInputSchema)
-    .min(1, 'At least one curve is required')
-    .refine(
-      (curves) => new Set(curves.map((c) => c.curveType)).size === curves.length,
-      { message: 'Duplicate curve types not allowed' }
-    ),
+  curves: z.array(curveInputSchema),
 });
 
 // ==================== Response Schemas ====================
