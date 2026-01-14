@@ -194,7 +194,7 @@ export const billingInfo: BillingInfo = {
 // MEMBERS
 // ============================================================================
 
-export type MemberStatus = 'active' | 'pending' | 'deactivated';
+export type MemberStatus = 'active' | 'pending';
 
 // Platform roles - organization-level access
 export type PlatformRoleId =
@@ -261,90 +261,6 @@ export type Member = {
   status: MemberStatus;
   joinedAt: string;
   workspaceIds: string[];
-};
-
-// Sample members
-export const members: Member[] = [
-  {
-    id: 'member-001',
-    name: 'Sarah Chen',
-    email: 'sarah.chen@acme.com',
-    platformRole: 'owner',
-    status: 'active',
-    joinedAt: '2025-01-15',
-    workspaceIds: ['ws-001', 'ws-002', 'ws-003'],
-  },
-  {
-    id: 'member-002',
-    name: 'Marcus Johnson',
-    email: 'marcus.j@acme.com',
-    platformRole: 'admin',
-    status: 'active',
-    joinedAt: '2025-02-20',
-    workspaceIds: ['ws-001', 'ws-002'],
-  },
-  {
-    id: 'member-003',
-    name: 'Elena Rodriguez',
-    email: 'elena.r@acme.com',
-    platformRole: 'member',
-    status: 'active',
-    joinedAt: '2025-03-10',
-    workspaceIds: ['ws-001'],
-  },
-  {
-    id: 'member-004',
-    name: 'David Kim',
-    email: 'david.kim@acme.com',
-    platformRole: 'member',
-    status: 'active',
-    joinedAt: '2025-03-15',
-    workspaceIds: ['ws-001', 'ws-003'],
-  },
-  {
-    id: 'member-005',
-    name: 'Anna Schmidt',
-    email: 'anna.s@acme.com',
-    platformRole: 'billing',
-    status: 'active',
-    joinedAt: '2025-04-01',
-    workspaceIds: ['ws-001'],
-  },
-  {
-    id: 'member-006',
-    name: 'James Wilson',
-    email: 'james.w@acme.com',
-    platformRole: 'auditor',
-    status: 'active',
-    joinedAt: '2025-04-20',
-    workspaceIds: ['ws-001', 'ws-002'],
-  },
-  {
-    id: 'member-007',
-    name: 'Lisa Park',
-    email: 'lisa.park@acme.com',
-    platformRole: 'member',
-    status: 'pending',
-    joinedAt: '2026-01-05',
-    workspaceIds: [],
-  },
-  {
-    id: 'member-008',
-    name: 'Robert Taylor',
-    email: 'robert.t@acme.com',
-    platformRole: 'auditor',
-    status: 'deactivated',
-    joinedAt: '2025-02-01',
-    workspaceIds: [],
-  },
-];
-
-export const getMemberById = (id: string): Member | undefined => {
-  return members.find((member) => member.id === id);
-};
-
-export const getMembersByWorkspaceId = (workspaceId: string): Member[] => {
-  return members.filter((member) => member.workspaceIds.includes(workspaceId));
 };
 
 // ============================================================================
