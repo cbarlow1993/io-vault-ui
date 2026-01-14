@@ -6,6 +6,8 @@ import type {
   TagAssignmentRow,
   ElipticCurve,
 } from '@/src/lib/database/types.js';
+import { Vault } from '@/src/domain/entities/index.js';
+import { VaultCurve } from '@/src/domain/value-objects/index.js';
 
 export interface VaultDetails {
   vaultId: string;
@@ -28,23 +30,6 @@ export interface VaultWithDetails {
   createdAt: Date;
 }
 
-export interface CreateVaultInput {
-  id: string;
-  workspaceId: string;
-  organisationId: string;
-}
-
-export interface CreateVaultCurveInput {
-  vaultId: string;
-  curve: ElipticCurve;
-  xpub: string;
-}
-
-export interface CreatedVaultWithCurves {
-  vault: VaultRow;
-  curves: VaultCurveRow[];
-}
-
 export interface VaultRepository {
   findById(id: string): Promise<VaultRow | null>;
   findWorkspaceId(vaultId: string): Promise<string | null>;
@@ -58,10 +43,7 @@ export interface VaultRepository {
     organisationId: string;
     workspaceId: string;
   }): Promise<TagAssignmentRow | null>;
-  createVaultWithCurves(
-    vault: CreateVaultInput,
-    curves: CreateVaultCurveInput[]
-  ): Promise<CreatedVaultWithCurves>;
+  createVaultWithCurves(vault: Vault): Promise<Vault>;
   vaultExists(id: string): Promise<boolean>;
 }
 
@@ -186,41 +168,50 @@ export class PostgresVaultRepository implements VaultRepository {
     return result !== undefined;
   }
 
-  async createVaultWithCurves(
-    vault: CreateVaultInput,
-    curves: CreateVaultCurveInput[]
-  ): Promise<CreatedVaultWithCurves> {
+  /**
+   * Create a vault with curves in a transaction.
+   * Accepts a Vault domain entity and returns the persisted Vault with database-assigned values.
+   */
+  async createVaultWithCurves(vault: Vault): Promise<Vault> {
+    if (!vault.workspaceId) {
+      throw new Error('workspaceId is required for vault creation');
+    }
+
     return await this.db.transaction().execute(async (trx) => {
       // Insert vault
       const vaultResult = await trx
         .insertInto('Vault')
         .values({
           id: vault.id,
-          workspaceId: vault.workspaceId,
-          organisationId: vault.organisationId,
-          createdAt: new Date(),
+          workspaceId: vault.workspaceId!,
+          organisationId: vault.organizationId,
+          createdAt: vault.createdAt,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
 
       // Insert curves using raw SQL for enum cast
-      const insertedCurves: VaultCurveRow[] = [];
-      for (const curve of curves) {
+      const insertedCurves: VaultCurve[] = [];
+      for (const curve of vault.curves) {
         const curveResult = await sql<VaultCurveRow>`
           INSERT INTO "VaultCurve" ("vaultId", "curve", "xpub")
-          VALUES (${curve.vaultId}, ${curve.curve}::"ElipticCurve", ${curve.xpub})
+          VALUES (${vault.id}, ${curve.curve}::"ElipticCurve", ${curve.xpub.value})
           RETURNING *
         `.execute(trx);
 
         if (curveResult.rows[0]) {
-          insertedCurves.push(curveResult.rows[0]);
+          insertedCurves.push(VaultCurve.fromDatabase(curveResult.rows[0]));
         }
       }
 
-      return {
-        vault: vaultResult,
+      // Return domain entity with database-assigned values
+      return Vault.create({
+        id: vaultResult.id,
+        organizationId: vaultResult.organisationId,
+        workspaceId: vaultResult.workspaceId,
+        createdAt: vaultResult.createdAt,
         curves: insertedCurves,
-      };
+      });
     });
   }
 }
