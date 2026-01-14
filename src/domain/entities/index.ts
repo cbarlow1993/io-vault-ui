@@ -81,4 +81,4 @@ export {
 } from './spam/spam-classification-result.js';
 
 // Vault domain
-export { Vault, type CreateVaultData } from './vault/index.js';
+export { Vault, type CreateVaultData, type CreateNewVaultData } from './vault/index.js';

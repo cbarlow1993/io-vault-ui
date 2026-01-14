@@ -1,1 +1,1 @@
-export { Vault, type CreateVaultData } from './vault.js';
+export { Vault, type CreateVaultData, type CreateNewVaultData } from './vault.js';
