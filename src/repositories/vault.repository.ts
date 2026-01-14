@@ -19,11 +19,10 @@ export interface VaultWithCurves {
 }
 
 /**
- * Extended vault details including name and createdAt for domain entity creation.
+ * Extended vault details for domain entity creation.
  */
 export interface VaultWithDetails {
   vaultId: string;
-  name: string;
   organizationId: string;
   workspaceId: string | null;
   createdAt: Date;
@@ -101,7 +100,7 @@ export class PostgresVaultRepository implements VaultRepository {
   async findVaultWithDetails(vaultId: string): Promise<VaultWithDetails | null> {
     const result = await this.db
       .selectFrom('Vault')
-      .select(['id', 'name', 'workspaceId', 'organisationId', 'createdAt'])
+      .select(['id', 'workspaceId', 'organisationId', 'createdAt'])
       .where('id', '=', vaultId)
       .executeTakeFirst();
 
@@ -111,7 +110,6 @@ export class PostgresVaultRepository implements VaultRepository {
 
     return {
       vaultId: result.id,
-      name: result.name,
       organizationId: result.organisationId,
       workspaceId: result.workspaceId ?? null,
       createdAt: result.createdAt,
@@ -119,11 +117,14 @@ export class PostgresVaultRepository implements VaultRepository {
   }
 
   async findVaultCurves(vaultId: string): Promise<VaultWithCurves | null> {
+    console.log('[DEBUG] findVaultCurves called with vaultId:', vaultId);
     const curves = await this.db
       .selectFrom('VaultCurve')
       .selectAll()
       .where('vaultId', '=', vaultId)
       .execute();
+
+    console.log('[DEBUG] findVaultCurves raw result:', JSON.stringify(curves, null, 2));
 
     if (curves.length === 0) {
       return null;
