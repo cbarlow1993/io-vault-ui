@@ -2,11 +2,11 @@
 
 import {
   createContext,
+  type ReactNode,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useState,
-  type ReactNode,
 } from 'react';
 
 import { envClient } from '@/env/client';
@@ -273,11 +273,7 @@ export function ChargebeeProvider({ children }: ChargebeeProviderProps) {
     tokenize,
   };
 
-  return (
-    <ChargebeeContext.Provider value={contextValue}>
-      {children}
-    </ChargebeeContext.Provider>
-  );
+  return <ChargebeeContext value={contextValue}>{children}</ChargebeeContext>;
 }
 
 /**
@@ -292,7 +288,7 @@ export function ChargebeeProvider({ children }: ChargebeeProviderProps) {
  * const result = await tokenize({ number: '...', ... });
  */
 export function useChargebeeContext(): ChargebeeContextValue {
-  const context = useContext(ChargebeeContext);
+  const context = use(ChargebeeContext);
   if (!context) {
     throw new Error(
       'useChargebeeContext must be used within ChargebeeProvider'
@@ -303,9 +299,9 @@ export function useChargebeeContext(): ChargebeeContextValue {
 
 // Re-export types for external use
 export type {
-  ChargebeeInstance,
-  ChargebeeCardElement,
   CardOptions,
-  TokenResult,
+  ChargebeeCardElement,
   ChargebeeError,
+  ChargebeeInstance,
+  TokenResult,
 };

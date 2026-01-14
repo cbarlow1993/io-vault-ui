@@ -1,8 +1,8 @@
 import {
+  ArrowUpIcon,
   CheckCircleIcon,
   ClockIcon,
   MessageSquareIcon,
-  ArrowUpIcon,
   XCircleIcon,
 } from 'lucide-react';
 

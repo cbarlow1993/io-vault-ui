@@ -14,7 +14,7 @@ interface TransactionsTableProps {
 
 export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
   return (
-    <div className="border border-neutral-200 bg-white">
+    <div className="border-card">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
@@ -35,7 +35,7 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
         </thead>
         <tbody className="divide-y divide-neutral-100">
           {transactions.map((tx) => (
-            <tr key={tx.id} className="cursor-pointer hover:bg-neutral-50">
+            <tr key={tx.id} className="interactive-row">
               <td className="px-3 py-2">
                 <Link
                   to="/compliance/transactions/$id"

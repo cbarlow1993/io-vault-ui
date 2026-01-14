@@ -93,10 +93,10 @@ export function DataTablePagination({
           disabled={disabled || isFirstPage}
           aria-label="Go to first page"
           className={cn(
-            'flex size-7 items-center justify-center border border-neutral-200',
+            'border-divider flex size-7 items-center justify-center border',
             disabled || isFirstPage
               ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-              : 'bg-white text-neutral-600 hover:bg-neutral-50'
+              : 'hover-subtle bg-white text-neutral-600'
           )}
         >
           <ChevronsLeftIcon className="size-3.5" />
@@ -109,10 +109,10 @@ export function DataTablePagination({
           disabled={disabled || isFirstPage}
           aria-label="Go to previous page"
           className={cn(
-            'flex size-7 items-center justify-center border border-neutral-200',
+            'border-divider flex size-7 items-center justify-center border',
             disabled || isFirstPage
               ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-              : 'bg-white text-neutral-600 hover:bg-neutral-50'
+              : 'hover-subtle bg-white text-neutral-600'
           )}
         >
           <ChevronLeftIcon className="size-3.5" />
@@ -140,7 +140,7 @@ export function DataTablePagination({
                   'flex size-7 items-center justify-center border text-xs',
                   currentPage === item
                     ? 'border-neutral-900 bg-neutral-900 font-medium text-white'
-                    : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+                    : 'border-divider hover-subtle bg-white text-neutral-600'
                 )}
               >
                 {item}
@@ -156,10 +156,10 @@ export function DataTablePagination({
           disabled={disabled || isLastPage}
           aria-label="Go to next page"
           className={cn(
-            'flex size-7 items-center justify-center border border-neutral-200',
+            'border-divider flex size-7 items-center justify-center border',
             disabled || isLastPage
               ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-              : 'bg-white text-neutral-600 hover:bg-neutral-50'
+              : 'hover-subtle bg-white text-neutral-600'
           )}
         >
           <ChevronRightIcon className="size-3.5" />
@@ -172,10 +172,10 @@ export function DataTablePagination({
           disabled={disabled || isLastPage}
           aria-label="Go to last page"
           className={cn(
-            'flex size-7 items-center justify-center border border-neutral-200',
+            'border-divider flex size-7 items-center justify-center border',
             disabled || isLastPage
               ? 'cursor-not-allowed bg-neutral-50 text-neutral-300'
-              : 'bg-white text-neutral-600 hover:bg-neutral-50'
+              : 'hover-subtle bg-white text-neutral-600'
           )}
         >
           <ChevronsRightIcon className="size-3.5" />

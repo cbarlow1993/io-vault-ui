@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { FileTextIcon, DownloadIcon } from 'lucide-react';
+import { DownloadIcon, FileTextIcon } from 'lucide-react';
 
 import {
   NotificationButton,
@@ -7,7 +7,7 @@ import {
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 const reportTypes = [
   {

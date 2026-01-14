@@ -300,4 +300,49 @@
   .animate-float-in-space {
     animation: float-in-space 8s ease-in-out infinite;
   }
+
+  /* ==========================================================================
+   * Design System - Consistent UI Patterns
+   * ========================================================================== */
+
+  /* Hover States
+   * - hover-subtle: For rows, list items (lighter hover)
+   * - hover-medium: For buttons, icon buttons (standard hover)
+   */
+  .hover-subtle {
+    @apply hover:bg-neutral-50;
+  }
+
+  .hover-medium {
+    @apply hover:bg-neutral-100;
+  }
+
+  /* Border Patterns
+   * - border-card: Card/container with white background
+   * - border-input: Input field with subtle gray background
+   * - border-divider: Simple border color for dividers
+   */
+  .border-card {
+    @apply border border-neutral-200 bg-white;
+  }
+
+  .border-input {
+    @apply border border-neutral-200 bg-neutral-50;
+  }
+
+  .border-divider {
+    @apply border-neutral-200;
+  }
+
+  /* Interactive Elements
+   * - interactive-row: Table/list rows with subtle hover and pointer
+   * - interactive-icon-button: Icon buttons with color transition on hover
+   */
+  .interactive-row {
+    @apply cursor-pointer hover:bg-neutral-50;
+  }
+
+  .interactive-icon-button {
+    @apply text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600;
+  }
 }

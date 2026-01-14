@@ -36,15 +36,13 @@
  * }
  */
 
-export { ChargebeeProvider, useChargebeeContext } from './provider';
-
 export type {
   CardData,
-  ChargebeeInstance,
-  ChargebeeCardElement,
   CardOptions,
-  TokenResult,
+  ChargebeeCardElement,
   ChargebeeError,
+  ChargebeeInstance,
+  TokenResult,
 } from './provider';
-
+export { ChargebeeProvider, useChargebeeContext } from './provider';
 export { useChargebee } from './use-chargebee';

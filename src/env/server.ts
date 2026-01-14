@@ -10,8 +10,11 @@ export const envServer = createEnv({
   server: {
     DATABASE_URL: z.url(),
 
+    // Vault API
+    VAULT_API_URL: z.url(),
+
     // Auth mode: 'clerk' for SaaS, 'better-auth' for on-prem
-    AUTH_MODE: z.enum(['clerk', 'better-auth']).prefault('better-auth'),
+    AUTH_MODE: z.enum(['clerk', 'better-auth']).prefault('clerk'),
 
     // better-auth configuration
     AUTH_SECRET: z.string(),
@@ -55,6 +58,16 @@ export const envServer = createEnv({
     CHARGEBEE_SITE: zOptionalWithReplaceMe(),
     CHARGEBEE_API_KEY: zOptionalWithReplaceMe(),
     CHARGEBEE_WEBHOOK_SECRET: zOptionalWithReplaceMe(),
+    // Comma-separated list of plan IDs to show in pricing grid (3-5 plans)
+    CHARGEBEE_PLAN_IDS: z
+      .string()
+      .optional()
+      .transform((v) =>
+        v
+          ?.split(',')
+          .map((id) => id.trim())
+          .filter(Boolean)
+      ),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

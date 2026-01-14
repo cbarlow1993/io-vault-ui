@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
 
 import {
-  useChargebeeContext,
   type CardData,
-  type ChargebeeCardElement,
   type CardOptions,
-  type TokenResult,
+  type ChargebeeCardElement,
   type ChargebeeError,
+  type TokenResult,
+  useChargebeeContext,
 } from './provider';
 
 /**
@@ -121,8 +121,7 @@ export function useChargebee(): UseChargebeeResult {
       setTokenizeError(null);
 
       try {
-        const result = await context.tokenize(cardData);
-        return result;
+        return await context.tokenize(cardData);
       } catch (err) {
         const chargebeeError: ChargebeeError =
           err && typeof err === 'object' && 'message' in err
@@ -151,8 +150,7 @@ export function useChargebee(): UseChargebeeResult {
       setTokenizeError(null);
 
       try {
-        const result = await context.instance.createToken(element);
-        return result;
+        return await context.instance.createToken(element);
       } catch (err) {
         const chargebeeError: ChargebeeError =
           err && typeof err === 'object' && 'message' in err

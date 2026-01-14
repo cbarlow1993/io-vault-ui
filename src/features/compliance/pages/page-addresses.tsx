@@ -17,13 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
 import {
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 import { AddressesTable } from '../components/addresses-table';
 import { mockAddresses } from '../data/mock-addresses';

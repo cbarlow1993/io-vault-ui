@@ -28,7 +28,7 @@ export function DataTableColumnVisibility<TData>({
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex h-7 items-center gap-1.5 border border-neutral-200 bg-neutral-50 px-2 text-xs text-neutral-600 hover:bg-neutral-100"
+          className="hover-medium flex h-7 items-center gap-1.5 border-input px-2 text-xs text-neutral-600"
         >
           <SlidersHorizontalIcon className="size-3.5" />
           <span>Columns</span>

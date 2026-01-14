@@ -1,12 +1,16 @@
+import { SignIn as ClerkSignIn, useAuth } from '@clerk/tanstack-react-start';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import { GithubIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/tailwind/utils';
+
+import { Spinner } from '@/components/ui/spinner';
 
 import { envClient } from '@/env/client';
 import { authClient } from '@/features/auth/client';
@@ -23,6 +27,48 @@ export default function PageLogin({
 }: {
   search: { redirect?: string };
 }) {
+  const authMode = envClient.VITE_AUTH_MODE ?? 'better-auth';
+
+  // Clerk mode - use Clerk's SignIn component
+  if (authMode === 'clerk') {
+    return <ClerkLoginPage search={search} />;
+  }
+
+  // Better-auth mode - use existing email OTP flow
+  return <BetterAuthLoginForm search={search} />;
+}
+
+function ClerkLoginPage({ search }: { search: { redirect?: string } }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.navigate({ to: search.redirect ?? '/', replace: true });
+    }
+  }, [isLoaded, isSignedIn, router, search.redirect]);
+
+  // Show loading while checking auth
+  if (!isLoaded) {
+    return <Spinner full className="opacity-60" />;
+  }
+
+  // Don't render SignIn if already signed in (will redirect via useEffect)
+  if (isSignedIn) {
+    return <Spinner full className="opacity-60" />;
+  }
+
+  return (
+    <ClerkSignIn
+      routing="hash"
+      afterSignInUrl={search.redirect ?? '/'}
+      signUpUrl={AUTH_SIGNUP_ENABLED ? '/sign-up' : undefined}
+    />
+  );
+}
+
+function BetterAuthLoginForm({ search }: { search: { redirect?: string } }) {
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
 

@@ -214,7 +214,7 @@ export function DataTable<TData>({
   );
 
   return (
-    <div className="border border-neutral-200 bg-white">
+    <div className="border-card">
       {/* Toolbar */}
       {toolbarWithTable}
 
@@ -294,7 +294,7 @@ export function DataTable<TData>({
                       'cursor-pointer focus:ring-2 focus:ring-brand-500 focus:outline-none focus:ring-inset',
                     isSelected
                       ? 'bg-brand-50 hover:bg-brand-100'
-                      : 'hover:bg-neutral-50'
+                      : 'hover-subtle'
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (

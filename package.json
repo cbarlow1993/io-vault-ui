@@ -41,7 +41,6 @@
   "dependencies": {
     "@base-ui/react": "1.0.0",
     "@bearstudio/ui-state": "1.0.2",
-    "@better-auth/expo": "1.4.11",
     "@clerk/backend": "^2.29.2",
     "@clerk/tanstack-react-start": "^0.27.14",
     "@fontsource-variable/dm-sans": "^5.2.8",
@@ -70,7 +69,6 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/zod-adapter": "1.132.47",
     "@uidotdev/usehooks": "2.4.1",
-    "better-auth": "1.4.5",
     "boring-avatars": "2.0.4",
     "chargebee": "^3.18.0",
     "class-variance-authority": "0.7.1",

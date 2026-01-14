@@ -1,0 +1,7 @@
+# OpenAPI TypeScript configuration
+# See: https://openapi-ts.dev/cli#redocly-config
+apis:
+  vault:
+    root: ./apiSpec.json
+    x-openapi-ts:
+      output: ./src/lib/api/vault-api.d.ts

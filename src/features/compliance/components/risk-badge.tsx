@@ -1,6 +1,6 @@
 import { cn } from '@/lib/tailwind/utils';
 
-import { type RiskLevel, RISK_LEVEL_LABELS } from '@/features/compliance';
+import { RISK_LEVEL_LABELS, type RiskLevel } from '@/features/compliance';
 
 interface RiskBadgeProps {
   level: RiskLevel;

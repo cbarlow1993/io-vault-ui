@@ -25,7 +25,7 @@ export function DataTableToolbar<TData>({
   children,
 }: DataTableToolbarProps<TData>) {
   return (
-    <div className="flex items-center justify-between border-b border-neutral-200 px-3 py-2">
+    <div className="border-divider flex items-center justify-between border-b px-3 py-2">
       <div className="flex items-center gap-3">
         {/* Search */}
         {onSearchChange && (
@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               aria-label={searchPlaceholder}
-              className="h-7 w-48 border border-neutral-200 bg-neutral-50 pr-2 pl-7 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+              className="h-7 w-48 border-input pr-2 pl-7 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
             />
           </div>
         )}

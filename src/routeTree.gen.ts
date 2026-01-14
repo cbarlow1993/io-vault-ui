@@ -12,14 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as SignUpRouteRouteImport } from './routes/sign-up/route'
-import { Route as ManagerRouteRouteImport } from './routes/manager/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
-import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as ForgotPasswordRouteRouteImport } from './routes/forgot-password/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
-import { Route as ManagerIndexRouteImport } from './routes/manager/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
-import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AppOverviewRouteImport } from './routes/_app/overview'
 import { Route as AppVaultsRouteRouteImport } from './routes/_app/vaults/route'
 import { Route as AppSignersRouteRouteImport } from './routes/_app/signers/route'
@@ -29,20 +27,17 @@ import { Route as AppOperationsRouteRouteImport } from './routes/_app/operations
 import { Route as AppIdentitiesRouteRouteImport } from './routes/_app/identities/route'
 import { Route as AppComplianceRouteRouteImport } from './routes/_app/compliance/route'
 import { Route as AppAddressBookRouteRouteImport } from './routes/_app/address-book/route'
-import { Route as ManagerUsersIndexRouteImport } from './routes/manager/users/index'
-import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dashboard.index'
-import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
-import { Route as ManagerAccountIndexRouteImport } from './routes/manager/account.index'
+import { Route as AppAccountRouteRouteImport } from './routes/_app/account/route'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
-import { Route as AppBooksIndexRouteImport } from './routes/app/books/index'
-import { Route as AppAccountIndexRouteImport } from './routes/app/account.index'
 import { Route as AppVaultsIndexRouteImport } from './routes/_app/vaults/index'
 import { Route as AppSignersIndexRouteImport } from './routes/_app/signers/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppIdentitiesIndexRouteImport } from './routes/_app/identities/index'
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as AppAddressBookIndexRouteImport } from './routes/_app/address-book/index'
+import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
+import { Route as ApiWebhooksChargebeeRouteImport } from './routes/api/webhooks/chargebee'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 import { Route as ApiRestSplatRouteImport } from './routes/api/rest.$'
 import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
@@ -61,6 +56,7 @@ import { Route as AppSettingsAuditRouteImport } from './routes/_app/settings/aud
 import { Route as AppIdentitiesNewRouteImport } from './routes/_app/identities/new'
 import { Route as AppComplianceReportsRouteImport } from './routes/_app/compliance/reports'
 import { Route as AppComplianceAlertsRouteImport } from './routes/_app/compliance/alerts'
+import { Route as AppAccountSecurityRouteImport } from './routes/_app/account/security'
 import { Route as AppVaultsVaultIdRouteRouteImport } from './routes/_app/vaults/$vaultId/route'
 import { Route as AppSignersSignerIdRouteRouteImport } from './routes/_app/signers/$signerId/route'
 import { Route as AppSettingsTeamsRouteRouteImport } from './routes/_app/settings/teams/route'
@@ -70,11 +66,6 @@ import { Route as AppOperationsOperationIdRouteRouteImport } from './routes/_app
 import { Route as AppIdentitiesIdentityIdRouteRouteImport } from './routes/_app/identities/$identityId/route'
 import { Route as AppComplianceTransactionsRouteRouteImport } from './routes/_app/compliance/transactions/route'
 import { Route as AppComplianceAddressesRouteRouteImport } from './routes/_app/compliance/addresses/route'
-import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
-import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
-import { Route as ManagerBooksNewIndexRouteImport } from './routes/manager/books/new.index'
-import { Route as ManagerBooksIdIndexRouteImport } from './routes/manager/books/$id.index'
-import { Route as AppBooksIdIndexRouteImport } from './routes/app/books/$id.index'
 import { Route as AppVaultsVaultIdIndexRouteImport } from './routes/_app/vaults/$vaultId/index'
 import { Route as AppSignersSignerIdIndexRouteImport } from './routes/_app/signers/$signerId/index'
 import { Route as AppSettingsTeamsIndexRouteImport } from './routes/_app/settings/teams/index'
@@ -97,8 +88,6 @@ import { Route as AppComplianceAddressesAddressRouteImport } from './routes/_app
 import { Route as AppVaultsVaultIdAddressesRouteRouteImport } from './routes/_app/vaults/$vaultId/addresses/route'
 import { Route as AppPoliciesWhitelistsWhitelistIdRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/route'
 import { Route as AppPoliciesTransactionsPolicyIdRouteRouteImport } from './routes/_app/policies/transactions/$policyId/route'
-import { Route as ManagerUsersIdUpdateIndexRouteImport } from './routes/manager/users/$id.update.index'
-import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
 import { Route as AppVaultsVaultIdAddressesIndexRouteImport } from './routes/_app/vaults/$vaultId/addresses/index'
 import { Route as AppPoliciesWhitelistsWhitelistIdIndexRouteImport } from './routes/_app/policies/whitelists/$whitelistId/index'
 import { Route as AppPoliciesTransactionsPolicyIdIndexRouteImport } from './routes/_app/policies/transactions/$policyId/index'
@@ -131,19 +120,14 @@ const SignUpRouteRoute = SignUpRouteRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ManagerRouteRoute = ManagerRouteRouteImport.update({
-  id: '/manager',
-  path: '/manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRouteRoute = LoginRouteRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
+const ForgotPasswordRouteRoute = ForgotPasswordRouteRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -156,20 +140,15 @@ const SignUpIndexRoute = SignUpIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SignUpRouteRoute,
 } as any)
-const ManagerIndexRoute = ManagerIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
+const ForgotPasswordIndexRoute = ForgotPasswordIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRouteRoute,
+  getParentRoute: () => ForgotPasswordRouteRoute,
 } as any)
 const AppOverviewRoute = AppOverviewRouteImport.update({
   id: '/overview',
@@ -216,25 +195,10 @@ const AppAddressBookRouteRoute = AppAddressBookRouteRouteImport.update({
   path: '/address-book',
   getParentRoute: () => AppRoute,
 } as any)
-const ManagerUsersIndexRoute = ManagerUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerDashboardIndexRoute = ManagerDashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerBooksIndexRoute = ManagerBooksIndexRouteImport.update({
-  id: '/books/',
-  path: '/books/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerAccountIndexRoute = ManagerAccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => ManagerRouteRoute,
+const AppAccountRouteRoute = AppAccountRouteRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AppRoute,
 } as any)
 const LoginVerifyIndexRoute = LoginVerifyIndexRouteImport.update({
   id: '/verify/',
@@ -245,16 +209,6 @@ const LoginErrorIndexRoute = LoginErrorIndexRouteImport.update({
   id: '/error/',
   path: '/error/',
   getParentRoute: () => LoginRouteRoute,
-} as any)
-const AppBooksIndexRoute = AppBooksIndexRouteImport.update({
-  id: '/books/',
-  path: '/books/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppVaultsIndexRoute = AppVaultsIndexRouteImport.update({
   id: '/',
@@ -285,6 +239,16 @@ const AppAddressBookIndexRoute = AppAddressBookIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAddressBookRouteRoute,
+} as any)
+const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAccountRouteRoute,
+} as any)
+const ApiWebhooksChargebeeRoute = ApiWebhooksChargebeeRouteImport.update({
+  id: '/api/webhooks/chargebee',
+  path: '/api/webhooks/chargebee',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -376,6 +340,11 @@ const AppComplianceAlertsRoute = AppComplianceAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AppComplianceRouteRoute,
 } as any)
+const AppAccountSecurityRoute = AppAccountSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AppAccountRouteRoute,
+} as any)
 const AppVaultsVaultIdRouteRoute = AppVaultsVaultIdRouteRouteImport.update({
   id: '/$vaultId',
   path: '/$vaultId',
@@ -427,31 +396,6 @@ const AppComplianceAddressesRouteRoute =
     path: '/addresses',
     getParentRoute: () => AppComplianceRouteRoute,
   } as any)
-const ManagerUsersNewIndexRoute = ManagerUsersNewIndexRouteImport.update({
-  id: '/users/new/',
-  path: '/users/new/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
-  id: '/users/$id/',
-  path: '/users/$id/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerBooksNewIndexRoute = ManagerBooksNewIndexRouteImport.update({
-  id: '/books/new/',
-  path: '/books/new/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const ManagerBooksIdIndexRoute = ManagerBooksIdIndexRouteImport.update({
-  id: '/books/$id/',
-  path: '/books/$id/',
-  getParentRoute: () => ManagerRouteRoute,
-} as any)
-const AppBooksIdIndexRoute = AppBooksIdIndexRouteImport.update({
-  id: '/books/$id/',
-  path: '/books/$id/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppVaultsVaultIdIndexRoute = AppVaultsVaultIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -576,18 +520,6 @@ const AppPoliciesTransactionsPolicyIdRouteRoute =
     path: '/$policyId',
     getParentRoute: () => AppPoliciesTransactionsRouteRoute,
   } as any)
-const ManagerUsersIdUpdateIndexRoute =
-  ManagerUsersIdUpdateIndexRouteImport.update({
-    id: '/users/$id/update/',
-    path: '/users/$id/update/',
-    getParentRoute: () => ManagerRouteRoute,
-  } as any)
-const ManagerBooksIdUpdateIndexRoute =
-  ManagerBooksIdUpdateIndexRouteImport.update({
-    id: '/books/$id/update/',
-    path: '/books/$id/update/',
-    getParentRoute: () => ManagerRouteRoute,
-  } as any)
 const AppVaultsVaultIdAddressesIndexRoute =
   AppVaultsVaultIdAddressesIndexRouteImport.update({
     id: '/',
@@ -695,11 +627,11 @@ const AppVaultsVaultIdChainChainAddressesAddressTransferRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
-  '/manager': typeof ManagerRouteRouteWithChildren
   '/sign-up': typeof SignUpRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/account': typeof AppAccountRouteRouteWithChildren
   '/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/compliance': typeof AppComplianceRouteRouteWithChildren
   '/identities': typeof AppIdentitiesRouteRouteWithChildren
@@ -709,9 +641,8 @@ export interface FileRoutesByFullPath {
   '/signers': typeof AppSignersRouteRouteWithChildren
   '/vaults': typeof AppVaultsRouteRouteWithChildren
   '/overview': typeof AppOverviewRoute
-  '/app/': typeof AppIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/manager/': typeof ManagerIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
   '/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
   '/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
@@ -722,6 +653,7 @@ export interface FileRoutesByFullPath {
   '/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
   '/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
   '/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
   '/identities/new': typeof AppIdentitiesNewRoute
@@ -740,20 +672,16 @@ export interface FileRoutesByFullPath {
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
+  '/account/': typeof AppAccountIndexRoute
   '/address-book/': typeof AppAddressBookIndexRoute
   '/compliance/': typeof AppComplianceIndexRoute
   '/identities/': typeof AppIdentitiesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/signers/': typeof AppSignersIndexRoute
   '/vaults/': typeof AppVaultsIndexRoute
-  '/app/account': typeof AppAccountIndexRoute
-  '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
-  '/manager/account': typeof ManagerAccountIndexRoute
-  '/manager/books': typeof ManagerBooksIndexRoute
-  '/manager/dashboard': typeof ManagerDashboardIndexRoute
-  '/manager/users': typeof ManagerUsersIndexRoute
   '/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdRouteRouteWithChildren
   '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
   '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
@@ -776,11 +704,6 @@ export interface FileRoutesByFullPath {
   '/settings/teams/': typeof AppSettingsTeamsIndexRoute
   '/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
   '/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
-  '/app/books/$id': typeof AppBooksIdIndexRoute
-  '/manager/books/$id': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new': typeof ManagerUsersNewIndexRoute
   '/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
   '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
   '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
@@ -790,8 +713,6 @@ export interface FileRoutesByFullPath {
   '/policies/transactions/$policyId/': typeof AppPoliciesTransactionsPolicyIdIndexRoute
   '/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
   '/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
   '/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
   '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
   '/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
@@ -807,11 +728,11 @@ export interface FileRoutesByTo {
   '/operations': typeof AppOperationsRouteRouteWithChildren
   '/policies': typeof AppPoliciesRouteRouteWithChildren
   '/overview': typeof AppOverviewRoute
-  '/app': typeof AppIndexRoute
+  '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
-  '/manager': typeof ManagerIndexRoute
   '/sign-up': typeof SignUpIndexRoute
   '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
+  '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
   '/identities/new': typeof AppIdentitiesNewRoute
@@ -830,20 +751,16 @@ export interface FileRoutesByTo {
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
+  '/account': typeof AppAccountIndexRoute
   '/address-book': typeof AppAddressBookIndexRoute
   '/compliance': typeof AppComplianceIndexRoute
   '/identities': typeof AppIdentitiesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/signers': typeof AppSignersIndexRoute
   '/vaults': typeof AppVaultsIndexRoute
-  '/app/account': typeof AppAccountIndexRoute
-  '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
-  '/manager/account': typeof ManagerAccountIndexRoute
-  '/manager/books': typeof ManagerBooksIndexRoute
-  '/manager/dashboard': typeof ManagerDashboardIndexRoute
-  '/manager/users': typeof ManagerUsersIndexRoute
   '/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
   '/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
   '/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
@@ -863,11 +780,6 @@ export interface FileRoutesByTo {
   '/settings/teams': typeof AppSettingsTeamsIndexRoute
   '/signers/$signerId': typeof AppSignersSignerIdIndexRoute
   '/vaults/$vaultId': typeof AppVaultsVaultIdIndexRoute
-  '/app/books/$id': typeof AppBooksIdIndexRoute
-  '/manager/books/$id': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new': typeof ManagerUsersNewIndexRoute
   '/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
   '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
   '/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
@@ -876,8 +788,6 @@ export interface FileRoutesByTo {
   '/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdIndexRoute
   '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
   '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
   '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
   '/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
   '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
@@ -887,12 +797,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
-  '/manager': typeof ManagerRouteRouteWithChildren
   '/sign-up': typeof SignUpRouteRouteWithChildren
   '/_app': typeof AppRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/_app/account': typeof AppAccountRouteRouteWithChildren
   '/_app/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/_app/compliance': typeof AppComplianceRouteRouteWithChildren
   '/_app/identities': typeof AppIdentitiesRouteRouteWithChildren
@@ -902,9 +812,8 @@ export interface FileRoutesById {
   '/_app/signers': typeof AppSignersRouteRouteWithChildren
   '/_app/vaults': typeof AppVaultsRouteRouteWithChildren
   '/_app/overview': typeof AppOverviewRoute
-  '/app/': typeof AppIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/manager/': typeof ManagerIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
   '/_app/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
   '/_app/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
@@ -915,6 +824,7 @@ export interface FileRoutesById {
   '/_app/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
   '/_app/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
   '/_app/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/_app/account/security': typeof AppAccountSecurityRoute
   '/_app/compliance/alerts': typeof AppComplianceAlertsRoute
   '/_app/compliance/reports': typeof AppComplianceReportsRoute
   '/_app/identities/new': typeof AppIdentitiesNewRoute
@@ -933,20 +843,16 @@ export interface FileRoutesById {
   '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
+  '/_app/account/': typeof AppAccountIndexRoute
   '/_app/address-book/': typeof AppAddressBookIndexRoute
   '/_app/compliance/': typeof AppComplianceIndexRoute
   '/_app/identities/': typeof AppIdentitiesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/signers/': typeof AppSignersIndexRoute
   '/_app/vaults/': typeof AppVaultsIndexRoute
-  '/app/account/': typeof AppAccountIndexRoute
-  '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
-  '/manager/account/': typeof ManagerAccountIndexRoute
-  '/manager/books/': typeof ManagerBooksIndexRoute
-  '/manager/dashboard/': typeof ManagerDashboardIndexRoute
-  '/manager/users/': typeof ManagerUsersIndexRoute
   '/_app/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdRouteRouteWithChildren
   '/_app/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
   '/_app/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
@@ -969,11 +875,6 @@ export interface FileRoutesById {
   '/_app/settings/teams/': typeof AppSettingsTeamsIndexRoute
   '/_app/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
   '/_app/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
-  '/app/books/$id/': typeof AppBooksIdIndexRoute
-  '/manager/books/$id/': typeof ManagerBooksIdIndexRoute
-  '/manager/books/new/': typeof ManagerBooksNewIndexRoute
-  '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
-  '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/_app/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
   '/_app/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
   '/_app/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
@@ -983,8 +884,6 @@ export interface FileRoutesById {
   '/_app/policies/transactions/$policyId/': typeof AppPoliciesTransactionsPolicyIdIndexRoute
   '/_app/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
   '/_app/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
-  '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
   '/_app/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
   '/_app/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
   '/_app/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
@@ -998,11 +897,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/app'
+    | '/forgot-password'
     | '/login'
-    | '/manager'
     | '/sign-up'
     | '/logout'
+    | '/account'
     | '/address-book'
     | '/compliance'
     | '/identities'
@@ -1012,9 +911,8 @@ export interface FileRouteTypes {
     | '/signers'
     | '/vaults'
     | '/overview'
-    | '/app/'
+    | '/forgot-password/'
     | '/login/'
-    | '/manager/'
     | '/sign-up/'
     | '/compliance/addresses'
     | '/compliance/transactions'
@@ -1025,6 +923,7 @@ export interface FileRouteTypes {
     | '/settings/teams'
     | '/signers/$signerId'
     | '/vaults/$vaultId'
+    | '/account/security'
     | '/compliance/alerts'
     | '/compliance/reports'
     | '/identities/new'
@@ -1043,20 +942,16 @@ export interface FileRouteTypes {
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/api/webhooks/chargebee'
+    | '/account/'
     | '/address-book/'
     | '/compliance/'
     | '/identities/'
     | '/settings/'
     | '/signers/'
     | '/vaults/'
-    | '/app/account'
-    | '/app/books'
     | '/login/error'
     | '/login/verify'
-    | '/manager/account'
-    | '/manager/books'
-    | '/manager/dashboard'
-    | '/manager/users'
     | '/policies/transactions/$policyId'
     | '/policies/whitelists/$whitelistId'
     | '/vaults/$vaultId/addresses'
@@ -1079,11 +974,6 @@ export interface FileRouteTypes {
     | '/settings/teams/'
     | '/signers/$signerId/'
     | '/vaults/$vaultId/'
-    | '/app/books/$id'
-    | '/manager/books/$id'
-    | '/manager/books/new'
-    | '/manager/users/$id'
-    | '/manager/users/new'
     | '/policies/transactions/$policyId/versions'
     | '/policies/whitelists/$whitelistId/versions'
     | '/vaults/$vaultId/addresses/$addressId'
@@ -1093,8 +983,6 @@ export interface FileRouteTypes {
     | '/policies/transactions/$policyId/'
     | '/policies/whitelists/$whitelistId/'
     | '/vaults/$vaultId/addresses/'
-    | '/manager/books/$id/update'
-    | '/manager/users/$id/update'
     | '/policies/transactions/$policyId/versions/$versionNumber'
     | '/policies/whitelists/$whitelistId/versions/$versionNumber'
     | '/vaults/$vaultId/addresses/$addressId/'
@@ -1110,11 +998,11 @@ export interface FileRouteTypes {
     | '/operations'
     | '/policies'
     | '/overview'
-    | '/app'
+    | '/forgot-password'
     | '/login'
-    | '/manager'
     | '/sign-up'
     | '/operations/$operationId'
+    | '/account/security'
     | '/compliance/alerts'
     | '/compliance/reports'
     | '/identities/new'
@@ -1133,20 +1021,16 @@ export interface FileRouteTypes {
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/api/webhooks/chargebee'
+    | '/account'
     | '/address-book'
     | '/compliance'
     | '/identities'
     | '/settings'
     | '/signers'
     | '/vaults'
-    | '/app/account'
-    | '/app/books'
     | '/login/error'
     | '/login/verify'
-    | '/manager/account'
-    | '/manager/books'
-    | '/manager/dashboard'
-    | '/manager/users'
     | '/compliance/addresses/$address'
     | '/compliance/transactions/$id'
     | '/identities/$identityId/edit'
@@ -1166,11 +1050,6 @@ export interface FileRouteTypes {
     | '/settings/teams'
     | '/signers/$signerId'
     | '/vaults/$vaultId'
-    | '/app/books/$id'
-    | '/manager/books/$id'
-    | '/manager/books/new'
-    | '/manager/users/$id'
-    | '/manager/users/new'
     | '/policies/transactions/$policyId/versions'
     | '/policies/whitelists/$whitelistId/versions'
     | '/policies/whitelists/$whitelistId/edit'
@@ -1179,8 +1058,6 @@ export interface FileRouteTypes {
     | '/policies/transactions/$policyId'
     | '/policies/whitelists/$whitelistId'
     | '/vaults/$vaultId/addresses'
-    | '/manager/books/$id/update'
-    | '/manager/users/$id/update'
     | '/vaults/$vaultId/addresses/$addressId'
     | '/policies/transactions/$policyId/versions/$versionNumber'
     | '/policies/whitelists/$whitelistId/versions/$versionNumber'
@@ -1189,12 +1066,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/app'
+    | '/forgot-password'
     | '/login'
-    | '/manager'
     | '/sign-up'
     | '/_app'
     | '/logout'
+    | '/_app/account'
     | '/_app/address-book'
     | '/_app/compliance'
     | '/_app/identities'
@@ -1204,9 +1081,8 @@ export interface FileRouteTypes {
     | '/_app/signers'
     | '/_app/vaults'
     | '/_app/overview'
-    | '/app/'
+    | '/forgot-password/'
     | '/login/'
-    | '/manager/'
     | '/sign-up/'
     | '/_app/compliance/addresses'
     | '/_app/compliance/transactions'
@@ -1217,6 +1093,7 @@ export interface FileRouteTypes {
     | '/_app/settings/teams'
     | '/_app/signers/$signerId'
     | '/_app/vaults/$vaultId'
+    | '/_app/account/security'
     | '/_app/compliance/alerts'
     | '/_app/compliance/reports'
     | '/_app/identities/new'
@@ -1235,20 +1112,16 @@ export interface FileRouteTypes {
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
+    | '/api/webhooks/chargebee'
+    | '/_app/account/'
     | '/_app/address-book/'
     | '/_app/compliance/'
     | '/_app/identities/'
     | '/_app/settings/'
     | '/_app/signers/'
     | '/_app/vaults/'
-    | '/app/account/'
-    | '/app/books/'
     | '/login/error/'
     | '/login/verify/'
-    | '/manager/account/'
-    | '/manager/books/'
-    | '/manager/dashboard/'
-    | '/manager/users/'
     | '/_app/policies/transactions/$policyId'
     | '/_app/policies/whitelists/$whitelistId'
     | '/_app/vaults/$vaultId/addresses'
@@ -1271,11 +1144,6 @@ export interface FileRouteTypes {
     | '/_app/settings/teams/'
     | '/_app/signers/$signerId/'
     | '/_app/vaults/$vaultId/'
-    | '/app/books/$id/'
-    | '/manager/books/$id/'
-    | '/manager/books/new/'
-    | '/manager/users/$id/'
-    | '/manager/users/new/'
     | '/_app/policies/transactions/$policyId/versions'
     | '/_app/policies/whitelists/$whitelistId/versions'
     | '/_app/vaults/$vaultId/addresses/$addressId'
@@ -1285,8 +1153,6 @@ export interface FileRouteTypes {
     | '/_app/policies/transactions/$policyId/'
     | '/_app/policies/whitelists/$whitelistId/'
     | '/_app/vaults/$vaultId/addresses/'
-    | '/manager/books/$id/update/'
-    | '/manager/users/$id/update/'
     | '/_app/policies/transactions/$policyId/versions/$versionNumber'
     | '/_app/policies/whitelists/$whitelistId/versions/$versionNumber'
     | '/_app/vaults/$vaultId/addresses/$addressId/'
@@ -1299,9 +1165,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRouteWithChildren
+  ForgotPasswordRouteRoute: typeof ForgotPasswordRouteRouteWithChildren
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
-  ManagerRouteRoute: typeof ManagerRouteRouteWithChildren
   SignUpRouteRoute: typeof SignUpRouteRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   LogoutRoute: typeof LogoutRoute
@@ -1310,6 +1175,7 @@ export interface RootRouteChildren {
   ApiOpenapiAuthRoute: typeof ApiOpenapiAuthRouteWithChildren
   ApiRestSplatRoute: typeof ApiRestSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
+  ApiWebhooksChargebeeRoute: typeof ApiWebhooksChargebeeRoute
   ApiDevEmailTemplateRoute: typeof ApiDevEmailTemplateRoute
 }
 
@@ -1336,13 +1202,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/manager': {
-      id: '/manager'
-      path: '/manager'
-      fullPath: '/manager'
-      preLoaderRoute: typeof ManagerRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -1350,11 +1209,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteRouteImport
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1371,13 +1230,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpIndexRouteImport
       parentRoute: typeof SignUpRouteRoute
     }
-    '/manager/': {
-      id: '/manager/'
-      path: '/'
-      fullPath: '/manager/'
-      preLoaderRoute: typeof ManagerIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
     '/login/': {
       id: '/login/'
       path: '/'
@@ -1385,12 +1237,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
-    '/app/': {
-      id: '/app/'
+    '/forgot-password/': {
+      id: '/forgot-password/'
       path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+      fullPath: '/forgot-password/'
+      preLoaderRoute: typeof ForgotPasswordIndexRouteImport
+      parentRoute: typeof ForgotPasswordRouteRoute
     }
     '/_app/overview': {
       id: '/_app/overview'
@@ -1455,33 +1307,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAddressBookRouteRouteImport
       parentRoute: typeof AppRoute
     }
-    '/manager/users/': {
-      id: '/manager/users/'
-      path: '/users'
-      fullPath: '/manager/users'
-      preLoaderRoute: typeof ManagerUsersIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/dashboard/': {
-      id: '/manager/dashboard/'
-      path: '/dashboard'
-      fullPath: '/manager/dashboard'
-      preLoaderRoute: typeof ManagerDashboardIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/books/': {
-      id: '/manager/books/'
-      path: '/books'
-      fullPath: '/manager/books'
-      preLoaderRoute: typeof ManagerBooksIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/account/': {
-      id: '/manager/account/'
+    '/_app/account': {
+      id: '/_app/account'
       path: '/account'
-      fullPath: '/manager/account'
-      preLoaderRoute: typeof ManagerAccountIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
+      fullPath: '/account'
+      preLoaderRoute: typeof AppAccountRouteRouteImport
+      parentRoute: typeof AppRoute
     }
     '/login/verify/': {
       id: '/login/verify/'
@@ -1496,20 +1327,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/login/error'
       preLoaderRoute: typeof LoginErrorIndexRouteImport
       parentRoute: typeof LoginRouteRoute
-    }
-    '/app/books/': {
-      id: '/app/books/'
-      path: '/books'
-      fullPath: '/app/books'
-      preLoaderRoute: typeof AppBooksIndexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/account/': {
-      id: '/app/account/'
-      path: '/account'
-      fullPath: '/app/account'
-      preLoaderRoute: typeof AppAccountIndexRouteImport
-      parentRoute: typeof AppRouteRoute
     }
     '/_app/vaults/': {
       id: '/_app/vaults/'
@@ -1552,6 +1369,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/address-book/'
       preLoaderRoute: typeof AppAddressBookIndexRouteImport
       parentRoute: typeof AppAddressBookRouteRoute
+    }
+    '/_app/account/': {
+      id: '/_app/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AppAccountIndexRouteImport
+      parentRoute: typeof AppAccountRouteRoute
+    }
+    '/api/webhooks/chargebee': {
+      id: '/api/webhooks/chargebee'
+      path: '/api/webhooks/chargebee'
+      fullPath: '/api/webhooks/chargebee'
+      preLoaderRoute: typeof ApiWebhooksChargebeeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -1679,6 +1510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppComplianceAlertsRouteImport
       parentRoute: typeof AppComplianceRouteRoute
     }
+    '/_app/account/security': {
+      id: '/_app/account/security'
+      path: '/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof AppAccountSecurityRouteImport
+      parentRoute: typeof AppAccountRouteRoute
+    }
     '/_app/vaults/$vaultId': {
       id: '/_app/vaults/$vaultId'
       path: '/$vaultId'
@@ -1741,41 +1579,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/compliance/addresses'
       preLoaderRoute: typeof AppComplianceAddressesRouteRouteImport
       parentRoute: typeof AppComplianceRouteRoute
-    }
-    '/manager/users/new/': {
-      id: '/manager/users/new/'
-      path: '/users/new'
-      fullPath: '/manager/users/new'
-      preLoaderRoute: typeof ManagerUsersNewIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/users/$id/': {
-      id: '/manager/users/$id/'
-      path: '/users/$id'
-      fullPath: '/manager/users/$id'
-      preLoaderRoute: typeof ManagerUsersIdIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/books/new/': {
-      id: '/manager/books/new/'
-      path: '/books/new'
-      fullPath: '/manager/books/new'
-      preLoaderRoute: typeof ManagerBooksNewIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/books/$id/': {
-      id: '/manager/books/$id/'
-      path: '/books/$id'
-      fullPath: '/manager/books/$id'
-      preLoaderRoute: typeof ManagerBooksIdIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/app/books/$id/': {
-      id: '/app/books/$id/'
-      path: '/books/$id'
-      fullPath: '/app/books/$id'
-      preLoaderRoute: typeof AppBooksIdIndexRouteImport
-      parentRoute: typeof AppRouteRoute
     }
     '/_app/vaults/$vaultId/': {
       id: '/_app/vaults/$vaultId/'
@@ -1931,20 +1734,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdRouteRouteImport
       parentRoute: typeof AppPoliciesTransactionsRouteRoute
     }
-    '/manager/users/$id/update/': {
-      id: '/manager/users/$id/update/'
-      path: '/users/$id/update'
-      fullPath: '/manager/users/$id/update'
-      preLoaderRoute: typeof ManagerUsersIdUpdateIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
-    '/manager/books/$id/update/': {
-      id: '/manager/books/$id/update/'
-      path: '/books/$id/update'
-      fullPath: '/manager/books/$id/update'
-      preLoaderRoute: typeof ManagerBooksIdUpdateIndexRouteImport
-      parentRoute: typeof ManagerRouteRoute
-    }
     '/_app/vaults/$vaultId/addresses/': {
       id: '/_app/vaults/$vaultId/addresses/'
       path: '/'
@@ -2067,23 +1856,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AppRouteRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
-  AppAccountIndexRoute: typeof AppAccountIndexRoute
-  AppBooksIndexRoute: typeof AppBooksIndexRoute
-  AppBooksIdIndexRoute: typeof AppBooksIdIndexRoute
+interface ForgotPasswordRouteRouteChildren {
+  ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
 }
 
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
-  AppAccountIndexRoute: AppAccountIndexRoute,
-  AppBooksIndexRoute: AppBooksIndexRoute,
-  AppBooksIdIndexRoute: AppBooksIdIndexRoute,
+const ForgotPasswordRouteRouteChildren: ForgotPasswordRouteRouteChildren = {
+  ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
+const ForgotPasswordRouteRouteWithChildren =
+  ForgotPasswordRouteRoute._addFileChildren(ForgotPasswordRouteRouteChildren)
 
 interface LoginRouteRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
@@ -2101,38 +1883,6 @@ const LoginRouteRouteWithChildren = LoginRouteRoute._addFileChildren(
   LoginRouteRouteChildren,
 )
 
-interface ManagerRouteRouteChildren {
-  ManagerIndexRoute: typeof ManagerIndexRoute
-  ManagerAccountIndexRoute: typeof ManagerAccountIndexRoute
-  ManagerBooksIndexRoute: typeof ManagerBooksIndexRoute
-  ManagerDashboardIndexRoute: typeof ManagerDashboardIndexRoute
-  ManagerUsersIndexRoute: typeof ManagerUsersIndexRoute
-  ManagerBooksIdIndexRoute: typeof ManagerBooksIdIndexRoute
-  ManagerBooksNewIndexRoute: typeof ManagerBooksNewIndexRoute
-  ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
-  ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
-  ManagerBooksIdUpdateIndexRoute: typeof ManagerBooksIdUpdateIndexRoute
-  ManagerUsersIdUpdateIndexRoute: typeof ManagerUsersIdUpdateIndexRoute
-}
-
-const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
-  ManagerIndexRoute: ManagerIndexRoute,
-  ManagerAccountIndexRoute: ManagerAccountIndexRoute,
-  ManagerBooksIndexRoute: ManagerBooksIndexRoute,
-  ManagerDashboardIndexRoute: ManagerDashboardIndexRoute,
-  ManagerUsersIndexRoute: ManagerUsersIndexRoute,
-  ManagerBooksIdIndexRoute: ManagerBooksIdIndexRoute,
-  ManagerBooksNewIndexRoute: ManagerBooksNewIndexRoute,
-  ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
-  ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,
-  ManagerBooksIdUpdateIndexRoute: ManagerBooksIdUpdateIndexRoute,
-  ManagerUsersIdUpdateIndexRoute: ManagerUsersIdUpdateIndexRoute,
-}
-
-const ManagerRouteRouteWithChildren = ManagerRouteRoute._addFileChildren(
-  ManagerRouteRouteChildren,
-)
-
 interface SignUpRouteRouteChildren {
   SignUpIndexRoute: typeof SignUpIndexRoute
 }
@@ -2143,6 +1893,20 @@ const SignUpRouteRouteChildren: SignUpRouteRouteChildren = {
 
 const SignUpRouteRouteWithChildren = SignUpRouteRoute._addFileChildren(
   SignUpRouteRouteChildren,
+)
+
+interface AppAccountRouteRouteChildren {
+  AppAccountSecurityRoute: typeof AppAccountSecurityRoute
+  AppAccountIndexRoute: typeof AppAccountIndexRoute
+}
+
+const AppAccountRouteRouteChildren: AppAccountRouteRouteChildren = {
+  AppAccountSecurityRoute: AppAccountSecurityRoute,
+  AppAccountIndexRoute: AppAccountIndexRoute,
+}
+
+const AppAccountRouteRouteWithChildren = AppAccountRouteRoute._addFileChildren(
+  AppAccountRouteRouteChildren,
 )
 
 interface AppAddressBookRouteRouteChildren {
@@ -2572,6 +2336,7 @@ const AppVaultsRouteRouteWithChildren = AppVaultsRouteRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountRouteRoute: typeof AppAccountRouteRouteWithChildren
   AppAddressBookRouteRoute: typeof AppAddressBookRouteRouteWithChildren
   AppComplianceRouteRoute: typeof AppComplianceRouteRouteWithChildren
   AppIdentitiesRouteRoute: typeof AppIdentitiesRouteRouteWithChildren
@@ -2584,6 +2349,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountRouteRoute: AppAccountRouteRouteWithChildren,
   AppAddressBookRouteRoute: AppAddressBookRouteRouteWithChildren,
   AppComplianceRouteRoute: AppComplianceRouteRouteWithChildren,
   AppIdentitiesRouteRoute: AppIdentitiesRouteRouteWithChildren,
@@ -2623,9 +2389,8 @@ const ApiOpenapiAuthRouteWithChildren = ApiOpenapiAuthRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRouteWithChildren,
+  ForgotPasswordRouteRoute: ForgotPasswordRouteRouteWithChildren,
   LoginRouteRoute: LoginRouteRouteWithChildren,
-  ManagerRouteRoute: ManagerRouteRouteWithChildren,
   SignUpRouteRoute: SignUpRouteRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   LogoutRoute: LogoutRoute,
@@ -2634,6 +2399,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiOpenapiAuthRoute: ApiOpenapiAuthRouteWithChildren,
   ApiRestSplatRoute: ApiRestSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
+  ApiWebhooksChargebeeRoute: ApiWebhooksChargebeeRoute,
   ApiDevEmailTemplateRoute: ApiDevEmailTemplateRoute,
 }
 export const routeTree = rootRouteImport
@@ -2641,10 +2407,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

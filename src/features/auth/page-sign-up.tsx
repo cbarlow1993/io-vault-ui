@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
+import { useSession } from '@/hooks/use-session';
 
 import { authClient } from '@/features/auth/client';
 import { AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES } from '@/features/auth/config';
@@ -31,7 +32,7 @@ const STEPS = [
 export default function PageSignUp() {
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
-  const session = authClient.useSession();
+  const { refetch } = useSession();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [email, setEmail] = useState('');
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
@@ -41,7 +42,7 @@ export default function PageSignUp() {
   const submitOnboarding = useMutation(
     orpc.account.submitOnboarding.mutationOptions({
       onSuccess: async () => {
-        await session.refetch();
+        await refetch();
         router.navigate({ to: '/overview' });
       },
       onError: () => {
@@ -118,7 +119,7 @@ export default function PageSignUp() {
       }
 
       // Check if user needs onboarding (new user)
-      await session.refetch();
+      await refetch();
       setCurrentStep(3);
     } catch {
       toast.error(t('auth:errorCode.UNKNOWN_ERROR'));

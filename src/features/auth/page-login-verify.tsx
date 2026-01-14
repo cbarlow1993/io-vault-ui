@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/tailwind/utils';
+import { useSession } from '@/hooks/use-session';
 
 import { authClient } from '@/features/auth/client';
 import { AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES } from '@/features/auth/config';
@@ -22,7 +23,7 @@ export default function PageLoginVerify({
   search: { redirect?: string; email: string };
 }) {
   const { t } = useTranslation(['auth', 'common']);
-  const session = authClient.useSession();
+  const { refetch } = useSession();
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -57,7 +58,7 @@ export default function PageLoginVerify({
     }
 
     // Refetch session to update guards and redirect
-    session.refetch();
+    refetch();
   };
 
   const handleOtpChange = (index: number, value: string) => {

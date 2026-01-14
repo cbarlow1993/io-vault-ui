@@ -1,6 +1,8 @@
 import { useRouter } from '@tanstack/react-router';
 import { ReactNode } from 'react';
 
+import { useSession } from '@/hooks/use-session';
+
 import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -14,18 +16,18 @@ export const GuardAuthenticated = ({
   children?: ReactNode;
   permissionApps?: Permission['apps'];
 }) => {
-  const session = authClient.useSession();
+  const { data: session, isPending, error } = useSession();
   const router = useRouter();
 
-  if (session.isPending) {
+  if (isPending) {
     return <Spinner full className="opacity-60" />;
   }
 
-  if (session.error && session.error.status > 0) {
+  if (error) {
     return <PageError type="unknown-auth-error" />;
   }
 
-  if (!session.data?.user) {
+  if (!session?.user) {
     router.navigate({
       to: '/login',
       replace: true,
@@ -43,7 +45,7 @@ export const GuardAuthenticated = ({
   if (
     permissionApps &&
     !authClient.admin.checkRolePermission({
-      role: session.data.user.role as Role,
+      role: session.user.role as Role,
       permission: {
         apps: permissionApps,
       },

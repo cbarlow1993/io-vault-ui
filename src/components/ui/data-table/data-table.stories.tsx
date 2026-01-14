@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useState } from 'react';
 
-import { FilterSelect } from '@/features/treasury-6-demo/components/filter-select';
+import { FilterSelect } from '@/features/shared/components/filter-select';
 
 import { DataTable } from './data-table';
 import { DataTableColumnHeader } from './data-table-column-header';

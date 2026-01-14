@@ -11,9 +11,9 @@ import {
 } from 'lucide-react';
 import { type ReactNode } from 'react';
 
-import { envClient } from '@/env/client';
 import { cn } from '@/lib/tailwind/utils';
 
+import { envClient } from '@/env/client';
 import {
   PageLayout,
   PageLayoutContent,
@@ -21,7 +21,6 @@ import {
 } from '@/layout/shell';
 
 const settingsNavItems = [
-  { title: 'Billing', icon: CreditCardIcon, url: '/settings/billing' },
   { title: 'Members', icon: UsersIcon, url: '/settings/members' },
   { title: 'Teams', icon: Users2Icon, url: '/settings/teams' },
   { title: 'Roles', icon: KeyRoundIcon, url: '/settings/roles' },
@@ -29,6 +28,7 @@ const settingsNavItems = [
   { title: 'Backups', icon: ArchiveIcon, url: '/settings/backups' },
   { title: 'Governance', icon: ShieldCheckIcon, url: '/settings/governance' },
   { title: 'Audit Log', icon: ScrollTextIcon, url: '/settings/audit' },
+  { title: 'Billing', icon: CreditCardIcon, url: '/settings/billing' },
 ].filter((item) => {
   // Hide billing when Chargebee billing is disabled
   if (item.url === '/settings/billing') {

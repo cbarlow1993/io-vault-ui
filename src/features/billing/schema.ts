@@ -12,15 +12,29 @@ export const zSubscriptionStatus = z.enum([
 
 export type SubscriptionStatus = z.infer<typeof zSubscriptionStatus>;
 
-// Plan from Chargebee
-export const zPlan = z.object({
+// Item Price (pricing variant) from Chargebee
+export const zItemPrice = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().optional(),
   price: z.number(),
   period: z.number(),
   periodUnit: z.enum(['day', 'week', 'month', 'year']),
   currencyCode: z.string(),
+});
+
+export type ItemPrice = z.infer<typeof zItemPrice>;
+
+// Plan (Item) from Chargebee with its pricing options
+export const zPlan = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  // Features list - populated from Chargebee metadata
+  features: z.array(z.string()).optional(),
+  // Highlight this plan (e.g., "Most Popular")
+  badge: z.string().optional(),
+  // Pricing variants (weekly, monthly, yearly, etc.)
+  prices: z.array(zItemPrice),
 });
 
 export type Plan = z.infer<typeof zPlan>;
@@ -74,10 +88,15 @@ export const zInvoice = z.object({
 
 export type Invoice = z.infer<typeof zInvoice>;
 
-// Entitlement
+// Entitlement from subscription
 export const zEntitlement = z.object({
   featureId: z.string(),
+  featureName: z.string(),
   value: z.string(),
+  // Numeric quantity if the value is a number
+  quantity: z.number().optional(),
+  // Unit for the value (e.g., "users", "GB", etc.)
+  unit: z.string().optional(),
 });
 
 export type Entitlement = z.infer<typeof zEntitlement>;

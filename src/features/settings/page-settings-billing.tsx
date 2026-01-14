@@ -27,10 +27,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { QuotaCard, QuotaCardSkeleton } from '@/components/ui/quota-card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import type {
+  Entitlement,
   Invoice,
+  ItemPrice,
   PaymentMethod,
   Plan,
   Subscription,
@@ -198,6 +201,39 @@ const InvoicesSkeleton = () => (
   </div>
 );
 
+const EntitlementsSkeleton = () => (
+  <div className="border border-neutral-200">
+    <div className="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+      <Skeleton className="h-4 w-32" />
+      <Skeleton className="mt-1.5 h-3 w-48" />
+    </div>
+    <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="border border-neutral-100 p-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="mt-2 h-6 w-16" />
+          <Skeleton className="mt-1 h-3 w-20" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// Quota section skeleton
+const QuotaSectionSkeleton = () => (
+  <div className="border border-neutral-200">
+    <div className="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+      <Skeleton className="h-4 w-24" />
+      <Skeleton className="mt-1.5 h-3 w-48" />
+    </div>
+    <div className="grid gap-4 p-6 sm:grid-cols-3">
+      {[1, 2, 3].map((i) => (
+        <QuotaCardSkeleton key={i} />
+      ))}
+    </div>
+  </div>
+);
+
 // Past-due warning banner
 const PastDueBanner = () => (
   <div className="flex items-center gap-3 border border-warning-200 bg-warning-50 px-4 py-3">
@@ -259,6 +295,7 @@ const AddPaymentMethodDialog = ({
 
     async function initCard() {
       try {
+        console.log('[Chargebee] Creating card element...');
         const element = await createCardElement({
           style: {
             base: {
@@ -274,20 +311,28 @@ const AddPaymentMethodDialog = ({
 
         if (!mounted || !cardContainerRef.current) return;
 
+        console.log('[Chargebee] Mounting card element to container...');
         element.mount(cardContainerRef.current);
         cardElementRef.current = element;
 
         element.on('ready', () => {
+          console.log('[Chargebee] Card element ready');
           if (mounted) setCardReady(true);
         });
 
         element.on('change', (data: unknown) => {
+          console.log('[Chargebee] Card element change:', data);
           const changeData = data as { error?: { message: string } };
           if (mounted) {
             setCardError(changeData.error?.message || null);
           }
         });
+
+        element.on('focus', () => {
+          console.log('[Chargebee] Card element focused');
+        });
       } catch (err) {
+        console.error('[Chargebee] Failed to initialize card element:', err);
         if (mounted) {
           setCardError('Failed to initialize card form');
         }
@@ -350,13 +395,24 @@ const AddPaymentMethodDialog = ({
                 <label className="text-xs font-medium text-neutral-700">
                   Card Details
                 </label>
+                <p className="text-xs text-neutral-500">
+                  Enter your card number, expiry date, and CVV
+                </p>
                 <div
                   ref={cardContainerRef}
                   className={cn(
-                    'min-h-[42px] rounded-none border px-3 py-2.5',
+                    'min-h-[100px] rounded-none border px-3 py-3',
+                    // Ensure iframe is visible and interactive
+                    '[&_iframe]:!block [&_iframe]:!min-h-[40px] [&_iframe]:!w-full',
+                    '[&_*]:!pointer-events-auto',
                     cardError ? 'border-negative-500' : 'border-neutral-200'
                   )}
                 />
+                {!cardReady && chargebeeReady && (
+                  <p className="text-xs text-neutral-500">
+                    Initializing card form...
+                  </p>
+                )}
                 {cardError && (
                   <p className="text-xs text-negative-600">{cardError}</p>
                 )}
@@ -480,26 +536,35 @@ const CancelSubscriptionDialog = ({
   );
 };
 
+// Helper to format period label
+const formatPeriodLabel = (period: number, periodUnit: string) => {
+  if (period === 1) {
+    return periodUnit.charAt(0).toUpperCase() + periodUnit.slice(1) + 'ly';
+  }
+  return `Every ${period} ${periodUnit}s`;
+};
+
 // Change Plan Dialog
 const ChangePlanDialog = ({
   open,
   onOpenChange,
-  currentPlanId,
+  currentPriceId,
   plans,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentPlanId?: string;
+  currentPriceId?: string;
   plans: Plan[];
 }) => {
   const queryClient = useQueryClient();
-  const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(
-    currentPlanId
+  // Track selected price ID (item_price_id), not plan ID
+  const [selectedPriceId, setSelectedPriceId] = useState<string | undefined>(
+    currentPriceId
   );
 
   useEffect(() => {
-    setSelectedPlanId(currentPlanId);
-  }, [currentPlanId, open]);
+    setSelectedPriceId(currentPriceId);
+  }, [currentPriceId, open]);
 
   const updateSubscriptionMutation = useMutation(
     orpc.billing.updateSubscription.mutationOptions({
@@ -519,66 +584,164 @@ const ChangePlanDialog = ({
   );
 
   const handleChangePlan = () => {
-    if (selectedPlanId && selectedPlanId !== currentPlanId) {
-      updateSubscriptionMutation.mutate({ planId: selectedPlanId });
+    if (selectedPriceId && selectedPriceId !== currentPriceId) {
+      updateSubscriptionMutation.mutate({ planId: selectedPriceId });
     }
   };
 
-  const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+  // Find selected plan and price
+  const selectedPlan = plans.find((p) =>
+    p.prices.some((price) => price.id === selectedPriceId)
+  );
+  const selectedPrice = selectedPlan?.prices.find(
+    (p) => p.id === selectedPriceId
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl rounded-none p-0">
+      <DialogContent className="w-[80vw] max-w-7xl rounded-none p-0 sm:max-w-[80vw]">
         <DialogHeader className="border-b border-neutral-200 px-6 py-4">
           <DialogTitle className="text-sm font-semibold text-neutral-900">
             Choose a Plan
           </DialogTitle>
           <DialogDescription className="text-xs text-neutral-500">
-            Select the plan that best fits your needs
+            Select the plan and billing period that best fits your needs
           </DialogDescription>
         </DialogHeader>
 
-        {/* Plans Grid */}
-        <div className="grid grid-cols-1 gap-px bg-neutral-200 p-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Plans Grid - max 4 columns for readability */}
+        <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan) => {
-            const isCurrentPlan = plan.id === currentPlanId;
-            const isSelected = plan.id === selectedPlanId;
+            const isPlanSelected = plan.prices.some(
+              (p) => p.id === selectedPriceId
+            );
+            const hasCurrentPrice = plan.prices.some(
+              (p) => p.id === currentPriceId
+            );
 
             return (
-              <button
+              <div
                 key={plan.id}
-                type="button"
-                onClick={() => setSelectedPlanId(plan.id)}
                 className={cn(
-                  'relative bg-white p-5 text-left transition-all',
-                  isSelected ? 'ring-2 ring-neutral-900' : 'hover-subtle'
+                  'relative flex flex-col border bg-white transition-all',
+                  isPlanSelected
+                    ? 'border-neutral-900 ring-2 ring-neutral-900'
+                    : 'border-neutral-200'
                 )}
               >
-                {isCurrentPlan && (
-                  <span className="absolute top-3 right-3 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
-                    Current
+                {/* Badge (e.g., "Most Popular") */}
+                {plan.badge && (
+                  <span className="absolute -top-2.5 left-1/2 z-10 -translate-x-1/2 rounded-full bg-brand-500 px-3 py-0.5 text-[10px] font-semibold text-white">
+                    {plan.badge}
                   </span>
                 )}
-                <h3 className="text-sm font-semibold text-neutral-900">
-                  {plan.name}
-                </h3>
-                <p className="mt-1 text-xs text-neutral-500">
-                  {plan.description}
-                </p>
-                <div className="mt-4">
-                  <span className="text-2xl font-bold text-neutral-900 tabular-nums">
-                    {formatCurrency(plan.price, plan.currencyCode)}
-                  </span>
-                  <span className="text-xs text-neutral-500">
-                    /{plan.period} {plan.periodUnit}
-                  </span>
+
+                {/* Plan header */}
+                <div className="border-b border-neutral-100 p-5">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-lg font-semibold text-neutral-900">
+                      {plan.name}
+                    </h3>
+                    {hasCurrentPrice && (
+                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600">
+                        Current
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {plan.description && (
+                    <p className="mt-1 text-xs text-neutral-500">
+                      {plan.description}
+                    </p>
+                  )}
                 </div>
-                {isSelected && (
-                  <div className="absolute right-3 bottom-3">
-                    <CheckIcon className="size-5 text-neutral-900" />
+
+                {/* Pricing options */}
+                <div className="flex-1 p-4">
+                  <p className="mb-3 text-[10px] font-medium tracking-wide text-neutral-400 uppercase">
+                    Billing Period
+                  </p>
+                  <div className="space-y-2">
+                    {plan.prices.map((price) => {
+                      const isSelected = price.id === selectedPriceId;
+                      const isCurrent = price.id === currentPriceId;
+
+                      return (
+                        <button
+                          key={price.id}
+                          type="button"
+                          onClick={() => setSelectedPriceId(price.id)}
+                          className={cn(
+                            'flex w-full items-center justify-between border px-4 py-3 text-left transition-all',
+                            isSelected
+                              ? 'border-neutral-900 bg-neutral-50'
+                              : 'border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50'
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={cn(
+                                'flex size-4 items-center justify-center rounded-full border-2',
+                                isSelected
+                                  ? 'border-neutral-900 bg-neutral-900'
+                                  : 'border-neutral-300'
+                              )}
+                            >
+                              {isSelected && (
+                                <div className="size-1.5 rounded-full bg-white" />
+                              )}
+                            </div>
+                            <div>
+                              <span className="text-sm font-medium text-neutral-900">
+                                {formatPeriodLabel(
+                                  price.period,
+                                  price.periodUnit
+                                )}
+                              </span>
+                              {isCurrent && (
+                                <span className="ml-2 rounded bg-positive-50 px-1.5 py-0.5 text-[10px] font-medium text-positive-700">
+                                  Current
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-lg font-bold text-neutral-900 tabular-nums">
+                              {formatCurrency(price.price, price.currencyCode)}
+                            </span>
+                            <span className="text-xs text-neutral-500">
+                              /{price.period === 1 ? '' : price.period + ' '}
+                              {price.periodUnit}
+                              {price.period > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Features list */}
+                {plan.features && plan.features.length > 0 && (
+                  <div className="border-t border-neutral-100 p-5">
+                    <p className="mb-3 text-[10px] font-medium tracking-wide text-neutral-400 uppercase">
+                      What's included
+                    </p>
+                    <ul className="space-y-2">
+                      {plan.features.map((feature, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-2 text-xs text-neutral-600"
+                        >
+                          <CheckIcon className="mt-0.5 size-3.5 shrink-0 text-positive-500" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -595,7 +758,8 @@ const ChangePlanDialog = ({
           <Button
             onClick={handleChangePlan}
             disabled={
-              selectedPlanId === currentPlanId ||
+              selectedPriceId === currentPriceId ||
+              !selectedPriceId ||
               updateSubscriptionMutation.isPending
             }
             className="h-8 rounded-none bg-brand-500 px-4 text-xs font-medium text-white hover:bg-brand-600"
@@ -605,10 +769,10 @@ const ChangePlanDialog = ({
                 <Loader2Icon className="size-3.5 animate-spin" />
                 Updating...
               </span>
-            ) : selectedPlanId === currentPlanId ? (
+            ) : !selectedPriceId || selectedPriceId === currentPriceId ? (
               'Current Plan'
             ) : (
-              `Switch to ${selectedPlan?.name}`
+              `Switch to ${selectedPlan?.name} (${selectedPrice ? formatPeriodLabel(selectedPrice.period, selectedPrice.periodUnit) : ''})`
             )}
           </Button>
         </DialogFooter>
@@ -642,6 +806,11 @@ export const PageSettingsBilling = () => {
   // Fetch invoices
   const { data: invoices = [], isLoading: invoicesLoading } = useQuery(
     orpc.billing.getInvoices.queryOptions({})
+  );
+
+  // Fetch entitlements
+  const { data: entitlements = [], isLoading: entitlementsLoading } = useQuery(
+    orpc.billing.getEntitlements.queryOptions({})
   );
 
   // Mutations
@@ -714,7 +883,12 @@ export const PageSettingsBilling = () => {
     downloadInvoiceMutation.mutate({ invoiceId });
   };
 
-  const currentPlan = plans.find((p) => p.id === subscription?.planId);
+  // subscription.planId is actually the item_price_id
+  const currentPriceId = subscription?.planId;
+  const currentPlan = plans.find((p) =>
+    p.prices.some((price) => price.id === currentPriceId)
+  );
+  const currentPrice = currentPlan?.prices.find((p) => p.id === currentPriceId);
   const isPastDue =
     subscription?.status === 'non_renewing' && subscription?.cancelledAt;
   const isCancellationPending = subscription?.status === 'non_renewing';
@@ -839,16 +1013,26 @@ export const PageSettingsBilling = () => {
                   <p className="mt-1 text-sm text-neutral-500">
                     {currentPlan?.description}
                   </p>
-                  {currentPlan && (
+                  {currentPrice && (
                     <div className="mt-4">
                       <p className="text-2xl font-bold text-neutral-900 tabular-nums">
                         {formatCurrency(
-                          currentPlan.price,
-                          currentPlan.currencyCode
+                          currentPrice.price,
+                          currentPrice.currencyCode
                         )}
                       </p>
                       <p className="text-xs text-neutral-500">
-                        per {currentPlan.period} {currentPlan.periodUnit}
+                        per{' '}
+                        {currentPrice.period === 1
+                          ? ''
+                          : currentPrice.period + ' '}
+                        {currentPrice.periodUnit}
+                        {currentPrice.period > 1 ? 's' : ''} (
+                        {formatPeriodLabel(
+                          currentPrice.period,
+                          currentPrice.periodUnit
+                        )}
+                        )
                       </p>
                     </div>
                   )}
@@ -875,6 +1059,124 @@ export const PageSettingsBilling = () => {
             </div>
           </div>
         )}
+
+        {/* Usage Quota */}
+        {subscription &&
+          (entitlementsLoading ? (
+            <QuotaSectionSkeleton />
+          ) : (
+            (() => {
+              // Find entitlements for vaults, transactions, users
+              const vaultsEntitlement = entitlements.find((e) =>
+                e.featureId.toLowerCase().includes('vault')
+              );
+              const transactionsEntitlement = entitlements.find((e) =>
+                e.featureId.toLowerCase().includes('transaction')
+              );
+              const usersEntitlement = entitlements.find((e) =>
+                e.featureId.toLowerCase().includes('user')
+              );
+
+              // TODO: Replace with actual usage data from API
+              const vaultsUsed = 3;
+              const transactionsUsed = 847;
+              const usersUsed = 5;
+
+              const hasQuotaData =
+                vaultsEntitlement ||
+                transactionsEntitlement ||
+                usersEntitlement;
+
+              if (!hasQuotaData) return null;
+
+              return (
+                <div className="border border-neutral-200">
+                  <div className="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+                    <h2 className="text-sm font-semibold text-neutral-900">
+                      Usage
+                    </h2>
+                    <p className="mt-0.5 text-xs text-neutral-500">
+                      Your current usage against plan limits
+                    </p>
+                  </div>
+                  <div className="grid gap-4 p-6 sm:grid-cols-3">
+                    {vaultsEntitlement && (
+                      <QuotaCard
+                        label="Vaults"
+                        used={vaultsUsed}
+                        limit={vaultsEntitlement.quantity ?? null}
+                      />
+                    )}
+                    {transactionsEntitlement && (
+                      <QuotaCard
+                        label="Transactions"
+                        used={transactionsUsed}
+                        limit={transactionsEntitlement.quantity ?? null}
+                        unit="/ month"
+                      />
+                    )}
+                    {usersEntitlement && (
+                      <QuotaCard
+                        label="Users"
+                        used={usersUsed}
+                        limit={usersEntitlement.quantity ?? null}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          ))}
+
+        {/* Plan Entitlements */}
+        {subscription &&
+          (entitlementsLoading ? (
+            <EntitlementsSkeleton />
+          ) : entitlements.length > 0 ? (
+            <div className="border border-neutral-200">
+              <div className="border-b border-neutral-200 bg-neutral-50 px-6 py-4">
+                <h2 className="text-sm font-semibold text-neutral-900">
+                  Plan Features
+                </h2>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Features and limits included in your current plan
+                </p>
+              </div>
+              <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3">
+                {entitlements.map((entitlement: Entitlement) => (
+                  <div
+                    key={entitlement.featureId}
+                    className="border border-neutral-100 bg-neutral-50 p-4"
+                  >
+                    <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
+                      {entitlement.featureName}
+                    </p>
+                    <div className="mt-2 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-bold text-neutral-900 tabular-nums">
+                        {entitlement.quantity !== undefined
+                          ? entitlement.quantity === -1
+                            ? '∞'
+                            : entitlement.quantity.toLocaleString()
+                          : entitlement.value === 'true'
+                            ? '✓'
+                            : entitlement.value === 'false'
+                              ? '✗'
+                              : entitlement.value}
+                      </span>
+                      {entitlement.unit && (
+                        <span className="text-sm text-neutral-500">
+                          {entitlement.unit}
+                        </span>
+                      )}
+                    </div>
+                    {entitlement.quantity === -1 && (
+                      <p className="mt-1 text-xs text-neutral-500">Unlimited</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null)}
 
         {/* Payment Methods */}
         {paymentMethodsLoading ? (
@@ -1073,7 +1375,7 @@ export const PageSettingsBilling = () => {
       <ChangePlanDialog
         open={changePlanOpen}
         onOpenChange={setChangePlanOpen}
-        currentPlanId={subscription?.planId}
+        currentPriceId={currentPriceId}
         plans={plans}
       />
     </SettingsLayout>

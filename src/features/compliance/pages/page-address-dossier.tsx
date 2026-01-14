@@ -1,6 +1,6 @@
 import { Link, useParams } from '@tanstack/react-router';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { useState, type ChangeEvent } from 'react';
+import { type ChangeEvent, useState } from 'react';
 
 import { CHAIN_LABELS, TRANSACTION_TYPE_LABELS } from '@/features/compliance';
 import { type Chain } from '@/features/compliance/constants';
@@ -10,7 +10,7 @@ import {
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 import { ProviderAssessmentCard } from '../components/provider-assessment-card';
 import { RiskBadge } from '../components/risk-badge';

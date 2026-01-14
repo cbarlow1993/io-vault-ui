@@ -1,8 +1,8 @@
 import {
-  CheckCircleIcon,
-  XCircleIcon,
   ArrowUpIcon,
+  CheckCircleIcon,
   MessageSquareIcon,
+  XCircleIcon,
 } from 'lucide-react';
 
 import { cn } from '@/lib/tailwind/utils';

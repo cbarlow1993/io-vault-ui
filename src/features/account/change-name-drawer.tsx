@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
+import { useSession } from '@/hooks/use-session';
 
 import {
   Form,
@@ -29,23 +30,22 @@ import {
   FormFieldsAccountUpdateName,
   zFormFieldsAccountUpdateName,
 } from '@/features/account/schema';
-import { authClient } from '@/features/auth/client';
 
 export const ChangeNameDrawer = (props: { children: ReactNode }) => {
   const { t } = useTranslation(['account']);
   const [open, setOpen] = useState(false);
-  const session = authClient.useSession();
+  const { data: session, refetch } = useSession();
   const form = useForm<FormFieldsAccountUpdateName>({
     resolver: zodResolver(zFormFieldsAccountUpdateName()),
     values: {
-      name: session.data?.user.name ?? '',
+      name: session?.user.name ?? '',
     },
   });
 
   const updateUser = useMutation(
     orpc.account.updateInfo.mutationOptions({
       onSuccess: async () => {
-        await session.refetch();
+        await refetch();
         toast.success(t('account:changeNameDrawer.successMessage'));
         form.reset();
         setOpen(false);

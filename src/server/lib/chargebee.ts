@@ -1,11 +1,11 @@
-import { ChargeBee } from 'chargebee-typescript';
+import Chargebee from 'chargebee';
 
 import { envServer } from '@/env/server';
 
 // Lazy initialization - only configure when billing is enabled
-let chargebeeInstance: ChargeBee | null = null;
+let chargebeeInstance: Chargebee | null = null;
 
-export const getChargebee = (): ChargeBee => {
+export const getChargebee = (): Chargebee => {
   if (!envServer.ENABLE_CHARGEBEE_BILLING) {
     throw new Error('Chargebee billing is not enabled');
   }
@@ -15,10 +15,9 @@ export const getChargebee = (): ChargeBee => {
   }
 
   if (!chargebeeInstance) {
-    chargebeeInstance = new ChargeBee();
-    chargebeeInstance.configure({
+    chargebeeInstance = new Chargebee({
       site: envServer.CHARGEBEE_SITE,
-      api_key: envServer.CHARGEBEE_API_KEY,
+      apiKey: envServer.CHARGEBEE_API_KEY,
     });
   }
 

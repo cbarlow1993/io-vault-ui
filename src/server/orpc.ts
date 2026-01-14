@@ -1,6 +1,6 @@
 import { ORPCError, os } from '@orpc/server';
 import { type ResponseHeadersPluginContext } from '@orpc/server/plugins';
-import { getRequestHeaders } from '@tanstack/react-start/server';
+import { getRequest } from '@tanstack/react-start/server';
 import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
@@ -20,11 +20,10 @@ const base = os
 
     // Use the auth provider abstraction to support both Clerk and better-auth modes
     const authProvider = getAuthProvider();
-    const headers = getRequestHeaders();
 
-    // Construct a minimal request for the auth provider
-    // The auth provider needs a Request object for Clerk's authenticateRequest
-    const request = new Request('http://localhost/api', { headers });
+    // Get the full request object from TanStack Start
+    // This includes all headers, cookies, and URL needed for Clerk's authenticateRequest
+    const request = getRequest();
     const sessionData = await authProvider.getSession(request);
 
     const duration = performance.now() - start;
