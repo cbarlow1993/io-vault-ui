@@ -109,7 +109,6 @@ export const protectedProcedure = ({
 
     // TODO: Re-implement permission checking with vault API
     // Permission checking is disabled until we integrate with the vault API
-    // Previously this used better-auth's admin plugin for RBAC
 
     return await next({
       context: {
