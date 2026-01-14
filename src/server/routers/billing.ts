@@ -11,7 +11,6 @@ import {
   zUpdateSubscriptionInput,
 } from '@/features/billing/schema';
 import { envServer } from '@/env/server';
-// import { db } from '@/server/db'; // Test mode - not using database
 import { assertBillingEnabled, getChargebee } from '@/server/lib/chargebee';
 import { publicProcedure } from '@/server/orpc';
 
@@ -58,22 +57,6 @@ async function getItemPriceName(
     return itemPriceId;
   }
 }
-
-// Original helper - kept for reference
-// async function getUserOrganization(userId: string) {
-//   const membership = await db.organizationMember.findFirst({
-//     where: { userId },
-//     include: { organization: true },
-//   });
-
-//   if (!membership?.organization) {
-//     throw new ORPCError('NOT_FOUND', {
-//       message: 'User is not a member of any organization',
-//     });
-//   }
-
-//   return membership.organization;
-// }
 
 export default {
   // Get active plans (items) with their pricing options from Chargebee
@@ -417,9 +400,6 @@ export default {
       assertBillingEnabled();
       context.logger.info('Removing payment method from Chargebee');
 
-      // Test mode - bypassing auth verification
-      // await getUserOrganization(context.user.id);
-
       const chargebee = getChargebee();
       await chargebee.paymentSource.delete(input.paymentMethodId);
     }),
@@ -521,9 +501,6 @@ export default {
       assertBillingEnabled();
       context.logger.info('Getting invoice download URL from Chargebee');
 
-      // Test mode - bypassing auth verification
-      // await getUserOrganization(context.user.id);
-
       const chargebee = getChargebee();
       const result = await chargebee.invoice.pdf(input.invoiceId);
 
@@ -566,22 +543,6 @@ export default {
       );
 
       const subscription = result.subscription;
-
-      // Test mode - skip database update
-      // await db.organization.update({
-      //   where: { id: org.id },
-      //   data: {
-      //     subscriptionStatus: subscription.status,
-      //     subscriptionPlanId: subscription.plan_id,
-      //     subscriptionCurrentPeriodStart: subscription.current_term_start
-      //       ? new Date(subscription.current_term_start * 1000)
-      //       : null,
-      //     subscriptionCurrentPeriodEnd: subscription.current_term_end
-      //       ? new Date(subscription.current_term_end * 1000)
-      //       : null,
-      //     chargebeeSyncedAt: new Date(),
-      //   },
-      // });
 
       // Handle both legacy (plan_id) and new (subscription_items) models
       const planId = getSubscriptionItemPriceId(subscription);
@@ -637,18 +598,6 @@ export default {
 
       const subscription = result.subscription;
 
-      // Test mode - skip database update
-      // await db.organization.update({
-      //   where: { id: org.id },
-      //   data: {
-      //     subscriptionStatus: subscription.status,
-      //     subscriptionCancelledAt: subscription.cancelled_at
-      //       ? new Date(subscription.cancelled_at * 1000)
-      //       : null,
-      //     chargebeeSyncedAt: new Date(),
-      //   },
-      // });
-
       // Handle both legacy (plan_id) and new (subscription_items) models
       const planId = getSubscriptionItemPriceId(subscription);
       const planName = await getItemPriceName(chargebee, planId);
@@ -699,16 +648,6 @@ export default {
       );
 
       const subscription = result.subscription;
-
-      // Test mode - skip database update
-      // await db.organization.update({
-      //   where: { id: org.id },
-      //   data: {
-      //     subscriptionStatus: subscription.status,
-      //     subscriptionCancelledAt: null,
-      //     chargebeeSyncedAt: new Date(),
-      //   },
-      // });
 
       // Handle both legacy (plan_id) and new (subscription_items) models
       const planId = getSubscriptionItemPriceId(subscription);
