@@ -12,6 +12,7 @@ export {
 export { ReorgThreshold } from './reorg-threshold.js';
 export { TransactionCursor, InvalidCursorError } from './transaction-cursor.js';
 export { Xpub } from './xpub.js';
+export { VaultCurve } from './vault-curve.js';
 
 // Utilities
 export {
