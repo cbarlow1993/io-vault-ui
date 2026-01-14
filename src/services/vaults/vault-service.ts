@@ -5,7 +5,13 @@ import {
   EcoSystem,
   type Vault as SdkVault,
 } from '@iofinnet/io-core-dapp-utils-chains-sdk';
-import type { VaultRepository, VaultDetails } from '@/src/repositories/vault.repository.js';
+import type {
+  VaultRepository,
+  VaultDetails,
+  CreateVaultInput,
+  CreateVaultCurveInput,
+  CreatedVaultWithCurves,
+} from '@/src/repositories/vault.repository.js';
 import type { ElipticCurve, TagAssignmentRow } from '@/src/lib/database/types.js';
 import { Vault } from '@/src/domain/entities/index.js';
 import { logger } from '@/utils/powertools.js';
@@ -84,5 +90,16 @@ export class VaultService {
     workspaceId: string;
   }): Promise<TagAssignmentRow | null> {
     return this.vaultRepository.findTagAssignment(params);
+  }
+
+  async vaultExists(id: string): Promise<boolean> {
+    return this.vaultRepository.vaultExists(id);
+  }
+
+  async createVaultWithCurves(
+    vault: CreateVaultInput,
+    curves: CreateVaultCurveInput[]
+  ): Promise<CreatedVaultWithCurves> {
+    return this.vaultRepository.createVaultWithCurves(vault, curves);
   }
 }
