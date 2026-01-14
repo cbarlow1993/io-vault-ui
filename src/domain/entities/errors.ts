@@ -66,3 +66,13 @@ export class InvalidClassificationError extends EntityError {
     this.name = 'InvalidClassificationError';
   }
 }
+
+/**
+ * Error for vault creation validation failures
+ */
+export class VaultCreationError extends EntityError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'VaultCreationError';
+  }
+}
