@@ -71,7 +71,6 @@ export class VaultService {
 
     return Vault.create({
       id: vaultData.vaultId,
-      name: vaultData.name,
       organizationId: vaultData.organizationId,
       workspaceId: vaultData.workspaceId,
       createdAt: vaultData.createdAt,
