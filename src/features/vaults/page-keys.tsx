@@ -248,9 +248,6 @@ export const PageTreasury6Keys = () => {
                     Name
                   </th>
                   <th className="px-3 py-2 font-medium text-neutral-500">
-                    Curves
-                  </th>
-                  <th className="px-3 py-2 font-medium text-neutral-500">
                     Status
                   </th>
                   <th className="px-3 py-2 font-medium text-neutral-500">
@@ -271,7 +268,7 @@ export const PageTreasury6Keys = () => {
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="px-3 py-8 text-center text-neutral-500"
                     >
                       Loading vaults...
@@ -280,7 +277,7 @@ export const PageTreasury6Keys = () => {
                 ) : isError ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="px-3 py-8 text-center text-neutral-500"
                     >
                       <div className="flex flex-col items-center gap-2">
@@ -298,7 +295,7 @@ export const PageTreasury6Keys = () => {
                 ) : paginatedVaults.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="px-3 py-8 text-center text-neutral-500"
                     >
                       No vaults found matching your filters.
@@ -323,32 +320,6 @@ export const PageTreasury6Keys = () => {
                           <p className="text-[10px] text-neutral-400">
                             by {vault.createdBy}
                           </p>
-                        </Link>
-                      </td>
-                      <td className="px-3 py-2">
-                        <Link
-                          to="/treasury/vaults/$vaultId"
-                          params={{ vaultId: vault.id }}
-                          className="block"
-                        >
-                          <div className="flex flex-col gap-1">
-                            {vault.curves.map((curve, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center gap-2"
-                              >
-                                <span className="inline-block w-12 rounded bg-neutral-100 px-1 py-0.5 text-center font-mono text-[10px] font-medium text-neutral-600">
-                                  {curve.type}
-                                </span>
-                                <span className="font-mono text-[10px] text-neutral-500">
-                                  {curve.curve}
-                                </span>
-                                <span className="font-mono text-[10px] text-neutral-400">
-                                  {curve.fingerprint}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
                         </Link>
                       </td>
                       <td className="px-3 py-2">
@@ -418,27 +389,38 @@ export const PageTreasury6Keys = () => {
                               <Link
                                 to="/treasury/vaults/$vaultId"
                                 params={{ vaultId: vault.id }}
+                                search={{ tab: 'addresses' }}
                               >
-                                View Details
+                                View Addresses
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Copy functionality would go here
-                                }}
+                            <DropdownMenuItem
+                              asChild
+                              className="cursor-pointer rounded-none text-xs"
+                            >
+                              <Link
+                                to="/treasury/vaults/$vaultId"
+                                params={{ vaultId: vault.id }}
+                                search={{ tab: 'signatures' }}
                               >
-                                Copy Public Keys
-                              </button>
+                                View Signatures
+                              </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer rounded-none text-xs">
-                              Export
+                            <DropdownMenuItem
+                              asChild
+                              className="cursor-pointer rounded-none text-xs"
+                            >
+                              <Link
+                                to="/treasury/vaults/$vaultId"
+                                params={{ vaultId: vault.id }}
+                                search={{ tab: 'details' }}
+                              >
+                                Manage Vault
+                              </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer rounded-none text-xs text-negative-600">
-                              Revoke Vault
+                              Archive Vault
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

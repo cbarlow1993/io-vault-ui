@@ -120,6 +120,73 @@ export const zCreateReshareResponse = z.object({
   memo: z.string().nullable().optional(),
 });
 
+// Reshare status enum
+export const zReshareStatus = z.enum([
+  'voting',
+  'completed',
+  'failed',
+  'expired',
+  'signing',
+  'rejected',
+]);
+
+// Reshare item for list display
+export const zReshare = z.object({
+  id: z.string(),
+  vaultId: z.string(),
+  threshold: z.number(),
+  status: zReshareStatus,
+  memo: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  expiresAt: z.string(),
+});
+
+// Reshare list response
+export const zReshareListResponse = z.object({
+  data: z.array(zReshare),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+});
+
+// Reshare list params
+export const zReshareListParams = z.object({
+  vaultId: z.string(),
+  limit: z.number().optional(),
+  cursor: z.string().optional(),
+  status: zReshareStatus.optional(),
+});
+
+// Get reshare params
+export const zGetReshareParams = z.object({
+  vaultId: z.string(),
+  reshareId: z.string(),
+});
+
+// Reshare vote change type
+export const zReshareVoteChangeType = z.enum(['added', 'removed', 'kept']);
+
+// Reshare vote result
+export const zReshareVoteResult = z.enum(['approve', 'reject']);
+
+// Reshare vote item
+export const zReshareVote = z.object({
+  id: z.string(),
+  signerId: z.string(),
+  signerExternalId: z.string().nullable(),
+  reshareId: z.string(),
+  weight: z.number(),
+  oldWeight: z.number(),
+  changeType: zReshareVoteChangeType,
+  result: zReshareVoteResult,
+  votedAt: z.string(),
+  approvalSignature: z.string().nullable(),
+});
+
+// Reshare votes response (array of votes)
+export const zReshareVotesResponse = z.array(zReshareVote);
+
 // Type exports
 export type Vault = z.infer<typeof zVault>;
 export type VaultCurve = z.infer<typeof zVaultCurve>;
@@ -133,3 +200,12 @@ export type CurveType = z.infer<typeof zCurveType>;
 export type DeviceType = z.infer<typeof zDeviceType>;
 export type VaultListResponse = z.infer<typeof zVaultListResponse>;
 export type VaultListParams = z.infer<typeof zVaultListParams>;
+export type Reshare = z.infer<typeof zReshare>;
+export type ReshareStatus = z.infer<typeof zReshareStatus>;
+export type ReshareListResponse = z.infer<typeof zReshareListResponse>;
+export type ReshareListParams = z.infer<typeof zReshareListParams>;
+export type GetReshareParams = z.infer<typeof zGetReshareParams>;
+export type ReshareVote = z.infer<typeof zReshareVote>;
+export type ReshareVoteChangeType = z.infer<typeof zReshareVoteChangeType>;
+export type ReshareVoteResult = z.infer<typeof zReshareVoteResult>;
+export type ReshareVotesResponse = z.infer<typeof zReshareVotesResponse>;
