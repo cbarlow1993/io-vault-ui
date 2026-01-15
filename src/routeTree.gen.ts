@@ -14,26 +14,30 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as SignUpRouteRouteImport } from './routes/sign-up/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
 import { Route as ForgotPasswordRouteRouteImport } from './routes/forgot-password/route'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppOverviewRouteImport } from './routes/_app/overview'
 import { Route as AppVaultsRouteRouteImport } from './routes/_app/vaults/route'
+import { Route as AppTreasuryRouteRouteImport } from './routes/_app/treasury/route'
 import { Route as AppSignersRouteRouteImport } from './routes/_app/signers/route'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppPoliciesRouteRouteImport } from './routes/_app/policies/route'
 import { Route as AppOperationsRouteRouteImport } from './routes/_app/operations/route'
 import { Route as AppIdentitiesRouteRouteImport } from './routes/_app/identities/route'
+import { Route as AppGlobalRouteRouteImport } from './routes/_app/global/route'
 import { Route as AppComplianceRouteRouteImport } from './routes/_app/compliance/route'
 import { Route as AppAddressBookRouteRouteImport } from './routes/_app/address-book/route'
 import { Route as AppAccountRouteRouteImport } from './routes/_app/account/route'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
 import { Route as AppVaultsIndexRouteImport } from './routes/_app/vaults/index'
+import { Route as AppTreasuryIndexRouteImport } from './routes/_app/treasury/index'
 import { Route as AppSignersIndexRouteImport } from './routes/_app/signers/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppIdentitiesIndexRouteImport } from './routes/_app/identities/index'
+import { Route as AppGlobalIndexRouteImport } from './routes/_app/global/index'
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as AppAddressBookIndexRouteImport } from './routes/_app/address-book/index'
 import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
@@ -44,6 +48,7 @@ import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
 import { Route as AppVaultsTabsRouteImport } from './routes/_app/vaults/tabs'
 import { Route as AppVaultsNewRouteImport } from './routes/_app/vaults/new'
 import { Route as AppVaultsLayoutsRouteImport } from './routes/_app/vaults/layouts'
+import { Route as AppTreasuryOverviewRouteImport } from './routes/_app/treasury/overview'
 import { Route as AppSignersNewRouteImport } from './routes/_app/signers/new'
 import { Route as AppSettingsWorkspacesRouteImport } from './routes/_app/settings/workspaces'
 import { Route as AppSettingsRolesRouteImport } from './routes/_app/settings/roles'
@@ -52,7 +57,9 @@ import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/b
 import { Route as AppSettingsBackupsRouteImport } from './routes/_app/settings/backups'
 import { Route as AppSettingsAuditRouteImport } from './routes/_app/settings/audit'
 import { Route as AppIdentitiesNewRouteImport } from './routes/_app/identities/new'
+import { Route as AppGlobalUsersRouteImport } from './routes/_app/global/users'
 import { Route as AppComplianceReportsRouteImport } from './routes/_app/compliance/reports'
+import { Route as AppComplianceOverviewRouteImport } from './routes/_app/compliance/overview'
 import { Route as AppComplianceAlertsRouteImport } from './routes/_app/compliance/alerts'
 import { Route as AppAccountSecurityRouteImport } from './routes/_app/account/security'
 import { Route as AppVaultsVaultIdRouteRouteImport } from './routes/_app/vaults/$vaultId/route'
@@ -127,11 +134,6 @@ const ForgotPasswordRouteRoute = ForgotPasswordRouteRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignUpIndexRoute = SignUpIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -147,6 +149,11 @@ const ForgotPasswordIndexRoute = ForgotPasswordIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ForgotPasswordRouteRoute,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOverviewRoute = AppOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
@@ -155,6 +162,11 @@ const AppOverviewRoute = AppOverviewRouteImport.update({
 const AppVaultsRouteRoute = AppVaultsRouteRouteImport.update({
   id: '/vaults',
   path: '/vaults',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTreasuryRouteRoute = AppTreasuryRouteRouteImport.update({
+  id: '/treasury',
+  path: '/treasury',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSignersRouteRoute = AppSignersRouteRouteImport.update({
@@ -180,6 +192,11 @@ const AppOperationsRouteRoute = AppOperationsRouteRouteImport.update({
 const AppIdentitiesRouteRoute = AppIdentitiesRouteRouteImport.update({
   id: '/identities',
   path: '/identities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGlobalRouteRoute = AppGlobalRouteRouteImport.update({
+  id: '/global',
+  path: '/global',
   getParentRoute: () => AppRoute,
 } as any)
 const AppComplianceRouteRoute = AppComplianceRouteRouteImport.update({
@@ -212,6 +229,11 @@ const AppVaultsIndexRoute = AppVaultsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppVaultsRouteRoute,
 } as any)
+const AppTreasuryIndexRoute = AppTreasuryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppTreasuryRouteRoute,
+} as any)
 const AppSignersIndexRoute = AppSignersIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -226,6 +248,11 @@ const AppIdentitiesIndexRoute = AppIdentitiesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppIdentitiesRouteRoute,
+} as any)
+const AppGlobalIndexRoute = AppGlobalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppGlobalRouteRoute,
 } as any)
 const AppComplianceIndexRoute = AppComplianceIndexRouteImport.update({
   id: '/',
@@ -277,6 +304,11 @@ const AppVaultsLayoutsRoute = AppVaultsLayoutsRouteImport.update({
   path: '/layouts',
   getParentRoute: () => AppVaultsRouteRoute,
 } as any)
+const AppTreasuryOverviewRoute = AppTreasuryOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppTreasuryRouteRoute,
+} as any)
 const AppSignersNewRoute = AppSignersNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -317,9 +349,19 @@ const AppIdentitiesNewRoute = AppIdentitiesNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AppIdentitiesRouteRoute,
 } as any)
+const AppGlobalUsersRoute = AppGlobalUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
 const AppComplianceReportsRoute = AppComplianceReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppComplianceRouteRoute,
+} as any)
+const AppComplianceOverviewRoute = AppComplianceOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
   getParentRoute: () => AppComplianceRouteRoute,
 } as any)
 const AppComplianceAlertsRoute = AppComplianceAlertsRouteImport.update({
@@ -608,7 +650,6 @@ const AppVaultsVaultIdChainChainAddressesAddressTransferRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
   '/sign-up': typeof SignUpRouteRouteWithChildren
@@ -616,13 +657,16 @@ export interface FileRoutesByFullPath {
   '/account': typeof AppAccountRouteRouteWithChildren
   '/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/compliance': typeof AppComplianceRouteRouteWithChildren
+  '/global': typeof AppGlobalRouteRouteWithChildren
   '/identities': typeof AppIdentitiesRouteRouteWithChildren
   '/operations': typeof AppOperationsRouteRouteWithChildren
   '/policies': typeof AppPoliciesRouteRouteWithChildren
   '/settings': typeof AppSettingsRouteRouteWithChildren
   '/signers': typeof AppSignersRouteRouteWithChildren
+  '/treasury': typeof AppTreasuryRouteRouteWithChildren
   '/vaults': typeof AppVaultsRouteRouteWithChildren
   '/overview': typeof AppOverviewRoute
+  '/': typeof AppIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
@@ -637,7 +681,9 @@ export interface FileRoutesByFullPath {
   '/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
   '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/compliance/overview': typeof AppComplianceOverviewRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
+  '/global/users': typeof AppGlobalUsersRoute
   '/identities/new': typeof AppIdentitiesNewRoute
   '/settings/audit': typeof AppSettingsAuditRoute
   '/settings/backups': typeof AppSettingsBackupsRoute
@@ -646,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/settings/roles': typeof AppSettingsRolesRoute
   '/settings/workspaces': typeof AppSettingsWorkspacesRoute
   '/signers/new': typeof AppSignersNewRoute
+  '/treasury/overview': typeof AppTreasuryOverviewRoute
   '/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/vaults/new': typeof AppVaultsNewRoute
   '/vaults/tabs': typeof AppVaultsTabsRoute
@@ -656,9 +703,11 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AppAccountIndexRoute
   '/address-book/': typeof AppAddressBookIndexRoute
   '/compliance/': typeof AppComplianceIndexRoute
+  '/global/': typeof AppGlobalIndexRoute
   '/identities/': typeof AppIdentitiesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/signers/': typeof AppSignersIndexRoute
+  '/treasury/': typeof AppTreasuryIndexRoute
   '/vaults/': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
@@ -702,18 +751,20 @@ export interface FileRoutesByFullPath {
   '/vaults/$vaultId/chain/$chain/addresses/$address/': typeof AppVaultsVaultIdChainChainAddressesAddressIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/logout': typeof LogoutRoute
   '/operations': typeof AppOperationsRouteRouteWithChildren
   '/policies': typeof AppPoliciesRouteRouteWithChildren
   '/overview': typeof AppOverviewRoute
+  '/': typeof AppIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
   '/sign-up': typeof SignUpIndexRoute
   '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
   '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/compliance/overview': typeof AppComplianceOverviewRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
+  '/global/users': typeof AppGlobalUsersRoute
   '/identities/new': typeof AppIdentitiesNewRoute
   '/settings/audit': typeof AppSettingsAuditRoute
   '/settings/backups': typeof AppSettingsBackupsRoute
@@ -722,6 +773,7 @@ export interface FileRoutesByTo {
   '/settings/roles': typeof AppSettingsRolesRoute
   '/settings/workspaces': typeof AppSettingsWorkspacesRoute
   '/signers/new': typeof AppSignersNewRoute
+  '/treasury/overview': typeof AppTreasuryOverviewRoute
   '/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/vaults/new': typeof AppVaultsNewRoute
   '/vaults/tabs': typeof AppVaultsTabsRoute
@@ -732,9 +784,11 @@ export interface FileRoutesByTo {
   '/account': typeof AppAccountIndexRoute
   '/address-book': typeof AppAddressBookIndexRoute
   '/compliance': typeof AppComplianceIndexRoute
+  '/global': typeof AppGlobalIndexRoute
   '/identities': typeof AppIdentitiesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/signers': typeof AppSignersIndexRoute
+  '/treasury': typeof AppTreasuryIndexRoute
   '/vaults': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
@@ -772,7 +826,6 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRouteRouteWithChildren
   '/login': typeof LoginRouteRouteWithChildren
   '/sign-up': typeof SignUpRouteRouteWithChildren
@@ -781,13 +834,16 @@ export interface FileRoutesById {
   '/_app/account': typeof AppAccountRouteRouteWithChildren
   '/_app/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/_app/compliance': typeof AppComplianceRouteRouteWithChildren
+  '/_app/global': typeof AppGlobalRouteRouteWithChildren
   '/_app/identities': typeof AppIdentitiesRouteRouteWithChildren
   '/_app/operations': typeof AppOperationsRouteRouteWithChildren
   '/_app/policies': typeof AppPoliciesRouteRouteWithChildren
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
   '/_app/signers': typeof AppSignersRouteRouteWithChildren
+  '/_app/treasury': typeof AppTreasuryRouteRouteWithChildren
   '/_app/vaults': typeof AppVaultsRouteRouteWithChildren
   '/_app/overview': typeof AppOverviewRoute
+  '/_app/': typeof AppIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
@@ -802,7 +858,9 @@ export interface FileRoutesById {
   '/_app/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
   '/_app/account/security': typeof AppAccountSecurityRoute
   '/_app/compliance/alerts': typeof AppComplianceAlertsRoute
+  '/_app/compliance/overview': typeof AppComplianceOverviewRoute
   '/_app/compliance/reports': typeof AppComplianceReportsRoute
+  '/_app/global/users': typeof AppGlobalUsersRoute
   '/_app/identities/new': typeof AppIdentitiesNewRoute
   '/_app/settings/audit': typeof AppSettingsAuditRoute
   '/_app/settings/backups': typeof AppSettingsBackupsRoute
@@ -811,6 +869,7 @@ export interface FileRoutesById {
   '/_app/settings/roles': typeof AppSettingsRolesRoute
   '/_app/settings/workspaces': typeof AppSettingsWorkspacesRoute
   '/_app/signers/new': typeof AppSignersNewRoute
+  '/_app/treasury/overview': typeof AppTreasuryOverviewRoute
   '/_app/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/_app/vaults/new': typeof AppVaultsNewRoute
   '/_app/vaults/tabs': typeof AppVaultsTabsRoute
@@ -821,9 +880,11 @@ export interface FileRoutesById {
   '/_app/account/': typeof AppAccountIndexRoute
   '/_app/address-book/': typeof AppAddressBookIndexRoute
   '/_app/compliance/': typeof AppComplianceIndexRoute
+  '/_app/global/': typeof AppGlobalIndexRoute
   '/_app/identities/': typeof AppIdentitiesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/signers/': typeof AppSignersIndexRoute
+  '/_app/treasury/': typeof AppTreasuryIndexRoute
   '/_app/vaults/': typeof AppVaultsIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
@@ -869,7 +930,6 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
@@ -877,13 +937,16 @@ export interface FileRouteTypes {
     | '/account'
     | '/address-book'
     | '/compliance'
+    | '/global'
     | '/identities'
     | '/operations'
     | '/policies'
     | '/settings'
     | '/signers'
+    | '/treasury'
     | '/vaults'
     | '/overview'
+    | '/'
     | '/forgot-password/'
     | '/login/'
     | '/sign-up/'
@@ -898,7 +961,9 @@ export interface FileRouteTypes {
     | '/vaults/$vaultId'
     | '/account/security'
     | '/compliance/alerts'
+    | '/compliance/overview'
     | '/compliance/reports'
+    | '/global/users'
     | '/identities/new'
     | '/settings/audit'
     | '/settings/backups'
@@ -907,6 +972,7 @@ export interface FileRouteTypes {
     | '/settings/roles'
     | '/settings/workspaces'
     | '/signers/new'
+    | '/treasury/overview'
     | '/vaults/layouts'
     | '/vaults/new'
     | '/vaults/tabs'
@@ -917,9 +983,11 @@ export interface FileRouteTypes {
     | '/account/'
     | '/address-book/'
     | '/compliance/'
+    | '/global/'
     | '/identities/'
     | '/settings/'
     | '/signers/'
+    | '/treasury/'
     | '/vaults/'
     | '/login/error'
     | '/login/verify'
@@ -963,18 +1031,20 @@ export interface FileRouteTypes {
     | '/vaults/$vaultId/chain/$chain/addresses/$address/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/logout'
     | '/operations'
     | '/policies'
     | '/overview'
+    | '/'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
     | '/operations/$operationId'
     | '/account/security'
     | '/compliance/alerts'
+    | '/compliance/overview'
     | '/compliance/reports'
+    | '/global/users'
     | '/identities/new'
     | '/settings/audit'
     | '/settings/backups'
@@ -983,6 +1053,7 @@ export interface FileRouteTypes {
     | '/settings/roles'
     | '/settings/workspaces'
     | '/signers/new'
+    | '/treasury/overview'
     | '/vaults/layouts'
     | '/vaults/new'
     | '/vaults/tabs'
@@ -993,9 +1064,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/address-book'
     | '/compliance'
+    | '/global'
     | '/identities'
     | '/settings'
     | '/signers'
+    | '/treasury'
     | '/vaults'
     | '/login/error'
     | '/login/verify'
@@ -1032,7 +1105,6 @@ export interface FileRouteTypes {
     | '/vaults/$vaultId/chain/$chain/addresses/$address'
   id:
     | '__root__'
-    | '/'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
@@ -1041,13 +1113,16 @@ export interface FileRouteTypes {
     | '/_app/account'
     | '/_app/address-book'
     | '/_app/compliance'
+    | '/_app/global'
     | '/_app/identities'
     | '/_app/operations'
     | '/_app/policies'
     | '/_app/settings'
     | '/_app/signers'
+    | '/_app/treasury'
     | '/_app/vaults'
     | '/_app/overview'
+    | '/_app/'
     | '/forgot-password/'
     | '/login/'
     | '/sign-up/'
@@ -1062,7 +1137,9 @@ export interface FileRouteTypes {
     | '/_app/vaults/$vaultId'
     | '/_app/account/security'
     | '/_app/compliance/alerts'
+    | '/_app/compliance/overview'
     | '/_app/compliance/reports'
+    | '/_app/global/users'
     | '/_app/identities/new'
     | '/_app/settings/audit'
     | '/_app/settings/backups'
@@ -1071,6 +1148,7 @@ export interface FileRouteTypes {
     | '/_app/settings/roles'
     | '/_app/settings/workspaces'
     | '/_app/signers/new'
+    | '/_app/treasury/overview'
     | '/_app/vaults/layouts'
     | '/_app/vaults/new'
     | '/_app/vaults/tabs'
@@ -1081,9 +1159,11 @@ export interface FileRouteTypes {
     | '/_app/account/'
     | '/_app/address-book/'
     | '/_app/compliance/'
+    | '/_app/global/'
     | '/_app/identities/'
     | '/_app/settings/'
     | '/_app/signers/'
+    | '/_app/treasury/'
     | '/_app/vaults/'
     | '/login/error/'
     | '/login/verify/'
@@ -1128,7 +1208,6 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   ForgotPasswordRouteRoute: typeof ForgotPasswordRouteRouteWithChildren
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
   SignUpRouteRoute: typeof SignUpRouteRouteWithChildren
@@ -1178,13 +1257,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sign-up/': {
       id: '/sign-up/'
       path: '/'
@@ -1206,6 +1278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordIndexRouteImport
       parentRoute: typeof ForgotPasswordRouteRoute
     }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/overview': {
       id: '/_app/overview'
       path: '/overview'
@@ -1218,6 +1297,13 @@ declare module '@tanstack/react-router' {
       path: '/vaults'
       fullPath: '/vaults'
       preLoaderRoute: typeof AppVaultsRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/treasury': {
+      id: '/_app/treasury'
+      path: '/treasury'
+      fullPath: '/treasury'
+      preLoaderRoute: typeof AppTreasuryRouteRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/signers': {
@@ -1253,6 +1339,13 @@ declare module '@tanstack/react-router' {
       path: '/identities'
       fullPath: '/identities'
       preLoaderRoute: typeof AppIdentitiesRouteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/global': {
+      id: '/_app/global'
+      path: '/global'
+      fullPath: '/global'
+      preLoaderRoute: typeof AppGlobalRouteRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/compliance': {
@@ -1297,6 +1390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVaultsIndexRouteImport
       parentRoute: typeof AppVaultsRouteRoute
     }
+    '/_app/treasury/': {
+      id: '/_app/treasury/'
+      path: '/'
+      fullPath: '/treasury/'
+      preLoaderRoute: typeof AppTreasuryIndexRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
+    }
     '/_app/signers/': {
       id: '/_app/signers/'
       path: '/'
@@ -1317,6 +1417,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/identities/'
       preLoaderRoute: typeof AppIdentitiesIndexRouteImport
       parentRoute: typeof AppIdentitiesRouteRoute
+    }
+    '/_app/global/': {
+      id: '/_app/global/'
+      path: '/'
+      fullPath: '/global/'
+      preLoaderRoute: typeof AppGlobalIndexRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/compliance/': {
       id: '/_app/compliance/'
@@ -1388,6 +1495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVaultsLayoutsRouteImport
       parentRoute: typeof AppVaultsRouteRoute
     }
+    '/_app/treasury/overview': {
+      id: '/_app/treasury/overview'
+      path: '/overview'
+      fullPath: '/treasury/overview'
+      preLoaderRoute: typeof AppTreasuryOverviewRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
+    }
     '/_app/signers/new': {
       id: '/_app/signers/new'
       path: '/new'
@@ -1444,11 +1558,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIdentitiesNewRouteImport
       parentRoute: typeof AppIdentitiesRouteRoute
     }
+    '/_app/global/users': {
+      id: '/_app/global/users'
+      path: '/users'
+      fullPath: '/global/users'
+      preLoaderRoute: typeof AppGlobalUsersRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
     '/_app/compliance/reports': {
       id: '/_app/compliance/reports'
       path: '/reports'
       fullPath: '/compliance/reports'
       preLoaderRoute: typeof AppComplianceReportsRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
+    '/_app/compliance/overview': {
+      id: '/_app/compliance/overview'
+      path: '/overview'
+      fullPath: '/compliance/overview'
+      preLoaderRoute: typeof AppComplianceOverviewRouteImport
       parentRoute: typeof AppComplianceRouteRoute
     }
     '/_app/compliance/alerts': {
@@ -1897,6 +2025,7 @@ interface AppComplianceRouteRouteChildren {
   AppComplianceAddressesRouteRoute: typeof AppComplianceAddressesRouteRouteWithChildren
   AppComplianceTransactionsRouteRoute: typeof AppComplianceTransactionsRouteRouteWithChildren
   AppComplianceAlertsRoute: typeof AppComplianceAlertsRoute
+  AppComplianceOverviewRoute: typeof AppComplianceOverviewRoute
   AppComplianceReportsRoute: typeof AppComplianceReportsRoute
   AppComplianceIndexRoute: typeof AppComplianceIndexRoute
 }
@@ -1907,12 +2036,27 @@ const AppComplianceRouteRouteChildren: AppComplianceRouteRouteChildren = {
   AppComplianceTransactionsRouteRoute:
     AppComplianceTransactionsRouteRouteWithChildren,
   AppComplianceAlertsRoute: AppComplianceAlertsRoute,
+  AppComplianceOverviewRoute: AppComplianceOverviewRoute,
   AppComplianceReportsRoute: AppComplianceReportsRoute,
   AppComplianceIndexRoute: AppComplianceIndexRoute,
 }
 
 const AppComplianceRouteRouteWithChildren =
   AppComplianceRouteRoute._addFileChildren(AppComplianceRouteRouteChildren)
+
+interface AppGlobalRouteRouteChildren {
+  AppGlobalUsersRoute: typeof AppGlobalUsersRoute
+  AppGlobalIndexRoute: typeof AppGlobalIndexRoute
+}
+
+const AppGlobalRouteRouteChildren: AppGlobalRouteRouteChildren = {
+  AppGlobalUsersRoute: AppGlobalUsersRoute,
+  AppGlobalIndexRoute: AppGlobalIndexRoute,
+}
+
+const AppGlobalRouteRouteWithChildren = AppGlobalRouteRoute._addFileChildren(
+  AppGlobalRouteRouteChildren,
+)
 
 interface AppIdentitiesIdentityIdRouteRouteChildren {
   AppIdentitiesIdentityIdEditRoute: typeof AppIdentitiesIdentityIdEditRoute
@@ -2180,6 +2324,19 @@ const AppSignersRouteRouteWithChildren = AppSignersRouteRoute._addFileChildren(
   AppSignersRouteRouteChildren,
 )
 
+interface AppTreasuryRouteRouteChildren {
+  AppTreasuryOverviewRoute: typeof AppTreasuryOverviewRoute
+  AppTreasuryIndexRoute: typeof AppTreasuryIndexRoute
+}
+
+const AppTreasuryRouteRouteChildren: AppTreasuryRouteRouteChildren = {
+  AppTreasuryOverviewRoute: AppTreasuryOverviewRoute,
+  AppTreasuryIndexRoute: AppTreasuryIndexRoute,
+}
+
+const AppTreasuryRouteRouteWithChildren =
+  AppTreasuryRouteRoute._addFileChildren(AppTreasuryRouteRouteChildren)
+
 interface AppVaultsVaultIdAddressesAddressIdRouteRouteChildren {
   AppVaultsVaultIdAddressesAddressIdIndexRoute: typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
 }
@@ -2280,26 +2437,32 @@ interface AppRouteChildren {
   AppAccountRouteRoute: typeof AppAccountRouteRouteWithChildren
   AppAddressBookRouteRoute: typeof AppAddressBookRouteRouteWithChildren
   AppComplianceRouteRoute: typeof AppComplianceRouteRouteWithChildren
+  AppGlobalRouteRoute: typeof AppGlobalRouteRouteWithChildren
   AppIdentitiesRouteRoute: typeof AppIdentitiesRouteRouteWithChildren
   AppOperationsRouteRoute: typeof AppOperationsRouteRouteWithChildren
   AppPoliciesRouteRoute: typeof AppPoliciesRouteRouteWithChildren
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppSignersRouteRoute: typeof AppSignersRouteRouteWithChildren
+  AppTreasuryRouteRoute: typeof AppTreasuryRouteRouteWithChildren
   AppVaultsRouteRoute: typeof AppVaultsRouteRouteWithChildren
   AppOverviewRoute: typeof AppOverviewRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRouteRoute: AppAccountRouteRouteWithChildren,
   AppAddressBookRouteRoute: AppAddressBookRouteRouteWithChildren,
   AppComplianceRouteRoute: AppComplianceRouteRouteWithChildren,
+  AppGlobalRouteRoute: AppGlobalRouteRouteWithChildren,
   AppIdentitiesRouteRoute: AppIdentitiesRouteRouteWithChildren,
   AppOperationsRouteRoute: AppOperationsRouteRouteWithChildren,
   AppPoliciesRouteRoute: AppPoliciesRouteRouteWithChildren,
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppSignersRouteRoute: AppSignersRouteRouteWithChildren,
+  AppTreasuryRouteRoute: AppTreasuryRouteRouteWithChildren,
   AppVaultsRouteRoute: AppVaultsRouteRouteWithChildren,
   AppOverviewRoute: AppOverviewRoute,
+  AppIndexRoute: AppIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -2317,7 +2480,6 @@ const ApiOpenapiAppRouteWithChildren = ApiOpenapiAppRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   ForgotPasswordRouteRoute: ForgotPasswordRouteRouteWithChildren,
   LoginRouteRoute: LoginRouteRouteWithChildren,
   SignUpRouteRoute: SignUpRouteRouteWithChildren,

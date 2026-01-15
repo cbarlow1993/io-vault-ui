@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import { PageError } from '@/components/errors/page-error';
 import { ModuleProvider } from '@/lib/modules';
+
+import { PageError } from '@/components/errors/page-error';
 
 import { GuardAuthenticated } from '@/features/auth/guard-authenticated';
 import { Layout } from '@/layout/shell';

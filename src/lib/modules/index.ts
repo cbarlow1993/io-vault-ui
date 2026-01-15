@@ -1,3 +1,3 @@
-export * from './types';
 export * from './config';
 export * from './module-context';
+export * from './types';
