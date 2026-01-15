@@ -302,22 +302,8 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
   );
 
   // Use fetched data or empty array while loading
-  const allSigners = signersData?.data ?? [];
-
-  // Filter by search locally (API may not support full text search initially)
-  const filteredSigners = useMemo(() => {
-    if (!search) return allSigners;
-
-    const searchLower = search.toLowerCase();
-    return allSigners.filter((signer) => {
-      return (
-        signer.name.toLowerCase().includes(searchLower) ||
-        signer.owner.toLowerCase().includes(searchLower) ||
-        signer.version.toLowerCase().includes(searchLower) ||
-        (signer.deviceInfo?.toLowerCase().includes(searchLower) ?? false)
-      );
-    });
-  }, [allSigners, search]);
+  // Data is already filtered server-side by status, type, and search (name/owner)
+  const filteredSigners = signersData?.data ?? [];
 
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
@@ -385,7 +371,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
                 Total Signers
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {isLoading ? '—' : allSigners.length}
+                {isLoading ? '—' : filteredSigners.length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -395,7 +381,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allSigners.filter((s) => s.type === 'ios').length}
+                  : filteredSigners.filter((s) => s.type === 'ios').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -405,7 +391,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allSigners.filter((s) => s.type === 'android').length}
+                  : filteredSigners.filter((s) => s.type === 'android').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -415,7 +401,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allSigners.filter((s) => s.type === 'virtual').length}
+                  : filteredSigners.filter((s) => s.type === 'virtual').length}
               </p>
             </div>
           </div>
