@@ -221,9 +221,7 @@ export default function PageAccountProfile() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={
-                    updateProfileMutation.isPending || !form.formState.isDirty
-                  }
+                  disabled={updateProfileMutation.isPending}
                   className={cn(
                     'h-8 bg-brand-500 px-4 text-xs font-medium text-white transition-colors',
                     'hover:bg-brand-600',
