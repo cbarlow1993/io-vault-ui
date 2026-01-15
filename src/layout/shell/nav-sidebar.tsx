@@ -48,43 +48,79 @@ type NavItem = {
   title: string;
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   url?: string;
+  testId: string;
   children?: {
     title: string;
     url: string;
     icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+    testId: string;
   }[];
 };
 
 const navItems: NavItem[] = [
-  { title: 'Overview', icon: GridIcon, url: '/overview' },
+  {
+    title: 'Overview',
+    icon: GridIcon,
+    url: '/overview',
+    testId: 'nav-overview',
+  },
   {
     title: 'Vaults',
     icon: KeyIcon,
+    testId: 'nav-vaults-section',
     children: [
-      { title: 'Vaults', url: '/vaults', icon: KeyIcon },
-      { title: 'Signers', url: '/signers', icon: FingerprintIcon },
+      { title: 'Vaults', url: '/vaults', icon: KeyIcon, testId: 'nav-vaults' },
+      {
+        title: 'Signers',
+        url: '/signers',
+        icon: FingerprintIcon,
+        testId: 'nav-signers',
+      },
     ],
   },
   {
     title: 'Policies',
     icon: ShieldCheckIcon,
+    testId: 'nav-policies-section',
     children: [
       {
         title: 'Whitelists',
         url: '/policies/whitelists',
         icon: ListChecksIcon,
+        testId: 'nav-whitelists',
       },
       {
         title: 'Transactions',
         url: '/policies/transactions',
         icon: ArrowRightLeftIcon,
+        testId: 'nav-transactions',
       },
     ],
   },
-  { title: 'Identities', icon: UsersIcon, url: '/identities' },
-  { title: 'Address Book', icon: BookUserIcon, url: '/address-book' },
-  { title: 'Compliance', icon: ShieldAlertIcon, url: '/compliance' },
-  { title: 'Settings', icon: SettingsIcon, url: '/settings' },
+  {
+    title: 'Identities',
+    icon: UsersIcon,
+    url: '/identities',
+    testId: 'nav-identities',
+  },
+  {
+    title: 'Address Book',
+    icon: BookUserIcon,
+    url: '/address-book',
+    testId: 'nav-address-book',
+  },
+  {
+    title: 'Compliance',
+    icon: ShieldAlertIcon,
+    url: '/compliance',
+    testId: 'nav-compliance',
+  },
+  {
+    title: 'Settings',
+    icon: SettingsIcon,
+    url: '/settings',
+    testId: 'nav-settings',
+  },
 ];
 
 const NavMenu = () => {
@@ -160,6 +196,7 @@ const NavMenu = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <SidebarMenuButton
+                        data-testid={item.testId}
                         onClick={() => toggleSection(item.title)}
                         isActive={hasActiveChild(item)}
                         className="h-9 rounded-none border-l-2 border-transparent px-3 text-sm font-medium text-neutral-500 transition-all hover:border-neutral-300 hover:bg-transparent hover:text-neutral-900 data-[active=true]:border-neutral-900 data-[active=true]:bg-transparent data-[active=true]:text-neutral-900"
@@ -196,7 +233,7 @@ const NavMenu = () => {
                               'border-neutral-900 bg-transparent text-neutral-900'
                           )}
                         >
-                          <Link to={child.url}>
+                          <Link to={child.url} data-testid={child.testId}>
                             <child.icon
                               className="size-3.5"
                               strokeWidth={1.5}
@@ -219,7 +256,7 @@ const NavMenu = () => {
                       isActive={isNavItemActive(item.url!)}
                       className="h-9 rounded-none border-l-2 border-transparent px-3 text-sm font-medium text-neutral-500 transition-all hover:border-neutral-300 hover:bg-transparent hover:text-neutral-900 data-[active=true]:border-neutral-900 data-[active=true]:bg-transparent data-[active=true]:text-neutral-900"
                     >
-                      <Link to={item.url!}>
+                      <Link to={item.url!} data-testid={item.testId}>
                         <item.icon className="size-4" strokeWidth={1.5} />
                         <span>{item.title}</span>
                       </Link>

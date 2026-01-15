@@ -1,9 +1,16 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
 import { auth } from '@clerk/tanstack-react-start/server';
 
 import { envClient } from '@/env/client';
 import { PageSettingsBilling } from '@/features/settings/page-settings-billing';
 import { ChargebeeProvider } from '@/lib/chargebee';
+
+// Server function to get auth state - auth() only works server-side
+const getAuthState = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId } = await auth();
+  return { userId, isAuthenticated: !!userId };
+});
 
 function BillingPageWithProvider() {
   return (
@@ -22,10 +29,8 @@ export const Route = createFileRoute('/_app/settings/billing')({
     }
   },
   component: BillingPageWithProvider,
-  loader: async ({ context }) => {
-    console.log('context', context);
-    console.log('bahh');
-    const { isAuthenticated, userId } = await auth();
+  loader: async () => {
+    const { isAuthenticated, userId } = await getAuthState();
     console.log('isAuthenticated', isAuthenticated);
     console.log('userId', userId);
   },

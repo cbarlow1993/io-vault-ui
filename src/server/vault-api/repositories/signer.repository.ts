@@ -24,7 +24,7 @@ export class SignerRepository {
       throw this.handleError(response);
     }
 
-    return data!;
+    return data ?? [];
   }
 
   async register(input: RegisterSignerInput) {

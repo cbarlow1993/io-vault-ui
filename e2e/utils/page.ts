@@ -33,7 +33,7 @@ export const pageWithUtils: CustomFixture<Page & PageUtils> = async (
     await setupClerkTestingToken({ page });
 
     // Navigate to sign-in page
-    await page.goto('/sign-in');
+    await page.goto('/login');
 
     // Fill email and continue
     await page.getByLabel('Email address').fill(input.email);

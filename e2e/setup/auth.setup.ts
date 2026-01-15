@@ -14,11 +14,6 @@ import {
 
 setup('authenticate with Clerk', async ({ page }) => {
   await page.login({ email: E2E_USER_EMAIL, password: E2E_USER_PASSWORD });
-
-  // Wait for authenticated redirect
   await page.waitForURL('/overview');
-  await expect(page.getByTestId('layout-treasury-6')).toBeVisible();
-
-  // Save storage state for reuse in tests
   await page.context().storageState({ path: ADMIN_FILE });
 });

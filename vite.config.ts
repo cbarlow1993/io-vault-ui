@@ -20,6 +20,11 @@ export default defineConfig(({ mode }) => {
       port: env.VITE_PORT ? Number(env.VITE_PORT) : 3000,
       strictPort: true,
     },
+    // Prevent Vite from externalizing Clerk during SSR, which would cause
+    // AsyncLocalStorage context loss between clerkMiddleware() and auth() calls
+    ssr: {
+      noExternal: ['@clerk/tanstack-react-start'],
+    },
     plugins: [
       devtools(),
       codeInspectorPlugin({

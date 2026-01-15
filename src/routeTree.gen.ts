@@ -37,12 +37,10 @@ import { Route as AppIdentitiesIndexRouteImport } from './routes/_app/identities
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
 import { Route as AppAddressBookIndexRouteImport } from './routes/_app/address-book/index'
 import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
-import { Route as ApiWebhooksChargebeeRouteImport } from './routes/api/webhooks/chargebee'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 import { Route as ApiRestSplatRouteImport } from './routes/api/rest.$'
 import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
 import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AppVaultsTabsRouteImport } from './routes/_app/vaults/tabs'
 import { Route as AppVaultsNewRouteImport } from './routes/_app/vaults/new'
 import { Route as AppVaultsLayoutsRouteImport } from './routes/_app/vaults/layouts'
@@ -75,7 +73,6 @@ import { Route as AppPoliciesTransactionsIndexRouteImport } from './routes/_app/
 import { Route as AppIdentitiesIdentityIdIndexRouteImport } from './routes/_app/identities/$identityId/index'
 import { Route as AppComplianceTransactionsIndexRouteImport } from './routes/_app/compliance/transactions/index'
 import { Route as AppComplianceAddressesIndexRouteImport } from './routes/_app/compliance/addresses/index'
-import { Route as ApiOpenapiAuthSchemaRouteImport } from './routes/api/openapi/auth.schema'
 import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/app.schema'
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
 import { Route as AppVaultsVaultIdEditRouteImport } from './routes/_app/vaults/$vaultId/edit'
@@ -245,11 +242,6 @@ const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAccountRouteRoute,
 } as any)
-const ApiWebhooksChargebeeRoute = ApiWebhooksChargebeeRouteImport.update({
-  id: '/api/webhooks/chargebee',
-  path: '/api/webhooks/chargebee',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
@@ -268,11 +260,6 @@ const ApiOpenapiAuthRoute = ApiOpenapiAuthRouteImport.update({
 const ApiOpenapiAppRoute = ApiOpenapiAppRouteImport.update({
   id: '/api/openapi/app',
   path: '/api/openapi/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppVaultsTabsRoute = AppVaultsTabsRouteImport.update({
@@ -447,11 +434,6 @@ const AppComplianceAddressesIndexRoute =
     path: '/',
     getParentRoute: () => AppComplianceAddressesRouteRoute,
   } as any)
-const ApiOpenapiAuthSchemaRoute = ApiOpenapiAuthSchemaRouteImport.update({
-  id: '/schema',
-  path: '/schema',
-  getParentRoute: () => ApiOpenapiAuthRoute,
-} as any)
 const ApiOpenapiAppSchemaRoute = ApiOpenapiAppSchemaRouteImport.update({
   id: '/schema',
   path: '/schema',
@@ -667,12 +649,10 @@ export interface FileRoutesByFullPath {
   '/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/vaults/new': typeof AppVaultsNewRoute
   '/vaults/tabs': typeof AppVaultsTabsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
-  '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
+  '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
   '/account/': typeof AppAccountIndexRoute
   '/address-book/': typeof AppAddressBookIndexRoute
   '/compliance/': typeof AppComplianceIndexRoute
@@ -694,7 +674,6 @@ export interface FileRoutesByFullPath {
   '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
-  '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
   '/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
   '/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
   '/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
@@ -746,12 +725,10 @@ export interface FileRoutesByTo {
   '/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/vaults/new': typeof AppVaultsNewRoute
   '/vaults/tabs': typeof AppVaultsTabsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
-  '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
+  '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
   '/account': typeof AppAccountIndexRoute
   '/address-book': typeof AppAddressBookIndexRoute
   '/compliance': typeof AppComplianceIndexRoute
@@ -770,7 +747,6 @@ export interface FileRoutesByTo {
   '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
-  '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
   '/compliance/addresses': typeof AppComplianceAddressesIndexRoute
   '/compliance/transactions': typeof AppComplianceTransactionsIndexRoute
   '/identities/$identityId': typeof AppIdentitiesIdentityIdIndexRoute
@@ -838,12 +814,10 @@ export interface FileRoutesById {
   '/_app/vaults/layouts': typeof AppVaultsLayoutsRoute
   '/_app/vaults/new': typeof AppVaultsNewRoute
   '/_app/vaults/tabs': typeof AppVaultsTabsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
-  '/api/openapi/auth': typeof ApiOpenapiAuthRouteWithChildren
+  '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/api/webhooks/chargebee': typeof ApiWebhooksChargebeeRoute
   '/_app/account/': typeof AppAccountIndexRoute
   '/_app/address-book/': typeof AppAddressBookIndexRoute
   '/_app/compliance/': typeof AppComplianceIndexRoute
@@ -865,7 +839,6 @@ export interface FileRoutesById {
   '/_app/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
-  '/api/openapi/auth/schema': typeof ApiOpenapiAuthSchemaRoute
   '/_app/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
   '/_app/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
   '/_app/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
@@ -937,12 +910,10 @@ export interface FileRouteTypes {
     | '/vaults/layouts'
     | '/vaults/new'
     | '/vaults/tabs'
-    | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/api/webhooks/chargebee'
     | '/account/'
     | '/address-book/'
     | '/compliance/'
@@ -964,7 +935,6 @@ export interface FileRouteTypes {
     | '/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
-    | '/api/openapi/auth/schema'
     | '/compliance/addresses/'
     | '/compliance/transactions/'
     | '/identities/$identityId/'
@@ -1016,12 +986,10 @@ export interface FileRouteTypes {
     | '/vaults/layouts'
     | '/vaults/new'
     | '/vaults/tabs'
-    | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/api/webhooks/chargebee'
     | '/account'
     | '/address-book'
     | '/compliance'
@@ -1040,7 +1008,6 @@ export interface FileRouteTypes {
     | '/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
-    | '/api/openapi/auth/schema'
     | '/compliance/addresses'
     | '/compliance/transactions'
     | '/identities/$identityId'
@@ -1107,12 +1074,10 @@ export interface FileRouteTypes {
     | '/_app/vaults/layouts'
     | '/_app/vaults/new'
     | '/_app/vaults/tabs'
-    | '/api/auth/$'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
-    | '/api/webhooks/chargebee'
     | '/_app/account/'
     | '/_app/address-book/'
     | '/_app/compliance/'
@@ -1134,7 +1099,6 @@ export interface FileRouteTypes {
     | '/_app/vaults/$vaultId/edit'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
-    | '/api/openapi/auth/schema'
     | '/_app/compliance/addresses/'
     | '/_app/compliance/transactions/'
     | '/_app/identities/$identityId/'
@@ -1170,12 +1134,10 @@ export interface RootRouteChildren {
   SignUpRouteRoute: typeof SignUpRouteRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   LogoutRoute: typeof LogoutRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOpenapiAppRoute: typeof ApiOpenapiAppRouteWithChildren
-  ApiOpenapiAuthRoute: typeof ApiOpenapiAuthRouteWithChildren
+  ApiOpenapiAuthRoute: typeof ApiOpenapiAuthRoute
   ApiRestSplatRoute: typeof ApiRestSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
-  ApiWebhooksChargebeeRoute: typeof ApiWebhooksChargebeeRoute
   ApiDevEmailTemplateRoute: typeof ApiDevEmailTemplateRoute
 }
 
@@ -1377,13 +1339,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountIndexRouteImport
       parentRoute: typeof AppAccountRouteRoute
     }
-    '/api/webhooks/chargebee': {
-      id: '/api/webhooks/chargebee'
-      path: '/api/webhooks/chargebee'
-      fullPath: '/api/webhooks/chargebee'
-      preLoaderRoute: typeof ApiWebhooksChargebeeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
@@ -1410,13 +1365,6 @@ declare module '@tanstack/react-router' {
       path: '/api/openapi/app'
       fullPath: '/api/openapi/app'
       preLoaderRoute: typeof ApiOpenapiAppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/vaults/tabs': {
@@ -1642,13 +1590,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/compliance/addresses/'
       preLoaderRoute: typeof AppComplianceAddressesIndexRouteImport
       parentRoute: typeof AppComplianceAddressesRouteRoute
-    }
-    '/api/openapi/auth/schema': {
-      id: '/api/openapi/auth/schema'
-      path: '/schema'
-      fullPath: '/api/openapi/auth/schema'
-      preLoaderRoute: typeof ApiOpenapiAuthSchemaRouteImport
-      parentRoute: typeof ApiOpenapiAuthRoute
     }
     '/api/openapi/app/schema': {
       id: '/api/openapi/app/schema'
@@ -2375,18 +2316,6 @@ const ApiOpenapiAppRouteWithChildren = ApiOpenapiAppRoute._addFileChildren(
   ApiOpenapiAppRouteChildren,
 )
 
-interface ApiOpenapiAuthRouteChildren {
-  ApiOpenapiAuthSchemaRoute: typeof ApiOpenapiAuthSchemaRoute
-}
-
-const ApiOpenapiAuthRouteChildren: ApiOpenapiAuthRouteChildren = {
-  ApiOpenapiAuthSchemaRoute: ApiOpenapiAuthSchemaRoute,
-}
-
-const ApiOpenapiAuthRouteWithChildren = ApiOpenapiAuthRoute._addFileChildren(
-  ApiOpenapiAuthRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ForgotPasswordRouteRoute: ForgotPasswordRouteRouteWithChildren,
@@ -2394,12 +2323,10 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpRouteRoute: SignUpRouteRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   LogoutRoute: LogoutRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOpenapiAppRoute: ApiOpenapiAppRouteWithChildren,
-  ApiOpenapiAuthRoute: ApiOpenapiAuthRouteWithChildren,
+  ApiOpenapiAuthRoute: ApiOpenapiAuthRoute,
   ApiRestSplatRoute: ApiRestSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
-  ApiWebhooksChargebeeRoute: ApiWebhooksChargebeeRoute,
   ApiDevEmailTemplateRoute: ApiDevEmailTemplateRoute,
 }
 export const routeTree = rootRouteImport

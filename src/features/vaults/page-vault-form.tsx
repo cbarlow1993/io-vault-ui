@@ -219,6 +219,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
               type="button"
               onClick={handleSubmit}
               disabled={!isValid}
+              data-testid="vault-submit-button"
               className={cn(
                 'h-7 rounded-none px-3 text-xs font-medium',
                 isValid
@@ -274,6 +275,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter vault name"
+                  data-testid="vault-name-input"
                   className="h-9 w-full border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
                 />
               ) : (
@@ -485,6 +487,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                   <Button
                     className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
                     disabled={availableToAdd.length === 0}
+                    data-testid="vault-add-signer-button"
                   >
                     <PlusIcon className="mr-1.5 size-3.5" />
                     Add Signer
@@ -499,6 +502,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                       key={signer.id}
                       onClick={() => handleAddSigner(signer)}
                       className="cursor-pointer rounded-none px-3 py-2"
+                      data-testid={`vault-signer-option-${signer.id}`}
                     >
                       <div className="flex items-center gap-2">
                         {getDeviceIcon(signer.deviceType)}
