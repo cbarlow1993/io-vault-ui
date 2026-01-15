@@ -209,3 +209,77 @@ export type ReshareVote = z.infer<typeof zReshareVote>;
 export type ReshareVoteChangeType = z.infer<typeof zReshareVoteChangeType>;
 export type ReshareVoteResult = z.infer<typeof zReshareVoteResult>;
 export type ReshareVotesResponse = z.infer<typeof zReshareVotesResponse>;
+
+// Signature status enum
+export const zSignatureStatus = z.enum([
+  'voting',
+  'presigning',
+  'signing',
+  'completed',
+  'rejected',
+  'expired',
+  'failed',
+]);
+
+// Signature COSE algorithm enum
+export const zSignatureCoseAlgorithm = z.enum([
+  'eddsa',
+  'eddsa_blake2b',
+  'es256k',
+  'eskec256',
+]);
+
+// Signature content type enum
+export const zSignatureContentType = z.enum([
+  'application/octet-stream+hex',
+  'application/octet-stream+base64',
+  'text/plain',
+  'application/x-eip712+json',
+]);
+
+// Signature item schema
+export const zSignatureItem = z.object({
+  id: z.string(),
+  vaultId: z.string(),
+  status: zSignatureStatus,
+  data: z.array(z.string()),
+  chainId: z.number().nullable(),
+  coseAlgorithm: zSignatureCoseAlgorithm,
+  derivationPath: z.string().nullable(),
+  contentType: zSignatureContentType,
+  signature: z.array(z.string()).nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+});
+
+// Signature list params
+export const zSignatureListParams = z.object({
+  vaultId: z.string(),
+  limit: z.number().optional(),
+  cursor: z.string().optional(),
+  order: z.enum(['asc', 'desc']).optional(),
+  status: z.union([zSignatureStatus, z.array(zSignatureStatus)]).optional(),
+});
+
+// Signature list response
+export const zSignatureListResponse = z.object({
+  data: z.array(zSignatureItem),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+});
+
+// Get signature params
+export const zGetSignatureParams = z.object({
+  vaultId: z.string(),
+  signatureId: z.string(),
+});
+
+// Signature types
+export type SignatureStatus = z.infer<typeof zSignatureStatus>;
+export type SignatureCoseAlgorithm = z.infer<typeof zSignatureCoseAlgorithm>;
+export type SignatureContentType = z.infer<typeof zSignatureContentType>;
+export type SignatureItem = z.infer<typeof zSignatureItem>;
+export type SignatureListParams = z.infer<typeof zSignatureListParams>;
+export type SignatureListResponse = z.infer<typeof zSignatureListResponse>;
+export type GetSignatureParams = z.infer<typeof zGetSignatureParams>;
