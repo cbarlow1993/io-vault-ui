@@ -263,6 +263,68 @@ export type Member = {
   workspaceIds: string[];
 };
 
+// Mock members data (used by teams/workspaces pages - members page uses Clerk)
+export const members: Member[] = [
+  {
+    id: 'member-001',
+    name: 'Sarah Chen',
+    email: 'sarah.chen@acme.com',
+    platformRole: 'owner',
+    status: 'active',
+    joinedAt: '2025-01-15',
+    workspaceIds: ['ws-001', 'ws-002'],
+  },
+  {
+    id: 'member-002',
+    name: 'Marcus Johnson',
+    email: 'marcus.j@acme.com',
+    platformRole: 'admin',
+    status: 'active',
+    joinedAt: '2025-02-01',
+    workspaceIds: ['ws-001'],
+  },
+  {
+    id: 'member-003',
+    name: 'Elena Rodriguez',
+    email: 'elena.r@acme.com',
+    platformRole: 'member',
+    status: 'active',
+    joinedAt: '2025-02-15',
+    workspaceIds: ['ws-001', 'ws-002'],
+  },
+  {
+    id: 'member-004',
+    name: 'James Park',
+    email: 'james.p@acme.com',
+    platformRole: 'auditor',
+    status: 'active',
+    joinedAt: '2025-03-01',
+    workspaceIds: ['ws-002'],
+  },
+  {
+    id: 'member-005',
+    name: 'Aisha Patel',
+    email: 'aisha.p@acme.com',
+    platformRole: 'member',
+    status: 'active',
+    joinedAt: '2025-03-15',
+    workspaceIds: ['ws-001'],
+  },
+  {
+    id: 'member-006',
+    name: 'David Kim',
+    email: 'david.k@acme.com',
+    platformRole: 'billing',
+    status: 'active',
+    joinedAt: '2025-04-01',
+    workspaceIds: [],
+  },
+];
+
+export const getMemberById = (id: string): Member | undefined => {
+  return members.find((member) => member.id === id);
+};
+
 // ============================================================================
 // TEAMS
 // ============================================================================
