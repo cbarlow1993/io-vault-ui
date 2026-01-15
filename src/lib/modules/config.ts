@@ -189,7 +189,8 @@ export const moduleIds: ModuleId[] = ['treasury', 'compliance', 'global'];
 
 export function getModuleFromPath(pathname: string): ModuleId | null {
   for (const id of moduleIds) {
-    if (pathname.startsWith(`/${id}`)) {
+    // Match /{id} exactly or /{id}/ prefix
+    if (pathname === `/${id}` || pathname.startsWith(`/${id}/`)) {
       return id;
     }
   }
