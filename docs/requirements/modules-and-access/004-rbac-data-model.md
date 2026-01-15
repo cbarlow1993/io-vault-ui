@@ -153,6 +153,7 @@ Organisation
 | view_balances | View Balances |
 | view_transactions | View Transactions |
 | initiate_transfer | Initiate Transfer |
+| review_transfer | Review Transfer |
 | approve_transfer | Approve Transfer |
 | manage_vaults | Manage Vaults |
 

@@ -78,6 +78,7 @@ The system enforces fine-grained access control on API endpoints using a policy 
 | `POST /vaults/:vaultId/addresses` | treasury | create_address |
 | `GET /transactions` | treasury | view_transactions |
 | `POST /transactions` | treasury | initiate_transfer |
+| `PUT /transactions/:id/review` | treasury | review_transfer |
 | `PUT /transactions/:id/approve` | treasury | approve_transfer |
 
 ## Non-Functional Requirements

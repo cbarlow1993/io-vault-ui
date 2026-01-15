@@ -127,7 +127,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Query treasury module actions: `SELECT ma.name FROM module_actions ma JOIN modules m ON ma.module_id = m.id WHERE m.name = 'treasury'` | Actions returned |
-| 2 | Verify actions include: view_vaults, create_vault, view_addresses, create_address, view_balances, view_transactions, initiate_transfer, approve_transfer, manage_vaults | All 9 actions present |
+| 2 | Verify actions include: view_vaults, create_vault, view_addresses, create_address, view_balances, view_transactions, initiate_transfer, review_transfer, approve_transfer, manage_vaults | All 10 actions present |
 
 ---
 
@@ -149,7 +149,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Query admin role permissions: `SELECT ma.name FROM module_role_permissions mrp JOIN module_roles mr ON mrp.module_role_id = mr.id JOIN module_actions ma ON mrp.action_id = ma.id JOIN modules m ON mr.module_id = m.id WHERE m.name = 'treasury' AND mr.name = 'admin'` | All actions returned |
-| 2 | Count matches total treasury actions (9) | Admin has full access |
+| 2 | Count matches total treasury actions (10) | Admin has full access |
 
 ---
 
@@ -161,7 +161,7 @@
 |------|--------|-----------------|
 | 1 | Query treasurer permissions (same pattern as above) | Permissions returned |
 | 2 | Verify includes: view_vaults, view_addresses, view_balances, view_transactions, initiate_transfer | 5 permissions |
-| 3 | Verify excludes: create_vault, create_address, approve_transfer, manage_vaults | Not present |
+| 3 | Verify excludes: create_vault, create_address, review_transfer, approve_transfer, manage_vaults | Not present |
 
 ---
 
@@ -173,7 +173,7 @@
 |------|--------|-----------------|
 | 1 | Query auditor permissions | Permissions returned |
 | 2 | Verify includes: view_vaults, view_addresses, view_balances, view_transactions | 4 permissions |
-| 3 | Verify excludes: create_*, initiate_transfer, approve_transfer, manage_vaults | Not present |
+| 3 | Verify excludes: create_*, initiate_transfer, review_transfer, approve_transfer, manage_vaults | Not present |
 
 ---
 

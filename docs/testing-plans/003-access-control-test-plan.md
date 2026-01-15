@@ -100,7 +100,19 @@
 
 ---
 
-#### TC-AC-007: Treasurer cannot approve transfer
+#### TC-AC-007: Treasurer cannot review transfer
+
+**Covers:** FR-2, VR-3
+
+| Step | Action | Expected Result |
+|------|--------|-----------------|
+| 1 | Authenticate as `treasurer-user` | Token obtained |
+| 2 | PUT `/transactions/:id/review` | 403 Forbidden |
+| 3 | Verify error indicates role lacks permission | Permission denied message |
+
+---
+
+#### TC-AC-008: Treasurer cannot approve transfer
 
 **Covers:** FR-2, VR-3
 
@@ -112,7 +124,7 @@
 
 ---
 
-#### TC-AC-008: Auditor can only view (not initiate)
+#### TC-AC-009: Auditor can only view (not initiate)
 
 **Covers:** FR-2, VR-3
 
@@ -128,7 +140,7 @@
 
 ### Resource Scope Tests
 
-#### TC-AC-009: Scoped user can access allowed vault
+#### TC-AC-010: Scoped user can access allowed vault
 
 **Covers:** FR-3
 
@@ -140,7 +152,7 @@
 
 ---
 
-#### TC-AC-010: Scoped user denied access to out-of-scope vault
+#### TC-AC-011: Scoped user denied access to out-of-scope vault
 
 **Covers:** FR-3, VR-4
 
@@ -153,7 +165,7 @@
 
 ---
 
-#### TC-AC-011: Null scope allows all vaults
+#### TC-AC-012: Null scope allows all vaults
 
 **Covers:** FR-3 (scope behavior)
 
@@ -166,7 +178,7 @@
 
 ---
 
-#### TC-AC-012: Empty vaultIds array allows all vaults
+#### TC-AC-013: Empty vaultIds array allows all vaults
 
 **Covers:** FR-3 (scope behavior)
 
@@ -180,7 +192,7 @@
 
 ---
 
-#### TC-AC-013: List operations work without specific vault
+#### TC-AC-014: List operations work without specific vault
 
 **Covers:** FR-3 (scope behavior)
 
@@ -194,7 +206,7 @@
 
 ### Authentication Tests
 
-#### TC-AC-014: Unauthenticated request rejected
+#### TC-AC-015: Unauthenticated request rejected
 
 **Covers:** VR-1
 
@@ -205,7 +217,7 @@
 
 ---
 
-#### TC-AC-015: Invalid token rejected
+#### TC-AC-016: Invalid token rejected
 
 **Covers:** VR-1
 
@@ -218,7 +230,7 @@
 
 ### Audit Logging Tests
 
-#### TC-AC-016: Access decision is logged
+#### TC-AC-017: Access decision is logged
 
 **Covers:** FR-4, NFR-2
 
@@ -231,7 +243,7 @@
 
 ---
 
-#### TC-AC-017: Denied access is logged
+#### TC-AC-018: Denied access is logged
 
 **Covers:** FR-4, NFR-2
 
@@ -246,7 +258,7 @@
 
 ### Cross-Module Isolation Tests
 
-#### TC-AC-018: Treasury role doesn't grant compliance access
+#### TC-AC-019: Treasury role doesn't grant compliance access
 
 **Covers:** FR-1
 
@@ -260,7 +272,7 @@
 
 ## Edge Case Tests
 
-#### TC-AC-019: Multiple module roles - correct one applied
+#### TC-AC-020: Multiple module roles - correct one applied
 
 **Covers:** FR-1, FR-2
 
@@ -273,7 +285,7 @@
 
 ---
 
-#### TC-AC-020: Concurrent access doesn't interfere
+#### TC-AC-021: Concurrent access doesn't interfere
 
 **Covers:** NFR-1
 
