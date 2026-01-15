@@ -1,13 +1,18 @@
 import type { RbacRepository } from '@/src/repositories/rbac.repository.js';
 import type { OpaClient } from './opa-client.js';
 import type { PolicyService, PolicyDecision } from './types.js';
+import { LocalPolicyService } from './policy-service.js';
 import { logger } from '@/utils/powertools.js';
 
 export class OpaPolicyService implements PolicyService {
+  private localPolicyService: LocalPolicyService;
+
   constructor(
     private opaClient: OpaClient,
     private rbacRepository: RbacRepository
-  ) {}
+  ) {
+    this.localPolicyService = new LocalPolicyService(rbacRepository);
+  }
 
   async checkAccess(params: {
     userId: string;
@@ -34,24 +39,7 @@ export class OpaPolicyService implements PolicyService {
       });
     } catch (error) {
       logger.warn('OPA evaluation failed, falling back to local evaluation', { error });
-      return this.localFallback(userWithRoles, params);
+      return this.localPolicyService.checkAccess(params);
     }
-  }
-
-  private localFallback(
-    userWithRoles: Awaited<ReturnType<RbacRepository['getUserWithRoles']>>,
-    _params: { module: string; action: string }
-  ): PolicyDecision {
-    // Owner bypass
-    if (userWithRoles.globalRole === 'owner') {
-      return { allowed: true, matchedRole: 'owner' };
-    }
-
-    // For other roles, deny by default during OPA outage
-    // This is a safe fallback - operations can be retried
-    return {
-      allowed: false,
-      reason: 'Policy evaluation unavailable, please retry',
-    };
   }
 }

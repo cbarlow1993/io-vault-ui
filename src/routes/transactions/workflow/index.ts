@@ -9,6 +9,7 @@ import {
 import {
   createWorkflowHandler,
   confirmWorkflowHandler,
+  reviewWorkflowHandler,
   approveWorkflowHandler,
   rejectWorkflowHandler,
   getWorkflowHandler,
@@ -44,6 +45,21 @@ export async function workflowRoutes(server: FastifyInstance) {
       },
     },
     confirmWorkflowHandler
+  );
+
+  // Review transfer
+  server.put(
+    '/:id/review',
+    {
+      preHandler: [requireAccess('treasury', 'review_transfer')],
+      schema: {
+        params: workflowParamsSchema,
+        tags: ['Workflows'],
+        summary: 'Review pending transfer',
+        description: 'Reviews a pending transfer workflow. Requires treasury:review_transfer permission.',
+      },
+    },
+    reviewWorkflowHandler
   );
 
   // Approve

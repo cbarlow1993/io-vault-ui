@@ -89,6 +89,30 @@ export async function confirmWorkflowHandler(
   });
 }
 
+export async function reviewWorkflowHandler(
+  request: FastifyRequest<{ Params: WorkflowParams }>,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+  const { userId } = request.auth!;
+  const orchestrator = request.server.services.workflowOrchestrator;
+
+  // Verify organisation access
+  await verifyWorkflowAccess(request, id);
+
+  // Review marks the workflow as reviewed by the user
+  const workflow = await orchestrator.send(
+    id,
+    { type: 'REVIEW', reviewedBy: userId },
+    `user:${userId}`
+  );
+
+  return reply.send({
+    id: workflow.id,
+    state: workflow.state,
+  });
+}
+
 export async function approveWorkflowHandler(
   request: FastifyRequest<{ Params: WorkflowParams }>,
   reply: FastifyReply

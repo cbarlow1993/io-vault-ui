@@ -27,9 +27,14 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   // ============================================================================
 
   const treasuryActions = [
+    { name: 'view_vaults', displayName: 'View Vaults', description: 'View vault details and list' },
+    { name: 'create_vault', displayName: 'Create Vault', description: 'Create new vaults' },
+    { name: 'view_addresses', displayName: 'View Addresses', description: 'View address details and list' },
+    { name: 'create_address', displayName: 'Create Address', description: 'Generate or create new addresses' },
     { name: 'view_balances', displayName: 'View Balances', description: 'View wallet and vault balances' },
     { name: 'view_transactions', displayName: 'View Transactions', description: 'View transaction history' },
     { name: 'initiate_transfer', displayName: 'Initiate Transfer', description: 'Create new transfer requests' },
+    { name: 'review_transfer', displayName: 'Review Transfer', description: 'Review pending transfer requests' },
     { name: 'approve_transfer', displayName: 'Approve Transfer', description: 'Approve pending transfer requests' },
     { name: 'cancel_transfer', displayName: 'Cancel Transfer', description: 'Cancel pending transfer requests' },
     { name: 'manage_vaults', displayName: 'Manage Vaults', description: 'Create and configure vaults' },
@@ -129,8 +134,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     `.execute(db);
   }
 
-  // Treasury Treasurer: view_balances, view_transactions, initiate_transfer, cancel_transfer, export_data
-  const treasurerActions = ['view_balances', 'view_transactions', 'initiate_transfer', 'cancel_transfer', 'export_data'];
+  // Treasury Treasurer: view_vaults, view_addresses, view_balances, view_transactions, initiate_transfer, cancel_transfer, export_data
+  const treasurerActions = ['view_vaults', 'view_addresses', 'view_balances', 'view_transactions', 'initiate_transfer', 'cancel_transfer', 'export_data'];
   for (const actionName of treasurerActions) {
     await sql`
       INSERT INTO module_role_permissions (module_role_id, action_id)
@@ -138,8 +143,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     `.execute(db);
   }
 
-  // Treasury Auditor: view_balances, view_transactions, export_data
-  const treasuryAuditorActions = ['view_balances', 'view_transactions', 'export_data'];
+  // Treasury Auditor: view_vaults, view_addresses, view_balances, view_transactions, export_data
+  const treasuryAuditorActions = ['view_vaults', 'view_addresses', 'view_balances', 'view_transactions', 'export_data'];
   for (const actionName of treasuryAuditorActions) {
     await sql`
       INSERT INTO module_role_permissions (module_role_id, action_id)

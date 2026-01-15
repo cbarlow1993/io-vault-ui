@@ -23,19 +23,8 @@ export class LocalPolicyService implements PolicyService {
     // 1. Fetch user with roles
     const userWithRoles = await this.rbacRepository.getUserWithRoles(userId, organisationId);
 
-    // 2. Check if owner -> return allowed (owner bypasses all checks)
-    if (userWithRoles.globalRole === 'owner') {
-      return {
-        allowed: true,
-        reason: 'Owner has full access',
-        matchedRole: 'owner',
-      };
-    }
-
-    // 3. Find module role for requested module
     const moduleRole = userWithRoles.moduleRoles.find((role) => role.module === module);
 
-    // 4. If no role -> denied
     if (!moduleRole) {
       return {
         allowed: false,
@@ -43,7 +32,6 @@ export class LocalPolicyService implements PolicyService {
       };
     }
 
-    // 5. Check resource scope if applicable
     const scopeCheck = this.checkResourceScope(moduleRole, resource);
     if (!scopeCheck.valid) {
       return {
@@ -52,11 +40,10 @@ export class LocalPolicyService implements PolicyService {
       };
     }
 
-    // 6. Check if role has permission for action
     const permissions = await this.rbacRepository.getModuleRolePermissions(module, moduleRole.role);
     const hasPermission = permissions.includes(action);
 
-    // 7. Return decision
+    // 6. Return decision
     if (hasPermission) {
       return {
         allowed: true,

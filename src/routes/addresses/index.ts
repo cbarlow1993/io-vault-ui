@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import chainValidationPlugin from '@/src/plugins/chain-validation.js';
+import { requireAccess } from '@/src/middleware/require-access.js';
 import {
   createAddress,
   createHDAddress,
@@ -39,6 +40,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/',
     {
+      preHandler: [requireAccess('treasury', 'view_addresses')],
       schema: {
         tags: ['Addresses'],
         summary: 'List addresses for a vault',
@@ -61,6 +63,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/:ecosystem/chain/:chainAlias',
     {
+      preHandler: [requireAccess('treasury', 'view_addresses')],
       schema: {
         tags: ['Addresses'],
         summary: 'List addresses for a vault and chain',
@@ -85,6 +88,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/',
     {
+      preHandler: [requireAccess('treasury', 'create_address')],
       schema: {
         tags: ['Addresses'],
         summary: 'Generate address for vault',
@@ -109,6 +113,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias',
     {
+      preHandler: [requireAccess('treasury', 'create_address')],
       schema: {
         tags: ['Addresses'],
         summary: 'Create address for vault',
@@ -134,6 +139,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address',
     {
+      preHandler: [requireAccess('treasury', 'view_addresses')],
       schema: {
         tags: ['Addresses'],
         summary: 'Get registered address',
@@ -155,6 +161,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.patch(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address',
     {
+      preHandler: [requireAccess('treasury', 'manage_vaults')],
       schema: {
         tags: ['Addresses'],
         summary: 'Update address',
@@ -175,6 +182,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address/monitoring',
     {
+      preHandler: [requireAccess('treasury', 'manage_vaults')],
       schema: {
         tags: ['Addresses'],
         summary: 'Start monitoring an address for transactions',
@@ -196,6 +204,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.delete(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address/monitoring',
     {
+      preHandler: [requireAccess('treasury', 'manage_vaults')],
       schema: {
         tags: ['Addresses'],
         summary: 'Stop monitoring an address',
@@ -216,6 +225,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/hd-addresses',
     {
+      preHandler: [requireAccess('treasury', 'create_address')],
       schema: {
         tags: ['Addresses'],
         summary: 'Create HD address',
@@ -238,6 +248,7 @@ export default async function addressRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/:ecosystem/chain/:chainAlias/hd-addresses',
     {
+      preHandler: [requireAccess('treasury', 'view_addresses')],
       schema: {
         tags: ['Addresses'],
         summary: 'List HD addresses',

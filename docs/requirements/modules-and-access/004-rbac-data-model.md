@@ -155,15 +155,18 @@ Organisation
 | initiate_transfer | Initiate Transfer |
 | review_transfer | Review Transfer |
 | approve_transfer | Approve Transfer |
+| cancel_transfer | Cancel Transfer |
 | manage_vaults | Manage Vaults |
+| manage_allowlists | Manage Allowlists |
+| export_data | Export Data |
 
 ### Roles
 
 | name | display_name | Permissions |
 |------|--------------|-------------|
 | admin | Admin | All actions |
-| treasurer | Treasurer | view_vaults, view_addresses, view_balances, view_transactions, initiate_transfer |
-| auditor | Auditor | view_vaults, view_addresses, view_balances, view_transactions |
+| treasurer | Treasurer | view_vaults, view_addresses, view_balances, view_transactions, initiate_transfer, cancel_transfer, export_data |
+| auditor | Auditor | view_vaults, view_addresses, view_balances, view_transactions, export_data |
 
 ## Non-Functional Requirements
 
