@@ -17,7 +17,7 @@ export class SignatureRepository {
 
   async list(vaultId: string, params?: SignatureListParams) {
     const { data, response } = await vaultApiClient.GET(
-      '/treasury/vaults/{vaultId}/signatures',
+      '/vaults/{vaultId}/signatures',
       {
         headers: this.headers,
         params: { path: { vaultId }, query: params },
@@ -33,7 +33,7 @@ export class SignatureRepository {
 
   async get(vaultId: string, id: string) {
     const { data, response } = await vaultApiClient.GET(
-      '/treasury/vaults/{vaultId}/signatures/{id}',
+      '/vaults/{vaultId}/signatures/{id}',
       {
         headers: this.headers,
         params: { path: { vaultId, id } },
@@ -52,7 +52,7 @@ export class SignatureRepository {
 
   async create(vaultId: string, input: CreateSignatureInput) {
     const { data, response } = await vaultApiClient.POST(
-      '/treasury/vaults/{vaultId}/signatures',
+      '/vaults/{vaultId}/signatures',
       {
         headers: this.headers,
         params: { path: { vaultId } },
@@ -69,7 +69,7 @@ export class SignatureRepository {
 
   async getVotes(vaultId: string, id: string) {
     const { data, response } = await vaultApiClient.GET(
-      '/treasury/vaults/{vaultId}/signatures/{id}/votes',
+      '/vaults/{vaultId}/signatures/{id}/votes',
       {
         headers: this.headers,
         params: { path: { vaultId, id } },
