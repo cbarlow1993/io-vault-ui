@@ -2,7 +2,7 @@
  * Vault entity.
  * Represents a vault containing wallet addresses and curve configurations.
  */
-import type { WalletAddress } from '@/src/domain/value-objects/index.js';
+import type { WalletAddress, CreateVaultCurveData } from '@/src/domain/value-objects/index.js';
 import { VaultCurve } from '@/src/domain/value-objects/index.js';
 import { VaultCreationError } from '../errors.js';
 import type { ElipticCurve } from '@/src/lib/database/types.js';
@@ -20,7 +20,7 @@ export interface CreateNewVaultData {
   id: string;
   organizationId: string;
   workspaceId: string;
-  curves: Array<{ curveType: ElipticCurve; xpub: string }>;
+  curves: CreateVaultCurveData[];
 }
 
 export class Vault {
@@ -60,13 +60,13 @@ export class Vault {
     }
 
     // Domain rule: No duplicate curve types
-    const curveTypes = new Set(data.curves.map((c) => c.curveType));
+    const curveTypes = new Set(data.curves.map((c) => c.curve));
     if (curveTypes.size !== data.curves.length) {
       throw new VaultCreationError('Duplicate curve types not allowed');
     }
 
     // Create VaultCurve value objects with validation
-    const vaultCurves = data.curves.map((c) => VaultCurve.createNew(c.curveType, c.xpub));
+    const vaultCurves = data.curves.map((c) => VaultCurve.createNew(c));
 
     return new Vault(
       data.id,
@@ -87,7 +87,7 @@ export class Vault {
    */
   getCurveXpub(curve: ElipticCurve): string | null {
     const vaultCurve = this._curves.find((c) => c.curve === curve);
-    return vaultCurve?.xpub.value ?? null;
+    return vaultCurve?.xpub?.value ?? null;
   }
 
   /**

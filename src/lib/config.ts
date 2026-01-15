@@ -51,17 +51,18 @@ const configSchema = z.object({
       poolMax: z.coerce.number().default(20),
       sslMode: z.string().optional(),
     }),
+    // Deprecated: vaultPostgres is no longer used - vault tables are now in the main database
     vaultPostgres: z.object({
-      host: z.string(),
+      host: z.string().optional(),
       port: z.coerce.number().default(5432),
-      name: z.string(),
-      user: z.string(),
+      name: z.string().optional(),
+      user: z.string().optional(),
       password: z.string().optional(),
       useIamAuth: booleanFromString.default(false),
       poolMin: z.coerce.number().default(5),
       poolMax: z.coerce.number().default(20),
       sslMode: z.string().optional(),
-    }),
+    }).optional(),
   }),
 
   apis: z.object({

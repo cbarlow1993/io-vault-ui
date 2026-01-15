@@ -21,7 +21,9 @@ export async function createVault(
     workspaceId,
     organizationId: organisationId,
     curves: curves.map((c) => ({
-      curveType: c.curveType as ElipticCurve,
+      algorithm: c.algorithm,
+      curve: c.curve as ElipticCurve,
+      publicKey: c.publicKey,
       xpub: c.xpub,
     })),
   });

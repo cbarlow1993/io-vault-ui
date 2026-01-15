@@ -1,13 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import type { Kysely } from 'kysely';
-import {
-  getDatabase,
-  closeDatabase,
-  getVaultDatabase,
-  closeVaultDatabase,
-} from '@/src/lib/database/connection.js';
-import type { Database, VaultDatabase } from '@/src/lib/database/types.js';
+import { getDatabase, closeDatabase } from '@/src/lib/database/connection.js';
+import type { Database } from '@/src/lib/database/types.js';
 import { PostgresAddressRepository } from '@/src/repositories/address.repository.js';
 import { PostgresTokenRepository } from '@/src/repositories/token.repository.js';
 import { PostgresTokenPriceRepository } from '@/src/repositories/token-price.repository.js';
@@ -51,7 +46,6 @@ const PRICE_CACHE_TTL_SECONDS = 3600; // 1 hour
 declare module 'fastify' {
   interface FastifyInstance {
     db: Kysely<Database>;
-    vaultDb: Kysely<VaultDatabase>;
     rbacRepository: RbacRepository;
     repositories: {
       addresses: AddressRepository;
@@ -76,19 +70,11 @@ declare module 'fastify' {
 
 async function databasePlugin(fastify: FastifyInstance) {
   let db: Kysely<Database>;
-  let vaultDb: Kysely<VaultDatabase>;
 
   try {
     db = await getDatabase();
   } catch (error) {
     logger.error('Failed to initialize database connection', { error });
-    throw error;
-  }
-
-  try {
-    vaultDb = await getVaultDatabase();
-  } catch (error) {
-    logger.error('Failed to initialize vault database connection', { error });
     throw error;
   }
 
@@ -98,7 +84,7 @@ async function databasePlugin(fastify: FastifyInstance) {
   const tokenPriceRepository = new PostgresTokenPriceRepository(db);
   const transactionRepository = new PostgresTransactionRepository(db);
   const tokenHoldingRepository = new PostgresTokenHoldingRepository(db);
-  const vaultRepository = new PostgresVaultRepository(vaultDb);
+  const vaultRepository = new PostgresVaultRepository(db);
   const rbacRepository = new PostgresRbacRepository(db);
 
   // Create services
@@ -139,7 +125,6 @@ async function databasePlugin(fastify: FastifyInstance) {
 
   // Decorate Fastify instance
   fastify.decorate('db', db);
-  // fastify.decorate('vaultDb', vaultDb);
   fastify.decorate('rbacRepository', rbacRepository);
 
   fastify.decorate('repositories', {
@@ -166,7 +151,6 @@ async function databasePlugin(fastify: FastifyInstance) {
   if (config.server.runtime !== 'lambda') {
     fastify.addHook('onClose', async () => {
       await closeDatabase();
-      await closeVaultDatabase();
     });
   }
 

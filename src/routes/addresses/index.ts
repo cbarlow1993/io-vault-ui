@@ -1,7 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import chainValidationPlugin from '@/src/plugins/chain-validation.js';
 import {
-  bulkCreateHDAddresses,
   createAddress,
   createHDAddress,
   generateAddress,
@@ -17,8 +16,6 @@ import {
   addressListResponseSchema,
   addressPathParamsSchema,
   addressResponseSchema,
-  bulkCreateHDAddressBodySchema,
-  bulkHDAddressResponseSchema,
   createAddressBodySchema,
   createHDAddressBodySchema,
   fullAddressParamsSchema,
@@ -232,28 +229,6 @@ export default async function addressRoutes(fastify: FastifyInstance) {
       },
     },
     createHDAddress
-  );
-
-  /**
-   * POST /ecosystem/:ecosystem/chain/:chainAlias/hd-addresses/bulk
-   * Bulk create HD addresses
-   */
-  fastify.post(
-    '/ecosystem/:ecosystem/chain/:chainAlias/hd-addresses/bulk',
-    {
-      schema: {
-        tags: ['Addresses'],
-        summary: 'Bulk create HD addresses',
-        description:
-          'Create multiple HD addresses for the vault within the specified index range. Maximum of 100 addresses can be created at once.',
-        params: addressPathParamsSchema,
-        body: bulkCreateHDAddressBodySchema,
-        response: {
-          201: bulkHDAddressResponseSchema,
-        },
-      },
-    },
-    bulkCreateHDAddresses
   );
 
   /**

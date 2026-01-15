@@ -153,44 +153,12 @@ export const addressListResponseSchema = z.object({
 
 // ==================== HD Address Schemas ====================
 
-const MAX_HD_ADDRESSES = 100;
-const MAX_INDEX = 0x7fffffff; // 2^31 - 1
-
 /**
  * Schema for creating an HD address
  */
 export const createHDAddressBodySchema = z.object({
   derivationPath: structuredDerivationPathSchema.optional(),
 });
-
-/**
- * Schema for bulk creating HD addresses
- */
-export const bulkCreateHDAddressBodySchema = z
-  .object({
-    indexFrom: z
-      .number()
-      .int()
-      .nonnegative()
-      .refine((n) => n <= MAX_INDEX, {
-        message: `indexFrom must be between 0 and ${MAX_INDEX}`,
-      }),
-    indexTo: z
-      .number()
-      .int()
-      .nonnegative()
-      .refine((n) => n <= MAX_INDEX, {
-        message: `indexTo must be between 0 and ${MAX_INDEX}`,
-      }),
-  })
-  .refine((data) => data.indexTo >= data.indexFrom, {
-    message: 'indexTo must be greater than or equal to indexFrom',
-    path: ['indexTo'],
-  })
-  .refine((data) => data.indexTo - data.indexFrom < MAX_HD_ADDRESSES, {
-    message: `Cannot create more than ${MAX_HD_ADDRESSES} HD addresses at once`,
-    path: ['indexTo'],
-  });
 
 /**
  * Schema for HD address response
@@ -201,13 +169,6 @@ export const hdAddressResponseSchema = z.object({
   vaultId: vaultIdSchema,
   derivationPath: structuredDerivationPathSchema.nullish(),
   ecosystem: z.enum(EcoSystem),
-});
-
-/**
- * Schema for bulk HD address response
- */
-export const bulkHDAddressResponseSchema = z.object({
-  data: z.array(hdAddressResponseSchema),
 });
 
 // ==================== Type Exports ====================
@@ -223,6 +184,4 @@ export type AddressResponse = z.infer<typeof addressResponseSchema>;
 export type AddressListItem = z.infer<typeof addressListItemSchema>;
 export type AddressListResponse = z.infer<typeof addressListResponseSchema>;
 export type CreateHDAddressBody = z.infer<typeof createHDAddressBodySchema>;
-export type BulkCreateHDAddressBody = z.infer<typeof bulkCreateHDAddressBodySchema>;
 export type HDAddressResponse = z.infer<typeof hdAddressResponseSchema>;
-export type BulkHDAddressResponse = z.infer<typeof bulkHDAddressResponseSchema>;

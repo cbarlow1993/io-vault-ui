@@ -10,6 +10,21 @@ describe('Vault', () => {
     return WalletAddress.create(addr, chain);
   };
 
+  // Helper to create curve data
+  const secp256k1Curve = (xpub?: string) => ({
+    algorithm: 'ECDSA',
+    curve: 'secp256k1' as const,
+    publicKey: '04abc123',
+    xpub,
+  });
+
+  const ed25519Curve = (xpub?: string) => ({
+    algorithm: 'EDDSA',
+    curve: 'ed25519' as const,
+    publicKey: 'def456',
+    xpub,
+  });
+
   describe('create', () => {
     it('creates a Vault with all required fields', () => {
       const createdAt = new Date('2024-01-01T00:00:00Z');
@@ -68,8 +83,8 @@ describe('Vault', () => {
     });
 
     it('creates a Vault with curves', () => {
-      const curve1 = VaultCurve.createNew('secp256k1', 'xpub123');
-      const curve2 = VaultCurve.createNew('ed25519', 'edpub456');
+      const curve1 = VaultCurve.createNew(secp256k1Curve('xpub123'));
+      const curve2 = VaultCurve.createNew(ed25519Curve('edpub456'));
 
       const vault = Vault.create({
         id: 'vault-123',
@@ -90,14 +105,14 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
       });
 
       expect(vault.id).toBe('vault-123');
       expect(vault.organizationId).toBe('org-456');
       expect(vault.workspaceId).toBe('ws-789');
       expect(vault.curves).toHaveLength(1);
-      expect(vault.curves[0].curve).toBe('secp256k1');
+      expect(vault.curves[0]!.curve).toBe('secp256k1');
     });
 
     it('creates vault with multiple curves', () => {
@@ -105,15 +120,24 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [
-          { curveType: 'secp256k1', xpub: 'xpub...' },
-          { curveType: 'ed25519', xpub: 'edpub...' },
-        ],
+        curves: [secp256k1Curve('xpub...'), ed25519Curve('edpub...')],
       });
 
       expect(vault.curves).toHaveLength(2);
       expect(vault.hasCurve('secp256k1')).toBe(true);
       expect(vault.hasCurve('ed25519')).toBe(true);
+    });
+
+    it('creates vault with curves without xpub', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [ed25519Curve()], // no xpub
+      });
+
+      expect(vault.curves).toHaveLength(1);
+      expect(vault.getCurveXpub('ed25519')).toBeNull();
     });
 
     it('throws VaultCreationError for empty curves', () => {
@@ -141,10 +165,7 @@ describe('Vault', () => {
           id: 'vault-123',
           organizationId: 'org-456',
           workspaceId: 'ws-789',
-          curves: [
-            { curveType: 'secp256k1', xpub: 'xpub1' },
-            { curveType: 'secp256k1', xpub: 'xpub2' },
-          ],
+          curves: [secp256k1Curve('xpub1'), secp256k1Curve('xpub2')],
         })
       ).toThrow(VaultCreationError);
       expect(() =>
@@ -152,10 +173,7 @@ describe('Vault', () => {
           id: 'vault-123',
           organizationId: 'org-456',
           workspaceId: 'ws-789',
-          curves: [
-            { curveType: 'secp256k1', xpub: 'xpub1' },
-            { curveType: 'secp256k1', xpub: 'xpub2' },
-          ],
+          curves: [secp256k1Curve('xpub1'), secp256k1Curve('xpub2')],
         })
       ).toThrow('Duplicate curve types not allowed');
     });
@@ -166,7 +184,7 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
       });
       const after = new Date();
 
@@ -181,7 +199,7 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'my-xpub-value' }],
+        curves: [secp256k1Curve('my-xpub-value')],
       });
 
       expect(vault.getCurveXpub('secp256k1')).toBe('my-xpub-value');
@@ -192,7 +210,18 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
+      });
+
+      expect(vault.getCurveXpub('ed25519')).toBeNull();
+    });
+
+    it('returns null for curve without xpub', () => {
+      const vault = Vault.createNew({
+        id: 'vault-123',
+        organizationId: 'org-456',
+        workspaceId: 'ws-789',
+        curves: [ed25519Curve()], // no xpub
       });
 
       expect(vault.getCurveXpub('ed25519')).toBeNull();
@@ -205,7 +234,7 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
       });
 
       expect(vault.hasCurve('secp256k1')).toBe(true);
@@ -216,7 +245,7 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
       });
 
       expect(vault.hasCurve('ed25519')).toBe(false);
@@ -231,7 +260,7 @@ describe('Vault', () => {
         createdAt: new Date(),
       });
 
-      const curves = [VaultCurve.createNew('secp256k1', 'xpub123')];
+      const curves = [VaultCurve.createNew(secp256k1Curve('xpub123'))];
       const updatedVault = vault.withCurves(curves);
 
       expect(updatedVault.curves).toHaveLength(1);
@@ -494,7 +523,7 @@ describe('Vault', () => {
         id: 'vault-123',
         organizationId: 'org-456',
         workspaceId: 'ws-789',
-        curves: [{ curveType: 'secp256k1', xpub: 'xpub...' }],
+        curves: [secp256k1Curve('xpub...')],
       });
 
       expect(Object.isFrozen(vault.curves)).toBe(true);

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PostgresVaultRepository } from '@/src/repositories/vault.repository.js';
 import type { Kysely } from 'kysely';
-import type { VaultDatabase } from '@/src/lib/database/types.js';
+import type { Database } from '@/src/lib/database/types.js';
 
 // Create mock Kysely instance
 function createMockDb() {
@@ -20,7 +20,7 @@ function createMockDb() {
   };
 
   return {
-    mockDb: mockDb as unknown as Kysely<VaultDatabase>,
+    mockDb: mockDb as unknown as Kysely<Database>,
     chainable,
     mockExecuteTakeFirst,
   };

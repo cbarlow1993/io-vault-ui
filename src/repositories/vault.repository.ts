@@ -1,6 +1,6 @@
 import { type Kysely, sql } from 'kysely';
 import type {
-  VaultDatabase,
+  Database,
   VaultRow,
   VaultCurveRow,
   TagAssignmentRow,
@@ -48,7 +48,7 @@ export interface VaultRepository {
 }
 
 export class PostgresVaultRepository implements VaultRepository {
-  constructor(private db: Kysely<VaultDatabase>) {}
+  constructor(private db: Kysely<Database>) {}
 
   async findById(id: string): Promise<VaultRow | null> {
     const result = await this.db
@@ -121,14 +121,11 @@ export class PostgresVaultRepository implements VaultRepository {
   }
 
   async findVaultCurves(vaultId: string): Promise<VaultWithCurves | null> {
-    console.log('[DEBUG] findVaultCurves called with vaultId:', vaultId);
     const curves = await this.db
       .selectFrom('VaultCurve')
       .selectAll()
       .where('vaultId', '=', vaultId)
       .execute();
-
-    console.log('[DEBUG] findVaultCurves raw result:', JSON.stringify(curves, null, 2));
 
     if (curves.length === 0) {
       return null;
@@ -193,9 +190,10 @@ export class PostgresVaultRepository implements VaultRepository {
       // Insert curves using raw SQL for enum cast
       const insertedCurves: VaultCurve[] = [];
       for (const curve of vault.curves) {
+        const xpubValue = curve.xpub?.value ?? null;
         const curveResult = await sql<VaultCurveRow>`
-          INSERT INTO "VaultCurve" ("vaultId", "curve", "xpub")
-          VALUES (${vault.id}, ${curve.curve}::"ElipticCurve", ${curve.xpub.value})
+          INSERT INTO "VaultCurve" ("vaultId", "curve", "algorithm", "publicKey", "xpub")
+          VALUES (${vault.id}, ${curve.curve}::"ElipticCurve", ${curve.algorithm}, ${curve.publicKey}, ${xpubValue})
           RETURNING *
         `.execute(trx);
 

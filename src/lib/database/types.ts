@@ -1,13 +1,5 @@
 import type { ColumnType, Generated, Insertable, Selectable, Updateable } from 'kysely';
 
-// Vault database schema (external vault database)
-export interface VaultDatabase {
-  Vault: VaultTable;
-  VaultCurve: VaultCurveTable;
-  Tag: TagTable;
-  TagAssignment: TagAssignmentTable;
-}
-
 // Vault table
 export interface VaultTable {
   id: string;
@@ -24,7 +16,9 @@ export interface VaultCurveTable {
   id: Generated<string>;
   vaultId: string;
   curve: ElipticCurve;
-  xpub: string;
+  algorithm: string;
+  publicKey: string;
+  xpub: string | null;
   createdAt: Generated<Date>;
   updatedAt: Generated<Date>;
 }
@@ -131,7 +125,17 @@ export interface PolicyDecisionTable {
   created_at: Generated<Date>;
 }
 
+// VaultDatabase is now merged into the main Database interface
+// This type alias is kept for backwards compatibility during migration
+export type VaultDatabase = Database;
+
 export interface Database {
+  // Vault tables (previously in separate VaultDatabase)
+  Vault: VaultTable;
+  VaultCurve: VaultCurveTable;
+  Tag: TagTable;
+  TagAssignment: TagAssignmentTable;
+  // Application tables
   addresses: AddressTable;
   address_tokens: AddressTokenTable;
   tokens: TokenTable;

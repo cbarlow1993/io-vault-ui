@@ -15,7 +15,6 @@ import { logger } from '@/utils/powertools.js';
 import { tryCatch } from '@/utils/try-catch.js';
 import type {
   AddressPathParams,
-  BulkCreateHDAddressBody,
   CreateAddressBody,
   CreateHDAddressBody,
   FullAddressParams,
@@ -155,6 +154,7 @@ export async function createAddress(
   await verifyVaultOwnership(request.server, vaultId, organisationId);
 
   const getVaultCurves = request.server.services.vault.getVaultCurves.bind(request.server.services.vault);
+
   const [{ data: workspaceId, error: workspaceIdError }, { error: validationError }] =
     await Promise.all([
       tryCatch(request.server.services.vault.getWorkspaceId(vaultId)),
@@ -573,56 +573,6 @@ export async function createHDAddress(
     chainAlias,
     ecosystem,
   });
-}
-
-/**
- * Bulk create HD addresses
- * POST /v2/vaults/:vaultId/addresses/ecosystem/:ecosystem/chain/:chain/hd-addresses/bulk
- *
- * NOTE: HD address functionality requires PostgreSQL migration - currently not implemented
- */
-export async function bulkCreateHDAddresses(
-  request: FastifyRequest<{
-    Params: AddressPathParams;
-    Body: BulkCreateHDAddressBody;
-  }>,
-  reply: FastifyReply
-) {
-  const { indexFrom, indexTo } = request.body;
-  const { vaultId, chainAlias, ecosystem } = request.params;
-  const { organisationId: authOrgId } = request.auth!;
-
-  // Authorization: verify vault belongs to authenticated organisation
-  await verifyVaultOwnership(request.server, vaultId, authOrgId);
-
-  logger.debug('[bulkCreateHDAddresses] Creating bulk HD addresses', {
-    indexFrom,
-    indexTo,
-    vaultId,
-    chainAlias,
-  });
-
-  const getVaultCurves = request.server.services.vault.getVaultCurves.bind(request.server.services.vault);
-
-  const addresses = [];
-  for (let index = indexFrom; index <= indexTo; index++) {
-    const derivedPath = `m/44/0/0/${index}`;
-    const address = await Address.generate({
-      chainAlias,
-      derivationPath: derivedPath,
-      vaultId,
-      getVaultCurves,
-    });
-    addresses.push({
-      address,
-      derivationPath: derivedPath,
-      vaultId,
-      chainAlias,
-      ecosystem,
-    });
-  }
-
-  return reply.status(201).send({ data: addresses });
 }
 
 /**
