@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -11,6 +12,8 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+
+import { orpc } from '@/lib/orpc/client';
 
 import { cn } from '@/lib/tailwind/utils';
 
@@ -41,13 +44,16 @@ import { RenameSignerModal } from './components/rename-signer-modal';
 import { RevokeSignerModal } from './components/revoke-signer-modal';
 import { SignerConfigModal } from './components/signer-config-modal';
 import {
-  allSigners,
   getSignerHealthStatus,
   isVersionOutdated,
   LATEST_VERSIONS,
   type RegisteredSigner,
   type SignerType,
 } from './data/signers';
+import type {
+  SignerStatus as SchemaSignerStatus,
+  SignerType as SchemaSignerType,
+} from './schema';
 
 type SelectOption = { id: string; label: string };
 
@@ -274,35 +280,44 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
     DEFAULT_TYPE
   );
 
-  // Filter logic
+  // Fetch signers from API
+  const {
+    data: signersData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(
+    orpc.signers.list.queryOptions({
+      limit: 50, // Fetch enough for client-side pagination initially
+      status:
+        statusFilter?.id !== 'all'
+          ? (statusFilter?.id as SchemaSignerStatus)
+          : undefined,
+      type:
+        typeFilter?.id !== 'all'
+          ? (typeFilter?.id as SchemaSignerType)
+          : undefined,
+      search: search || undefined,
+    })
+  );
+
+  // Use fetched data or empty array while loading
+  const allSigners = signersData?.data ?? [];
+
+  // Filter by search locally (API may not support full text search initially)
   const filteredSigners = useMemo(() => {
+    if (!search) return allSigners;
+
+    const searchLower = search.toLowerCase();
     return allSigners.filter((signer) => {
-      // Search filter
-      if (search) {
-        const searchLower = search.toLowerCase();
-        const matchesSearch =
-          signer.name.toLowerCase().includes(searchLower) ||
-          signer.owner.toLowerCase().includes(searchLower) ||
-          signer.version.toLowerCase().includes(searchLower) ||
-          (signer.deviceInfo?.toLowerCase().includes(searchLower) ?? false);
-        if (!matchesSearch) return false;
-      }
-
-      // Status filter
-      const statusId = statusFilter?.id ?? 'all';
-      if (statusId !== 'all' && signer.status !== statusId) {
-        return false;
-      }
-
-      // Type filter
-      const typeId = typeFilter?.id ?? 'all';
-      if (typeId !== 'all' && signer.type !== typeId) {
-        return false;
-      }
-
-      return true;
+      return (
+        signer.name.toLowerCase().includes(searchLower) ||
+        signer.owner.toLowerCase().includes(searchLower) ||
+        signer.version.toLowerCase().includes(searchLower) ||
+        (signer.deviceInfo?.toLowerCase().includes(searchLower) ?? false)
+      );
     });
-  }, [search, statusFilter, typeFilter]);
+  }, [allSigners, search]);
 
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
@@ -370,7 +385,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
                 Total Signers
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {allSigners.length}
+                {isLoading ? '—' : allSigners.length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -378,7 +393,9 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
                 iOS
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {allSigners.filter((s) => s.type === 'ios').length}
+                {isLoading
+                  ? '—'
+                  : allSigners.filter((s) => s.type === 'ios').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -386,7 +403,9 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
                 Android
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {allSigners.filter((s) => s.type === 'android').length}
+                {isLoading
+                  ? '—'
+                  : allSigners.filter((s) => s.type === 'android').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -394,7 +413,9 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
                 Virtual
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {allSigners.filter((s) => s.type === 'virtual').length}
+                {isLoading
+                  ? '—'
+                  : allSigners.filter((s) => s.type === 'virtual').length}
               </p>
             </div>
           </div>
@@ -462,6 +483,9 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
               })
             }
             pageSizeOptions={[5, 10, 25, 50]}
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={() => refetch()}
           />
         </div>
       </PageLayoutContent>
