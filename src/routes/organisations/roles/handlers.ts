@@ -60,6 +60,14 @@ export async function removeGlobalRole(
     throw new OperationForbiddenError('Only organization owner can remove global roles');
   }
 
+  // Prevent owner from removing their own owner role
+  if (userId === request.auth!.userId) {
+    const targetUser = await request.server.rbacRepository.getUserWithRoles(userId, orgId);
+    if (targetUser.globalRole === 'owner') {
+      throw new OperationForbiddenError('Cannot remove your own owner role');
+    }
+  }
+
   const removed = await request.server.rbacRepository.removeGlobalRole(userId, orgId);
 
   if (!removed) {

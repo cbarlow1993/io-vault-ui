@@ -115,3 +115,22 @@ test_admin_can_manage_vaults if {
 
     result.allowed == true
 }
+
+# Empty vault_ids array should allow all vaults (no restrictions)
+test_empty_vault_ids_allows_all if {
+    result := access.decision with input as {
+        "user": {
+            "global_role": null,
+            "module_roles": [{
+                "module": "treasury",
+                "role": "treasurer",
+                "resource_scope": {"vault_ids": []}
+            }]
+        },
+        "module": "treasury",
+        "action": "view_balances",
+        "resource": {"vault_id": "any-vault"}
+    } with data.role_permissions as role_permissions
+
+    result.allowed == true
+}

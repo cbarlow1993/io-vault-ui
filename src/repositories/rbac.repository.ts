@@ -190,6 +190,7 @@ export class PostgresRbacRepository implements RbacRepository {
       .selectFrom('modules')
       .select(['id', 'name'])
       .where('name', '=', name)
+      .where('is_active', '=', true)
       .executeTakeFirst();
 
     return result ?? null;

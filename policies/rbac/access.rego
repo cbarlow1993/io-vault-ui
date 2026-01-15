@@ -71,6 +71,12 @@ valid_scope(assignment) if {
 
 valid_scope(assignment) if {
     assignment.resource_scope.vault_ids
+    count(assignment.resource_scope.vault_ids) == 0
+}
+
+valid_scope(assignment) if {
+    assignment.resource_scope.vault_ids
+    count(assignment.resource_scope.vault_ids) > 0
     input.resource.vault_id in assignment.resource_scope.vault_ids
 }
 

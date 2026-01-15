@@ -198,7 +198,7 @@ describe('PostgresRbacRepository', () => {
   });
 
   describe('findModuleByName', () => {
-    it('should return module when found', async () => {
+    it('should return module when found and active', async () => {
       mockDb.mockExecuteTakeFirst.mockResolvedValueOnce({
         id: 'module-uuid-123',
         name: 'treasury',
@@ -209,6 +209,7 @@ describe('PostgresRbacRepository', () => {
       expect(result).toEqual({ id: 'module-uuid-123', name: 'treasury' });
       expect(mockDb.mockDb.selectFrom).toHaveBeenCalledWith('modules');
       expect(mockDb.chainable.where).toHaveBeenCalledWith('name', '=', 'treasury');
+      expect(mockDb.chainable.where).toHaveBeenCalledWith('is_active', '=', true);
     });
 
     it('should return null when module not found', async () => {
