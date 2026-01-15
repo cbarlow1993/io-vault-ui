@@ -55,6 +55,8 @@ export default function PageAccountProfile() {
         firstName: data.firstName,
         lastName: data.lastName || undefined,
       });
+      // Reload to get fresh data from Clerk
+      await clerkUser.reload();
       return { success: true };
     },
     onSuccess: () => {
