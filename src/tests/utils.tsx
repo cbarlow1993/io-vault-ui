@@ -3,7 +3,6 @@ import { userEvent } from '@vitest/browser/context';
 import { ThemeProvider } from 'next-themes';
 import { ReactElement } from 'react';
 import { ComponentRenderOptions, render } from 'vitest-browser-react';
-
 import '@/lib/dayjs/config';
 
 /**

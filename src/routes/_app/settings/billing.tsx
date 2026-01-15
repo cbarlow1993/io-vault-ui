@@ -1,10 +1,11 @@
+import { auth } from '@clerk/tanstack-react-start/server';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { auth } from '@clerk/tanstack-react-start/server';
+
+import { ChargebeeProvider } from '@/lib/chargebee';
 
 import { envClient } from '@/env/client';
 import { PageSettingsBilling } from '@/features/settings/page-settings-billing';
-import { ChargebeeProvider } from '@/lib/chargebee';
 
 // Server function to get auth state - auth() only works server-side
 const getAuthState = createServerFn({ method: 'GET' }).handler(async () => {

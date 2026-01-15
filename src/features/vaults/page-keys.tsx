@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-import { cn } from '@/lib/tailwind/utils';
 import { orpc } from '@/lib/orpc/client';
+import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -40,8 +40,8 @@ type SelectOption = { id: string; label: string };
 const STATUS_OPTIONS: SelectOption[] = [
   { id: 'all', label: 'All Status' },
   { id: 'active', label: 'Active' },
-  { id: 'pending', label: 'Pending' },
-  { id: 'revoked', label: 'Revoked' },
+  { id: 'draft', label: 'Draft' },
+  { id: 'archived', label: 'Archived' },
 ];
 
 const PAGE_SIZE_OPTIONS_SELECT: SelectOption[] = [
@@ -165,22 +165,22 @@ export const PageTreasury6Keys = () => {
             </div>
             <div className="bg-white p-3">
               <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Pending
+                Draft
               </p>
               <p className="mt-1 text-lg font-semibold text-warning-600 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allVaults.filter((v) => v.status === 'pending').length}
+                  : allVaults.filter((v) => v.status === 'draft').length}
               </p>
             </div>
             <div className="bg-white p-3">
               <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Revoked
+                Archived
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-500 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allVaults.filter((v) => v.status === 'revoked').length}
+                  : allVaults.filter((v) => v.status === 'archived').length}
               </p>
             </div>
           </div>

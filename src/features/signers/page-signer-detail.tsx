@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
 import {
   CheckCircleIcon,
@@ -6,10 +7,12 @@ import {
   CloudIcon,
   CopyIcon,
   KeyIcon,
+  LoaderIcon,
   SmartphoneIcon,
   XCircleIcon,
 } from 'lucide-react';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { getStatusStyles } from '@/features/shared/lib/status-styles';
@@ -20,13 +23,12 @@ import {
 } from '@/layout/shell';
 
 import {
-  getSignerById,
   getSignerSignatureActivities,
   getSignerVaults,
   type SignerSignatureActivity,
-  type SignerType,
   type SignerVaultSummary,
 } from './data/signers';
+import type { SignerType } from './schema';
 
 const getVaultStatusStyles = getStatusStyles;
 
@@ -64,11 +66,44 @@ const getSignerTypeLabel = (type: SignerType) => {
 
 export const PageSignerDetail = () => {
   const { signerId } = useParams({ from: '/_app/signers/$signerId' });
-  const signer = getSignerById(signerId);
+
+  // Fetch signers from API and filter by ID
+  const {
+    data: signersData,
+    isLoading,
+    isError,
+  } = useQuery(
+    orpc.signers.list.queryOptions({
+      limit: 100,
+    })
+  );
+
+  const signer = signersData?.data.find((s) => s.id === signerId);
   const signerVaults = getSignerVaults(signerId);
   const signatureActivities = getSignerSignatureActivities(signerId);
 
-  if (!signer) {
+  // Loading state
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Signers', href: '/signers' },
+            { label: 'Loading...' },
+          ]}
+        />
+        <PageLayoutContent containerClassName="py-8">
+          <div className="flex items-center justify-center gap-2 text-neutral-500">
+            <LoaderIcon className="size-4 animate-spin" />
+            <span>Loading signer details...</span>
+          </div>
+        </PageLayoutContent>
+      </PageLayout>
+    );
+  }
+
+  // Error or not found state
+  if (isError || !signer) {
     return (
       <PageLayout>
         <PageLayoutTopBar
@@ -80,7 +115,9 @@ export const PageSignerDetail = () => {
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
-              The requested signer could not be found.
+              {isError
+                ? 'Failed to load signer details.'
+                : 'The requested signer could not be found.'}
             </p>
             <Link
               to="/signers"

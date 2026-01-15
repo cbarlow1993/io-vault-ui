@@ -383,7 +383,7 @@ const mockSigners: Signer[] = [
   {
     id: 'signer-3',
     name: 'Co-signer Server',
-    deviceType: 'server',
+    deviceType: 'virtual',
     owner: 'System',
     votingPower: 1,
     version: '3.1.0',
@@ -502,7 +502,7 @@ const getReshareStatusIcon = (status: Reshare['status']) => {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -2352,7 +2352,7 @@ const DetailsContent = ({ vaultId }: DetailsContentProps) => (
         <div className="border border-neutral-200 bg-white">
           <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
             <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
-              MPC Signers
+              Signers
             </span>
             <span className="ml-auto text-[10px] text-neutral-400 tabular-nums">
               {mockSigners.length} signers

@@ -4,8 +4,9 @@ import { getRequest } from '@tanstack/react-start/server';
 import { randomUUID } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
-import { envClient } from '@/env/client';
 import { getAuthProvider } from '@/lib/auth';
+
+import { envClient } from '@/env/client';
 import { logger } from '@/server/logger';
 
 // TODO: Permission type will be re-added when vault API is integrated

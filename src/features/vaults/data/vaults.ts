@@ -1,10 +1,10 @@
 // Vault data types and sample data
 
-export type VaultStatus = 'active' | 'pending' | 'revoked';
+export type VaultStatus = 'active' | 'draft' | 'archived';
 
 export type CurveType = 'ECDSA' | 'EdDSA';
 
-export type DeviceType = 'server' | 'ios' | 'android';
+export type DeviceType = 'virtual' | 'ios' | 'android';
 
 export type VaultCurve = {
   type: CurveType;
@@ -73,7 +73,7 @@ export const allVaults: Vault[] = [
         id: 'signer-001',
         name: 'HSM Primary',
         owner: 'J. Doe',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -81,7 +81,7 @@ export const allVaults: Vault[] = [
         id: 'signer-002',
         name: 'HSM Backup',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -163,7 +163,7 @@ export const allVaults: Vault[] = [
         id: 'signer-004',
         name: 'Treasury Server',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 2,
         version: '2.4.0',
       },
@@ -187,7 +187,7 @@ export const allVaults: Vault[] = [
         id: 'signer-007',
         name: 'Backup HSM',
         owner: 'A. Kumar',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.3.8',
       },
@@ -243,7 +243,7 @@ export const allVaults: Vault[] = [
         id: 'signer-008',
         name: 'Co-signer Server A',
         owner: 'A. Kumar',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -251,7 +251,7 @@ export const allVaults: Vault[] = [
         id: 'signer-009',
         name: 'Co-signer Server B',
         owner: 'J. Doe',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -259,7 +259,7 @@ export const allVaults: Vault[] = [
         id: 'signer-010',
         name: 'Co-signer Server C',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.0',
       },
@@ -321,7 +321,7 @@ export const allVaults: Vault[] = [
         id: 'signer-013',
         name: 'Recovery Server',
         owner: 'J. Doe',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -334,7 +334,7 @@ export const allVaults: Vault[] = [
         version: '3.1.0',
       },
     ],
-    status: 'pending',
+    status: 'draft',
     createdAt: '2025-01-12',
     createdBy: 'J. Doe',
     lastUsed: null,
@@ -365,12 +365,12 @@ export const allVaults: Vault[] = [
         id: 'signer-015',
         name: 'Legacy Server',
         owner: 'S. Wilson',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '1.9.2',
       },
     ],
-    status: 'revoked',
+    status: 'archived',
     createdAt: '2024-11-15',
     createdBy: 'S. Wilson',
     lastUsed: '2024-12-20',
@@ -411,7 +411,7 @@ export const allVaults: Vault[] = [
         id: 'signer-016',
         name: 'Cold Storage HSM',
         owner: 'J. Chen',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -474,7 +474,7 @@ export const allVaults: Vault[] = [
         id: 'signer-019',
         name: 'Hot Wallet Server',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 2,
         version: '2.4.1',
       },
@@ -554,7 +554,7 @@ export const allVaults: Vault[] = [
         id: 'signer-022',
         name: 'Partner API Server',
         owner: 'J. Chen',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.1',
       },
@@ -562,7 +562,7 @@ export const allVaults: Vault[] = [
         id: 'signer-023',
         name: 'Internal HSM',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.0',
       },
@@ -583,7 +583,7 @@ export const allVaults: Vault[] = [
         version: '3.0.7',
       },
     ],
-    status: 'pending',
+    status: 'draft',
     createdAt: '2025-01-13',
     createdBy: 'J. Chen',
     lastUsed: null,
@@ -596,7 +596,7 @@ export const getVaultById = (id: string): Vault | undefined => {
   return allVaults.find((vault) => vault.id === id);
 };
 
-// Available signers pool (organization's registered devices/servers)
+// Available signers pool (organization's registered devices/virtual signers)
 export type AvailableSigner = {
   id: string;
   name: string;
@@ -610,42 +610,42 @@ export const availableSigners: AvailableSigner[] = [
     id: 'avail-001',
     name: 'HSM Primary',
     owner: 'J. Doe',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.1',
   },
   {
     id: 'avail-002',
     name: 'HSM Backup',
     owner: 'M. Smith',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.1',
   },
   {
     id: 'avail-003',
     name: 'Treasury Server',
     owner: 'M. Smith',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.0',
   },
   {
     id: 'avail-004',
     name: 'Cold Storage HSM',
     owner: 'J. Chen',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.1',
   },
   {
     id: 'avail-005',
     name: 'Hot Wallet Server',
     owner: 'M. Smith',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.1',
   },
   {
     id: 'avail-006',
     name: 'Partner API Server',
     owner: 'J. Chen',
-    deviceType: 'server',
+    deviceType: 'virtual',
     version: '2.4.1',
   },
   {
@@ -737,7 +737,7 @@ export const pendingReshares: PendingReshare[] = [
         id: 'signer-004',
         name: 'Treasury Server',
         owner: 'M. Smith',
-        deviceType: 'server',
+        deviceType: 'virtual',
         votingPower: 1,
         version: '2.4.0',
       },
@@ -947,7 +947,7 @@ export const pendingOperations: PendingOperation[] = [
             id: 'signer-004',
             name: 'Treasury Server',
             owner: 'M. Smith',
-            deviceType: 'server',
+            deviceType: 'virtual',
             votingPower: 2,
           },
           {
@@ -968,7 +968,7 @@ export const pendingOperations: PendingOperation[] = [
             id: 'signer-007',
             name: 'Backup HSM',
             owner: 'A. Kumar',
-            deviceType: 'server',
+            deviceType: 'virtual',
             votingPower: 1,
           },
         ],
@@ -980,7 +980,7 @@ export const pendingOperations: PendingOperation[] = [
             id: 'signer-004',
             name: 'Treasury Server',
             owner: 'M. Smith',
-            deviceType: 'server',
+            deviceType: 'virtual',
             votingPower: 2,
           },
           {

@@ -1,155 +1,250 @@
-<h1 align="center"><img src=".github/assets/thumbnail.png" alt="Start UI Web" /></h1>
+# io-vault-ui
 
-🚀 Start UI <small>[web]</small> is an opinionated frontend starter repository created & maintained by the [BearStudio Team](https://www.bearstudio.fr/team) and other contributors.
-It represents our team's up-to-date stack that we use when creating web apps for our clients.
+A secure, enterprise-grade web application for managing cryptographic vaults, signers, and digital asset operations. Built with a modern React stack for institutional custody and key management.
 
+## Features
 
-## Technologies
+### Vault Management
+- **Create and manage vaults** with multi-signature (threshold) support
+- **Multiple cryptographic curves**: Ed25519, secp256k1, secp256r1
+- **Vault lifecycle management**: draft, active, and archived states
+- **Key generation and storage** with public key fingerprinting
 
-<div align="center" style="margin: 0 0 16px 0"><img src=".github/assets/tech-logos.png" alt="Technologies logos of the starter" /></div>
+### Signer Management
+- **Register signers** (mobile or server-based) with secure pairing
+- **Health monitoring** with version tracking and outdated detection
+- **Signer configuration** and lifecycle management (active, pending, revoked)
 
-[⚙️ Node.js](https://nodejs.org), [🟦 TypeScript](https://www.typescriptlang.org/), [⚛️ React](https://react.dev/), [📦 TanStack Start](https://tanstack.com/start), [💨 Tailwind CSS](https://tailwindcss.com/), [🧩 shadcn/ui](https://ui.shadcn.com/), [📋 React Hook Form](https://react-hook-form.com/), [🔌 oRPC](https://orpc.unnoq.com/), [🛠 Prisma](https://www.prisma.io/), [🔐 Better Auth](https://www.better-auth.com/), [📚 Storybook](https://storybook.js.org/), [🧪 Vitest](https://vitest.dev/), [🎭 Playwright](https://playwright.dev/)
+### Organization & Access Control
+- **Multi-tenant workspaces** with team-based organization
+- **Role-based access control (RBAC)** for granular permissions
+- **Member management** with invitation workflows
+- **Audit logging** for compliance and traceability
 
-## Documentation
+### Operations & Compliance
+- **Transaction operations** with multi-signature approval workflows
+- **Policy management** for governance rules
+- **Address book** for trusted destinations
+- **Identity management** for KYC/compliance
 
-For detailed information on how to use this project, please refer to the [documentation](https://docs.web.start-ui.com). The documentation contains all the necessary information on installation, usage, and some guides.
+### Billing & Settings
+- **Chargebee integration** for subscription management (optional)
+- **Backup management** for disaster recovery
+- **Governance settings** with pending approval workflows
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Frontend                                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │   React     │  │  TanStack   │  │     shadcn/ui           │  │
+│  │   + React   │  │   Router    │  │   + Tailwind CSS        │  │
+│  │   Compiler  │  │   + Query   │  │   + Radix UI            │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    BFF (Backend for Frontend)                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │    oRPC     │  │   Clerk     │  │     Zod Validation      │  │
+│  │   Routers   │  │    Auth     │  │   + Type Safety         │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    External Services                             │
+│  ┌─────────────────┐  ┌───────────────┐  ┌───────────────────┐  │
+│  │   Vault API     │  │   Chargebee   │  │    PostgreSQL     │  │
+│  │  (Core Service) │  │   (Billing)   │  │   (Local State)   │  │
+│  └─────────────────┘  └───────────────┘  └───────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Directory Structure
+
+```
+src/
+├── components/       # Shared UI components (buttons, modals, tables)
+├── features/         # Feature modules (domain-driven)
+│   ├── auth/         # Authentication flows
+│   ├── vaults/       # Vault management
+│   ├── signers/      # Signer management
+│   ├── settings/     # Organization settings
+│   ├── compliance/   # Compliance features
+│   └── ...
+├── server/           # Backend code
+│   ├── routers/      # oRPC API routers
+│   ├── vault-api/    # External Vault API client
+│   └── webhooks/     # Webhook handlers
+├── lib/              # Utility libraries
+├── hooks/            # Shared React hooks
+├── routes/           # File-based routing (TanStack Router)
+└── styles/           # Global styles and design tokens
+```
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | [TanStack Start](https://tanstack.com/start) (React 19 + Vite) |
+| Routing | [TanStack Router](https://tanstack.com/router) |
+| State/Data | [TanStack Query](https://tanstack.com/query) |
+| API Layer | [oRPC](https://orpc.unnoq.com/) |
+| Auth | [Clerk](https://clerk.com/) |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
+| Validation | [Zod](https://zod.dev/) |
+| Forms | [React Hook Form](https://react-hook-form.com/) |
+| Testing | [Vitest](https://vitest.dev/) + [Playwright](https://playwright.dev/) |
+| Database | PostgreSQL (via Docker) |
 
 ## Requirements
 
-* [Node.js](https://nodejs.org) >= 22
-* [pnpm](https://pnpm.io/)
-* [Docker](https://www.docker.com/) (or a [PostgreSQL](https://www.postgresql.org/) database)
+- [Node.js](https://nodejs.org) >= 22
+- [pnpm](https://pnpm.io/)
+- [Docker](https://www.docker.com/) (for local PostgreSQL)
 
 ## Getting Started
 
+### 1. Clone and Install
+
 ```bash
-pnpm create start-ui -t web myApp
+git clone <repository-url>
+cd io-vault-ui
+pnpm install
 ```
 
-That will scaffold a new folder with the latest version of 🚀 Start UI <small>[web]</small> 🎉
+### 2. Configure Environment
 
-## Setup your IDE
-
-- VS Code
 ```bash
-cp .vscode/settings.example.json .vscode/settings.json
+cp .env.example .env
 ```
 
-- Zed
-```bash
-cp .zed/settings.example.json .zed/settings.json
+Edit `.env` with your credentials:
+
+```env
+# Required: Clerk authentication
+CLERK_PUBLISHABLE_KEY="pk_..."
+CLERK_SECRET_KEY="sk_..."
+
+# Required: Vault API endpoint
+VAULT_API_URL="https://your-vault-api.example.com"
+
+# Optional: Chargebee billing
+ENABLE_CHARGEBEE_BILLING="false"
 ```
 
-## Installation
+### 3. Start Services
 
 ```bash
-cp .env.example .env # Setup your env variables
-pnpm install # Install dependencies
-pnpm dk:init # Init docker
-pnpm db:init # Init the db
-```
+# Start PostgreSQL via Docker
+pnpm dk:init
 
-> [!NOTE]
-> **Quick advices for local development**
-> - **DON'T update** the **EMAIL_SERVER** variable, because the default value will be used to catch the emails during the development.
-
-## Run
-
-```bash
-pnpm dk:start # Only if your docker is not running
+# Run development server
 pnpm dev
 ```
 
-> [!NOTE]
-> **Don't want to use docker?**
->
-> Setup a PostgreSQL database (locally or online) and replace the **DATABASE_URL** environment variable. Then you can run `pnpm db:push` to update your database schema and then run `pnpm db:seed` to seed your database.
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
+### Without Docker
 
+If you prefer not to use Docker, set up a PostgreSQL database and update `DATABASE_URL` in your `.env` file.
 
+## Development
 
-### Emails in development
+### Commands
 
-#### Maildev to catch emails
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint and TypeScript checks |
+| `pnpm test` | Run unit/browser tests |
+| `pnpm test:ci` | Run tests in CI mode |
+| `pnpm e2e` | Run E2E tests |
+| `pnpm e2e:ui` | Run E2E tests with UI |
+| `pnpm storybook` | Start Storybook |
 
-In development, the emails will not be sent and will be catched by [maildev](https://github.com/maildev/maildev).
+### Testing Strategy
 
-The maildev UI is available at [0.0.0.0:1080](http://0.0.0.0:1080).
+- **Unit tests** (`*.unit.spec.ts`): Pure functions and utilities
+- **Browser tests** (`*.browser.spec.ts`): Component rendering and interactions
+- **E2E tests** (`e2e/*.spec.ts`): Critical user flows
 
-#### Preview emails
-
-Emails templates are built with `react-email` components in the `src/emails` folder.
-
-You can preview an email template at `http://localhost:3000/api/dev/email/{template}` where `{template}` is the name of the template file in the `src/emails/templates` folder.
-
-Example: [Login Code](http://localhost:3000/api/dev/email/login-code)
-
-##### Email translation preview
-
-Add the language in the preview url like `http://localhost:3000/api/dev/email/{template}?language={language}` where `{language}` is the language key (`en`, `fr`, ...)
-
-#### Email props preview
-
-You can add search params to the preview url to pass as props to the template.
-`http://localhost:3000/api/dev/email/{template}/?{propsName}={propsValue}`
-
-### Generate custom icons components from svg files
-
-Put the custom svg files into the `src/components/icons/svg-sources` folder and then run the following command:
+### Code Quality
 
 ```bash
-pnpm gen:icons
+# Before committing
+pnpm lint        # ESLint + TypeScript
+pnpm test:ci     # All tests
+pnpm build       # Verify build
 ```
 
-If you want to use the same set of custom duotone icons that Start UI is already using, checkout
-[Phosphor](https://phosphoricons.com/)
+## Deployment
 
-> [!WARNING]
-> All svg icons should be svg files prefixed by `icon-` (example: `icon-externel-link`) with **square size** and **filled with `#000` color** (will be replaced by `currentColor`).
-
-### E2E Tests
-
-E2E tests are setup with Playwright.
-
-```sh
-pnpm e2e        # Run tests in headless mode, this is the command executed in CI
-pnpm e2e:setup  # Setup context to be used across test for more efficient execution 
-pnpm e2e:ui     # Open a UI which allow you to run specific tests and see test execution
-```
-
-> [!WARNING]
-> The generated e2e context files contain authentication logic. If you make changes to your local database instance, you should re-run `pnpm e2e:setup`. It will be run automatically in a CI context.
-## Production
+### Production Build
 
 ```bash
 pnpm install
-pnpm storybook:build # Optional: Will expose the Storybook at `/storybook`
 pnpm build
 pnpm start
 ```
 
-## Show hint on development environments
+The build outputs to `.output/` and runs via Nitro.
 
-Setup the `VITE_ENV_NAME` env variable with the name of the environment.
+### Environment Variables
 
-```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VAULT_API_URL` | Yes | URL to the Vault API backend |
+| `CLERK_PUBLISHABLE_KEY` | Yes | Clerk public key |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key |
+| `VITE_BASE_URL` | Yes | Public URL of the application |
+| `ENABLE_CHARGEBEE_BILLING` | No | Enable Chargebee integration |
+| `CHARGEBEE_SITE` | If billing enabled | Chargebee site ID |
+| `CHARGEBEE_API_KEY` | If billing enabled | Chargebee API key |
+
+### Environment Indicators
+
+Show environment name in the UI for non-production environments:
+
+```env
 VITE_ENV_NAME="staging"
 VITE_ENV_EMOJI="🔬"
 VITE_ENV_COLOR="teal"
 ```
 
-## FAQ
+### CI/CD
 
-<details><summary><strong>git detect a lot of changes inside my <code>.husky</code> folder</strong></summary>
-<p>
-You probably have updated your branch with lefthook installed instead of husky. Follow these steps to fix
-your hooks issue:
-<ul>
-  <li><code>git config --unset core.hooksPath</code></li>
-  <li><code>rm -rf ./.husky</code></li>
-  <li><code>pnpm install</code></li>
-</ul>
+GitHub Actions workflow runs on every push/PR:
+- ESLint linting
+- TypeScript type checking
+- Unit and browser tests
 
-From now husky should have been removed; and lefthook should run your hooks correctly.
-</p>
-</details>
+See `.github/workflows/code-quality.yml` for details.
+
+## IDE Setup
+
+### VS Code
+
+```bash
+cp .vscode/settings.example.json .vscode/settings.json
+```
+
+### Zed
+
+```bash
+cp .zed/settings.example.json .zed/settings.json
+```
+
+## Documentation
+
+- [CLAUDE.md](./CLAUDE.md) - Development guidelines and coding standards
+- [docs/](./docs/) - Additional documentation and design specs
+
+## License
+
+Proprietary - All rights reserved.
