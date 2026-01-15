@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import chainValidationPlugin from '@/src/plugins/chain-validation.js';
+import { requireAccess } from '@/src/middleware/require-access.js';
 import {
   buildNativeTransaction,
   buildTokenTransaction,
@@ -24,10 +25,11 @@ export default async function buildTransactionRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/build-native-transaction',
     {
+      preHandler: [requireAccess('treasury', 'initiate_transfer')],
       schema: {
         tags: ['Build Transactions'],
         summary: 'Build native currency transaction',
-        description: 'Builds an unsigned transaction for native currency transfer (ETH, SOL, BTC, etc.)',
+        description: 'Builds an unsigned transaction for native currency transfer (ETH, SOL, BTC, etc.). Requires treasury:initiate_transfer permission.',
         params: buildTransactionPathParamsSchema,
         body: combinedNativeBodySchema,
         response: { 201: buildTransactionResponseSchema },
@@ -40,10 +42,11 @@ export default async function buildTransactionRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/build-token-transaction',
     {
+      preHandler: [requireAccess('treasury', 'initiate_transfer')],
       schema: {
         tags: ['Build Transactions'],
         summary: 'Build token transaction',
-        description: 'Builds an unsigned transaction for token transfer (ERC20, SPL, TRC20)',
+        description: 'Builds an unsigned transaction for token transfer (ERC20, SPL, TRC20). Requires treasury:initiate_transfer permission.',
         params: buildTransactionPathParamsSchema,
         body: combinedTokenBodySchema,
         response: { 201: buildTransactionResponseSchema },
@@ -56,10 +59,11 @@ export default async function buildTransactionRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/svm/chain/solana/build-durable-nonce-transaction',
     {
+      preHandler: [requireAccess('treasury', 'initiate_transfer')],
       schema: {
         tags: ['Build Transactions'],
         summary: 'Build durable nonce account creation transaction',
-        description: 'Builds a transaction to create a Solana durable nonce account',
+        description: 'Builds a transaction to create a Solana durable nonce account. Requires treasury:initiate_transfer permission.',
         params: svmDurableNoncePathParamsSchema,
         body: svmDurableNonceBodySchema,
         response: { 201: buildTransactionResponseSchema },
@@ -72,10 +76,11 @@ export default async function buildTransactionRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/svm/chain/solana/durable-nonce',
     {
+      preHandler: [requireAccess('treasury', 'initiate_transfer')],
       schema: {
         tags: ['Build Transactions'],
         summary: 'Get durable nonce account info',
-        description: 'Retrieves information about the Solana durable nonce account',
+        description: 'Retrieves information about the Solana durable nonce account. Requires treasury:initiate_transfer permission.',
         params: svmDurableNoncePathParamsSchema,
         querystring: svmDurableNonceQuerySchema,
         response: { 200: durableNonceResponseSchema },

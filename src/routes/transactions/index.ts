@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import chainValidationPlugin from '@/src/plugins/chain-validation.js';
+import { requireAccess } from '@/src/middleware/require-access.js';
 import buildTransactionRoutes from './build/index.js';
 import {
   createTransaction,
@@ -39,11 +40,12 @@ export default async function transactionRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address',
     {
+      preHandler: [requireAccess('treasury', 'view_transactions')],
       schema: {
         tags: ['Transactions'],
         summary: 'List transactions for an address',
         description:
-          'Retrieves a paginated list of transactions for the specified address on the given chain.',
+          'Retrieves a paginated list of transactions for the specified address on the given chain. Requires treasury:view_transactions permission.',
         params: listTransactionsPathParamsSchema,
         querystring: listTransactionsQuerySchema,
         response: {
@@ -100,11 +102,12 @@ export async function vaultTransactionRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/ecosystem/:ecosystem/chain/:chainAlias/transaction',
     {
+      preHandler: [requireAccess('treasury', 'initiate_transfer')],
       schema: {
         tags: ['Transactions'],
         summary: 'Create transaction from hex',
         description:
-          'Creates a transaction record for signing using a pre-built transaction hex, scoped to a specific ecosystem and chain.',
+          'Creates a transaction record for signing using a pre-built transaction hex, scoped to a specific ecosystem and chain. Requires treasury:initiate_transfer permission.',
         params: createTransactionPathParamsSchema,
         body: createTransactionBodySchema,
         response: {
@@ -133,11 +136,12 @@ export async function transactionRoutesV2(fastify: FastifyInstance) {
   fastify.get(
     '/ecosystem/:ecosystem/chain/:chainAlias/address/:address/transaction/:transactionHash',
     {
+      preHandler: [requireAccess('treasury', 'view_transactions')],
       schema: {
         tags: ['Transactions'],
         summary: 'Get transaction details (v2)',
         description:
-          'Retrieves detailed information about a specific transaction from PostgreSQL including classification data, native transfers, and token transfers.',
+          'Retrieves detailed information about a specific transaction from PostgreSQL including classification data, native transfers, and token transfers. Requires treasury:view_transactions permission.',
         params: getTransactionPathParamsSchema,
         querystring: getTransactionQuerySchema,
         response: {
