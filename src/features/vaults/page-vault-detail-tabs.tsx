@@ -23,7 +23,7 @@ import {
   XCircleIcon,
   XIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
@@ -2512,6 +2512,13 @@ const VaultTabs = ({ vaultId, initialTab }: VaultTabsProps) => {
   const [activeTab, setActiveTab] = useState<TabType>(
     initialTab ?? 'addresses'
   );
+
+  // Sync tab state when URL search param changes
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   return (
     <Tabs
