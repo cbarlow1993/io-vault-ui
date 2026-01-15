@@ -22,7 +22,7 @@ import {
   XCircleIcon,
   XIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { cn } from '@/lib/tailwind/utils';
 
@@ -2469,11 +2469,24 @@ const TabContent = ({ activeTab, vaultId }: TabContentProps) => {
 // =============================================================================
 // TAB DESIGN 1: Underline Tabs (matching whitelist detail page)
 // =============================================================================
-const TabDesign1PillTabs = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('addresses');
+type TabDesign1PillTabsProps = {
+  initialTab?: TabType;
+};
+
+const TabDesign1PillTabs = ({ initialTab }: TabDesign1PillTabsProps) => {
+  const [activeTab, setActiveTab] = useState<TabType>(
+    initialTab ?? 'addresses'
+  );
   // Get vaultId from URL params, fallback to 'vault-1' for demo routes
   const params = useParams({ strict: false }) as { vaultId?: string };
   const vaultId = params.vaultId ?? 'vault-1';
+
+  // Sync tab state when URL search param changes
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   return (
     <div className="border border-neutral-200 bg-white">
@@ -2558,7 +2571,13 @@ const TabDesign1PillTabs = () => {
 // Main Page Component
 // =============================================================================
 
-export const PageVaultDetailTabs = () => {
+type PageVaultDetailTabsProps = {
+  initialTab?: TabType;
+};
+
+export const PageVaultDetailTabs = ({
+  initialTab,
+}: PageVaultDetailTabsProps) => {
   return (
     <PageLayout>
       <PageLayoutTopBar>
@@ -2570,7 +2589,7 @@ export const PageVaultDetailTabs = () => {
         />
       </PageLayoutTopBar>
       <PageLayoutContent containerClassName="py-0">
-        <TabDesign1PillTabs />
+        <TabDesign1PillTabs initialTab={initialTab} />
       </PageLayoutContent>
     </PageLayout>
   );
