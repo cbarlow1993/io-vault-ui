@@ -5,7 +5,7 @@ import {
   use,
   useCallback,
   useEffect,
-  useState,
+  useMemo,
 } from 'react';
 
 import { getModuleFromPath, moduleConfig, moduleIds } from './config';
@@ -50,30 +50,27 @@ export function ModuleProvider({
     select: (state) => state.location.pathname,
   });
 
-  // Derive current module from URL
+  // Derive current module from URL path
   const currentModuleFromPath = getModuleFromPath(pathname);
-  const [currentModule, setCurrentModule] = useState<ModuleId>(() => {
-    return (
-      currentModuleFromPath ??
-      getStoredModule() ??
-      availableModules[0] ??
-      'treasury'
-    );
-  });
 
-  // Sync with URL changes
+  // Derive current module - URL takes priority, then localStorage, then first available
+  const currentModule =
+    currentModuleFromPath ??
+    getStoredModule() ??
+    availableModules[0] ??
+    'treasury';
+
+  // Only persist to localStorage when URL changes, don't update state
   useEffect(() => {
-    if (currentModuleFromPath && currentModuleFromPath !== currentModule) {
-      setCurrentModule(currentModuleFromPath);
+    if (currentModuleFromPath) {
       setStoredModule(currentModuleFromPath);
     }
-  }, [currentModuleFromPath, currentModule]);
+  }, [currentModuleFromPath]);
 
   const switchModule = useCallback(
     (moduleId: ModuleId) => {
       if (!availableModules.includes(moduleId)) return;
 
-      setCurrentModule(moduleId);
       setStoredModule(moduleId);
 
       const config = moduleConfig[moduleId];
@@ -82,12 +79,15 @@ export function ModuleProvider({
     [availableModules, router]
   );
 
-  const value: ModuleContextValue = {
-    currentModule,
-    moduleConfig: moduleConfig[currentModule],
-    availableModules,
-    switchModule,
-  };
+  const value: ModuleContextValue = useMemo(
+    () => ({
+      currentModule,
+      moduleConfig: moduleConfig[currentModule],
+      availableModules,
+      switchModule,
+    }),
+    [currentModule, availableModules, switchModule]
+  );
 
   return <ModuleContext value={value}>{children}</ModuleContext>;
 }
