@@ -3,6 +3,7 @@ import addressRoutes from '@/src/routes/addresses/index.js';
 import balanceRoutes from '@/src/routes/balances/index.js';
 import chainRoutes from '@/src/routes/chains/index.js';
 import moduleRoutes from '@/src/routes/modules/index.js';
+import organisationRoleRoutes from '@/src/routes/organisations/roles/index.js';
 import reconciliationRoutes from '@/src/routes/reconciliation/index.js';
 import spamRoutes from '@/src/routes/spam/index.js';
 import transactionRoutes, { transactionRoutesV2, vaultTransactionRoutes } from '@/src/routes/transactions/index.js';
@@ -32,4 +33,7 @@ export async function routes(fastify: FastifyInstance) {
 
   // Webhook routes
   fastify.register(signatureWebhookRoutes, { prefix: '/webhooks' });
+
+  // Organisation routes
+  fastify.register(organisationRoleRoutes, { prefix: '/v2/organisations' });
 }
