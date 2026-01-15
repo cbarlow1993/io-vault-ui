@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
   ChevronLeftIcon,
@@ -10,9 +11,10 @@ import {
   ShieldCheckIcon,
   XIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { cn } from '@/lib/tailwind/utils';
+import { orpc } from '@/lib/orpc/client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,7 +33,7 @@ import {
   PageLayoutTopBar,
 } from '@/layout/shell';
 
-import { allVaults } from './data/vaults';
+import type { VaultStatus } from './schema';
 
 type SelectOption = { id: string; label: string };
 
@@ -66,32 +68,28 @@ export const PageTreasury6Keys = () => {
   );
   const pageSize = pageSizeOption ? Number(pageSizeOption.id) : 5;
 
-  // Filter logic
-  const filteredVaults = useMemo(() => {
-    return allVaults.filter((vault) => {
-      // Search filter
-      if (search) {
-        const searchLower = search.toLowerCase();
-        const matchesSearch =
-          vault.name.toLowerCase().includes(searchLower) ||
-          vault.createdBy.toLowerCase().includes(searchLower) ||
-          vault.curves.some(
-            (c) =>
-              c.fingerprint.toLowerCase().includes(searchLower) ||
-              c.curve.toLowerCase().includes(searchLower)
-          );
-        if (!matchesSearch) return false;
-      }
+  // Fetch vaults from API
+  const {
+    data: vaultsData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(
+    orpc.vaults.list.queryOptions({
+      limit: 50, // Fetch enough for client-side pagination initially
+      status:
+        statusFilter?.id !== 'all'
+          ? (statusFilter?.id as VaultStatus)
+          : undefined,
+      search: search || undefined,
+    })
+  );
 
-      // Status filter
-      const statusId = statusFilter?.id ?? 'all';
-      if (statusId !== 'all' && vault.status !== statusId) {
-        return false;
-      }
+  // Use fetched data or empty array while loading
+  const allVaults = vaultsData?.data ?? [];
 
-      return true;
-    });
-  }, [search, statusFilter]);
+  // Data is already filtered server-side by status and search
+  const filteredVaults = allVaults;
 
   // Pagination logic
   const totalPages = Math.ceil(filteredVaults.length / pageSize);
@@ -136,7 +134,7 @@ export const PageTreasury6Keys = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/vaults/new">
+            <Link to="/vaults/new" data-testid="vaults-create-button">
               <PlusIcon className="mr-1.5 size-3.5" />
               Create Vault
             </Link>
@@ -152,7 +150,7 @@ export const PageTreasury6Keys = () => {
                 Total Vaults
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-900 tabular-nums">
-                {allVaults.length}
+                {isLoading ? '—' : allVaults.length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -160,7 +158,9 @@ export const PageTreasury6Keys = () => {
                 Active
               </p>
               <p className="mt-1 text-lg font-semibold text-positive-600 tabular-nums">
-                {allVaults.filter((v) => v.status === 'active').length}
+                {isLoading
+                  ? '—'
+                  : allVaults.filter((v) => v.status === 'active').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -168,7 +168,9 @@ export const PageTreasury6Keys = () => {
                 Pending
               </p>
               <p className="mt-1 text-lg font-semibold text-warning-600 tabular-nums">
-                {allVaults.filter((v) => v.status === 'pending').length}
+                {isLoading
+                  ? '—'
+                  : allVaults.filter((v) => v.status === 'pending').length}
               </p>
             </div>
             <div className="bg-white p-3">
@@ -176,7 +178,9 @@ export const PageTreasury6Keys = () => {
                 Revoked
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-500 tabular-nums">
-                {allVaults.filter((v) => v.status === 'revoked').length}
+                {isLoading
+                  ? '—'
+                  : allVaults.filter((v) => v.status === 'revoked').length}
               </p>
             </div>
           </div>
@@ -237,7 +241,7 @@ export const PageTreasury6Keys = () => {
                 </span>
               </div>
             </div>
-            <table className="w-full text-xs">
+            <table className="w-full text-xs" data-testid="vaults-table">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
                   <th className="px-3 py-2 font-medium text-neutral-500">
@@ -264,7 +268,34 @@ export const PageTreasury6Keys = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
-                {paginatedVaults.length === 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-3 py-8 text-center text-neutral-500"
+                    >
+                      Loading vaults...
+                    </td>
+                  </tr>
+                ) : isError ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-3 py-8 text-center text-neutral-500"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <span>Failed to load vaults</span>
+                        <button
+                          type="button"
+                          onClick={() => refetch()}
+                          className="text-brand-500 hover:underline"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : paginatedVaults.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -277,7 +308,8 @@ export const PageTreasury6Keys = () => {
                   paginatedVaults.map((vault) => (
                     <tr
                       key={vault.id}
-                      className="cursor-pointer hover:bg-neutral-50"
+                      data-testid={`vault-row-${vault.id}`}
+                      className="interactive-row"
                     >
                       <td className="px-3 py-2">
                         <Link
@@ -342,7 +374,7 @@ export const PageTreasury6Keys = () => {
                           className="block"
                         >
                           <span className="text-neutral-600 tabular-nums">
-                            {vault.signatures.length}
+                            {vault.signatureCount}
                           </span>
                         </Link>
                       </td>
