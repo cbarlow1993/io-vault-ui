@@ -30,8 +30,10 @@ describe('LocalPolicyService', () => {
   });
 
   describe('checkAccess', () => {
-    describe('owner bypass', () => {
-      it('should allow access for owner regardless of module/action', async () => {
+    describe('owner global role (no module bypass per FR-6)', () => {
+      it('should deny access for owner without module role', async () => {
+        // Per FR-6: Global roles (owner, admin, billing) do NOT bypass module access checks.
+        // Owner must have a module role to access module features.
         const userWithRoles: UserWithRoles = {
           userId: 'user-123',
           organisationId: 'org-456',
@@ -49,36 +51,44 @@ describe('LocalPolicyService', () => {
         });
 
         expect(result).toEqual({
-          allowed: true,
-          reason: 'Owner has full access',
-          matchedRole: 'owner',
+          allowed: false,
+          reason: 'No role assigned for module: treasury',
         });
         expect(mockRepository.getUserWithRoles).toHaveBeenCalledWith('user-123', 'org-456');
-        // Should not check permissions for owner
+        // Should not check permissions since no module role exists
         expect(mockRepository.getModuleRolePermissions).not.toHaveBeenCalled();
       });
 
-      it('should allow owner access without specifying resource', async () => {
+      it('should allow owner access when they have a module role', async () => {
+        // Owner with module role gets access based on that role's permissions
         const userWithRoles: UserWithRoles = {
           userId: 'user-123',
           organisationId: 'org-456',
           globalRole: 'owner',
-          moduleRoles: [],
+          moduleRoles: [
+            {
+              module: 'treasury',
+              role: 'admin',
+              resourceScope: null,
+            },
+          ],
         };
         mockRepository.getUserWithRoles.mockResolvedValue(userWithRoles);
+        mockRepository.getModuleRolePermissions.mockResolvedValue(['initiate_transfer', 'view_balances']);
 
         const result = await policyService.checkAccess({
           userId: 'user-123',
           organisationId: 'org-456',
-          module: 'compliance',
-          action: 'view_audit_logs',
+          module: 'treasury',
+          action: 'initiate_transfer',
         });
 
         expect(result).toEqual({
           allowed: true,
-          reason: 'Owner has full access',
-          matchedRole: 'owner',
+          reason: 'Permission granted by role',
+          matchedRole: 'treasury:admin',
         });
+        expect(mockRepository.getModuleRolePermissions).toHaveBeenCalledWith('treasury', 'admin');
       });
     });
 

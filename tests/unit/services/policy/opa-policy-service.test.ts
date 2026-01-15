@@ -15,6 +15,7 @@ describe('OpaPolicyService', () => {
 
     mockRepository = {
       getUserWithRoles: vi.fn(),
+      getModuleRolePermissions: vi.fn(),
     } as unknown as RbacRepository;
 
     service = new OpaPolicyService(mockOpaClient, mockRepository);
@@ -46,34 +47,17 @@ describe('OpaPolicyService', () => {
   });
 
   it('should fall back to local evaluation when OPA is unavailable', async () => {
+    // Per FR-6: Owner does NOT bypass module checks
+    // When OPA fails, we fall back to LocalPolicyService which requires module role
     vi.mocked(mockRepository.getUserWithRoles).mockResolvedValue({
       userId: 'user-1',
       organisationId: 'org-1',
       globalRole: 'owner',
-      moduleRoles: [],
-    });
-
-    vi.mocked(mockOpaClient.evaluate).mockRejectedValue(new Error('Connection refused'));
-
-    const result = await service.checkAccess({
-      userId: 'user-1',
-      organisationId: 'org-1',
-      module: 'treasury',
-      action: 'view_balances',
-    });
-
-    // Should still work because owner bypasses checks
-    expect(result.allowed).toBe(true);
-  });
-
-  it('should deny non-owner when OPA is unavailable', async () => {
-    vi.mocked(mockRepository.getUserWithRoles).mockResolvedValue({
-      userId: 'user-1',
-      organisationId: 'org-1',
-      globalRole: null,  // not an owner
       moduleRoles: [{ module: 'treasury', role: 'admin', resourceScope: null }],
     });
 
+    vi.mocked(mockRepository.getModuleRolePermissions).mockResolvedValue(['view_balances', 'initiate_transfer']);
+
     vi.mocked(mockOpaClient.evaluate).mockRejectedValue(new Error('Connection refused'));
 
     const result = await service.checkAccess({
@@ -83,7 +67,54 @@ describe('OpaPolicyService', () => {
       action: 'view_balances',
     });
 
+    // Should work because user has module role with permission
+    expect(result.allowed).toBe(true);
+    expect(result.matchedRole).toBe('treasury:admin');
+  });
+
+  it('should deny owner without module role when OPA is unavailable', async () => {
+    // Per FR-6: Owner does NOT bypass module checks
+    vi.mocked(mockRepository.getUserWithRoles).mockResolvedValue({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      globalRole: 'owner',
+      moduleRoles: [], // No module role
+    });
+
+    vi.mocked(mockOpaClient.evaluate).mockRejectedValue(new Error('Connection refused'));
+
+    const result = await service.checkAccess({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      module: 'treasury',
+      action: 'view_balances',
+    });
+
+    // Should be denied because owner has no module role
     expect(result.allowed).toBe(false);
-    expect(result.reason).toBe('Policy evaluation unavailable, please retry');
+    expect(result.reason).toBe('No role assigned for module: treasury');
+  });
+
+  it('should deny user when OPA unavailable and user lacks permission', async () => {
+    vi.mocked(mockRepository.getUserWithRoles).mockResolvedValue({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      globalRole: null,
+      moduleRoles: [{ module: 'treasury', role: 'viewer', resourceScope: null }],
+    });
+
+    vi.mocked(mockRepository.getModuleRolePermissions).mockResolvedValue(['view_balances']); // No initiate_transfer
+
+    vi.mocked(mockOpaClient.evaluate).mockRejectedValue(new Error('Connection refused'));
+
+    const result = await service.checkAccess({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      module: 'treasury',
+      action: 'initiate_transfer', // Not in permissions
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('Role treasury:viewer does not have permission for action: initiate_transfer');
   });
 });
