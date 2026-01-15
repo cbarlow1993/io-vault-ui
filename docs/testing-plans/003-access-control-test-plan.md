@@ -1,13 +1,14 @@
 # Access Control Policy Evaluation - Manual Test Plan
 
-**Related Requirements:** [003-access-control.md](../requirements/003-access-control.md)
+**Related Requirements:** [003-access-control.md](../requirements/modules-and-access/003-access-control.md)
 **Last Updated:** 2026-01-15
 
 ## Prerequisites
 
 - Access to test environment with API endpoint
 - Test users created with specific roles:
-  - `owner-user`: Owner global role
+  - `owner-user`: Owner global role + treasury:admin module role
+  - `owner-no-module`: Owner global role (no module roles)
   - `admin-user`: Admin global role (no module roles)
   - `treasurer-user`: Treasury treasurer role (no vault scope)
   - `scoped-treasurer`: Treasury treasurer role scoped to `vault-1` only
@@ -19,52 +20,51 @@
 
 ## Test Cases
 
-### Owner Bypass Tests
+### Global Role Does Not Bypass Module Access
 
-#### TC-AC-001: Owner can access any vault
+#### TC-AC-001: Owner without module role denied access
+
+**Covers:** FR-1, FR-6
+
+| Step | Action | Expected Result |
+|------|--------|-----------------|
+| 1 | Authenticate as `owner-no-module` (owner global role, no module roles) | Token obtained |
+| 2 | GET `/vaults` | 403 Forbidden |
+| 3 | GET `/vaults/vault-1` | 403 Forbidden |
+| 4 | Verify error indicates no role for treasury module | Access denied message |
+
+---
+
+#### TC-AC-002: Owner with module role can access
 
 **Covers:** FR-1
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
-| 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | GET `/vaults/vault-1` | 200 OK |
-| 3 | GET `/vaults/vault-2` | 200 OK |
-| 4 | GET `/vaults/vault-3` | 200 OK |
+| 1 | Authenticate as `owner-user` (owner global role + treasury:admin) | Token obtained |
+| 2 | GET `/vaults` | 200 OK |
+| 3 | GET `/vaults/vault-1` | 200 OK |
+| 4 | POST `/vaults` | 201 Created (or validation error, not 403) |
 
 ---
 
-#### TC-AC-002: Owner can perform any action
+#### TC-AC-003: Admin without module role denied access
 
-**Covers:** FR-1
-
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | GET `/vaults` (view_vaults) | 200 OK |
-| 3 | POST `/vaults` (create_vault) | 201 Created (or validation error, not 403) |
-| 4 | POST `/vaults/vault-1/addresses` (create_address) | 201 Created (or validation error, not 403) |
-| 5 | POST `/transactions` (initiate_transfer) | 201 Created (or validation error, not 403) |
-
----
-
-### Module Role Required Tests
-
-#### TC-AC-003: User without module role denied access
-
-**Covers:** FR-2, VR-2
+**Covers:** FR-1, FR-6
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
-| 1 | Authenticate as `admin-user` (has global admin, no treasury role) | Token obtained |
+| 1 | Authenticate as `admin-user` (admin global role, no module roles) | Token obtained |
 | 2 | GET `/vaults` | 403 Forbidden |
 | 3 | Verify error indicates no role for treasury module | Access denied message |
 
 ---
 
+### Module Role Required Tests
+
 #### TC-AC-004: User with no roles denied access
 
-**Covers:** FR-2, VR-2
+**Covers:** FR-1, VR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -78,7 +78,7 @@
 
 #### TC-AC-005: Treasurer can view balances
 
-**Covers:** FR-3
+**Covers:** FR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -91,7 +91,7 @@
 
 #### TC-AC-006: Treasurer can initiate transfer
 
-**Covers:** FR-3
+**Covers:** FR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -102,7 +102,7 @@
 
 #### TC-AC-007: Treasurer cannot approve transfer
 
-**Covers:** FR-3, VR-3
+**Covers:** FR-2, VR-3
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -114,7 +114,7 @@
 
 #### TC-AC-008: Auditor can only view (not initiate)
 
-**Covers:** FR-3, VR-3
+**Covers:** FR-2, VR-3
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -130,7 +130,7 @@
 
 #### TC-AC-009: Scoped user can access allowed vault
 
-**Covers:** FR-4
+**Covers:** FR-3
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -142,7 +142,7 @@
 
 #### TC-AC-010: Scoped user denied access to out-of-scope vault
 
-**Covers:** FR-4, VR-4
+**Covers:** FR-3, VR-4
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -155,7 +155,7 @@
 
 #### TC-AC-011: Null scope allows all vaults
 
-**Covers:** FR-4 (scope behavior)
+**Covers:** FR-3 (scope behavior)
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -166,13 +166,13 @@
 
 ---
 
-#### TC-AC-012: Empty vault_ids array allows all vaults
+#### TC-AC-012: Empty vaultIds array allows all vaults
 
-**Covers:** FR-4 (scope behavior)
+**Covers:** FR-3 (scope behavior)
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
-| 1 | Setup: Assign user treasury role with `{"vault_ids": []}` | Role assigned |
+| 1 | Setup: Assign user treasury role with `{"vaultIds": []}` | Role assigned |
 | 2 | Authenticate as that user | Token obtained |
 | 3 | GET `/vaults/vault-1` | 200 OK |
 | 4 | GET `/vaults/vault-2` | 200 OK |
@@ -182,7 +182,7 @@
 
 #### TC-AC-013: List operations work without specific vault
 
-**Covers:** FR-4 (scope behavior)
+**Covers:** FR-3 (scope behavior)
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -220,20 +220,20 @@
 
 #### TC-AC-016: Access decision is logged
 
-**Covers:** FR-5, NFR-2
+**Covers:** FR-4, NFR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `treasurer-user` | Token obtained |
 | 2 | GET `/vaults/vault-1` | 200 OK |
 | 3 | Check `policy_decisions` table in database | Entry exists with decision: allow |
-| 4 | Verify entry has user_id, module, action, resource | All fields populated |
+| 4 | Verify entry has userId, module, action, resource | All fields populated |
 
 ---
 
 #### TC-AC-017: Denied access is logged
 
-**Covers:** FR-5, NFR-2
+**Covers:** FR-4, NFR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -248,7 +248,7 @@
 
 #### TC-AC-018: Treasury role doesn't grant compliance access
 
-**Covers:** FR-2
+**Covers:** FR-1
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -262,7 +262,7 @@
 
 #### TC-AC-019: Multiple module roles - correct one applied
 
-**Covers:** FR-2, FR-3
+**Covers:** FR-1, FR-2
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|

@@ -36,10 +36,10 @@ Assign or update a global role for a user.
 ```json
 {
   "id": "uuid",
-  "user_id": "string",
-  "organisation_id": "string",
+  "userId": "string",
+  "organisationId": "string",
   "role": "owner" | "billing" | "admin",
-  "created_at": "ISO8601 timestamp"
+  "createdAt": "ISO8601 timestamp"
 }
 ```
 
@@ -56,14 +56,14 @@ Get a user's global role and module roles.
 **Response (200 OK):**
 ```json
 {
-  "user_id": "string",
-  "organisation_id": "string",
-  "global_role": "owner" | "billing" | "admin" | null,
-  "module_roles": [
+  "userId": "string",
+  "organisationId": "string",
+  "globalRole": "owner" | "billing" | "admin" | null,
+  "moduleRoles": [
     {
       "module": "string",
       "role": "string",
-      "resource_scope": { "vault_ids": ["string"] } | null
+      "resourceScope": { "vaultIds": ["string"] } | null
     }
   ]
 }

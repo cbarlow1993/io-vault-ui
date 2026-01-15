@@ -1,6 +1,6 @@
 # RBAC Data Model - Manual Test Plan
 
-**Related Requirements:** [004-rbac-data-model.md](../requirements/004-rbac-data-model.md)
+**Related Requirements:** [004-rbac-data-model.md](../requirements/modules-and-access/004-rbac-data-model.md)
 **Last Updated:** 2026-01-15
 
 ## Prerequisites

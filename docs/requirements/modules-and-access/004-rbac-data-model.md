@@ -38,6 +38,8 @@ Organisation
 
 ## Database Schema
 
+> **Note:** Database columns use snake_case. API responses serialize to camelCase (e.g., `user_id` → `userId`, `resource_scope` → `resourceScope`). JSONB content in `resource_scope` uses camelCase keys (e.g., `{"vaultIds": [...]}`)
+
 ### modules
 
 | Column | Type | Constraints |

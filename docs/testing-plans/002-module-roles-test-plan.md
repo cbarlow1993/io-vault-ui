@@ -1,6 +1,6 @@
 # Module Role Management - Manual Test Plan
 
-**Related Requirements:** [002-module-roles.md](../requirements/002-module-roles.md)
+**Related Requirements:** [002-module-roles.md](../requirements/modules-and-access/002-module-roles.md)
 **Last Updated:** 2026-01-15
 
 ## Prerequisites
@@ -25,9 +25,9 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"module_id": "treasury", "role": "treasurer"}` | 201 Created |
+| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"moduleId": "treasury", "role": "treasurer"}` | 201 Created |
 | 3 | Verify response contains `module: "treasury"`, `role: "treasurer"` | Role assigned correctly |
-| 4 | Verify response contains `granted_by: "owner-user"` | Granter recorded |
+| 4 | Verify response contains `grantedBy: "owner-user"` | Granter recorded |
 
 ---
 
@@ -38,7 +38,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `admin-user` | Token obtained |
-| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"module_id": "treasury", "role": "auditor"}` | 201 Created |
+| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"moduleId": "treasury", "role": "auditor"}` | 201 Created |
 | 3 | Verify response contains `module: "treasury"`, `role: "auditor"` | Role assigned correctly |
 
 ---
@@ -50,7 +50,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `billing-user` | Token obtained |
-| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"module_id": "treasury", "role": "treasurer"}` | 403 Forbidden |
+| 2 | POST `/organisations/test-org-123/users/target-user/module-roles` with body `{"moduleId": "treasury", "role": "treasurer"}` | 403 Forbidden |
 | 3 | Verify error code is `OPERATION_FORBIDDEN` | Error returned correctly |
 
 ---
@@ -62,7 +62,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `target-user` (no global role) | Token obtained |
-| 2 | POST `/organisations/test-org-123/users/another-user/module-roles` with body `{"module_id": "treasury", "role": "treasurer"}` | 403 Forbidden |
+| 2 | POST `/organisations/test-org-123/users/another-user/module-roles` with body `{"moduleId": "treasury", "role": "treasurer"}` | 403 Forbidden |
 | 3 | Verify error code is `OPERATION_FORBIDDEN` | Error returned correctly |
 
 ---
@@ -87,8 +87,8 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST with body `{"module_id": "treasury", "role": "treasurer", "resource_scope": {"vault_ids": ["vault-1", "vault-2"]}}` | 201 Created |
-| 3 | Verify response `resource_scope` contains `vault_ids: ["vault-1", "vault-2"]` | Scope recorded correctly |
+| 2 | POST with body `{"moduleId": "treasury", "role": "treasurer", "resourceScope": {"vaultIds": ["vault-1", "vault-2"]}}` | 201 Created |
+| 3 | Verify response `resourceScope` contains `vaultIds: ["vault-1", "vault-2"]` | Scope recorded correctly |
 
 ---
 
@@ -99,21 +99,21 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST with body `{"module_id": "treasury", "role": "treasurer", "resource_scope": null}` | 201 Created |
-| 3 | Verify response `resource_scope` is `null` | No restrictions |
-| 4 | GET user roles | `resource_scope: null` in module role |
+| 2 | POST with body `{"moduleId": "treasury", "role": "treasurer", "resourceScope": null}` | 201 Created |
+| 3 | Verify response `resourceScope` is `null` | No restrictions |
+| 4 | GET user roles | `resourceScope: null` in module role |
 
 ---
 
-### TC-MR-008: Empty vault_ids array grants access to all vaults
+### TC-MR-008: Empty vaultIds array grants access to all vaults
 
 **Covers:** FR-7
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST with body `{"module_id": "treasury", "role": "treasurer", "resource_scope": {"vault_ids": []}}` | 201 Created |
-| 3 | Verify response `resource_scope` contains `vault_ids: []` | Empty array recorded |
+| 2 | POST with body `{"moduleId": "treasury", "role": "treasurer", "resourceScope": {"vaultIds": []}}` | 201 Created |
+| 3 | Verify response `resourceScope` contains `vaultIds: []` | Empty array recorded |
 
 ---
 
@@ -125,7 +125,7 @@
 |------|--------|-----------------|
 | 1 | Deactivate a test module (or use known inactive module) | Module inactive |
 | 2 | Authenticate as `owner-user` | Token obtained |
-| 3 | POST with body `{"module_id": "inactive-module", "role": "admin"}` | 404 Not Found |
+| 3 | POST with body `{"moduleId": "inactive-module", "role": "admin"}` | 404 Not Found |
 | 4 | Verify error code is `NOT_FOUND` | Module not found (because inactive) |
 
 ---
@@ -137,7 +137,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST with body `{"module_id": "treasury", "role": "superuser"}` | 404 Not Found |
+| 2 | POST with body `{"moduleId": "treasury", "role": "superuser"}` | 404 Not Found |
 | 3 | Verify error message mentions role not found | Role validation error |
 
 ---
@@ -149,7 +149,7 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST with body `{"module_id": "treasury", "role": "treasurer"}` (using name) | 201 Created |
+| 2 | POST with body `{"moduleId": "treasury", "role": "treasurer"}` (using name) | 201 Created |
 | 3 | Verify response `module` is `"treasury"` | Lookup by name succeeded |
 
 ---
@@ -162,7 +162,7 @@
 |------|--------|-----------------|
 | 1 | Get treasury module UUID from database | UUID obtained |
 | 2 | Authenticate as `owner-user` | Token obtained |
-| 3 | POST with body `{"module_id": "<treasury-uuid>", "role": "treasurer"}` | 201 Created |
+| 3 | POST with body `{"moduleId": "<treasury-uuid>", "role": "treasurer"}` | 201 Created |
 | 4 | Verify response `module` is `"treasury"` | Lookup by ID succeeded |
 
 ---
@@ -212,8 +212,8 @@
 | Step | Action | Expected Result |
 |------|--------|-----------------|
 | 1 | Authenticate as `owner-user` | Token obtained |
-| 2 | POST treasurer role with scope `{"vault_ids": ["vault-1"]}` | 201 Created |
-| 3 | POST treasurer role with scope `{"vault_ids": ["vault-2", "vault-3"]}` | 201 Created |
+| 2 | POST treasurer role with scope `{"vaultIds": ["vault-1"]}` | 201 Created |
+| 3 | POST treasurer role with scope `{"vaultIds": ["vault-2", "vault-3"]}` | 201 Created |
 | 4 | GET user roles | Scope is `["vault-2", "vault-3"]` (replaced, not merged) |
 
 ---

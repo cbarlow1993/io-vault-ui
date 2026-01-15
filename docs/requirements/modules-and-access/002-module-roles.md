@@ -15,9 +15,9 @@ Organisation owners and admins can assign module-specific roles to users. Module
 | **FR-2** | Users with `owner` or `admin` global role can remove module roles |
 | **FR-3** | A user can have at most one role per module within an organisation |
 | **FR-4** | Assigning a module role to a user who already has one for that module replaces the existing role |
-| **FR-5** | Module roles can be scoped to specific vaults via `resource_scope.vault_ids` |
-| **FR-6** | A null `resource_scope` grants module-wide access (no vault restrictions) |
-| **FR-7** | An empty `vault_ids` array grants access to all vaults (equivalent to null scope) |
+| **FR-5** | Module roles can be scoped to specific vaults via `resourceScope.vaultIds` |
+| **FR-6** | A null `resourceScope` grants module-wide access (no vault restrictions) |
+| **FR-7** | An empty `vaultIds` array grants access to all vaults (equivalent to null scope) |
 | **FR-8** | Module must exist and be active for role assignment |
 | **FR-9** | Role must exist within the specified module for assignment |
 
@@ -30,10 +30,10 @@ Assign a module role to a user.
 **Request Body:**
 ```json
 {
-  "module_id": "string (module ID or name)",
+  "moduleId": "string (module ID or name)",
   "role": "string (role name)",
-  "resource_scope": {
-    "vault_ids": ["vault-id-1", "vault-id-2"]
+  "resourceScope": {
+    "vaultIds": ["vault-id-1", "vault-id-2"]
   } | null
 }
 ```
@@ -42,12 +42,12 @@ Assign a module role to a user.
 ```json
 {
   "id": "uuid",
-  "user_id": "string",
+  "userId": "string",
   "module": "string (module name)",
   "role": "string (role name)",
-  "resource_scope": { "vault_ids": ["string"] } | null,
-  "granted_by": "string (granter user ID)",
-  "created_at": "ISO8601 timestamp"
+  "resourceScope": { "vaultIds": ["string"] } | null,
+  "grantedBy": "string (granter user ID)",
+  "createdAt": "ISO8601 timestamp"
 }
 ```
 
@@ -72,8 +72,8 @@ Remove a user's module role.
 | Scope Value | Behavior |
 |-------------|----------|
 | `null` | Module-wide access, no vault restrictions |
-| `{ vault_ids: [] }` | Access to all vaults (no restrictions) |
-| `{ vault_ids: ["v1", "v2"] }` | Access restricted to vaults v1 and v2 only |
+| `{ vaultIds: [] }` | Access to all vaults (no restrictions) |
+| `{ vaultIds: ["v1", "v2"] }` | Access restricted to vaults v1 and v2 only |
 
 ## Non-Functional Requirements
 

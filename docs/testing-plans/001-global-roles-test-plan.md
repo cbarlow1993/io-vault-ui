@@ -1,6 +1,6 @@
 # Global Role Management - Manual Test Plan
 
-**Related Requirements:** [001-global-roles.md](../requirements/001-global-roles.md)
+**Related Requirements:** [001-global-roles.md](../requirements/modules-and-access/001-global-roles.md)
 **Last Updated:** 2026-01-15
 
 ## Prerequisites
@@ -24,7 +24,7 @@
 | 1 | Authenticate as `owner-user` | Token obtained |
 | 2 | PUT `/organisations/test-org-123/users/target-user/global-role` with body `{"role": "admin"}` | 200 OK |
 | 3 | Verify response contains `role: "admin"` | Role assigned correctly |
-| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `global_role: "admin"` |
+| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `globalRole: "admin"` |
 
 ---
 
@@ -50,7 +50,7 @@
 | 1 | Authenticate as `owner-user` | Token obtained |
 | 2 | PUT `/organisations/test-org-123/users/target-user/global-role` with body `{"role": "admin"}` | 200 OK |
 | 3 | PUT `/organisations/test-org-123/users/target-user/global-role` with body `{"role": "billing"}` | 200 OK |
-| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `global_role: "billing"` (not admin) |
+| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `globalRole: "billing"` (not admin) |
 
 ---
 
@@ -75,7 +75,7 @@
 | 1 | Authenticate as `owner-user` | Token obtained |
 | 2 | Ensure `target-user` has a global role (assign if needed) | Role exists |
 | 3 | DELETE `/organisations/test-org-123/users/target-user/global-role` | 204 No Content |
-| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `global_role: null` |
+| 4 | GET `/organisations/test-org-123/users/target-user/roles` | Response shows `globalRole: null` |
 
 ---
 
@@ -126,9 +126,9 @@
 | 1 | Authenticate as any user in organisation | Token obtained |
 | 2 | Setup: Assign `target-user` global role `admin` and module role for treasury | Roles assigned |
 | 3 | GET `/organisations/test-org-123/users/target-user/roles` | 200 OK |
-| 4 | Verify response has `user_id`, `organisation_id`, `global_role`, `module_roles` | All fields present |
-| 5 | Verify `global_role` is `"admin"` | Global role correct |
-| 6 | Verify `module_roles` array contains treasury role | Module roles included |
+| 4 | Verify response has `userId`, `organisationId`, `globalRole`, `moduleRoles` | All fields present |
+| 5 | Verify `globalRole` is `"admin"` | Global role correct |
+| 6 | Verify `moduleRoles` array contains treasury role | Module roles included |
 
 ---
 
