@@ -17,6 +17,10 @@ import {
   PostgresVaultRepository,
   type VaultRepository,
 } from '@/src/repositories/vault.repository.js';
+import {
+  PostgresRbacRepository,
+  type RbacRepository,
+} from '@/src/repositories/rbac.repository.js';
 import type {
   AddressRepository,
   TokenRepository,
@@ -48,6 +52,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     db: Kysely<Database>;
     vaultDb: Kysely<VaultDatabase>;
+    rbacRepository: RbacRepository;
     repositories: {
       addresses: AddressRepository;
       tokens: TokenRepository;
@@ -94,6 +99,7 @@ async function databasePlugin(fastify: FastifyInstance) {
   const transactionRepository = new PostgresTransactionRepository(db);
   const tokenHoldingRepository = new PostgresTokenHoldingRepository(db);
   const vaultRepository = new PostgresVaultRepository(vaultDb);
+  const rbacRepository = new PostgresRbacRepository(db);
 
   // Create services
   const pricingService = new PricingService(tokenPriceRepository, {
@@ -134,6 +140,7 @@ async function databasePlugin(fastify: FastifyInstance) {
   // Decorate Fastify instance
   fastify.decorate('db', db);
   // fastify.decorate('vaultDb', vaultDb);
+  fastify.decorate('rbacRepository', rbacRepository);
 
   fastify.decorate('repositories', {
     addresses: addressRepository,

@@ -8,6 +8,8 @@ import { config } from '@/src/lib/config.js';
 import authPlugin from '@/src/plugins/auth.js';
 import databasePlugin from '@/src/plugins/database.js';
 import errorHandlerPlugin from '@/src/plugins/error-handler.js';
+import policyPlugin from '@/src/plugins/policy.js';
+import { LocalPolicyService } from '@/src/services/policy/policy-service.js';
 import reconciliationCronPlugin from '@/src/plugins/reconciliation-cron.js';
 import reconciliationWorkerPlugin from '@/src/plugins/reconciliation-worker.js';
 import swaggerPlugin from '@/src/plugins/swagger.js';
@@ -42,6 +44,15 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     publicRoutes: ['/health', '/v2/chains', '/docs', '/docs/*'],
     jwksUrl: options.jwksUrl ?? config.auth.jwksUrl,
     allowedClientIds: allowedClientIds.length > 0 ? allowedClientIds : undefined,
+  });
+
+  // Policy plugin (requires database and auth)
+  app.register(async (instance) => {
+    // Wait for database plugin to be ready
+    await instance.ready();
+
+    const policyService = new LocalPolicyService(instance.rbacRepository);
+    await instance.register(policyPlugin, { policyService });
   });
 
   // Routes
