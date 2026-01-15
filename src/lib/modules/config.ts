@@ -1,8 +1,10 @@
 import {
   ActivityIcon,
   ArrowRightLeftIcon,
+  BadgePlusIcon,
   BookUserIcon,
   BuildingIcon,
+  CoinsIcon,
   CreditCardIcon,
   FileTextIcon,
   FingerprintIcon,
@@ -11,6 +13,7 @@ import {
   GridIcon,
   KeyIcon,
   ListChecksIcon,
+  RocketIcon,
   ScrollTextIcon,
   SettingsIcon,
   ShieldCheckIcon,
@@ -183,9 +186,54 @@ export const moduleConfig: Record<ModuleId, ModuleConfig> = {
       },
     ],
   },
+  tokenisation: {
+    id: 'tokenisation',
+    name: 'Tokenisation',
+    icon: CoinsIcon,
+    accent: 'cyan',
+    requiresWorkspace: false,
+    defaultPath: '/tokenisation/overview',
+    navItems: [
+      {
+        label: 'Overview',
+        path: '/tokenisation/overview',
+        icon: GridIcon,
+        testId: 'nav-tokenisation-overview',
+      },
+      {
+        label: 'Tokens',
+        path: '/tokenisation/tokens',
+        icon: CoinsIcon,
+        testId: 'nav-tokenisation-tokens',
+      },
+      {
+        label: 'Deploy Token',
+        path: '/tokenisation/deployment',
+        icon: RocketIcon,
+        testId: 'nav-tokenisation-deployment',
+      },
+      {
+        label: 'Issuances',
+        path: '/tokenisation/issuances',
+        icon: BadgePlusIcon,
+        testId: 'nav-tokenisation-issuances',
+      },
+      {
+        label: 'Holders',
+        path: '/tokenisation/holders',
+        icon: UsersIcon,
+        testId: 'nav-tokenisation-holders',
+      },
+    ],
+  },
 };
 
-export const moduleIds: ModuleId[] = ['treasury', 'compliance', 'global'];
+export const moduleIds: ModuleId[] = [
+  'treasury',
+  'compliance',
+  'global',
+  'tokenisation',
+];
 
 export function getModuleFromPath(pathname: string): ModuleId | null {
   for (const id of moduleIds) {

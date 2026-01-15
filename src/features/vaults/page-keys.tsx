@@ -134,7 +134,7 @@ export const PageTreasury6Keys = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/vaults/new" data-testid="vaults-create-button">
+            <Link to="/treasury/vaults/new" data-testid="vaults-create-button">
               <PlusIcon className="mr-1.5 size-3.5" />
               Create Vault
             </Link>
@@ -313,7 +313,7 @@ export const PageTreasury6Keys = () => {
                     >
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -327,7 +327,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -353,7 +353,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -369,7 +369,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -380,7 +380,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block text-neutral-600 tabular-nums"
                         >
@@ -389,7 +389,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block text-neutral-500"
                         >
@@ -416,7 +416,7 @@ export const PageTreasury6Keys = () => {
                               className="cursor-pointer rounded-none text-xs"
                             >
                               <Link
-                                to="/vaults/$vaultId"
+                                to="/treasury/vaults/$vaultId"
                                 params={{ vaultId: vault.id }}
                               >
                                 View Details

@@ -71,6 +71,7 @@ export function ModuleSwitcher() {
             <SidebarMenuButton
               size="lg"
               className="h-auto rounded-none px-0 hover:bg-transparent"
+              data-testid="module-switcher"
             >
               <div className="bg-module-accent flex size-8 items-center justify-center text-xs font-semibold text-white">
                 {selectedOrg.initials}
@@ -121,6 +122,7 @@ export function ModuleSwitcher() {
                     key={moduleId}
                     onClick={() => handleModuleSelect(moduleId)}
                     className="cursor-pointer rounded-none px-3 py-2"
+                    data-testid={`module-${moduleId}`}
                   >
                     <ModuleIcon className="size-4 text-neutral-500" />
                     <span className="flex-1 text-sm">{config.name}</span>
@@ -162,7 +164,7 @@ export function ModuleSwitcher() {
                     className="cursor-pointer rounded-none px-3 py-2 text-neutral-600"
                   >
                     {/* TODO: Update to /global/workspaces when route is created */}
-                    <Link to="/settings/workspaces">
+                    <Link to="/global/workspaces">
                       <PlusIcon className="size-4" />
                       <span className="text-sm">Create Workspace</span>
                     </Link>

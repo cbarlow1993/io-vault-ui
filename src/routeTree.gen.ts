@@ -18,97 +18,113 @@ import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AppOverviewRouteImport } from './routes/_app/overview'
-import { Route as AppVaultsRouteRouteImport } from './routes/_app/vaults/route'
+import { Route as AppVaultsRouteImport } from './routes/_app/vaults'
+import { Route as AppSignersRouteImport } from './routes/_app/signers'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppPoliciesRouteImport } from './routes/_app/policies'
+import { Route as AppOperationsRouteImport } from './routes/_app/operations'
+import { Route as AppIdentitiesRouteImport } from './routes/_app/identities'
+import { Route as AppAddressBookRouteImport } from './routes/_app/address-book'
 import { Route as AppTreasuryRouteRouteImport } from './routes/_app/treasury/route'
-import { Route as AppSignersRouteRouteImport } from './routes/_app/signers/route'
-import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
-import { Route as AppPoliciesRouteRouteImport } from './routes/_app/policies/route'
-import { Route as AppOperationsRouteRouteImport } from './routes/_app/operations/route'
-import { Route as AppIdentitiesRouteRouteImport } from './routes/_app/identities/route'
+import { Route as AppTokenisationRouteRouteImport } from './routes/_app/tokenisation/route'
 import { Route as AppGlobalRouteRouteImport } from './routes/_app/global/route'
 import { Route as AppComplianceRouteRouteImport } from './routes/_app/compliance/route'
-import { Route as AppAddressBookRouteRouteImport } from './routes/_app/address-book/route'
 import { Route as AppAccountRouteRouteImport } from './routes/_app/account/route'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
-import { Route as AppVaultsIndexRouteImport } from './routes/_app/vaults/index'
 import { Route as AppTreasuryIndexRouteImport } from './routes/_app/treasury/index'
-import { Route as AppSignersIndexRouteImport } from './routes/_app/signers/index'
-import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
-import { Route as AppIdentitiesIndexRouteImport } from './routes/_app/identities/index'
+import { Route as AppTokenisationIndexRouteImport } from './routes/_app/tokenisation/index'
 import { Route as AppGlobalIndexRouteImport } from './routes/_app/global/index'
 import { Route as AppComplianceIndexRouteImport } from './routes/_app/compliance/index'
-import { Route as AppAddressBookIndexRouteImport } from './routes/_app/address-book/index'
 import { Route as AppAccountIndexRouteImport } from './routes/_app/account/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc.$'
 import { Route as ApiRestSplatRouteImport } from './routes/api/rest.$'
 import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
 import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
-import { Route as AppVaultsTabsRouteImport } from './routes/_app/vaults/tabs'
-import { Route as AppVaultsNewRouteImport } from './routes/_app/vaults/new'
-import { Route as AppVaultsLayoutsRouteImport } from './routes/_app/vaults/layouts'
 import { Route as AppTreasuryOverviewRouteImport } from './routes/_app/treasury/overview'
-import { Route as AppSignersNewRouteImport } from './routes/_app/signers/new'
-import { Route as AppSettingsWorkspacesRouteImport } from './routes/_app/settings/workspaces'
-import { Route as AppSettingsRolesRouteImport } from './routes/_app/settings/roles'
-import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
-import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
-import { Route as AppSettingsBackupsRouteImport } from './routes/_app/settings/backups'
-import { Route as AppSettingsAuditRouteImport } from './routes/_app/settings/audit'
-import { Route as AppIdentitiesNewRouteImport } from './routes/_app/identities/new'
+import { Route as AppTokenisationOverviewRouteImport } from './routes/_app/tokenisation/overview'
+import { Route as AppTokenisationIssuancesRouteImport } from './routes/_app/tokenisation/issuances'
+import { Route as AppTokenisationHoldersRouteImport } from './routes/_app/tokenisation/holders'
+import { Route as AppTokenisationDeploymentRouteImport } from './routes/_app/tokenisation/deployment'
+import { Route as AppGlobalWorkspacesRouteImport } from './routes/_app/global/workspaces'
 import { Route as AppGlobalUsersRouteImport } from './routes/_app/global/users'
+import { Route as AppGlobalRolesRouteImport } from './routes/_app/global/roles'
+import { Route as AppGlobalOrganizationRouteImport } from './routes/_app/global/organization'
+import { Route as AppGlobalBillingRouteImport } from './routes/_app/global/billing'
+import { Route as AppGlobalBackupsRouteImport } from './routes/_app/global/backups'
+import { Route as AppGlobalAuditRouteImport } from './routes/_app/global/audit'
 import { Route as AppComplianceReportsRouteImport } from './routes/_app/compliance/reports'
 import { Route as AppComplianceOverviewRouteImport } from './routes/_app/compliance/overview'
 import { Route as AppComplianceAlertsRouteImport } from './routes/_app/compliance/alerts'
 import { Route as AppAccountSecurityRouteImport } from './routes/_app/account/security'
-import { Route as AppVaultsVaultIdRouteRouteImport } from './routes/_app/vaults/$vaultId/route'
-import { Route as AppSignersSignerIdRouteRouteImport } from './routes/_app/signers/$signerId/route'
-import { Route as AppSettingsTeamsRouteRouteImport } from './routes/_app/settings/teams/route'
-import { Route as AppPoliciesWhitelistsRouteRouteImport } from './routes/_app/policies/whitelists/route'
-import { Route as AppPoliciesTransactionsRouteRouteImport } from './routes/_app/policies/transactions/route'
-import { Route as AppOperationsOperationIdRouteRouteImport } from './routes/_app/operations/$operationId/route'
-import { Route as AppIdentitiesIdentityIdRouteRouteImport } from './routes/_app/identities/$identityId/route'
+import { Route as AppTreasuryVaultsRouteRouteImport } from './routes/_app/treasury/vaults/route'
+import { Route as AppTreasurySignersRouteRouteImport } from './routes/_app/treasury/signers/route'
+import { Route as AppTreasuryPoliciesRouteRouteImport } from './routes/_app/treasury/policies/route'
+import { Route as AppTreasuryOperationsRouteRouteImport } from './routes/_app/treasury/operations/route'
+import { Route as AppTreasuryAddressBookRouteRouteImport } from './routes/_app/treasury/address-book/route'
+import { Route as AppTokenisationTokensRouteRouteImport } from './routes/_app/tokenisation/tokens/route'
+import { Route as AppGlobalTeamsRouteRouteImport } from './routes/_app/global/teams/route'
 import { Route as AppComplianceTransactionsRouteRouteImport } from './routes/_app/compliance/transactions/route'
+import { Route as AppComplianceIdentitiesRouteRouteImport } from './routes/_app/compliance/identities/route'
 import { Route as AppComplianceAddressesRouteRouteImport } from './routes/_app/compliance/addresses/route'
-import { Route as AppVaultsVaultIdIndexRouteImport } from './routes/_app/vaults/$vaultId/index'
-import { Route as AppSignersSignerIdIndexRouteImport } from './routes/_app/signers/$signerId/index'
-import { Route as AppSettingsTeamsIndexRouteImport } from './routes/_app/settings/teams/index'
-import { Route as AppSettingsGovernanceIndexRouteImport } from './routes/_app/settings/governance/index'
-import { Route as AppPoliciesWhitelistsIndexRouteImport } from './routes/_app/policies/whitelists/index'
-import { Route as AppPoliciesTransactionsIndexRouteImport } from './routes/_app/policies/transactions/index'
-import { Route as AppIdentitiesIdentityIdIndexRouteImport } from './routes/_app/identities/$identityId/index'
+import { Route as AppTreasuryVaultsIndexRouteImport } from './routes/_app/treasury/vaults/index'
+import { Route as AppTreasurySignersIndexRouteImport } from './routes/_app/treasury/signers/index'
+import { Route as AppTreasuryAddressBookIndexRouteImport } from './routes/_app/treasury/address-book/index'
+import { Route as AppTokenisationTokensIndexRouteImport } from './routes/_app/tokenisation/tokens/index'
+import { Route as AppGlobalTeamsIndexRouteImport } from './routes/_app/global/teams/index'
+import { Route as AppGlobalGovernanceIndexRouteImport } from './routes/_app/global/governance/index'
 import { Route as AppComplianceTransactionsIndexRouteImport } from './routes/_app/compliance/transactions/index'
+import { Route as AppComplianceIdentitiesIndexRouteImport } from './routes/_app/compliance/identities/index'
 import { Route as AppComplianceAddressesIndexRouteImport } from './routes/_app/compliance/addresses/index'
 import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/app.schema'
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
-import { Route as AppVaultsVaultIdEditRouteImport } from './routes/_app/vaults/$vaultId/edit'
-import { Route as AppSettingsTeamsTeamIdRouteImport } from './routes/_app/settings/teams/$teamId'
-import { Route as AppSettingsGovernancePendingRouteImport } from './routes/_app/settings/governance/pending'
-import { Route as AppPoliciesWhitelistsNewRouteImport } from './routes/_app/policies/whitelists/new'
-import { Route as AppIdentitiesIdentityIdEditRouteImport } from './routes/_app/identities/$identityId/edit'
+import { Route as AppTreasuryVaultsTabsRouteImport } from './routes/_app/treasury/vaults/tabs'
+import { Route as AppTreasuryVaultsNewRouteImport } from './routes/_app/treasury/vaults/new'
+import { Route as AppTreasuryVaultsLayoutsRouteImport } from './routes/_app/treasury/vaults/layouts'
+import { Route as AppTreasurySignersNewRouteImport } from './routes/_app/treasury/signers/new'
+import { Route as AppGlobalTeamsTeamIdRouteImport } from './routes/_app/global/teams/$teamId'
+import { Route as AppGlobalGovernancePendingRouteImport } from './routes/_app/global/governance/pending'
 import { Route as AppComplianceTransactionsIdRouteImport } from './routes/_app/compliance/transactions/$id'
+import { Route as AppComplianceIdentitiesNewRouteImport } from './routes/_app/compliance/identities/new'
 import { Route as AppComplianceAddressesAddressRouteImport } from './routes/_app/compliance/addresses/$address'
-import { Route as AppVaultsVaultIdAddressesRouteRouteImport } from './routes/_app/vaults/$vaultId/addresses/route'
-import { Route as AppPoliciesWhitelistsWhitelistIdRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/route'
-import { Route as AppPoliciesTransactionsPolicyIdRouteRouteImport } from './routes/_app/policies/transactions/$policyId/route'
-import { Route as AppVaultsVaultIdAddressesIndexRouteImport } from './routes/_app/vaults/$vaultId/addresses/index'
-import { Route as AppPoliciesWhitelistsWhitelistIdIndexRouteImport } from './routes/_app/policies/whitelists/$whitelistId/index'
-import { Route as AppPoliciesTransactionsPolicyIdIndexRouteImport } from './routes/_app/policies/transactions/$policyId/index'
-import { Route as AppVaultsVaultIdResharesReshareIdRouteImport } from './routes/_app/vaults/$vaultId/reshares/$reshareId'
-import { Route as AppVaultsVaultIdAddressesNewRouteImport } from './routes/_app/vaults/$vaultId/addresses/new'
-import { Route as AppPoliciesWhitelistsWhitelistIdEditRouteImport } from './routes/_app/policies/whitelists/$whitelistId/edit'
-import { Route as AppVaultsVaultIdAddressesAddressIdRouteRouteImport } from './routes/_app/vaults/$vaultId/addresses/$addressId/route'
-import { Route as AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/route'
-import { Route as AppPoliciesTransactionsPolicyIdVersionsRouteRouteImport } from './routes/_app/policies/transactions/$policyId/versions/route'
-import { Route as AppVaultsVaultIdAddressesAddressIdIndexRouteImport } from './routes/_app/vaults/$vaultId/addresses/$addressId/index'
-import { Route as AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/$versionNumber/route'
-import { Route as AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport } from './routes/_app/policies/transactions/$policyId/versions/$versionNumber/route'
-import { Route as AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport } from './routes/_app/policies/whitelists/$whitelistId/versions/$versionNumber/index'
-import { Route as AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport } from './routes/_app/policies/transactions/$policyId/versions/$versionNumber/index'
-import { Route as AppVaultsVaultIdChainChainAddressesAddressRouteRouteImport } from './routes/_app/vaults/$vaultId/chain/$chain/addresses/$address/route'
-import { Route as AppVaultsVaultIdChainChainAddressesAddressIndexRouteImport } from './routes/_app/vaults/$vaultId/chain/$chain/addresses/$address/index'
-import { Route as AppVaultsVaultIdChainChainAddressesAddressTransferRouteImport } from './routes/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+import { Route as AppTreasuryVaultsVaultIdRouteRouteImport } from './routes/_app/treasury/vaults/$vaultId/route'
+import { Route as AppTreasurySignersSignerIdRouteRouteImport } from './routes/_app/treasury/signers/$signerId/route'
+import { Route as AppTreasuryPoliciesWhitelistsRouteRouteImport } from './routes/_app/treasury/policies/whitelists/route'
+import { Route as AppTreasuryPoliciesTransactionsRouteRouteImport } from './routes/_app/treasury/policies/transactions/route'
+import { Route as AppTreasuryOperationsOperationIdRouteRouteImport } from './routes/_app/treasury/operations/$operationId/route'
+import { Route as AppTokenisationTokensTokenIdRouteRouteImport } from './routes/_app/tokenisation/tokens/$tokenId/route'
+import { Route as AppComplianceIdentitiesIdentityIdRouteRouteImport } from './routes/_app/compliance/identities/$identityId/route'
+import { Route as AppTreasuryVaultsVaultIdIndexRouteImport } from './routes/_app/treasury/vaults/$vaultId/index'
+import { Route as AppTreasurySignersSignerIdIndexRouteImport } from './routes/_app/treasury/signers/$signerId/index'
+import { Route as AppTreasuryPoliciesWhitelistsIndexRouteImport } from './routes/_app/treasury/policies/whitelists/index'
+import { Route as AppTreasuryPoliciesTransactionsIndexRouteImport } from './routes/_app/treasury/policies/transactions/index'
+import { Route as AppTokenisationTokensTokenIdIndexRouteImport } from './routes/_app/tokenisation/tokens/$tokenId/index'
+import { Route as AppComplianceIdentitiesIdentityIdIndexRouteImport } from './routes/_app/compliance/identities/$identityId/index'
+import { Route as AppTreasuryVaultsVaultIdEditRouteImport } from './routes/_app/treasury/vaults/$vaultId/edit'
+import { Route as AppTreasuryPoliciesWhitelistsNewRouteImport } from './routes/_app/treasury/policies/whitelists/new'
+import { Route as AppTokenisationTokensTokenIdMintRouteImport } from './routes/_app/tokenisation/tokens/$tokenId/mint'
+import { Route as AppTokenisationTokensTokenIdBurnRouteImport } from './routes/_app/tokenisation/tokens/$tokenId/burn'
+import { Route as AppComplianceIdentitiesIdentityIdEditRouteImport } from './routes/_app/compliance/identities/$identityId/edit'
+import { Route as AppTreasuryVaultsVaultIdAddressesRouteRouteImport } from './routes/_app/treasury/vaults/$vaultId/addresses/route'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/route'
+import { Route as AppTreasuryPoliciesTransactionsPolicyIdRouteRouteImport } from './routes/_app/treasury/policies/transactions/$policyId/route'
+import { Route as AppTreasuryVaultsVaultIdAddressesIndexRouteImport } from './routes/_app/treasury/vaults/$vaultId/addresses/index'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdIndexRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/index'
+import { Route as AppTreasuryPoliciesTransactionsPolicyIdIndexRouteImport } from './routes/_app/treasury/policies/transactions/$policyId/index'
+import { Route as AppTreasuryVaultsVaultIdResharesReshareIdRouteImport } from './routes/_app/treasury/vaults/$vaultId/reshares/$reshareId'
+import { Route as AppTreasuryVaultsVaultIdAddressesNewRouteImport } from './routes/_app/treasury/vaults/$vaultId/addresses/new'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdEditRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/edit'
+import { Route as AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteImport } from './routes/_app/treasury/vaults/$vaultId/addresses/$addressId/route'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/versions/route'
+import { Route as AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteImport } from './routes/_app/treasury/policies/transactions/$policyId/versions/route'
+import { Route as AppTreasuryVaultsVaultIdAddressesAddressIdIndexRouteImport } from './routes/_app/treasury/vaults/$vaultId/addresses/$addressId/index'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/route'
+import { Route as AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport } from './routes/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/route'
+import { Route as AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport } from './routes/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/index'
+import { Route as AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport } from './routes/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/index'
+import { Route as AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteImport } from './routes/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/route'
+import { Route as AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRouteImport } from './routes/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/index'
+import { Route as AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRouteImport } from './routes/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
@@ -154,14 +170,39 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppOverviewRoute = AppOverviewRouteImport.update({
-  id: '/overview',
-  path: '/overview',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppVaultsRouteRoute = AppVaultsRouteRouteImport.update({
+const AppVaultsRoute = AppVaultsRouteImport.update({
   id: '/vaults',
   path: '/vaults',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSignersRoute = AppSignersRouteImport.update({
+  id: '/signers',
+  path: '/signers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPoliciesRoute = AppPoliciesRouteImport.update({
+  id: '/policies',
+  path: '/policies',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOperationsRoute = AppOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIdentitiesRoute = AppIdentitiesRouteImport.update({
+  id: '/identities',
+  path: '/identities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAddressBookRoute = AppAddressBookRouteImport.update({
+  id: '/address-book',
+  path: '/address-book',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTreasuryRouteRoute = AppTreasuryRouteRouteImport.update({
@@ -169,29 +210,9 @@ const AppTreasuryRouteRoute = AppTreasuryRouteRouteImport.update({
   path: '/treasury',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSignersRouteRoute = AppSignersRouteRouteImport.update({
-  id: '/signers',
-  path: '/signers',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPoliciesRouteRoute = AppPoliciesRouteRouteImport.update({
-  id: '/policies',
-  path: '/policies',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppOperationsRouteRoute = AppOperationsRouteRouteImport.update({
-  id: '/operations',
-  path: '/operations',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppIdentitiesRouteRoute = AppIdentitiesRouteRouteImport.update({
-  id: '/identities',
-  path: '/identities',
+const AppTokenisationRouteRoute = AppTokenisationRouteRouteImport.update({
+  id: '/tokenisation',
+  path: '/tokenisation',
   getParentRoute: () => AppRoute,
 } as any)
 const AppGlobalRouteRoute = AppGlobalRouteRouteImport.update({
@@ -202,11 +223,6 @@ const AppGlobalRouteRoute = AppGlobalRouteRouteImport.update({
 const AppComplianceRouteRoute = AppComplianceRouteRouteImport.update({
   id: '/compliance',
   path: '/compliance',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAddressBookRouteRoute = AppAddressBookRouteRouteImport.update({
-  id: '/address-book',
-  path: '/address-book',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAccountRouteRoute = AppAccountRouteRouteImport.update({
@@ -224,30 +240,15 @@ const LoginErrorIndexRoute = LoginErrorIndexRouteImport.update({
   path: '/error/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
-const AppVaultsIndexRoute = AppVaultsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppVaultsRouteRoute,
-} as any)
 const AppTreasuryIndexRoute = AppTreasuryIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppTreasuryRouteRoute,
 } as any)
-const AppSignersIndexRoute = AppSignersIndexRouteImport.update({
+const AppTokenisationIndexRoute = AppTokenisationIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppSignersRouteRoute,
-} as any)
-const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppIdentitiesIndexRoute = AppIdentitiesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppIdentitiesRouteRoute,
+  getParentRoute: () => AppTokenisationRouteRoute,
 } as any)
 const AppGlobalIndexRoute = AppGlobalIndexRouteImport.update({
   id: '/',
@@ -258,11 +259,6 @@ const AppComplianceIndexRoute = AppComplianceIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppComplianceRouteRoute,
-} as any)
-const AppAddressBookIndexRoute = AppAddressBookIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppAddressBookRouteRoute,
 } as any)
 const AppAccountIndexRoute = AppAccountIndexRouteImport.update({
   id: '/',
@@ -289,69 +285,66 @@ const ApiOpenapiAppRoute = ApiOpenapiAppRouteImport.update({
   path: '/api/openapi/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppVaultsTabsRoute = AppVaultsTabsRouteImport.update({
-  id: '/tabs',
-  path: '/tabs',
-  getParentRoute: () => AppVaultsRouteRoute,
-} as any)
-const AppVaultsNewRoute = AppVaultsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AppVaultsRouteRoute,
-} as any)
-const AppVaultsLayoutsRoute = AppVaultsLayoutsRouteImport.update({
-  id: '/layouts',
-  path: '/layouts',
-  getParentRoute: () => AppVaultsRouteRoute,
-} as any)
 const AppTreasuryOverviewRoute = AppTreasuryOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
   getParentRoute: () => AppTreasuryRouteRoute,
 } as any)
-const AppSignersNewRoute = AppSignersNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AppSignersRouteRoute,
+const AppTokenisationOverviewRoute = AppTokenisationOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppTokenisationRouteRoute,
 } as any)
-const AppSettingsWorkspacesRoute = AppSettingsWorkspacesRouteImport.update({
+const AppTokenisationIssuancesRoute =
+  AppTokenisationIssuancesRouteImport.update({
+    id: '/issuances',
+    path: '/issuances',
+    getParentRoute: () => AppTokenisationRouteRoute,
+  } as any)
+const AppTokenisationHoldersRoute = AppTokenisationHoldersRouteImport.update({
+  id: '/holders',
+  path: '/holders',
+  getParentRoute: () => AppTokenisationRouteRoute,
+} as any)
+const AppTokenisationDeploymentRoute =
+  AppTokenisationDeploymentRouteImport.update({
+    id: '/deployment',
+    path: '/deployment',
+    getParentRoute: () => AppTokenisationRouteRoute,
+  } as any)
+const AppGlobalWorkspacesRoute = AppGlobalWorkspacesRouteImport.update({
   id: '/workspaces',
   path: '/workspaces',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsRolesRoute = AppSettingsRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
-  id: '/members',
-  path: '/members',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsBackupsRoute = AppSettingsBackupsRouteImport.update({
-  id: '/backups',
-  path: '/backups',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsAuditRoute = AppSettingsAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppIdentitiesNewRoute = AppIdentitiesNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AppIdentitiesRouteRoute,
+  getParentRoute: () => AppGlobalRouteRoute,
 } as any)
 const AppGlobalUsersRoute = AppGlobalUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalRolesRoute = AppGlobalRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalOrganizationRoute = AppGlobalOrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalBillingRoute = AppGlobalBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalBackupsRoute = AppGlobalBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalAuditRoute = AppGlobalAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AppGlobalRouteRoute,
 } as any)
 const AppComplianceReportsRoute = AppComplianceReportsRouteImport.update({
@@ -374,49 +367,55 @@ const AppAccountSecurityRoute = AppAccountSecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => AppAccountRouteRoute,
 } as any)
-const AppVaultsVaultIdRouteRoute = AppVaultsVaultIdRouteRouteImport.update({
-  id: '/$vaultId',
-  path: '/$vaultId',
-  getParentRoute: () => AppVaultsRouteRoute,
+const AppTreasuryVaultsRouteRoute = AppTreasuryVaultsRouteRouteImport.update({
+  id: '/vaults',
+  path: '/vaults',
+  getParentRoute: () => AppTreasuryRouteRoute,
 } as any)
-const AppSignersSignerIdRouteRoute = AppSignersSignerIdRouteRouteImport.update({
-  id: '/$signerId',
-  path: '/$signerId',
-  getParentRoute: () => AppSignersRouteRoute,
+const AppTreasurySignersRouteRoute = AppTreasurySignersRouteRouteImport.update({
+  id: '/signers',
+  path: '/signers',
+  getParentRoute: () => AppTreasuryRouteRoute,
 } as any)
-const AppSettingsTeamsRouteRoute = AppSettingsTeamsRouteRouteImport.update({
+const AppTreasuryPoliciesRouteRoute =
+  AppTreasuryPoliciesRouteRouteImport.update({
+    id: '/policies',
+    path: '/policies',
+    getParentRoute: () => AppTreasuryRouteRoute,
+  } as any)
+const AppTreasuryOperationsRouteRoute =
+  AppTreasuryOperationsRouteRouteImport.update({
+    id: '/operations',
+    path: '/operations',
+    getParentRoute: () => AppTreasuryRouteRoute,
+  } as any)
+const AppTreasuryAddressBookRouteRoute =
+  AppTreasuryAddressBookRouteRouteImport.update({
+    id: '/address-book',
+    path: '/address-book',
+    getParentRoute: () => AppTreasuryRouteRoute,
+  } as any)
+const AppTokenisationTokensRouteRoute =
+  AppTokenisationTokensRouteRouteImport.update({
+    id: '/tokens',
+    path: '/tokens',
+    getParentRoute: () => AppTokenisationRouteRoute,
+  } as any)
+const AppGlobalTeamsRouteRoute = AppGlobalTeamsRouteRouteImport.update({
   id: '/teams',
   path: '/teams',
-  getParentRoute: () => AppSettingsRouteRoute,
+  getParentRoute: () => AppGlobalRouteRoute,
 } as any)
-const AppPoliciesWhitelistsRouteRoute =
-  AppPoliciesWhitelistsRouteRouteImport.update({
-    id: '/whitelists',
-    path: '/whitelists',
-    getParentRoute: () => AppPoliciesRouteRoute,
-  } as any)
-const AppPoliciesTransactionsRouteRoute =
-  AppPoliciesTransactionsRouteRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => AppPoliciesRouteRoute,
-  } as any)
-const AppOperationsOperationIdRouteRoute =
-  AppOperationsOperationIdRouteRouteImport.update({
-    id: '/$operationId',
-    path: '/$operationId',
-    getParentRoute: () => AppOperationsRouteRoute,
-  } as any)
-const AppIdentitiesIdentityIdRouteRoute =
-  AppIdentitiesIdentityIdRouteRouteImport.update({
-    id: '/$identityId',
-    path: '/$identityId',
-    getParentRoute: () => AppIdentitiesRouteRoute,
-  } as any)
 const AppComplianceTransactionsRouteRoute =
   AppComplianceTransactionsRouteRouteImport.update({
     id: '/transactions',
     path: '/transactions',
+    getParentRoute: () => AppComplianceRouteRoute,
+  } as any)
+const AppComplianceIdentitiesRouteRoute =
+  AppComplianceIdentitiesRouteRouteImport.update({
+    id: '/identities',
+    path: '/identities',
     getParentRoute: () => AppComplianceRouteRoute,
   } as any)
 const AppComplianceAddressesRouteRoute =
@@ -425,50 +424,50 @@ const AppComplianceAddressesRouteRoute =
     path: '/addresses',
     getParentRoute: () => AppComplianceRouteRoute,
   } as any)
-const AppVaultsVaultIdIndexRoute = AppVaultsVaultIdIndexRouteImport.update({
+const AppTreasuryVaultsIndexRoute = AppTreasuryVaultsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppVaultsVaultIdRouteRoute,
+  getParentRoute: () => AppTreasuryVaultsRouteRoute,
 } as any)
-const AppSignersSignerIdIndexRoute = AppSignersSignerIdIndexRouteImport.update({
+const AppTreasurySignersIndexRoute = AppTreasurySignersIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppSignersSignerIdRouteRoute,
+  getParentRoute: () => AppTreasurySignersRouteRoute,
 } as any)
-const AppSettingsTeamsIndexRoute = AppSettingsTeamsIndexRouteImport.update({
+const AppTreasuryAddressBookIndexRoute =
+  AppTreasuryAddressBookIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTreasuryAddressBookRouteRoute,
+  } as any)
+const AppTokenisationTokensIndexRoute =
+  AppTokenisationTokensIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTokenisationTokensRouteRoute,
+  } as any)
+const AppGlobalTeamsIndexRoute = AppGlobalTeamsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppSettingsTeamsRouteRoute,
+  getParentRoute: () => AppGlobalTeamsRouteRoute,
 } as any)
-const AppSettingsGovernanceIndexRoute =
-  AppSettingsGovernanceIndexRouteImport.update({
+const AppGlobalGovernanceIndexRoute =
+  AppGlobalGovernanceIndexRouteImport.update({
     id: '/governance/',
     path: '/governance/',
-    getParentRoute: () => AppSettingsRouteRoute,
-  } as any)
-const AppPoliciesWhitelistsIndexRoute =
-  AppPoliciesWhitelistsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
-  } as any)
-const AppPoliciesTransactionsIndexRoute =
-  AppPoliciesTransactionsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppPoliciesTransactionsRouteRoute,
-  } as any)
-const AppIdentitiesIdentityIdIndexRoute =
-  AppIdentitiesIdentityIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppIdentitiesIdentityIdRouteRoute,
+    getParentRoute: () => AppGlobalRouteRoute,
   } as any)
 const AppComplianceTransactionsIndexRoute =
   AppComplianceTransactionsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AppComplianceTransactionsRouteRoute,
+  } as any)
+const AppComplianceIdentitiesIndexRoute =
+  AppComplianceIdentitiesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppComplianceIdentitiesRouteRoute,
   } as any)
 const AppComplianceAddressesIndexRoute =
   AppComplianceAddressesIndexRouteImport.update({
@@ -486,33 +485,37 @@ const ApiDevEmailTemplateRoute = ApiDevEmailTemplateRouteImport.update({
   path: '/api/dev/email/$template',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppVaultsVaultIdEditRoute = AppVaultsVaultIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => AppVaultsVaultIdRouteRoute,
+const AppTreasuryVaultsTabsRoute = AppTreasuryVaultsTabsRouteImport.update({
+  id: '/tabs',
+  path: '/tabs',
+  getParentRoute: () => AppTreasuryVaultsRouteRoute,
 } as any)
-const AppSettingsTeamsTeamIdRoute = AppSettingsTeamsTeamIdRouteImport.update({
+const AppTreasuryVaultsNewRoute = AppTreasuryVaultsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppTreasuryVaultsRouteRoute,
+} as any)
+const AppTreasuryVaultsLayoutsRoute =
+  AppTreasuryVaultsLayoutsRouteImport.update({
+    id: '/layouts',
+    path: '/layouts',
+    getParentRoute: () => AppTreasuryVaultsRouteRoute,
+  } as any)
+const AppTreasurySignersNewRoute = AppTreasurySignersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppTreasurySignersRouteRoute,
+} as any)
+const AppGlobalTeamsTeamIdRoute = AppGlobalTeamsTeamIdRouteImport.update({
   id: '/$teamId',
   path: '/$teamId',
-  getParentRoute: () => AppSettingsTeamsRouteRoute,
+  getParentRoute: () => AppGlobalTeamsRouteRoute,
 } as any)
-const AppSettingsGovernancePendingRoute =
-  AppSettingsGovernancePendingRouteImport.update({
+const AppGlobalGovernancePendingRoute =
+  AppGlobalGovernancePendingRouteImport.update({
     id: '/governance/pending',
     path: '/governance/pending',
-    getParentRoute: () => AppSettingsRouteRoute,
-  } as any)
-const AppPoliciesWhitelistsNewRoute =
-  AppPoliciesWhitelistsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
-  } as any)
-const AppIdentitiesIdentityIdEditRoute =
-  AppIdentitiesIdentityIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AppIdentitiesIdentityIdRouteRoute,
+    getParentRoute: () => AppGlobalRouteRoute,
   } as any)
 const AppComplianceTransactionsIdRoute =
   AppComplianceTransactionsIdRouteImport.update({
@@ -520,133 +523,259 @@ const AppComplianceTransactionsIdRoute =
     path: '/$id',
     getParentRoute: () => AppComplianceTransactionsRouteRoute,
   } as any)
+const AppComplianceIdentitiesNewRoute =
+  AppComplianceIdentitiesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppComplianceIdentitiesRouteRoute,
+  } as any)
 const AppComplianceAddressesAddressRoute =
   AppComplianceAddressesAddressRouteImport.update({
     id: '/$address',
     path: '/$address',
     getParentRoute: () => AppComplianceAddressesRouteRoute,
   } as any)
-const AppVaultsVaultIdAddressesRouteRoute =
-  AppVaultsVaultIdAddressesRouteRouteImport.update({
-    id: '/addresses',
-    path: '/addresses',
-    getParentRoute: () => AppVaultsVaultIdRouteRoute,
+const AppTreasuryVaultsVaultIdRouteRoute =
+  AppTreasuryVaultsVaultIdRouteRouteImport.update({
+    id: '/$vaultId',
+    path: '/$vaultId',
+    getParentRoute: () => AppTreasuryVaultsRouteRoute,
   } as any)
-const AppPoliciesWhitelistsWhitelistIdRouteRoute =
-  AppPoliciesWhitelistsWhitelistIdRouteRouteImport.update({
-    id: '/$whitelistId',
-    path: '/$whitelistId',
-    getParentRoute: () => AppPoliciesWhitelistsRouteRoute,
+const AppTreasurySignersSignerIdRouteRoute =
+  AppTreasurySignersSignerIdRouteRouteImport.update({
+    id: '/$signerId',
+    path: '/$signerId',
+    getParentRoute: () => AppTreasurySignersRouteRoute,
   } as any)
-const AppPoliciesTransactionsPolicyIdRouteRoute =
-  AppPoliciesTransactionsPolicyIdRouteRouteImport.update({
-    id: '/$policyId',
-    path: '/$policyId',
-    getParentRoute: () => AppPoliciesTransactionsRouteRoute,
+const AppTreasuryPoliciesWhitelistsRouteRoute =
+  AppTreasuryPoliciesWhitelistsRouteRouteImport.update({
+    id: '/whitelists',
+    path: '/whitelists',
+    getParentRoute: () => AppTreasuryPoliciesRouteRoute,
   } as any)
-const AppVaultsVaultIdAddressesIndexRoute =
-  AppVaultsVaultIdAddressesIndexRouteImport.update({
+const AppTreasuryPoliciesTransactionsRouteRoute =
+  AppTreasuryPoliciesTransactionsRouteRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AppTreasuryPoliciesRouteRoute,
+  } as any)
+const AppTreasuryOperationsOperationIdRouteRoute =
+  AppTreasuryOperationsOperationIdRouteRouteImport.update({
+    id: '/$operationId',
+    path: '/$operationId',
+    getParentRoute: () => AppTreasuryOperationsRouteRoute,
+  } as any)
+const AppTokenisationTokensTokenIdRouteRoute =
+  AppTokenisationTokensTokenIdRouteRouteImport.update({
+    id: '/$tokenId',
+    path: '/$tokenId',
+    getParentRoute: () => AppTokenisationTokensRouteRoute,
+  } as any)
+const AppComplianceIdentitiesIdentityIdRouteRoute =
+  AppComplianceIdentitiesIdentityIdRouteRouteImport.update({
+    id: '/$identityId',
+    path: '/$identityId',
+    getParentRoute: () => AppComplianceIdentitiesRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdIndexRoute =
+  AppTreasuryVaultsVaultIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+    getParentRoute: () => AppTreasuryVaultsVaultIdRouteRoute,
   } as any)
-const AppPoliciesWhitelistsWhitelistIdIndexRoute =
-  AppPoliciesWhitelistsWhitelistIdIndexRouteImport.update({
+const AppTreasurySignersSignerIdIndexRoute =
+  AppTreasurySignersSignerIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+    getParentRoute: () => AppTreasurySignersSignerIdRouteRoute,
   } as any)
-const AppPoliciesTransactionsPolicyIdIndexRoute =
-  AppPoliciesTransactionsPolicyIdIndexRouteImport.update({
+const AppTreasuryPoliciesWhitelistsIndexRoute =
+  AppTreasuryPoliciesWhitelistsIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AppPoliciesTransactionsPolicyIdRouteRoute,
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsRouteRoute,
   } as any)
-const AppVaultsVaultIdResharesReshareIdRoute =
-  AppVaultsVaultIdResharesReshareIdRouteImport.update({
-    id: '/reshares/$reshareId',
-    path: '/reshares/$reshareId',
-    getParentRoute: () => AppVaultsVaultIdRouteRoute,
+const AppTreasuryPoliciesTransactionsIndexRoute =
+  AppTreasuryPoliciesTransactionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTreasuryPoliciesTransactionsRouteRoute,
   } as any)
-const AppVaultsVaultIdAddressesNewRoute =
-  AppVaultsVaultIdAddressesNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+const AppTokenisationTokensTokenIdIndexRoute =
+  AppTokenisationTokensTokenIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTokenisationTokensTokenIdRouteRoute,
   } as any)
-const AppPoliciesWhitelistsWhitelistIdEditRoute =
-  AppPoliciesWhitelistsWhitelistIdEditRouteImport.update({
+const AppComplianceIdentitiesIdentityIdIndexRoute =
+  AppComplianceIdentitiesIdentityIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppComplianceIdentitiesIdentityIdRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdEditRoute =
+  AppTreasuryVaultsVaultIdEditRouteImport.update({
     id: '/edit',
     path: '/edit',
-    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+    getParentRoute: () => AppTreasuryVaultsVaultIdRouteRoute,
   } as any)
-const AppVaultsVaultIdAddressesAddressIdRouteRoute =
-  AppVaultsVaultIdAddressesAddressIdRouteRouteImport.update({
+const AppTreasuryPoliciesWhitelistsNewRoute =
+  AppTreasuryPoliciesWhitelistsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsRouteRoute,
+  } as any)
+const AppTokenisationTokensTokenIdMintRoute =
+  AppTokenisationTokensTokenIdMintRouteImport.update({
+    id: '/mint',
+    path: '/mint',
+    getParentRoute: () => AppTokenisationTokensTokenIdRouteRoute,
+  } as any)
+const AppTokenisationTokensTokenIdBurnRoute =
+  AppTokenisationTokensTokenIdBurnRouteImport.update({
+    id: '/burn',
+    path: '/burn',
+    getParentRoute: () => AppTokenisationTokensTokenIdRouteRoute,
+  } as any)
+const AppComplianceIdentitiesIdentityIdEditRoute =
+  AppComplianceIdentitiesIdentityIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppComplianceIdentitiesIdentityIdRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdAddressesRouteRoute =
+  AppTreasuryVaultsVaultIdAddressesRouteRouteImport.update({
+    id: '/addresses',
+    path: '/addresses',
+    getParentRoute: () => AppTreasuryVaultsVaultIdRouteRoute,
+  } as any)
+const AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteImport.update({
+    id: '/$whitelistId',
+    path: '/$whitelistId',
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsRouteRoute,
+  } as any)
+const AppTreasuryPoliciesTransactionsPolicyIdRouteRoute =
+  AppTreasuryPoliciesTransactionsPolicyIdRouteRouteImport.update({
+    id: '/$policyId',
+    path: '/$policyId',
+    getParentRoute: () => AppTreasuryPoliciesTransactionsRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdAddressesIndexRoute =
+  AppTreasuryVaultsVaultIdAddressesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTreasuryVaultsVaultIdAddressesRouteRoute,
+  } as any)
+const AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute,
+  } as any)
+const AppTreasuryPoliciesTransactionsPolicyIdIndexRoute =
+  AppTreasuryPoliciesTransactionsPolicyIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppTreasuryPoliciesTransactionsPolicyIdRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdResharesReshareIdRoute =
+  AppTreasuryVaultsVaultIdResharesReshareIdRouteImport.update({
+    id: '/reshares/$reshareId',
+    path: '/reshares/$reshareId',
+    getParentRoute: () => AppTreasuryVaultsVaultIdRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdAddressesNewRoute =
+  AppTreasuryVaultsVaultIdAddressesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppTreasuryVaultsVaultIdAddressesRouteRoute,
+  } as any)
+const AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute,
+  } as any)
+const AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute =
+  AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteImport.update({
     id: '/$addressId',
     path: '/$addressId',
-    getParentRoute: () => AppVaultsVaultIdAddressesRouteRoute,
+    getParentRoute: () => AppTreasuryVaultsVaultIdAddressesRouteRoute,
   } as any)
-const AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute =
-  AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport.update({
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport.update({
     id: '/versions',
     path: '/versions',
-    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdRouteRoute,
+    getParentRoute: () => AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute,
   } as any)
-const AppPoliciesTransactionsPolicyIdVersionsRouteRoute =
-  AppPoliciesTransactionsPolicyIdVersionsRouteRouteImport.update({
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute =
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteImport.update({
     id: '/versions',
     path: '/versions',
-    getParentRoute: () => AppPoliciesTransactionsPolicyIdRouteRoute,
+    getParentRoute: () => AppTreasuryPoliciesTransactionsPolicyIdRouteRoute,
   } as any)
-const AppVaultsVaultIdAddressesAddressIdIndexRoute =
-  AppVaultsVaultIdAddressesAddressIdIndexRouteImport.update({
+const AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute =
+  AppTreasuryVaultsVaultIdAddressesAddressIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AppVaultsVaultIdAddressesAddressIdRouteRoute,
+    getParentRoute: () => AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute,
   } as any)
-const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute =
-  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport.update({
-    id: '/$versionNumber',
-    path: '/$versionNumber',
-    getParentRoute: () => AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute,
-  } as any)
-const AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute =
-  AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport.update({
-    id: '/$versionNumber',
-    path: '/$versionNumber',
-    getParentRoute: () => AppPoliciesTransactionsPolicyIdVersionsRouteRoute,
-  } as any)
-const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute =
-  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () =>
-      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute,
-  } as any)
-const AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute =
-  AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () =>
-      AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute,
-  } as any)
-const AppVaultsVaultIdChainChainAddressesAddressRouteRoute =
-  AppVaultsVaultIdChainChainAddressesAddressRouteRouteImport.update({
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport.update(
+    {
+      id: '/$versionNumber',
+      path: '/$versionNumber',
+      getParentRoute: () =>
+        AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute,
+    } as any,
+  )
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute =
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport.update(
+    {
+      id: '/$versionNumber',
+      path: '/$versionNumber',
+      getParentRoute: () =>
+        AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute,
+    } as any,
+  )
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute =
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport.update(
+    {
+      id: '/',
+      path: '/',
+      getParentRoute: () =>
+        AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute,
+    } as any,
+  )
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute =
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport.update(
+    {
+      id: '/',
+      path: '/',
+      getParentRoute: () =>
+        AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute,
+    } as any,
+  )
+const AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute =
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteImport.update({
     id: '/chain/$chain/addresses/$address',
     path: '/chain/$chain/addresses/$address',
-    getParentRoute: () => AppVaultsVaultIdRouteRoute,
+    getParentRoute: () => AppTreasuryVaultsVaultIdRouteRoute,
   } as any)
-const AppVaultsVaultIdChainChainAddressesAddressIndexRoute =
-  AppVaultsVaultIdChainChainAddressesAddressIndexRouteImport.update({
+const AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute =
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AppVaultsVaultIdChainChainAddressesAddressRouteRoute,
+    getParentRoute: () =>
+      AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute,
   } as any)
-const AppVaultsVaultIdChainChainAddressesAddressTransferRoute =
-  AppVaultsVaultIdChainChainAddressesAddressTransferRouteImport.update({
+const AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute =
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRouteImport.update({
     id: '/transfer',
     path: '/transfer',
-    getParentRoute: () => AppVaultsVaultIdChainChainAddressesAddressRouteRoute,
+    getParentRoute: () =>
+      AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -655,174 +784,204 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRouteRouteWithChildren
   '/logout': typeof LogoutRoute
   '/account': typeof AppAccountRouteRouteWithChildren
-  '/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/compliance': typeof AppComplianceRouteRouteWithChildren
   '/global': typeof AppGlobalRouteRouteWithChildren
-  '/identities': typeof AppIdentitiesRouteRouteWithChildren
-  '/operations': typeof AppOperationsRouteRouteWithChildren
-  '/policies': typeof AppPoliciesRouteRouteWithChildren
-  '/settings': typeof AppSettingsRouteRouteWithChildren
-  '/signers': typeof AppSignersRouteRouteWithChildren
+  '/tokenisation': typeof AppTokenisationRouteRouteWithChildren
   '/treasury': typeof AppTreasuryRouteRouteWithChildren
-  '/vaults': typeof AppVaultsRouteRouteWithChildren
-  '/overview': typeof AppOverviewRoute
+  '/address-book': typeof AppAddressBookRoute
+  '/identities': typeof AppIdentitiesRoute
+  '/operations': typeof AppOperationsRoute
+  '/policies': typeof AppPoliciesRoute
+  '/settings': typeof AppSettingsRoute
+  '/signers': typeof AppSignersRoute
+  '/vaults': typeof AppVaultsRoute
   '/': typeof AppIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
   '/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
+  '/compliance/identities': typeof AppComplianceIdentitiesRouteRouteWithChildren
   '/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
-  '/identities/$identityId': typeof AppIdentitiesIdentityIdRouteRouteWithChildren
-  '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
-  '/policies/transactions': typeof AppPoliciesTransactionsRouteRouteWithChildren
-  '/policies/whitelists': typeof AppPoliciesWhitelistsRouteRouteWithChildren
-  '/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
-  '/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
-  '/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/global/teams': typeof AppGlobalTeamsRouteRouteWithChildren
+  '/tokenisation/tokens': typeof AppTokenisationTokensRouteRouteWithChildren
+  '/treasury/address-book': typeof AppTreasuryAddressBookRouteRouteWithChildren
+  '/treasury/operations': typeof AppTreasuryOperationsRouteRouteWithChildren
+  '/treasury/policies': typeof AppTreasuryPoliciesRouteRouteWithChildren
+  '/treasury/signers': typeof AppTreasurySignersRouteRouteWithChildren
+  '/treasury/vaults': typeof AppTreasuryVaultsRouteRouteWithChildren
   '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
   '/compliance/overview': typeof AppComplianceOverviewRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
+  '/global/audit': typeof AppGlobalAuditRoute
+  '/global/backups': typeof AppGlobalBackupsRoute
+  '/global/billing': typeof AppGlobalBillingRoute
+  '/global/organization': typeof AppGlobalOrganizationRoute
+  '/global/roles': typeof AppGlobalRolesRoute
   '/global/users': typeof AppGlobalUsersRoute
-  '/identities/new': typeof AppIdentitiesNewRoute
-  '/settings/audit': typeof AppSettingsAuditRoute
-  '/settings/backups': typeof AppSettingsBackupsRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
-  '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/roles': typeof AppSettingsRolesRoute
-  '/settings/workspaces': typeof AppSettingsWorkspacesRoute
-  '/signers/new': typeof AppSignersNewRoute
+  '/global/workspaces': typeof AppGlobalWorkspacesRoute
+  '/tokenisation/deployment': typeof AppTokenisationDeploymentRoute
+  '/tokenisation/holders': typeof AppTokenisationHoldersRoute
+  '/tokenisation/issuances': typeof AppTokenisationIssuancesRoute
+  '/tokenisation/overview': typeof AppTokenisationOverviewRoute
   '/treasury/overview': typeof AppTreasuryOverviewRoute
-  '/vaults/layouts': typeof AppVaultsLayoutsRoute
-  '/vaults/new': typeof AppVaultsNewRoute
-  '/vaults/tabs': typeof AppVaultsTabsRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/account/': typeof AppAccountIndexRoute
-  '/address-book/': typeof AppAddressBookIndexRoute
   '/compliance/': typeof AppComplianceIndexRoute
   '/global/': typeof AppGlobalIndexRoute
-  '/identities/': typeof AppIdentitiesIndexRoute
-  '/settings/': typeof AppSettingsIndexRoute
-  '/signers/': typeof AppSignersIndexRoute
+  '/tokenisation/': typeof AppTokenisationIndexRoute
   '/treasury/': typeof AppTreasuryIndexRoute
-  '/vaults/': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
-  '/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
-  '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
+  '/compliance/identities/$identityId': typeof AppComplianceIdentitiesIdentityIdRouteRouteWithChildren
+  '/tokenisation/tokens/$tokenId': typeof AppTokenisationTokensTokenIdRouteRouteWithChildren
+  '/treasury/operations/$operationId': typeof AppTreasuryOperationsOperationIdRouteRoute
+  '/treasury/policies/transactions': typeof AppTreasuryPoliciesTransactionsRouteRouteWithChildren
+  '/treasury/policies/whitelists': typeof AppTreasuryPoliciesWhitelistsRouteRouteWithChildren
+  '/treasury/signers/$signerId': typeof AppTreasurySignersSignerIdRouteRouteWithChildren
+  '/treasury/vaults/$vaultId': typeof AppTreasuryVaultsVaultIdRouteRouteWithChildren
   '/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/compliance/identities/new': typeof AppComplianceIdentitiesNewRoute
   '/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
-  '/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
-  '/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
-  '/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
-  '/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
-  '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
+  '/global/governance/pending': typeof AppGlobalGovernancePendingRoute
+  '/global/teams/$teamId': typeof AppGlobalTeamsTeamIdRoute
+  '/treasury/signers/new': typeof AppTreasurySignersNewRoute
+  '/treasury/vaults/layouts': typeof AppTreasuryVaultsLayoutsRoute
+  '/treasury/vaults/new': typeof AppTreasuryVaultsNewRoute
+  '/treasury/vaults/tabs': typeof AppTreasuryVaultsTabsRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
+  '/compliance/identities/': typeof AppComplianceIdentitiesIndexRoute
   '/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
-  '/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
-  '/policies/transactions/': typeof AppPoliciesTransactionsIndexRoute
-  '/policies/whitelists/': typeof AppPoliciesWhitelistsIndexRoute
-  '/settings/governance': typeof AppSettingsGovernanceIndexRoute
-  '/settings/teams/': typeof AppSettingsTeamsIndexRoute
-  '/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
-  '/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
-  '/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
-  '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
-  '/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
-  '/vaults/$vaultId/reshares/$reshareId': typeof AppVaultsVaultIdResharesReshareIdRoute
-  '/policies/transactions/$policyId/': typeof AppPoliciesTransactionsPolicyIdIndexRoute
-  '/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
-  '/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
-  '/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
-  '/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
-  '/policies/transactions/$policyId/versions/$versionNumber/': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
-  '/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
-  '/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppVaultsVaultIdChainChainAddressesAddressTransferRoute
-  '/vaults/$vaultId/chain/$chain/addresses/$address/': typeof AppVaultsVaultIdChainChainAddressesAddressIndexRoute
+  '/global/governance': typeof AppGlobalGovernanceIndexRoute
+  '/global/teams/': typeof AppGlobalTeamsIndexRoute
+  '/tokenisation/tokens/': typeof AppTokenisationTokensIndexRoute
+  '/treasury/address-book/': typeof AppTreasuryAddressBookIndexRoute
+  '/treasury/signers/': typeof AppTreasurySignersIndexRoute
+  '/treasury/vaults/': typeof AppTreasuryVaultsIndexRoute
+  '/treasury/policies/transactions/$policyId': typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId': typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  '/treasury/vaults/$vaultId/addresses': typeof AppTreasuryVaultsVaultIdAddressesRouteRouteWithChildren
+  '/compliance/identities/$identityId/edit': typeof AppComplianceIdentitiesIdentityIdEditRoute
+  '/tokenisation/tokens/$tokenId/burn': typeof AppTokenisationTokensTokenIdBurnRoute
+  '/tokenisation/tokens/$tokenId/mint': typeof AppTokenisationTokensTokenIdMintRoute
+  '/treasury/policies/whitelists/new': typeof AppTreasuryPoliciesWhitelistsNewRoute
+  '/treasury/vaults/$vaultId/edit': typeof AppTreasuryVaultsVaultIdEditRoute
+  '/compliance/identities/$identityId/': typeof AppComplianceIdentitiesIdentityIdIndexRoute
+  '/tokenisation/tokens/$tokenId/': typeof AppTokenisationTokensTokenIdIndexRoute
+  '/treasury/policies/transactions/': typeof AppTreasuryPoliciesTransactionsIndexRoute
+  '/treasury/policies/whitelists/': typeof AppTreasuryPoliciesWhitelistsIndexRoute
+  '/treasury/signers/$signerId/': typeof AppTreasurySignersSignerIdIndexRoute
+  '/treasury/vaults/$vaultId/': typeof AppTreasuryVaultsVaultIdIndexRoute
+  '/treasury/policies/transactions/$policyId/versions': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId/versions': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/treasury/vaults/$vaultId/addresses/$addressId': typeof AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId/edit': typeof AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute
+  '/treasury/vaults/$vaultId/addresses/new': typeof AppTreasuryVaultsVaultIdAddressesNewRoute
+  '/treasury/vaults/$vaultId/reshares/$reshareId': typeof AppTreasuryVaultsVaultIdResharesReshareIdRoute
+  '/treasury/policies/transactions/$policyId/': typeof AppTreasuryPoliciesTransactionsPolicyIdIndexRoute
+  '/treasury/policies/whitelists/$whitelistId/': typeof AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute
+  '/treasury/vaults/$vaultId/addresses/': typeof AppTreasuryVaultsVaultIdAddressesIndexRoute
+  '/treasury/policies/transactions/$policyId/versions/$versionNumber': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+  '/treasury/vaults/$vaultId/addresses/$addressId/': typeof AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute
+  '/treasury/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
+  '/treasury/policies/transactions/$policyId/versions/$versionNumber/': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
+  '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
+  '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute
+  '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute
 }
 export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
-  '/operations': typeof AppOperationsRouteRouteWithChildren
-  '/policies': typeof AppPoliciesRouteRouteWithChildren
-  '/overview': typeof AppOverviewRoute
+  '/address-book': typeof AppAddressBookRoute
+  '/identities': typeof AppIdentitiesRoute
+  '/operations': typeof AppOperationsRoute
+  '/policies': typeof AppPoliciesRoute
+  '/settings': typeof AppSettingsRoute
+  '/signers': typeof AppSignersRoute
+  '/vaults': typeof AppVaultsRoute
   '/': typeof AppIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
   '/sign-up': typeof SignUpIndexRoute
-  '/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
+  '/treasury/operations': typeof AppTreasuryOperationsRouteRouteWithChildren
+  '/treasury/policies': typeof AppTreasuryPoliciesRouteRouteWithChildren
   '/account/security': typeof AppAccountSecurityRoute
   '/compliance/alerts': typeof AppComplianceAlertsRoute
   '/compliance/overview': typeof AppComplianceOverviewRoute
   '/compliance/reports': typeof AppComplianceReportsRoute
+  '/global/audit': typeof AppGlobalAuditRoute
+  '/global/backups': typeof AppGlobalBackupsRoute
+  '/global/billing': typeof AppGlobalBillingRoute
+  '/global/organization': typeof AppGlobalOrganizationRoute
+  '/global/roles': typeof AppGlobalRolesRoute
   '/global/users': typeof AppGlobalUsersRoute
-  '/identities/new': typeof AppIdentitiesNewRoute
-  '/settings/audit': typeof AppSettingsAuditRoute
-  '/settings/backups': typeof AppSettingsBackupsRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
-  '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/roles': typeof AppSettingsRolesRoute
-  '/settings/workspaces': typeof AppSettingsWorkspacesRoute
-  '/signers/new': typeof AppSignersNewRoute
+  '/global/workspaces': typeof AppGlobalWorkspacesRoute
+  '/tokenisation/deployment': typeof AppTokenisationDeploymentRoute
+  '/tokenisation/holders': typeof AppTokenisationHoldersRoute
+  '/tokenisation/issuances': typeof AppTokenisationIssuancesRoute
+  '/tokenisation/overview': typeof AppTokenisationOverviewRoute
   '/treasury/overview': typeof AppTreasuryOverviewRoute
-  '/vaults/layouts': typeof AppVaultsLayoutsRoute
-  '/vaults/new': typeof AppVaultsNewRoute
-  '/vaults/tabs': typeof AppVaultsTabsRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/account': typeof AppAccountIndexRoute
-  '/address-book': typeof AppAddressBookIndexRoute
   '/compliance': typeof AppComplianceIndexRoute
   '/global': typeof AppGlobalIndexRoute
-  '/identities': typeof AppIdentitiesIndexRoute
-  '/settings': typeof AppSettingsIndexRoute
-  '/signers': typeof AppSignersIndexRoute
+  '/tokenisation': typeof AppTokenisationIndexRoute
   '/treasury': typeof AppTreasuryIndexRoute
-  '/vaults': typeof AppVaultsIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
+  '/treasury/operations/$operationId': typeof AppTreasuryOperationsOperationIdRouteRoute
   '/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/compliance/identities/new': typeof AppComplianceIdentitiesNewRoute
   '/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
-  '/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
-  '/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
-  '/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
-  '/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
-  '/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
+  '/global/governance/pending': typeof AppGlobalGovernancePendingRoute
+  '/global/teams/$teamId': typeof AppGlobalTeamsTeamIdRoute
+  '/treasury/signers/new': typeof AppTreasurySignersNewRoute
+  '/treasury/vaults/layouts': typeof AppTreasuryVaultsLayoutsRoute
+  '/treasury/vaults/new': typeof AppTreasuryVaultsNewRoute
+  '/treasury/vaults/tabs': typeof AppTreasuryVaultsTabsRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/compliance/addresses': typeof AppComplianceAddressesIndexRoute
+  '/compliance/identities': typeof AppComplianceIdentitiesIndexRoute
   '/compliance/transactions': typeof AppComplianceTransactionsIndexRoute
-  '/identities/$identityId': typeof AppIdentitiesIdentityIdIndexRoute
-  '/policies/transactions': typeof AppPoliciesTransactionsIndexRoute
-  '/policies/whitelists': typeof AppPoliciesWhitelistsIndexRoute
-  '/settings/governance': typeof AppSettingsGovernanceIndexRoute
-  '/settings/teams': typeof AppSettingsTeamsIndexRoute
-  '/signers/$signerId': typeof AppSignersSignerIdIndexRoute
-  '/vaults/$vaultId': typeof AppVaultsVaultIdIndexRoute
-  '/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
-  '/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
-  '/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
-  '/vaults/$vaultId/reshares/$reshareId': typeof AppVaultsVaultIdResharesReshareIdRoute
-  '/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdIndexRoute
-  '/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
-  '/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
-  '/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
-  '/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
-  '/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppVaultsVaultIdChainChainAddressesAddressTransferRoute
-  '/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppVaultsVaultIdChainChainAddressesAddressIndexRoute
+  '/global/governance': typeof AppGlobalGovernanceIndexRoute
+  '/global/teams': typeof AppGlobalTeamsIndexRoute
+  '/tokenisation/tokens': typeof AppTokenisationTokensIndexRoute
+  '/treasury/address-book': typeof AppTreasuryAddressBookIndexRoute
+  '/treasury/signers': typeof AppTreasurySignersIndexRoute
+  '/treasury/vaults': typeof AppTreasuryVaultsIndexRoute
+  '/compliance/identities/$identityId/edit': typeof AppComplianceIdentitiesIdentityIdEditRoute
+  '/tokenisation/tokens/$tokenId/burn': typeof AppTokenisationTokensTokenIdBurnRoute
+  '/tokenisation/tokens/$tokenId/mint': typeof AppTokenisationTokensTokenIdMintRoute
+  '/treasury/policies/whitelists/new': typeof AppTreasuryPoliciesWhitelistsNewRoute
+  '/treasury/vaults/$vaultId/edit': typeof AppTreasuryVaultsVaultIdEditRoute
+  '/compliance/identities/$identityId': typeof AppComplianceIdentitiesIdentityIdIndexRoute
+  '/tokenisation/tokens/$tokenId': typeof AppTokenisationTokensTokenIdIndexRoute
+  '/treasury/policies/transactions': typeof AppTreasuryPoliciesTransactionsIndexRoute
+  '/treasury/policies/whitelists': typeof AppTreasuryPoliciesWhitelistsIndexRoute
+  '/treasury/signers/$signerId': typeof AppTreasurySignersSignerIdIndexRoute
+  '/treasury/vaults/$vaultId': typeof AppTreasuryVaultsVaultIdIndexRoute
+  '/treasury/policies/transactions/$policyId/versions': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId/versions': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/treasury/policies/whitelists/$whitelistId/edit': typeof AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute
+  '/treasury/vaults/$vaultId/addresses/new': typeof AppTreasuryVaultsVaultIdAddressesNewRoute
+  '/treasury/vaults/$vaultId/reshares/$reshareId': typeof AppTreasuryVaultsVaultIdResharesReshareIdRoute
+  '/treasury/policies/transactions/$policyId': typeof AppTreasuryPoliciesTransactionsPolicyIdIndexRoute
+  '/treasury/policies/whitelists/$whitelistId': typeof AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute
+  '/treasury/vaults/$vaultId/addresses': typeof AppTreasuryVaultsVaultIdAddressesIndexRoute
+  '/treasury/vaults/$vaultId/addresses/$addressId': typeof AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute
+  '/treasury/policies/transactions/$policyId/versions/$versionNumber': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
+  '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
+  '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute
+  '/treasury/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -832,100 +991,116 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/logout': typeof LogoutRoute
   '/_app/account': typeof AppAccountRouteRouteWithChildren
-  '/_app/address-book': typeof AppAddressBookRouteRouteWithChildren
   '/_app/compliance': typeof AppComplianceRouteRouteWithChildren
   '/_app/global': typeof AppGlobalRouteRouteWithChildren
-  '/_app/identities': typeof AppIdentitiesRouteRouteWithChildren
-  '/_app/operations': typeof AppOperationsRouteRouteWithChildren
-  '/_app/policies': typeof AppPoliciesRouteRouteWithChildren
-  '/_app/settings': typeof AppSettingsRouteRouteWithChildren
-  '/_app/signers': typeof AppSignersRouteRouteWithChildren
+  '/_app/tokenisation': typeof AppTokenisationRouteRouteWithChildren
   '/_app/treasury': typeof AppTreasuryRouteRouteWithChildren
-  '/_app/vaults': typeof AppVaultsRouteRouteWithChildren
-  '/_app/overview': typeof AppOverviewRoute
+  '/_app/address-book': typeof AppAddressBookRoute
+  '/_app/identities': typeof AppIdentitiesRoute
+  '/_app/operations': typeof AppOperationsRoute
+  '/_app/policies': typeof AppPoliciesRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/signers': typeof AppSignersRoute
+  '/_app/vaults': typeof AppVaultsRoute
   '/_app/': typeof AppIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
   '/_app/compliance/addresses': typeof AppComplianceAddressesRouteRouteWithChildren
+  '/_app/compliance/identities': typeof AppComplianceIdentitiesRouteRouteWithChildren
   '/_app/compliance/transactions': typeof AppComplianceTransactionsRouteRouteWithChildren
-  '/_app/identities/$identityId': typeof AppIdentitiesIdentityIdRouteRouteWithChildren
-  '/_app/operations/$operationId': typeof AppOperationsOperationIdRouteRoute
-  '/_app/policies/transactions': typeof AppPoliciesTransactionsRouteRouteWithChildren
-  '/_app/policies/whitelists': typeof AppPoliciesWhitelistsRouteRouteWithChildren
-  '/_app/settings/teams': typeof AppSettingsTeamsRouteRouteWithChildren
-  '/_app/signers/$signerId': typeof AppSignersSignerIdRouteRouteWithChildren
-  '/_app/vaults/$vaultId': typeof AppVaultsVaultIdRouteRouteWithChildren
+  '/_app/global/teams': typeof AppGlobalTeamsRouteRouteWithChildren
+  '/_app/tokenisation/tokens': typeof AppTokenisationTokensRouteRouteWithChildren
+  '/_app/treasury/address-book': typeof AppTreasuryAddressBookRouteRouteWithChildren
+  '/_app/treasury/operations': typeof AppTreasuryOperationsRouteRouteWithChildren
+  '/_app/treasury/policies': typeof AppTreasuryPoliciesRouteRouteWithChildren
+  '/_app/treasury/signers': typeof AppTreasurySignersRouteRouteWithChildren
+  '/_app/treasury/vaults': typeof AppTreasuryVaultsRouteRouteWithChildren
   '/_app/account/security': typeof AppAccountSecurityRoute
   '/_app/compliance/alerts': typeof AppComplianceAlertsRoute
   '/_app/compliance/overview': typeof AppComplianceOverviewRoute
   '/_app/compliance/reports': typeof AppComplianceReportsRoute
+  '/_app/global/audit': typeof AppGlobalAuditRoute
+  '/_app/global/backups': typeof AppGlobalBackupsRoute
+  '/_app/global/billing': typeof AppGlobalBillingRoute
+  '/_app/global/organization': typeof AppGlobalOrganizationRoute
+  '/_app/global/roles': typeof AppGlobalRolesRoute
   '/_app/global/users': typeof AppGlobalUsersRoute
-  '/_app/identities/new': typeof AppIdentitiesNewRoute
-  '/_app/settings/audit': typeof AppSettingsAuditRoute
-  '/_app/settings/backups': typeof AppSettingsBackupsRoute
-  '/_app/settings/billing': typeof AppSettingsBillingRoute
-  '/_app/settings/members': typeof AppSettingsMembersRoute
-  '/_app/settings/roles': typeof AppSettingsRolesRoute
-  '/_app/settings/workspaces': typeof AppSettingsWorkspacesRoute
-  '/_app/signers/new': typeof AppSignersNewRoute
+  '/_app/global/workspaces': typeof AppGlobalWorkspacesRoute
+  '/_app/tokenisation/deployment': typeof AppTokenisationDeploymentRoute
+  '/_app/tokenisation/holders': typeof AppTokenisationHoldersRoute
+  '/_app/tokenisation/issuances': typeof AppTokenisationIssuancesRoute
+  '/_app/tokenisation/overview': typeof AppTokenisationOverviewRoute
   '/_app/treasury/overview': typeof AppTreasuryOverviewRoute
-  '/_app/vaults/layouts': typeof AppVaultsLayoutsRoute
-  '/_app/vaults/new': typeof AppVaultsNewRoute
-  '/_app/vaults/tabs': typeof AppVaultsTabsRoute
   '/api/openapi/app': typeof ApiOpenapiAppRouteWithChildren
   '/api/openapi/auth': typeof ApiOpenapiAuthRoute
   '/api/rest/$': typeof ApiRestSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/_app/account/': typeof AppAccountIndexRoute
-  '/_app/address-book/': typeof AppAddressBookIndexRoute
   '/_app/compliance/': typeof AppComplianceIndexRoute
   '/_app/global/': typeof AppGlobalIndexRoute
-  '/_app/identities/': typeof AppIdentitiesIndexRoute
-  '/_app/settings/': typeof AppSettingsIndexRoute
-  '/_app/signers/': typeof AppSignersIndexRoute
+  '/_app/tokenisation/': typeof AppTokenisationIndexRoute
   '/_app/treasury/': typeof AppTreasuryIndexRoute
-  '/_app/vaults/': typeof AppVaultsIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
-  '/_app/policies/transactions/$policyId': typeof AppPoliciesTransactionsPolicyIdRouteRouteWithChildren
-  '/_app/policies/whitelists/$whitelistId': typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
-  '/_app/vaults/$vaultId/addresses': typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
+  '/_app/compliance/identities/$identityId': typeof AppComplianceIdentitiesIdentityIdRouteRouteWithChildren
+  '/_app/tokenisation/tokens/$tokenId': typeof AppTokenisationTokensTokenIdRouteRouteWithChildren
+  '/_app/treasury/operations/$operationId': typeof AppTreasuryOperationsOperationIdRouteRoute
+  '/_app/treasury/policies/transactions': typeof AppTreasuryPoliciesTransactionsRouteRouteWithChildren
+  '/_app/treasury/policies/whitelists': typeof AppTreasuryPoliciesWhitelistsRouteRouteWithChildren
+  '/_app/treasury/signers/$signerId': typeof AppTreasurySignersSignerIdRouteRouteWithChildren
+  '/_app/treasury/vaults/$vaultId': typeof AppTreasuryVaultsVaultIdRouteRouteWithChildren
   '/_app/compliance/addresses/$address': typeof AppComplianceAddressesAddressRoute
+  '/_app/compliance/identities/new': typeof AppComplianceIdentitiesNewRoute
   '/_app/compliance/transactions/$id': typeof AppComplianceTransactionsIdRoute
-  '/_app/identities/$identityId/edit': typeof AppIdentitiesIdentityIdEditRoute
-  '/_app/policies/whitelists/new': typeof AppPoliciesWhitelistsNewRoute
-  '/_app/settings/governance/pending': typeof AppSettingsGovernancePendingRoute
-  '/_app/settings/teams/$teamId': typeof AppSettingsTeamsTeamIdRoute
-  '/_app/vaults/$vaultId/edit': typeof AppVaultsVaultIdEditRoute
+  '/_app/global/governance/pending': typeof AppGlobalGovernancePendingRoute
+  '/_app/global/teams/$teamId': typeof AppGlobalTeamsTeamIdRoute
+  '/_app/treasury/signers/new': typeof AppTreasurySignersNewRoute
+  '/_app/treasury/vaults/layouts': typeof AppTreasuryVaultsLayoutsRoute
+  '/_app/treasury/vaults/new': typeof AppTreasuryVaultsNewRoute
+  '/_app/treasury/vaults/tabs': typeof AppTreasuryVaultsTabsRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
   '/_app/compliance/addresses/': typeof AppComplianceAddressesIndexRoute
+  '/_app/compliance/identities/': typeof AppComplianceIdentitiesIndexRoute
   '/_app/compliance/transactions/': typeof AppComplianceTransactionsIndexRoute
-  '/_app/identities/$identityId/': typeof AppIdentitiesIdentityIdIndexRoute
-  '/_app/policies/transactions/': typeof AppPoliciesTransactionsIndexRoute
-  '/_app/policies/whitelists/': typeof AppPoliciesWhitelistsIndexRoute
-  '/_app/settings/governance/': typeof AppSettingsGovernanceIndexRoute
-  '/_app/settings/teams/': typeof AppSettingsTeamsIndexRoute
-  '/_app/signers/$signerId/': typeof AppSignersSignerIdIndexRoute
-  '/_app/vaults/$vaultId/': typeof AppVaultsVaultIdIndexRoute
-  '/_app/policies/transactions/$policyId/versions': typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
-  '/_app/policies/whitelists/$whitelistId/versions': typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
-  '/_app/vaults/$vaultId/addresses/$addressId': typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
-  '/_app/policies/whitelists/$whitelistId/edit': typeof AppPoliciesWhitelistsWhitelistIdEditRoute
-  '/_app/vaults/$vaultId/addresses/new': typeof AppVaultsVaultIdAddressesNewRoute
-  '/_app/vaults/$vaultId/reshares/$reshareId': typeof AppVaultsVaultIdResharesReshareIdRoute
-  '/_app/policies/transactions/$policyId/': typeof AppPoliciesTransactionsPolicyIdIndexRoute
-  '/_app/policies/whitelists/$whitelistId/': typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
-  '/_app/vaults/$vaultId/addresses/': typeof AppVaultsVaultIdAddressesIndexRoute
-  '/_app/policies/transactions/$policyId/versions/$versionNumber': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
-  '/_app/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
-  '/_app/vaults/$vaultId/addresses/$addressId/': typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
-  '/_app/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
-  '/_app/policies/transactions/$policyId/versions/$versionNumber/': typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
-  '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
-  '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppVaultsVaultIdChainChainAddressesAddressTransferRoute
-  '/_app/vaults/$vaultId/chain/$chain/addresses/$address/': typeof AppVaultsVaultIdChainChainAddressesAddressIndexRoute
+  '/_app/global/governance/': typeof AppGlobalGovernanceIndexRoute
+  '/_app/global/teams/': typeof AppGlobalTeamsIndexRoute
+  '/_app/tokenisation/tokens/': typeof AppTokenisationTokensIndexRoute
+  '/_app/treasury/address-book/': typeof AppTreasuryAddressBookIndexRoute
+  '/_app/treasury/signers/': typeof AppTreasurySignersIndexRoute
+  '/_app/treasury/vaults/': typeof AppTreasuryVaultsIndexRoute
+  '/_app/treasury/policies/transactions/$policyId': typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRouteWithChildren
+  '/_app/treasury/policies/whitelists/$whitelistId': typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  '/_app/treasury/vaults/$vaultId/addresses': typeof AppTreasuryVaultsVaultIdAddressesRouteRouteWithChildren
+  '/_app/compliance/identities/$identityId/edit': typeof AppComplianceIdentitiesIdentityIdEditRoute
+  '/_app/tokenisation/tokens/$tokenId/burn': typeof AppTokenisationTokensTokenIdBurnRoute
+  '/_app/tokenisation/tokens/$tokenId/mint': typeof AppTokenisationTokensTokenIdMintRoute
+  '/_app/treasury/policies/whitelists/new': typeof AppTreasuryPoliciesWhitelistsNewRoute
+  '/_app/treasury/vaults/$vaultId/edit': typeof AppTreasuryVaultsVaultIdEditRoute
+  '/_app/compliance/identities/$identityId/': typeof AppComplianceIdentitiesIdentityIdIndexRoute
+  '/_app/tokenisation/tokens/$tokenId/': typeof AppTokenisationTokensTokenIdIndexRoute
+  '/_app/treasury/policies/transactions/': typeof AppTreasuryPoliciesTransactionsIndexRoute
+  '/_app/treasury/policies/whitelists/': typeof AppTreasuryPoliciesWhitelistsIndexRoute
+  '/_app/treasury/signers/$signerId/': typeof AppTreasurySignersSignerIdIndexRoute
+  '/_app/treasury/vaults/$vaultId/': typeof AppTreasuryVaultsVaultIdIndexRoute
+  '/_app/treasury/policies/transactions/$policyId/versions': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
+  '/_app/treasury/policies/whitelists/$whitelistId/versions': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  '/_app/treasury/vaults/$vaultId/addresses/$addressId': typeof AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  '/_app/treasury/policies/whitelists/$whitelistId/edit': typeof AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute
+  '/_app/treasury/vaults/$vaultId/addresses/new': typeof AppTreasuryVaultsVaultIdAddressesNewRoute
+  '/_app/treasury/vaults/$vaultId/reshares/$reshareId': typeof AppTreasuryVaultsVaultIdResharesReshareIdRoute
+  '/_app/treasury/policies/transactions/$policyId/': typeof AppTreasuryPoliciesTransactionsPolicyIdIndexRoute
+  '/_app/treasury/policies/whitelists/$whitelistId/': typeof AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute
+  '/_app/treasury/vaults/$vaultId/addresses/': typeof AppTreasuryVaultsVaultIdAddressesIndexRoute
+  '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
+  '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+  '/_app/treasury/vaults/$vaultId/addresses/$addressId/': typeof AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute
+  '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
+  '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/': typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
+  '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/': typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
+  '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute
+  '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/': typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -935,174 +1110,204 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/logout'
     | '/account'
-    | '/address-book'
     | '/compliance'
     | '/global'
+    | '/tokenisation'
+    | '/treasury'
+    | '/address-book'
     | '/identities'
     | '/operations'
     | '/policies'
     | '/settings'
     | '/signers'
-    | '/treasury'
     | '/vaults'
-    | '/overview'
     | '/'
     | '/forgot-password/'
     | '/login/'
     | '/sign-up/'
     | '/compliance/addresses'
+    | '/compliance/identities'
     | '/compliance/transactions'
-    | '/identities/$identityId'
-    | '/operations/$operationId'
-    | '/policies/transactions'
-    | '/policies/whitelists'
-    | '/settings/teams'
-    | '/signers/$signerId'
-    | '/vaults/$vaultId'
+    | '/global/teams'
+    | '/tokenisation/tokens'
+    | '/treasury/address-book'
+    | '/treasury/operations'
+    | '/treasury/policies'
+    | '/treasury/signers'
+    | '/treasury/vaults'
     | '/account/security'
     | '/compliance/alerts'
     | '/compliance/overview'
     | '/compliance/reports'
+    | '/global/audit'
+    | '/global/backups'
+    | '/global/billing'
+    | '/global/organization'
+    | '/global/roles'
     | '/global/users'
-    | '/identities/new'
-    | '/settings/audit'
-    | '/settings/backups'
-    | '/settings/billing'
-    | '/settings/members'
-    | '/settings/roles'
-    | '/settings/workspaces'
-    | '/signers/new'
+    | '/global/workspaces'
+    | '/tokenisation/deployment'
+    | '/tokenisation/holders'
+    | '/tokenisation/issuances'
+    | '/tokenisation/overview'
     | '/treasury/overview'
-    | '/vaults/layouts'
-    | '/vaults/new'
-    | '/vaults/tabs'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
     | '/account/'
-    | '/address-book/'
     | '/compliance/'
     | '/global/'
-    | '/identities/'
-    | '/settings/'
-    | '/signers/'
+    | '/tokenisation/'
     | '/treasury/'
-    | '/vaults/'
     | '/login/error'
     | '/login/verify'
-    | '/policies/transactions/$policyId'
-    | '/policies/whitelists/$whitelistId'
-    | '/vaults/$vaultId/addresses'
+    | '/compliance/identities/$identityId'
+    | '/tokenisation/tokens/$tokenId'
+    | '/treasury/operations/$operationId'
+    | '/treasury/policies/transactions'
+    | '/treasury/policies/whitelists'
+    | '/treasury/signers/$signerId'
+    | '/treasury/vaults/$vaultId'
     | '/compliance/addresses/$address'
+    | '/compliance/identities/new'
     | '/compliance/transactions/$id'
-    | '/identities/$identityId/edit'
-    | '/policies/whitelists/new'
-    | '/settings/governance/pending'
-    | '/settings/teams/$teamId'
-    | '/vaults/$vaultId/edit'
+    | '/global/governance/pending'
+    | '/global/teams/$teamId'
+    | '/treasury/signers/new'
+    | '/treasury/vaults/layouts'
+    | '/treasury/vaults/new'
+    | '/treasury/vaults/tabs'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/compliance/addresses/'
+    | '/compliance/identities/'
     | '/compliance/transactions/'
-    | '/identities/$identityId/'
-    | '/policies/transactions/'
-    | '/policies/whitelists/'
-    | '/settings/governance'
-    | '/settings/teams/'
-    | '/signers/$signerId/'
-    | '/vaults/$vaultId/'
-    | '/policies/transactions/$policyId/versions'
-    | '/policies/whitelists/$whitelistId/versions'
-    | '/vaults/$vaultId/addresses/$addressId'
-    | '/policies/whitelists/$whitelistId/edit'
-    | '/vaults/$vaultId/addresses/new'
-    | '/vaults/$vaultId/reshares/$reshareId'
-    | '/policies/transactions/$policyId/'
-    | '/policies/whitelists/$whitelistId/'
-    | '/vaults/$vaultId/addresses/'
-    | '/policies/transactions/$policyId/versions/$versionNumber'
-    | '/policies/whitelists/$whitelistId/versions/$versionNumber'
-    | '/vaults/$vaultId/addresses/$addressId/'
-    | '/vaults/$vaultId/chain/$chain/addresses/$address'
-    | '/policies/transactions/$policyId/versions/$versionNumber/'
-    | '/policies/whitelists/$whitelistId/versions/$versionNumber/'
-    | '/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
-    | '/vaults/$vaultId/chain/$chain/addresses/$address/'
+    | '/global/governance'
+    | '/global/teams/'
+    | '/tokenisation/tokens/'
+    | '/treasury/address-book/'
+    | '/treasury/signers/'
+    | '/treasury/vaults/'
+    | '/treasury/policies/transactions/$policyId'
+    | '/treasury/policies/whitelists/$whitelistId'
+    | '/treasury/vaults/$vaultId/addresses'
+    | '/compliance/identities/$identityId/edit'
+    | '/tokenisation/tokens/$tokenId/burn'
+    | '/tokenisation/tokens/$tokenId/mint'
+    | '/treasury/policies/whitelists/new'
+    | '/treasury/vaults/$vaultId/edit'
+    | '/compliance/identities/$identityId/'
+    | '/tokenisation/tokens/$tokenId/'
+    | '/treasury/policies/transactions/'
+    | '/treasury/policies/whitelists/'
+    | '/treasury/signers/$signerId/'
+    | '/treasury/vaults/$vaultId/'
+    | '/treasury/policies/transactions/$policyId/versions'
+    | '/treasury/policies/whitelists/$whitelistId/versions'
+    | '/treasury/vaults/$vaultId/addresses/$addressId'
+    | '/treasury/policies/whitelists/$whitelistId/edit'
+    | '/treasury/vaults/$vaultId/addresses/new'
+    | '/treasury/vaults/$vaultId/reshares/$reshareId'
+    | '/treasury/policies/transactions/$policyId/'
+    | '/treasury/policies/whitelists/$whitelistId/'
+    | '/treasury/vaults/$vaultId/addresses/'
+    | '/treasury/policies/transactions/$policyId/versions/$versionNumber'
+    | '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber'
+    | '/treasury/vaults/$vaultId/addresses/$addressId/'
+    | '/treasury/vaults/$vaultId/chain/$chain/addresses/$address'
+    | '/treasury/policies/transactions/$policyId/versions/$versionNumber/'
+    | '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/'
+    | '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+    | '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/logout'
+    | '/address-book'
+    | '/identities'
     | '/operations'
     | '/policies'
-    | '/overview'
+    | '/settings'
+    | '/signers'
+    | '/vaults'
     | '/'
     | '/forgot-password'
     | '/login'
     | '/sign-up'
-    | '/operations/$operationId'
+    | '/treasury/operations'
+    | '/treasury/policies'
     | '/account/security'
     | '/compliance/alerts'
     | '/compliance/overview'
     | '/compliance/reports'
+    | '/global/audit'
+    | '/global/backups'
+    | '/global/billing'
+    | '/global/organization'
+    | '/global/roles'
     | '/global/users'
-    | '/identities/new'
-    | '/settings/audit'
-    | '/settings/backups'
-    | '/settings/billing'
-    | '/settings/members'
-    | '/settings/roles'
-    | '/settings/workspaces'
-    | '/signers/new'
+    | '/global/workspaces'
+    | '/tokenisation/deployment'
+    | '/tokenisation/holders'
+    | '/tokenisation/issuances'
+    | '/tokenisation/overview'
     | '/treasury/overview'
-    | '/vaults/layouts'
-    | '/vaults/new'
-    | '/vaults/tabs'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
     | '/account'
-    | '/address-book'
     | '/compliance'
     | '/global'
-    | '/identities'
-    | '/settings'
-    | '/signers'
+    | '/tokenisation'
     | '/treasury'
-    | '/vaults'
     | '/login/error'
     | '/login/verify'
+    | '/treasury/operations/$operationId'
     | '/compliance/addresses/$address'
+    | '/compliance/identities/new'
     | '/compliance/transactions/$id'
-    | '/identities/$identityId/edit'
-    | '/policies/whitelists/new'
-    | '/settings/governance/pending'
-    | '/settings/teams/$teamId'
-    | '/vaults/$vaultId/edit'
+    | '/global/governance/pending'
+    | '/global/teams/$teamId'
+    | '/treasury/signers/new'
+    | '/treasury/vaults/layouts'
+    | '/treasury/vaults/new'
+    | '/treasury/vaults/tabs'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/compliance/addresses'
+    | '/compliance/identities'
     | '/compliance/transactions'
-    | '/identities/$identityId'
-    | '/policies/transactions'
-    | '/policies/whitelists'
-    | '/settings/governance'
-    | '/settings/teams'
-    | '/signers/$signerId'
-    | '/vaults/$vaultId'
-    | '/policies/transactions/$policyId/versions'
-    | '/policies/whitelists/$whitelistId/versions'
-    | '/policies/whitelists/$whitelistId/edit'
-    | '/vaults/$vaultId/addresses/new'
-    | '/vaults/$vaultId/reshares/$reshareId'
-    | '/policies/transactions/$policyId'
-    | '/policies/whitelists/$whitelistId'
-    | '/vaults/$vaultId/addresses'
-    | '/vaults/$vaultId/addresses/$addressId'
-    | '/policies/transactions/$policyId/versions/$versionNumber'
-    | '/policies/whitelists/$whitelistId/versions/$versionNumber'
-    | '/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
-    | '/vaults/$vaultId/chain/$chain/addresses/$address'
+    | '/global/governance'
+    | '/global/teams'
+    | '/tokenisation/tokens'
+    | '/treasury/address-book'
+    | '/treasury/signers'
+    | '/treasury/vaults'
+    | '/compliance/identities/$identityId/edit'
+    | '/tokenisation/tokens/$tokenId/burn'
+    | '/tokenisation/tokens/$tokenId/mint'
+    | '/treasury/policies/whitelists/new'
+    | '/treasury/vaults/$vaultId/edit'
+    | '/compliance/identities/$identityId'
+    | '/tokenisation/tokens/$tokenId'
+    | '/treasury/policies/transactions'
+    | '/treasury/policies/whitelists'
+    | '/treasury/signers/$signerId'
+    | '/treasury/vaults/$vaultId'
+    | '/treasury/policies/transactions/$policyId/versions'
+    | '/treasury/policies/whitelists/$whitelistId/versions'
+    | '/treasury/policies/whitelists/$whitelistId/edit'
+    | '/treasury/vaults/$vaultId/addresses/new'
+    | '/treasury/vaults/$vaultId/reshares/$reshareId'
+    | '/treasury/policies/transactions/$policyId'
+    | '/treasury/policies/whitelists/$whitelistId'
+    | '/treasury/vaults/$vaultId/addresses'
+    | '/treasury/vaults/$vaultId/addresses/$addressId'
+    | '/treasury/policies/transactions/$policyId/versions/$versionNumber'
+    | '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber'
+    | '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+    | '/treasury/vaults/$vaultId/chain/$chain/addresses/$address'
   id:
     | '__root__'
     | '/forgot-password'
@@ -1111,100 +1316,116 @@ export interface FileRouteTypes {
     | '/_app'
     | '/logout'
     | '/_app/account'
-    | '/_app/address-book'
     | '/_app/compliance'
     | '/_app/global'
+    | '/_app/tokenisation'
+    | '/_app/treasury'
+    | '/_app/address-book'
     | '/_app/identities'
     | '/_app/operations'
     | '/_app/policies'
     | '/_app/settings'
     | '/_app/signers'
-    | '/_app/treasury'
     | '/_app/vaults'
-    | '/_app/overview'
     | '/_app/'
     | '/forgot-password/'
     | '/login/'
     | '/sign-up/'
     | '/_app/compliance/addresses'
+    | '/_app/compliance/identities'
     | '/_app/compliance/transactions'
-    | '/_app/identities/$identityId'
-    | '/_app/operations/$operationId'
-    | '/_app/policies/transactions'
-    | '/_app/policies/whitelists'
-    | '/_app/settings/teams'
-    | '/_app/signers/$signerId'
-    | '/_app/vaults/$vaultId'
+    | '/_app/global/teams'
+    | '/_app/tokenisation/tokens'
+    | '/_app/treasury/address-book'
+    | '/_app/treasury/operations'
+    | '/_app/treasury/policies'
+    | '/_app/treasury/signers'
+    | '/_app/treasury/vaults'
     | '/_app/account/security'
     | '/_app/compliance/alerts'
     | '/_app/compliance/overview'
     | '/_app/compliance/reports'
+    | '/_app/global/audit'
+    | '/_app/global/backups'
+    | '/_app/global/billing'
+    | '/_app/global/organization'
+    | '/_app/global/roles'
     | '/_app/global/users'
-    | '/_app/identities/new'
-    | '/_app/settings/audit'
-    | '/_app/settings/backups'
-    | '/_app/settings/billing'
-    | '/_app/settings/members'
-    | '/_app/settings/roles'
-    | '/_app/settings/workspaces'
-    | '/_app/signers/new'
+    | '/_app/global/workspaces'
+    | '/_app/tokenisation/deployment'
+    | '/_app/tokenisation/holders'
+    | '/_app/tokenisation/issuances'
+    | '/_app/tokenisation/overview'
     | '/_app/treasury/overview'
-    | '/_app/vaults/layouts'
-    | '/_app/vaults/new'
-    | '/_app/vaults/tabs'
     | '/api/openapi/app'
     | '/api/openapi/auth'
     | '/api/rest/$'
     | '/api/rpc/$'
     | '/_app/account/'
-    | '/_app/address-book/'
     | '/_app/compliance/'
     | '/_app/global/'
-    | '/_app/identities/'
-    | '/_app/settings/'
-    | '/_app/signers/'
+    | '/_app/tokenisation/'
     | '/_app/treasury/'
-    | '/_app/vaults/'
     | '/login/error/'
     | '/login/verify/'
-    | '/_app/policies/transactions/$policyId'
-    | '/_app/policies/whitelists/$whitelistId'
-    | '/_app/vaults/$vaultId/addresses'
+    | '/_app/compliance/identities/$identityId'
+    | '/_app/tokenisation/tokens/$tokenId'
+    | '/_app/treasury/operations/$operationId'
+    | '/_app/treasury/policies/transactions'
+    | '/_app/treasury/policies/whitelists'
+    | '/_app/treasury/signers/$signerId'
+    | '/_app/treasury/vaults/$vaultId'
     | '/_app/compliance/addresses/$address'
+    | '/_app/compliance/identities/new'
     | '/_app/compliance/transactions/$id'
-    | '/_app/identities/$identityId/edit'
-    | '/_app/policies/whitelists/new'
-    | '/_app/settings/governance/pending'
-    | '/_app/settings/teams/$teamId'
-    | '/_app/vaults/$vaultId/edit'
+    | '/_app/global/governance/pending'
+    | '/_app/global/teams/$teamId'
+    | '/_app/treasury/signers/new'
+    | '/_app/treasury/vaults/layouts'
+    | '/_app/treasury/vaults/new'
+    | '/_app/treasury/vaults/tabs'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
     | '/_app/compliance/addresses/'
+    | '/_app/compliance/identities/'
     | '/_app/compliance/transactions/'
-    | '/_app/identities/$identityId/'
-    | '/_app/policies/transactions/'
-    | '/_app/policies/whitelists/'
-    | '/_app/settings/governance/'
-    | '/_app/settings/teams/'
-    | '/_app/signers/$signerId/'
-    | '/_app/vaults/$vaultId/'
-    | '/_app/policies/transactions/$policyId/versions'
-    | '/_app/policies/whitelists/$whitelistId/versions'
-    | '/_app/vaults/$vaultId/addresses/$addressId'
-    | '/_app/policies/whitelists/$whitelistId/edit'
-    | '/_app/vaults/$vaultId/addresses/new'
-    | '/_app/vaults/$vaultId/reshares/$reshareId'
-    | '/_app/policies/transactions/$policyId/'
-    | '/_app/policies/whitelists/$whitelistId/'
-    | '/_app/vaults/$vaultId/addresses/'
-    | '/_app/policies/transactions/$policyId/versions/$versionNumber'
-    | '/_app/policies/whitelists/$whitelistId/versions/$versionNumber'
-    | '/_app/vaults/$vaultId/addresses/$addressId/'
-    | '/_app/vaults/$vaultId/chain/$chain/addresses/$address'
-    | '/_app/policies/transactions/$policyId/versions/$versionNumber/'
-    | '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/'
-    | '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
-    | '/_app/vaults/$vaultId/chain/$chain/addresses/$address/'
+    | '/_app/global/governance/'
+    | '/_app/global/teams/'
+    | '/_app/tokenisation/tokens/'
+    | '/_app/treasury/address-book/'
+    | '/_app/treasury/signers/'
+    | '/_app/treasury/vaults/'
+    | '/_app/treasury/policies/transactions/$policyId'
+    | '/_app/treasury/policies/whitelists/$whitelistId'
+    | '/_app/treasury/vaults/$vaultId/addresses'
+    | '/_app/compliance/identities/$identityId/edit'
+    | '/_app/tokenisation/tokens/$tokenId/burn'
+    | '/_app/tokenisation/tokens/$tokenId/mint'
+    | '/_app/treasury/policies/whitelists/new'
+    | '/_app/treasury/vaults/$vaultId/edit'
+    | '/_app/compliance/identities/$identityId/'
+    | '/_app/tokenisation/tokens/$tokenId/'
+    | '/_app/treasury/policies/transactions/'
+    | '/_app/treasury/policies/whitelists/'
+    | '/_app/treasury/signers/$signerId/'
+    | '/_app/treasury/vaults/$vaultId/'
+    | '/_app/treasury/policies/transactions/$policyId/versions'
+    | '/_app/treasury/policies/whitelists/$whitelistId/versions'
+    | '/_app/treasury/vaults/$vaultId/addresses/$addressId'
+    | '/_app/treasury/policies/whitelists/$whitelistId/edit'
+    | '/_app/treasury/vaults/$vaultId/addresses/new'
+    | '/_app/treasury/vaults/$vaultId/reshares/$reshareId'
+    | '/_app/treasury/policies/transactions/$policyId/'
+    | '/_app/treasury/policies/whitelists/$whitelistId/'
+    | '/_app/treasury/vaults/$vaultId/addresses/'
+    | '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber'
+    | '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber'
+    | '/_app/treasury/vaults/$vaultId/addresses/$addressId/'
+    | '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address'
+    | '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/'
+    | '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/'
+    | '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+    | '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1285,18 +1506,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/overview': {
-      id: '/_app/overview'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof AppOverviewRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/vaults': {
       id: '/_app/vaults'
       path: '/vaults'
       fullPath: '/vaults'
-      preLoaderRoute: typeof AppVaultsRouteRouteImport
+      preLoaderRoute: typeof AppVaultsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/signers': {
+      id: '/_app/signers'
+      path: '/signers'
+      fullPath: '/signers'
+      preLoaderRoute: typeof AppSignersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/policies': {
+      id: '/_app/policies'
+      path: '/policies'
+      fullPath: '/policies'
+      preLoaderRoute: typeof AppPoliciesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/operations': {
+      id: '/_app/operations'
+      path: '/operations'
+      fullPath: '/operations'
+      preLoaderRoute: typeof AppOperationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/identities': {
+      id: '/_app/identities'
+      path: '/identities'
+      fullPath: '/identities'
+      preLoaderRoute: typeof AppIdentitiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/address-book': {
+      id: '/_app/address-book'
+      path: '/address-book'
+      fullPath: '/address-book'
+      preLoaderRoute: typeof AppAddressBookRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/treasury': {
@@ -1306,39 +1562,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTreasuryRouteRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/signers': {
-      id: '/_app/signers'
-      path: '/signers'
-      fullPath: '/signers'
-      preLoaderRoute: typeof AppSignersRouteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/policies': {
-      id: '/_app/policies'
-      path: '/policies'
-      fullPath: '/policies'
-      preLoaderRoute: typeof AppPoliciesRouteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/operations': {
-      id: '/_app/operations'
-      path: '/operations'
-      fullPath: '/operations'
-      preLoaderRoute: typeof AppOperationsRouteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/identities': {
-      id: '/_app/identities'
-      path: '/identities'
-      fullPath: '/identities'
-      preLoaderRoute: typeof AppIdentitiesRouteRouteImport
+    '/_app/tokenisation': {
+      id: '/_app/tokenisation'
+      path: '/tokenisation'
+      fullPath: '/tokenisation'
+      preLoaderRoute: typeof AppTokenisationRouteRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/global': {
@@ -1353,13 +1581,6 @@ declare module '@tanstack/react-router' {
       path: '/compliance'
       fullPath: '/compliance'
       preLoaderRoute: typeof AppComplianceRouteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/address-book': {
-      id: '/_app/address-book'
-      path: '/address-book'
-      fullPath: '/address-book'
-      preLoaderRoute: typeof AppAddressBookRouteRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/account': {
@@ -1383,13 +1604,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginErrorIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
-    '/_app/vaults/': {
-      id: '/_app/vaults/'
-      path: '/'
-      fullPath: '/vaults/'
-      preLoaderRoute: typeof AppVaultsIndexRouteImport
-      parentRoute: typeof AppVaultsRouteRoute
-    }
     '/_app/treasury/': {
       id: '/_app/treasury/'
       path: '/'
@@ -1397,26 +1611,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTreasuryIndexRouteImport
       parentRoute: typeof AppTreasuryRouteRoute
     }
-    '/_app/signers/': {
-      id: '/_app/signers/'
+    '/_app/tokenisation/': {
+      id: '/_app/tokenisation/'
       path: '/'
-      fullPath: '/signers/'
-      preLoaderRoute: typeof AppSignersIndexRouteImport
-      parentRoute: typeof AppSignersRouteRoute
-    }
-    '/_app/settings/': {
-      id: '/_app/settings/'
-      path: '/'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof AppSettingsIndexRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/identities/': {
-      id: '/_app/identities/'
-      path: '/'
-      fullPath: '/identities/'
-      preLoaderRoute: typeof AppIdentitiesIndexRouteImport
-      parentRoute: typeof AppIdentitiesRouteRoute
+      fullPath: '/tokenisation/'
+      preLoaderRoute: typeof AppTokenisationIndexRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
     }
     '/_app/global/': {
       id: '/_app/global/'
@@ -1431,13 +1631,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/compliance/'
       preLoaderRoute: typeof AppComplianceIndexRouteImport
       parentRoute: typeof AppComplianceRouteRoute
-    }
-    '/_app/address-book/': {
-      id: '/_app/address-book/'
-      path: '/'
-      fullPath: '/address-book/'
-      preLoaderRoute: typeof AppAddressBookIndexRouteImport
-      parentRoute: typeof AppAddressBookRouteRoute
     }
     '/_app/account/': {
       id: '/_app/account/'
@@ -1474,27 +1667,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOpenapiAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/vaults/tabs': {
-      id: '/_app/vaults/tabs'
-      path: '/tabs'
-      fullPath: '/vaults/tabs'
-      preLoaderRoute: typeof AppVaultsTabsRouteImport
-      parentRoute: typeof AppVaultsRouteRoute
-    }
-    '/_app/vaults/new': {
-      id: '/_app/vaults/new'
-      path: '/new'
-      fullPath: '/vaults/new'
-      preLoaderRoute: typeof AppVaultsNewRouteImport
-      parentRoute: typeof AppVaultsRouteRoute
-    }
-    '/_app/vaults/layouts': {
-      id: '/_app/vaults/layouts'
-      path: '/layouts'
-      fullPath: '/vaults/layouts'
-      preLoaderRoute: typeof AppVaultsLayoutsRouteImport
-      parentRoute: typeof AppVaultsRouteRoute
-    }
     '/_app/treasury/overview': {
       id: '/_app/treasury/overview'
       path: '/overview'
@@ -1502,67 +1674,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTreasuryOverviewRouteImport
       parentRoute: typeof AppTreasuryRouteRoute
     }
-    '/_app/signers/new': {
-      id: '/_app/signers/new'
-      path: '/new'
-      fullPath: '/signers/new'
-      preLoaderRoute: typeof AppSignersNewRouteImport
-      parentRoute: typeof AppSignersRouteRoute
+    '/_app/tokenisation/overview': {
+      id: '/_app/tokenisation/overview'
+      path: '/overview'
+      fullPath: '/tokenisation/overview'
+      preLoaderRoute: typeof AppTokenisationOverviewRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
     }
-    '/_app/settings/workspaces': {
-      id: '/_app/settings/workspaces'
+    '/_app/tokenisation/issuances': {
+      id: '/_app/tokenisation/issuances'
+      path: '/issuances'
+      fullPath: '/tokenisation/issuances'
+      preLoaderRoute: typeof AppTokenisationIssuancesRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
+    }
+    '/_app/tokenisation/holders': {
+      id: '/_app/tokenisation/holders'
+      path: '/holders'
+      fullPath: '/tokenisation/holders'
+      preLoaderRoute: typeof AppTokenisationHoldersRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
+    }
+    '/_app/tokenisation/deployment': {
+      id: '/_app/tokenisation/deployment'
+      path: '/deployment'
+      fullPath: '/tokenisation/deployment'
+      preLoaderRoute: typeof AppTokenisationDeploymentRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
+    }
+    '/_app/global/workspaces': {
+      id: '/_app/global/workspaces'
       path: '/workspaces'
-      fullPath: '/settings/workspaces'
-      preLoaderRoute: typeof AppSettingsWorkspacesRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/settings/roles': {
-      id: '/_app/settings/roles'
-      path: '/roles'
-      fullPath: '/settings/roles'
-      preLoaderRoute: typeof AppSettingsRolesRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/settings/members': {
-      id: '/_app/settings/members'
-      path: '/members'
-      fullPath: '/settings/members'
-      preLoaderRoute: typeof AppSettingsMembersRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/settings/billing': {
-      id: '/_app/settings/billing'
-      path: '/billing'
-      fullPath: '/settings/billing'
-      preLoaderRoute: typeof AppSettingsBillingRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/settings/backups': {
-      id: '/_app/settings/backups'
-      path: '/backups'
-      fullPath: '/settings/backups'
-      preLoaderRoute: typeof AppSettingsBackupsRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/settings/audit': {
-      id: '/_app/settings/audit'
-      path: '/audit'
-      fullPath: '/settings/audit'
-      preLoaderRoute: typeof AppSettingsAuditRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/identities/new': {
-      id: '/_app/identities/new'
-      path: '/new'
-      fullPath: '/identities/new'
-      preLoaderRoute: typeof AppIdentitiesNewRouteImport
-      parentRoute: typeof AppIdentitiesRouteRoute
+      fullPath: '/global/workspaces'
+      preLoaderRoute: typeof AppGlobalWorkspacesRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/global/users': {
       id: '/_app/global/users'
       path: '/users'
       fullPath: '/global/users'
       preLoaderRoute: typeof AppGlobalUsersRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/roles': {
+      id: '/_app/global/roles'
+      path: '/roles'
+      fullPath: '/global/roles'
+      preLoaderRoute: typeof AppGlobalRolesRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/organization': {
+      id: '/_app/global/organization'
+      path: '/organization'
+      fullPath: '/global/organization'
+      preLoaderRoute: typeof AppGlobalOrganizationRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/billing': {
+      id: '/_app/global/billing'
+      path: '/billing'
+      fullPath: '/global/billing'
+      preLoaderRoute: typeof AppGlobalBillingRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/backups': {
+      id: '/_app/global/backups'
+      path: '/backups'
+      fullPath: '/global/backups'
+      preLoaderRoute: typeof AppGlobalBackupsRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/audit': {
+      id: '/_app/global/audit'
+      path: '/audit'
+      fullPath: '/global/audit'
+      preLoaderRoute: typeof AppGlobalAuditRouteImport
       parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/compliance/reports': {
@@ -1593,60 +1779,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountSecurityRouteImport
       parentRoute: typeof AppAccountRouteRoute
     }
-    '/_app/vaults/$vaultId': {
-      id: '/_app/vaults/$vaultId'
-      path: '/$vaultId'
-      fullPath: '/vaults/$vaultId'
-      preLoaderRoute: typeof AppVaultsVaultIdRouteRouteImport
-      parentRoute: typeof AppVaultsRouteRoute
+    '/_app/treasury/vaults': {
+      id: '/_app/treasury/vaults'
+      path: '/vaults'
+      fullPath: '/treasury/vaults'
+      preLoaderRoute: typeof AppTreasuryVaultsRouteRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
     }
-    '/_app/signers/$signerId': {
-      id: '/_app/signers/$signerId'
-      path: '/$signerId'
-      fullPath: '/signers/$signerId'
-      preLoaderRoute: typeof AppSignersSignerIdRouteRouteImport
-      parentRoute: typeof AppSignersRouteRoute
+    '/_app/treasury/signers': {
+      id: '/_app/treasury/signers'
+      path: '/signers'
+      fullPath: '/treasury/signers'
+      preLoaderRoute: typeof AppTreasurySignersRouteRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
     }
-    '/_app/settings/teams': {
-      id: '/_app/settings/teams'
+    '/_app/treasury/policies': {
+      id: '/_app/treasury/policies'
+      path: '/policies'
+      fullPath: '/treasury/policies'
+      preLoaderRoute: typeof AppTreasuryPoliciesRouteRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
+    }
+    '/_app/treasury/operations': {
+      id: '/_app/treasury/operations'
+      path: '/operations'
+      fullPath: '/treasury/operations'
+      preLoaderRoute: typeof AppTreasuryOperationsRouteRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
+    }
+    '/_app/treasury/address-book': {
+      id: '/_app/treasury/address-book'
+      path: '/address-book'
+      fullPath: '/treasury/address-book'
+      preLoaderRoute: typeof AppTreasuryAddressBookRouteRouteImport
+      parentRoute: typeof AppTreasuryRouteRoute
+    }
+    '/_app/tokenisation/tokens': {
+      id: '/_app/tokenisation/tokens'
+      path: '/tokens'
+      fullPath: '/tokenisation/tokens'
+      preLoaderRoute: typeof AppTokenisationTokensRouteRouteImport
+      parentRoute: typeof AppTokenisationRouteRoute
+    }
+    '/_app/global/teams': {
+      id: '/_app/global/teams'
       path: '/teams'
-      fullPath: '/settings/teams'
-      preLoaderRoute: typeof AppSettingsTeamsRouteRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/policies/whitelists': {
-      id: '/_app/policies/whitelists'
-      path: '/whitelists'
-      fullPath: '/policies/whitelists'
-      preLoaderRoute: typeof AppPoliciesWhitelistsRouteRouteImport
-      parentRoute: typeof AppPoliciesRouteRoute
-    }
-    '/_app/policies/transactions': {
-      id: '/_app/policies/transactions'
-      path: '/transactions'
-      fullPath: '/policies/transactions'
-      preLoaderRoute: typeof AppPoliciesTransactionsRouteRouteImport
-      parentRoute: typeof AppPoliciesRouteRoute
-    }
-    '/_app/operations/$operationId': {
-      id: '/_app/operations/$operationId'
-      path: '/$operationId'
-      fullPath: '/operations/$operationId'
-      preLoaderRoute: typeof AppOperationsOperationIdRouteRouteImport
-      parentRoute: typeof AppOperationsRouteRoute
-    }
-    '/_app/identities/$identityId': {
-      id: '/_app/identities/$identityId'
-      path: '/$identityId'
-      fullPath: '/identities/$identityId'
-      preLoaderRoute: typeof AppIdentitiesIdentityIdRouteRouteImport
-      parentRoute: typeof AppIdentitiesRouteRoute
+      fullPath: '/global/teams'
+      preLoaderRoute: typeof AppGlobalTeamsRouteRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/compliance/transactions': {
       id: '/_app/compliance/transactions'
       path: '/transactions'
       fullPath: '/compliance/transactions'
       preLoaderRoute: typeof AppComplianceTransactionsRouteRouteImport
+      parentRoute: typeof AppComplianceRouteRoute
+    }
+    '/_app/compliance/identities': {
+      id: '/_app/compliance/identities'
+      path: '/identities'
+      fullPath: '/compliance/identities'
+      preLoaderRoute: typeof AppComplianceIdentitiesRouteRouteImport
       parentRoute: typeof AppComplianceRouteRoute
     }
     '/_app/compliance/addresses': {
@@ -1656,54 +1849,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppComplianceAddressesRouteRouteImport
       parentRoute: typeof AppComplianceRouteRoute
     }
-    '/_app/vaults/$vaultId/': {
-      id: '/_app/vaults/$vaultId/'
+    '/_app/treasury/vaults/': {
+      id: '/_app/treasury/vaults/'
       path: '/'
-      fullPath: '/vaults/$vaultId/'
-      preLoaderRoute: typeof AppVaultsVaultIdIndexRouteImport
-      parentRoute: typeof AppVaultsVaultIdRouteRoute
+      fullPath: '/treasury/vaults/'
+      preLoaderRoute: typeof AppTreasuryVaultsIndexRouteImport
+      parentRoute: typeof AppTreasuryVaultsRouteRoute
     }
-    '/_app/signers/$signerId/': {
-      id: '/_app/signers/$signerId/'
+    '/_app/treasury/signers/': {
+      id: '/_app/treasury/signers/'
       path: '/'
-      fullPath: '/signers/$signerId/'
-      preLoaderRoute: typeof AppSignersSignerIdIndexRouteImport
-      parentRoute: typeof AppSignersSignerIdRouteRoute
+      fullPath: '/treasury/signers/'
+      preLoaderRoute: typeof AppTreasurySignersIndexRouteImport
+      parentRoute: typeof AppTreasurySignersRouteRoute
     }
-    '/_app/settings/teams/': {
-      id: '/_app/settings/teams/'
+    '/_app/treasury/address-book/': {
+      id: '/_app/treasury/address-book/'
       path: '/'
-      fullPath: '/settings/teams/'
-      preLoaderRoute: typeof AppSettingsTeamsIndexRouteImport
-      parentRoute: typeof AppSettingsTeamsRouteRoute
+      fullPath: '/treasury/address-book/'
+      preLoaderRoute: typeof AppTreasuryAddressBookIndexRouteImport
+      parentRoute: typeof AppTreasuryAddressBookRouteRoute
     }
-    '/_app/settings/governance/': {
-      id: '/_app/settings/governance/'
+    '/_app/tokenisation/tokens/': {
+      id: '/_app/tokenisation/tokens/'
+      path: '/'
+      fullPath: '/tokenisation/tokens/'
+      preLoaderRoute: typeof AppTokenisationTokensIndexRouteImport
+      parentRoute: typeof AppTokenisationTokensRouteRoute
+    }
+    '/_app/global/teams/': {
+      id: '/_app/global/teams/'
+      path: '/'
+      fullPath: '/global/teams/'
+      preLoaderRoute: typeof AppGlobalTeamsIndexRouteImport
+      parentRoute: typeof AppGlobalTeamsRouteRoute
+    }
+    '/_app/global/governance/': {
+      id: '/_app/global/governance/'
       path: '/governance'
-      fullPath: '/settings/governance'
-      preLoaderRoute: typeof AppSettingsGovernanceIndexRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/policies/whitelists/': {
-      id: '/_app/policies/whitelists/'
-      path: '/'
-      fullPath: '/policies/whitelists/'
-      preLoaderRoute: typeof AppPoliciesWhitelistsIndexRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
-    }
-    '/_app/policies/transactions/': {
-      id: '/_app/policies/transactions/'
-      path: '/'
-      fullPath: '/policies/transactions/'
-      preLoaderRoute: typeof AppPoliciesTransactionsIndexRouteImport
-      parentRoute: typeof AppPoliciesTransactionsRouteRoute
-    }
-    '/_app/identities/$identityId/': {
-      id: '/_app/identities/$identityId/'
-      path: '/'
-      fullPath: '/identities/$identityId/'
-      preLoaderRoute: typeof AppIdentitiesIdentityIdIndexRouteImport
-      parentRoute: typeof AppIdentitiesIdentityIdRouteRoute
+      fullPath: '/global/governance'
+      preLoaderRoute: typeof AppGlobalGovernanceIndexRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/compliance/transactions/': {
       id: '/_app/compliance/transactions/'
@@ -1711,6 +1897,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/compliance/transactions/'
       preLoaderRoute: typeof AppComplianceTransactionsIndexRouteImport
       parentRoute: typeof AppComplianceTransactionsRouteRoute
+    }
+    '/_app/compliance/identities/': {
+      id: '/_app/compliance/identities/'
+      path: '/'
+      fullPath: '/compliance/identities/'
+      preLoaderRoute: typeof AppComplianceIdentitiesIndexRouteImport
+      parentRoute: typeof AppComplianceIdentitiesRouteRoute
     }
     '/_app/compliance/addresses/': {
       id: '/_app/compliance/addresses/'
@@ -1733,40 +1926,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDevEmailTemplateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/vaults/$vaultId/edit': {
-      id: '/_app/vaults/$vaultId/edit'
-      path: '/edit'
-      fullPath: '/vaults/$vaultId/edit'
-      preLoaderRoute: typeof AppVaultsVaultIdEditRouteImport
-      parentRoute: typeof AppVaultsVaultIdRouteRoute
+    '/_app/treasury/vaults/tabs': {
+      id: '/_app/treasury/vaults/tabs'
+      path: '/tabs'
+      fullPath: '/treasury/vaults/tabs'
+      preLoaderRoute: typeof AppTreasuryVaultsTabsRouteImport
+      parentRoute: typeof AppTreasuryVaultsRouteRoute
     }
-    '/_app/settings/teams/$teamId': {
-      id: '/_app/settings/teams/$teamId'
-      path: '/$teamId'
-      fullPath: '/settings/teams/$teamId'
-      preLoaderRoute: typeof AppSettingsTeamsTeamIdRouteImport
-      parentRoute: typeof AppSettingsTeamsRouteRoute
-    }
-    '/_app/settings/governance/pending': {
-      id: '/_app/settings/governance/pending'
-      path: '/governance/pending'
-      fullPath: '/settings/governance/pending'
-      preLoaderRoute: typeof AppSettingsGovernancePendingRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
-    '/_app/policies/whitelists/new': {
-      id: '/_app/policies/whitelists/new'
+    '/_app/treasury/vaults/new': {
+      id: '/_app/treasury/vaults/new'
       path: '/new'
-      fullPath: '/policies/whitelists/new'
-      preLoaderRoute: typeof AppPoliciesWhitelistsNewRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
+      fullPath: '/treasury/vaults/new'
+      preLoaderRoute: typeof AppTreasuryVaultsNewRouteImport
+      parentRoute: typeof AppTreasuryVaultsRouteRoute
     }
-    '/_app/identities/$identityId/edit': {
-      id: '/_app/identities/$identityId/edit'
-      path: '/edit'
-      fullPath: '/identities/$identityId/edit'
-      preLoaderRoute: typeof AppIdentitiesIdentityIdEditRouteImport
-      parentRoute: typeof AppIdentitiesIdentityIdRouteRoute
+    '/_app/treasury/vaults/layouts': {
+      id: '/_app/treasury/vaults/layouts'
+      path: '/layouts'
+      fullPath: '/treasury/vaults/layouts'
+      preLoaderRoute: typeof AppTreasuryVaultsLayoutsRouteImport
+      parentRoute: typeof AppTreasuryVaultsRouteRoute
+    }
+    '/_app/treasury/signers/new': {
+      id: '/_app/treasury/signers/new'
+      path: '/new'
+      fullPath: '/treasury/signers/new'
+      preLoaderRoute: typeof AppTreasurySignersNewRouteImport
+      parentRoute: typeof AppTreasurySignersRouteRoute
+    }
+    '/_app/global/teams/$teamId': {
+      id: '/_app/global/teams/$teamId'
+      path: '/$teamId'
+      fullPath: '/global/teams/$teamId'
+      preLoaderRoute: typeof AppGlobalTeamsTeamIdRouteImport
+      parentRoute: typeof AppGlobalTeamsRouteRoute
+    }
+    '/_app/global/governance/pending': {
+      id: '/_app/global/governance/pending'
+      path: '/governance/pending'
+      fullPath: '/global/governance/pending'
+      preLoaderRoute: typeof AppGlobalGovernancePendingRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/compliance/transactions/$id': {
       id: '/_app/compliance/transactions/$id'
@@ -1775,6 +1975,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppComplianceTransactionsIdRouteImport
       parentRoute: typeof AppComplianceTransactionsRouteRoute
     }
+    '/_app/compliance/identities/new': {
+      id: '/_app/compliance/identities/new'
+      path: '/new'
+      fullPath: '/compliance/identities/new'
+      preLoaderRoute: typeof AppComplianceIdentitiesNewRouteImport
+      parentRoute: typeof AppComplianceIdentitiesRouteRoute
+    }
     '/_app/compliance/addresses/$address': {
       id: '/_app/compliance/addresses/$address'
       path: '/$address'
@@ -1782,145 +1989,271 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppComplianceAddressesAddressRouteImport
       parentRoute: typeof AppComplianceAddressesRouteRoute
     }
-    '/_app/vaults/$vaultId/addresses': {
-      id: '/_app/vaults/$vaultId/addresses'
-      path: '/addresses'
-      fullPath: '/vaults/$vaultId/addresses'
-      preLoaderRoute: typeof AppVaultsVaultIdAddressesRouteRouteImport
-      parentRoute: typeof AppVaultsVaultIdRouteRoute
+    '/_app/treasury/vaults/$vaultId': {
+      id: '/_app/treasury/vaults/$vaultId'
+      path: '/$vaultId'
+      fullPath: '/treasury/vaults/$vaultId'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdRouteRouteImport
+      parentRoute: typeof AppTreasuryVaultsRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId': {
-      id: '/_app/policies/whitelists/$whitelistId'
-      path: '/$whitelistId'
-      fullPath: '/policies/whitelists/$whitelistId'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsRouteRoute
+    '/_app/treasury/signers/$signerId': {
+      id: '/_app/treasury/signers/$signerId'
+      path: '/$signerId'
+      fullPath: '/treasury/signers/$signerId'
+      preLoaderRoute: typeof AppTreasurySignersSignerIdRouteRouteImport
+      parentRoute: typeof AppTreasurySignersRouteRoute
     }
-    '/_app/policies/transactions/$policyId': {
-      id: '/_app/policies/transactions/$policyId'
-      path: '/$policyId'
-      fullPath: '/policies/transactions/$policyId'
-      preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdRouteRouteImport
-      parentRoute: typeof AppPoliciesTransactionsRouteRoute
+    '/_app/treasury/policies/whitelists': {
+      id: '/_app/treasury/policies/whitelists'
+      path: '/whitelists'
+      fullPath: '/treasury/policies/whitelists'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesRouteRoute
     }
-    '/_app/vaults/$vaultId/addresses/': {
-      id: '/_app/vaults/$vaultId/addresses/'
+    '/_app/treasury/policies/transactions': {
+      id: '/_app/treasury/policies/transactions'
+      path: '/transactions'
+      fullPath: '/treasury/policies/transactions'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesRouteRoute
+    }
+    '/_app/treasury/operations/$operationId': {
+      id: '/_app/treasury/operations/$operationId'
+      path: '/$operationId'
+      fullPath: '/treasury/operations/$operationId'
+      preLoaderRoute: typeof AppTreasuryOperationsOperationIdRouteRouteImport
+      parentRoute: typeof AppTreasuryOperationsRouteRoute
+    }
+    '/_app/tokenisation/tokens/$tokenId': {
+      id: '/_app/tokenisation/tokens/$tokenId'
+      path: '/$tokenId'
+      fullPath: '/tokenisation/tokens/$tokenId'
+      preLoaderRoute: typeof AppTokenisationTokensTokenIdRouteRouteImport
+      parentRoute: typeof AppTokenisationTokensRouteRoute
+    }
+    '/_app/compliance/identities/$identityId': {
+      id: '/_app/compliance/identities/$identityId'
+      path: '/$identityId'
+      fullPath: '/compliance/identities/$identityId'
+      preLoaderRoute: typeof AppComplianceIdentitiesIdentityIdRouteRouteImport
+      parentRoute: typeof AppComplianceIdentitiesRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/': {
+      id: '/_app/treasury/vaults/$vaultId/'
       path: '/'
-      fullPath: '/vaults/$vaultId/addresses/'
-      preLoaderRoute: typeof AppVaultsVaultIdAddressesIndexRouteImport
-      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdIndexRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId/': {
-      id: '/_app/policies/whitelists/$whitelistId/'
+    '/_app/treasury/signers/$signerId/': {
+      id: '/_app/treasury/signers/$signerId/'
       path: '/'
-      fullPath: '/policies/whitelists/$whitelistId/'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdIndexRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+      fullPath: '/treasury/signers/$signerId/'
+      preLoaderRoute: typeof AppTreasurySignersSignerIdIndexRouteImport
+      parentRoute: typeof AppTreasurySignersSignerIdRouteRoute
     }
-    '/_app/policies/transactions/$policyId/': {
-      id: '/_app/policies/transactions/$policyId/'
+    '/_app/treasury/policies/whitelists/': {
+      id: '/_app/treasury/policies/whitelists/'
       path: '/'
-      fullPath: '/policies/transactions/$policyId/'
-      preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdIndexRouteImport
-      parentRoute: typeof AppPoliciesTransactionsPolicyIdRouteRoute
+      fullPath: '/treasury/policies/whitelists/'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsRouteRoute
     }
-    '/_app/vaults/$vaultId/reshares/$reshareId': {
-      id: '/_app/vaults/$vaultId/reshares/$reshareId'
-      path: '/reshares/$reshareId'
-      fullPath: '/vaults/$vaultId/reshares/$reshareId'
-      preLoaderRoute: typeof AppVaultsVaultIdResharesReshareIdRouteImport
-      parentRoute: typeof AppVaultsVaultIdRouteRoute
+    '/_app/treasury/policies/transactions/': {
+      id: '/_app/treasury/policies/transactions/'
+      path: '/'
+      fullPath: '/treasury/policies/transactions/'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsRouteRoute
     }
-    '/_app/vaults/$vaultId/addresses/new': {
-      id: '/_app/vaults/$vaultId/addresses/new'
-      path: '/new'
-      fullPath: '/vaults/$vaultId/addresses/new'
-      preLoaderRoute: typeof AppVaultsVaultIdAddressesNewRouteImport
-      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+    '/_app/tokenisation/tokens/$tokenId/': {
+      id: '/_app/tokenisation/tokens/$tokenId/'
+      path: '/'
+      fullPath: '/tokenisation/tokens/$tokenId/'
+      preLoaderRoute: typeof AppTokenisationTokensTokenIdIndexRouteImport
+      parentRoute: typeof AppTokenisationTokensTokenIdRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId/edit': {
-      id: '/_app/policies/whitelists/$whitelistId/edit'
+    '/_app/compliance/identities/$identityId/': {
+      id: '/_app/compliance/identities/$identityId/'
+      path: '/'
+      fullPath: '/compliance/identities/$identityId/'
+      preLoaderRoute: typeof AppComplianceIdentitiesIdentityIdIndexRouteImport
+      parentRoute: typeof AppComplianceIdentitiesIdentityIdRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/edit': {
+      id: '/_app/treasury/vaults/$vaultId/edit'
       path: '/edit'
-      fullPath: '/policies/whitelists/$whitelistId/edit'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdEditRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/edit'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdEditRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdRouteRoute
     }
-    '/_app/vaults/$vaultId/addresses/$addressId': {
-      id: '/_app/vaults/$vaultId/addresses/$addressId'
+    '/_app/treasury/policies/whitelists/new': {
+      id: '/_app/treasury/policies/whitelists/new'
+      path: '/new'
+      fullPath: '/treasury/policies/whitelists/new'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsNewRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsRouteRoute
+    }
+    '/_app/tokenisation/tokens/$tokenId/mint': {
+      id: '/_app/tokenisation/tokens/$tokenId/mint'
+      path: '/mint'
+      fullPath: '/tokenisation/tokens/$tokenId/mint'
+      preLoaderRoute: typeof AppTokenisationTokensTokenIdMintRouteImport
+      parentRoute: typeof AppTokenisationTokensTokenIdRouteRoute
+    }
+    '/_app/tokenisation/tokens/$tokenId/burn': {
+      id: '/_app/tokenisation/tokens/$tokenId/burn'
+      path: '/burn'
+      fullPath: '/tokenisation/tokens/$tokenId/burn'
+      preLoaderRoute: typeof AppTokenisationTokensTokenIdBurnRouteImport
+      parentRoute: typeof AppTokenisationTokensTokenIdRouteRoute
+    }
+    '/_app/compliance/identities/$identityId/edit': {
+      id: '/_app/compliance/identities/$identityId/edit'
+      path: '/edit'
+      fullPath: '/compliance/identities/$identityId/edit'
+      preLoaderRoute: typeof AppComplianceIdentitiesIdentityIdEditRouteImport
+      parentRoute: typeof AppComplianceIdentitiesIdentityIdRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/addresses': {
+      id: '/_app/treasury/vaults/$vaultId/addresses'
+      path: '/addresses'
+      fullPath: '/treasury/vaults/$vaultId/addresses'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdAddressesRouteRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdRouteRoute
+    }
+    '/_app/treasury/policies/whitelists/$whitelistId': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId'
+      path: '/$whitelistId'
+      fullPath: '/treasury/policies/whitelists/$whitelistId'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsRouteRoute
+    }
+    '/_app/treasury/policies/transactions/$policyId': {
+      id: '/_app/treasury/policies/transactions/$policyId'
+      path: '/$policyId'
+      fullPath: '/treasury/policies/transactions/$policyId'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/addresses/': {
+      id: '/_app/treasury/vaults/$vaultId/addresses/'
+      path: '/'
+      fullPath: '/treasury/vaults/$vaultId/addresses/'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdAddressesIndexRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdAddressesRouteRoute
+    }
+    '/_app/treasury/policies/whitelists/$whitelistId/': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId/'
+      path: '/'
+      fullPath: '/treasury/policies/whitelists/$whitelistId/'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute
+    }
+    '/_app/treasury/policies/transactions/$policyId/': {
+      id: '/_app/treasury/policies/transactions/$policyId/'
+      path: '/'
+      fullPath: '/treasury/policies/transactions/$policyId/'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/reshares/$reshareId': {
+      id: '/_app/treasury/vaults/$vaultId/reshares/$reshareId'
+      path: '/reshares/$reshareId'
+      fullPath: '/treasury/vaults/$vaultId/reshares/$reshareId'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdResharesReshareIdRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/addresses/new': {
+      id: '/_app/treasury/vaults/$vaultId/addresses/new'
+      path: '/new'
+      fullPath: '/treasury/vaults/$vaultId/addresses/new'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdAddressesNewRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdAddressesRouteRoute
+    }
+    '/_app/treasury/policies/whitelists/$whitelistId/edit': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId/edit'
+      path: '/edit'
+      fullPath: '/treasury/policies/whitelists/$whitelistId/edit'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdEditRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute
+    }
+    '/_app/treasury/vaults/$vaultId/addresses/$addressId': {
+      id: '/_app/treasury/vaults/$vaultId/addresses/$addressId'
       path: '/$addressId'
-      fullPath: '/vaults/$vaultId/addresses/$addressId'
-      preLoaderRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRouteImport
-      parentRoute: typeof AppVaultsVaultIdAddressesRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/addresses/$addressId'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdAddressesRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId/versions': {
-      id: '/_app/policies/whitelists/$whitelistId/versions'
+    '/_app/treasury/policies/whitelists/$whitelistId/versions': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId/versions'
       path: '/versions'
-      fullPath: '/policies/whitelists/$whitelistId/versions'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRoute
+      fullPath: '/treasury/policies/whitelists/$whitelistId/versions'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute
     }
-    '/_app/policies/transactions/$policyId/versions': {
-      id: '/_app/policies/transactions/$policyId/versions'
+    '/_app/treasury/policies/transactions/$policyId/versions': {
+      id: '/_app/treasury/policies/transactions/$policyId/versions'
       path: '/versions'
-      fullPath: '/policies/transactions/$policyId/versions'
-      preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteImport
-      parentRoute: typeof AppPoliciesTransactionsPolicyIdRouteRoute
+      fullPath: '/treasury/policies/transactions/$policyId/versions'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRoute
     }
-    '/_app/vaults/$vaultId/addresses/$addressId/': {
-      id: '/_app/vaults/$vaultId/addresses/$addressId/'
+    '/_app/treasury/vaults/$vaultId/addresses/$addressId/': {
+      id: '/_app/treasury/vaults/$vaultId/addresses/$addressId/'
       path: '/'
-      fullPath: '/vaults/$vaultId/addresses/$addressId/'
-      preLoaderRoute: typeof AppVaultsVaultIdAddressesAddressIdIndexRouteImport
-      parentRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/addresses/$addressId/'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdAddressesAddressIdIndexRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId/versions/$versionNumber': {
-      id: '/_app/policies/whitelists/$whitelistId/versions/$versionNumber'
+    '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber'
       path: '/$versionNumber'
-      fullPath: '/policies/whitelists/$whitelistId/versions/$versionNumber'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute
+      fullPath: '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute
     }
-    '/_app/policies/transactions/$policyId/versions/$versionNumber': {
-      id: '/_app/policies/transactions/$policyId/versions/$versionNumber'
+    '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber': {
+      id: '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber'
       path: '/$versionNumber'
-      fullPath: '/policies/transactions/$policyId/versions/$versionNumber'
-      preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport
-      parentRoute: typeof AppPoliciesTransactionsPolicyIdVersionsRouteRoute
+      fullPath: '/treasury/policies/transactions/$policyId/versions/$versionNumber'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute
     }
-    '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/': {
-      id: '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/'
+    '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/': {
+      id: '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/'
       path: '/'
-      fullPath: '/policies/whitelists/$whitelistId/versions/$versionNumber/'
-      preLoaderRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport
-      parentRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute
+      fullPath: '/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/'
+      preLoaderRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute
     }
-    '/_app/policies/transactions/$policyId/versions/$versionNumber/': {
-      id: '/_app/policies/transactions/$policyId/versions/$versionNumber/'
+    '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/': {
+      id: '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/'
       path: '/'
-      fullPath: '/policies/transactions/$policyId/versions/$versionNumber/'
-      preLoaderRoute: typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport
-      parentRoute: typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute
+      fullPath: '/treasury/policies/transactions/$policyId/versions/$versionNumber/'
+      preLoaderRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRouteImport
+      parentRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute
     }
-    '/_app/vaults/$vaultId/chain/$chain/addresses/$address': {
-      id: '/_app/vaults/$vaultId/chain/$chain/addresses/$address'
+    '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address': {
+      id: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address'
       path: '/chain/$chain/addresses/$address'
-      fullPath: '/vaults/$vaultId/chain/$chain/addresses/$address'
-      preLoaderRoute: typeof AppVaultsVaultIdChainChainAddressesAddressRouteRouteImport
-      parentRoute: typeof AppVaultsVaultIdRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/chain/$chain/addresses/$address'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdRouteRoute
     }
-    '/_app/vaults/$vaultId/chain/$chain/addresses/$address/': {
-      id: '/_app/vaults/$vaultId/chain/$chain/addresses/$address/'
+    '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/': {
+      id: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/'
       path: '/'
-      fullPath: '/vaults/$vaultId/chain/$chain/addresses/$address/'
-      preLoaderRoute: typeof AppVaultsVaultIdChainChainAddressesAddressIndexRouteImport
-      parentRoute: typeof AppVaultsVaultIdChainChainAddressesAddressRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute
     }
-    '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer': {
-      id: '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+    '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer': {
+      id: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
       path: '/transfer'
-      fullPath: '/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
-      preLoaderRoute: typeof AppVaultsVaultIdChainChainAddressesAddressTransferRouteImport
-      parentRoute: typeof AppVaultsVaultIdChainChainAddressesAddressRouteRoute
+      fullPath: '/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer'
+      preLoaderRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRouteImport
+      parentRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute
     }
   }
 }
@@ -1978,17 +2311,6 @@ const AppAccountRouteRouteWithChildren = AppAccountRouteRoute._addFileChildren(
   AppAccountRouteRouteChildren,
 )
 
-interface AppAddressBookRouteRouteChildren {
-  AppAddressBookIndexRoute: typeof AppAddressBookIndexRoute
-}
-
-const AppAddressBookRouteRouteChildren: AppAddressBookRouteRouteChildren = {
-  AppAddressBookIndexRoute: AppAddressBookIndexRoute,
-}
-
-const AppAddressBookRouteRouteWithChildren =
-  AppAddressBookRouteRoute._addFileChildren(AppAddressBookRouteRouteChildren)
-
 interface AppComplianceAddressesRouteRouteChildren {
   AppComplianceAddressesAddressRoute: typeof AppComplianceAddressesAddressRoute
   AppComplianceAddressesIndexRoute: typeof AppComplianceAddressesIndexRoute
@@ -2003,6 +2325,43 @@ const AppComplianceAddressesRouteRouteChildren: AppComplianceAddressesRouteRoute
 const AppComplianceAddressesRouteRouteWithChildren =
   AppComplianceAddressesRouteRoute._addFileChildren(
     AppComplianceAddressesRouteRouteChildren,
+  )
+
+interface AppComplianceIdentitiesIdentityIdRouteRouteChildren {
+  AppComplianceIdentitiesIdentityIdEditRoute: typeof AppComplianceIdentitiesIdentityIdEditRoute
+  AppComplianceIdentitiesIdentityIdIndexRoute: typeof AppComplianceIdentitiesIdentityIdIndexRoute
+}
+
+const AppComplianceIdentitiesIdentityIdRouteRouteChildren: AppComplianceIdentitiesIdentityIdRouteRouteChildren =
+  {
+    AppComplianceIdentitiesIdentityIdEditRoute:
+      AppComplianceIdentitiesIdentityIdEditRoute,
+    AppComplianceIdentitiesIdentityIdIndexRoute:
+      AppComplianceIdentitiesIdentityIdIndexRoute,
+  }
+
+const AppComplianceIdentitiesIdentityIdRouteRouteWithChildren =
+  AppComplianceIdentitiesIdentityIdRouteRoute._addFileChildren(
+    AppComplianceIdentitiesIdentityIdRouteRouteChildren,
+  )
+
+interface AppComplianceIdentitiesRouteRouteChildren {
+  AppComplianceIdentitiesIdentityIdRouteRoute: typeof AppComplianceIdentitiesIdentityIdRouteRouteWithChildren
+  AppComplianceIdentitiesNewRoute: typeof AppComplianceIdentitiesNewRoute
+  AppComplianceIdentitiesIndexRoute: typeof AppComplianceIdentitiesIndexRoute
+}
+
+const AppComplianceIdentitiesRouteRouteChildren: AppComplianceIdentitiesRouteRouteChildren =
+  {
+    AppComplianceIdentitiesIdentityIdRouteRoute:
+      AppComplianceIdentitiesIdentityIdRouteRouteWithChildren,
+    AppComplianceIdentitiesNewRoute: AppComplianceIdentitiesNewRoute,
+    AppComplianceIdentitiesIndexRoute: AppComplianceIdentitiesIndexRoute,
+  }
+
+const AppComplianceIdentitiesRouteRouteWithChildren =
+  AppComplianceIdentitiesRouteRoute._addFileChildren(
+    AppComplianceIdentitiesRouteRouteChildren,
   )
 
 interface AppComplianceTransactionsRouteRouteChildren {
@@ -2023,6 +2382,7 @@ const AppComplianceTransactionsRouteRouteWithChildren =
 
 interface AppComplianceRouteRouteChildren {
   AppComplianceAddressesRouteRoute: typeof AppComplianceAddressesRouteRouteWithChildren
+  AppComplianceIdentitiesRouteRoute: typeof AppComplianceIdentitiesRouteRouteWithChildren
   AppComplianceTransactionsRouteRoute: typeof AppComplianceTransactionsRouteRouteWithChildren
   AppComplianceAlertsRoute: typeof AppComplianceAlertsRoute
   AppComplianceOverviewRoute: typeof AppComplianceOverviewRoute
@@ -2033,6 +2393,8 @@ interface AppComplianceRouteRouteChildren {
 const AppComplianceRouteRouteChildren: AppComplianceRouteRouteChildren = {
   AppComplianceAddressesRouteRoute:
     AppComplianceAddressesRouteRouteWithChildren,
+  AppComplianceIdentitiesRouteRoute:
+    AppComplianceIdentitiesRouteRouteWithChildren,
   AppComplianceTransactionsRouteRoute:
     AppComplianceTransactionsRouteRouteWithChildren,
   AppComplianceAlertsRoute: AppComplianceAlertsRoute,
@@ -2044,292 +2406,447 @@ const AppComplianceRouteRouteChildren: AppComplianceRouteRouteChildren = {
 const AppComplianceRouteRouteWithChildren =
   AppComplianceRouteRoute._addFileChildren(AppComplianceRouteRouteChildren)
 
+interface AppGlobalTeamsRouteRouteChildren {
+  AppGlobalTeamsTeamIdRoute: typeof AppGlobalTeamsTeamIdRoute
+  AppGlobalTeamsIndexRoute: typeof AppGlobalTeamsIndexRoute
+}
+
+const AppGlobalTeamsRouteRouteChildren: AppGlobalTeamsRouteRouteChildren = {
+  AppGlobalTeamsTeamIdRoute: AppGlobalTeamsTeamIdRoute,
+  AppGlobalTeamsIndexRoute: AppGlobalTeamsIndexRoute,
+}
+
+const AppGlobalTeamsRouteRouteWithChildren =
+  AppGlobalTeamsRouteRoute._addFileChildren(AppGlobalTeamsRouteRouteChildren)
+
 interface AppGlobalRouteRouteChildren {
+  AppGlobalTeamsRouteRoute: typeof AppGlobalTeamsRouteRouteWithChildren
+  AppGlobalAuditRoute: typeof AppGlobalAuditRoute
+  AppGlobalBackupsRoute: typeof AppGlobalBackupsRoute
+  AppGlobalBillingRoute: typeof AppGlobalBillingRoute
+  AppGlobalOrganizationRoute: typeof AppGlobalOrganizationRoute
+  AppGlobalRolesRoute: typeof AppGlobalRolesRoute
   AppGlobalUsersRoute: typeof AppGlobalUsersRoute
+  AppGlobalWorkspacesRoute: typeof AppGlobalWorkspacesRoute
   AppGlobalIndexRoute: typeof AppGlobalIndexRoute
+  AppGlobalGovernancePendingRoute: typeof AppGlobalGovernancePendingRoute
+  AppGlobalGovernanceIndexRoute: typeof AppGlobalGovernanceIndexRoute
 }
 
 const AppGlobalRouteRouteChildren: AppGlobalRouteRouteChildren = {
+  AppGlobalTeamsRouteRoute: AppGlobalTeamsRouteRouteWithChildren,
+  AppGlobalAuditRoute: AppGlobalAuditRoute,
+  AppGlobalBackupsRoute: AppGlobalBackupsRoute,
+  AppGlobalBillingRoute: AppGlobalBillingRoute,
+  AppGlobalOrganizationRoute: AppGlobalOrganizationRoute,
+  AppGlobalRolesRoute: AppGlobalRolesRoute,
   AppGlobalUsersRoute: AppGlobalUsersRoute,
+  AppGlobalWorkspacesRoute: AppGlobalWorkspacesRoute,
   AppGlobalIndexRoute: AppGlobalIndexRoute,
+  AppGlobalGovernancePendingRoute: AppGlobalGovernancePendingRoute,
+  AppGlobalGovernanceIndexRoute: AppGlobalGovernanceIndexRoute,
 }
 
 const AppGlobalRouteRouteWithChildren = AppGlobalRouteRoute._addFileChildren(
   AppGlobalRouteRouteChildren,
 )
 
-interface AppIdentitiesIdentityIdRouteRouteChildren {
-  AppIdentitiesIdentityIdEditRoute: typeof AppIdentitiesIdentityIdEditRoute
-  AppIdentitiesIdentityIdIndexRoute: typeof AppIdentitiesIdentityIdIndexRoute
+interface AppTokenisationTokensTokenIdRouteRouteChildren {
+  AppTokenisationTokensTokenIdBurnRoute: typeof AppTokenisationTokensTokenIdBurnRoute
+  AppTokenisationTokensTokenIdMintRoute: typeof AppTokenisationTokensTokenIdMintRoute
+  AppTokenisationTokensTokenIdIndexRoute: typeof AppTokenisationTokensTokenIdIndexRoute
 }
 
-const AppIdentitiesIdentityIdRouteRouteChildren: AppIdentitiesIdentityIdRouteRouteChildren =
+const AppTokenisationTokensTokenIdRouteRouteChildren: AppTokenisationTokensTokenIdRouteRouteChildren =
   {
-    AppIdentitiesIdentityIdEditRoute: AppIdentitiesIdentityIdEditRoute,
-    AppIdentitiesIdentityIdIndexRoute: AppIdentitiesIdentityIdIndexRoute,
+    AppTokenisationTokensTokenIdBurnRoute:
+      AppTokenisationTokensTokenIdBurnRoute,
+    AppTokenisationTokensTokenIdMintRoute:
+      AppTokenisationTokensTokenIdMintRoute,
+    AppTokenisationTokensTokenIdIndexRoute:
+      AppTokenisationTokensTokenIdIndexRoute,
   }
 
-const AppIdentitiesIdentityIdRouteRouteWithChildren =
-  AppIdentitiesIdentityIdRouteRoute._addFileChildren(
-    AppIdentitiesIdentityIdRouteRouteChildren,
+const AppTokenisationTokensTokenIdRouteRouteWithChildren =
+  AppTokenisationTokensTokenIdRouteRoute._addFileChildren(
+    AppTokenisationTokensTokenIdRouteRouteChildren,
   )
 
-interface AppIdentitiesRouteRouteChildren {
-  AppIdentitiesIdentityIdRouteRoute: typeof AppIdentitiesIdentityIdRouteRouteWithChildren
-  AppIdentitiesNewRoute: typeof AppIdentitiesNewRoute
-  AppIdentitiesIndexRoute: typeof AppIdentitiesIndexRoute
+interface AppTokenisationTokensRouteRouteChildren {
+  AppTokenisationTokensTokenIdRouteRoute: typeof AppTokenisationTokensTokenIdRouteRouteWithChildren
+  AppTokenisationTokensIndexRoute: typeof AppTokenisationTokensIndexRoute
 }
 
-const AppIdentitiesRouteRouteChildren: AppIdentitiesRouteRouteChildren = {
-  AppIdentitiesIdentityIdRouteRoute:
-    AppIdentitiesIdentityIdRouteRouteWithChildren,
-  AppIdentitiesNewRoute: AppIdentitiesNewRoute,
-  AppIdentitiesIndexRoute: AppIdentitiesIndexRoute,
-}
-
-const AppIdentitiesRouteRouteWithChildren =
-  AppIdentitiesRouteRoute._addFileChildren(AppIdentitiesRouteRouteChildren)
-
-interface AppOperationsRouteRouteChildren {
-  AppOperationsOperationIdRouteRoute: typeof AppOperationsOperationIdRouteRoute
-}
-
-const AppOperationsRouteRouteChildren: AppOperationsRouteRouteChildren = {
-  AppOperationsOperationIdRouteRoute: AppOperationsOperationIdRouteRoute,
-}
-
-const AppOperationsRouteRouteWithChildren =
-  AppOperationsRouteRoute._addFileChildren(AppOperationsRouteRouteChildren)
-
-interface AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren {
-  AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute: typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
-}
-
-const AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren: AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren =
+const AppTokenisationTokensRouteRouteChildren: AppTokenisationTokensRouteRouteChildren =
   {
-    AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute:
-      AppPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute,
+    AppTokenisationTokensTokenIdRouteRoute:
+      AppTokenisationTokensTokenIdRouteRouteWithChildren,
+    AppTokenisationTokensIndexRoute: AppTokenisationTokensIndexRoute,
   }
 
-const AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren =
-  AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute._addFileChildren(
-    AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren,
+const AppTokenisationTokensRouteRouteWithChildren =
+  AppTokenisationTokensRouteRoute._addFileChildren(
+    AppTokenisationTokensRouteRouteChildren,
   )
 
-interface AppPoliciesTransactionsPolicyIdVersionsRouteRouteChildren {
-  AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute: typeof AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
+interface AppTokenisationRouteRouteChildren {
+  AppTokenisationTokensRouteRoute: typeof AppTokenisationTokensRouteRouteWithChildren
+  AppTokenisationDeploymentRoute: typeof AppTokenisationDeploymentRoute
+  AppTokenisationHoldersRoute: typeof AppTokenisationHoldersRoute
+  AppTokenisationIssuancesRoute: typeof AppTokenisationIssuancesRoute
+  AppTokenisationOverviewRoute: typeof AppTokenisationOverviewRoute
+  AppTokenisationIndexRoute: typeof AppTokenisationIndexRoute
 }
 
-const AppPoliciesTransactionsPolicyIdVersionsRouteRouteChildren: AppPoliciesTransactionsPolicyIdVersionsRouteRouteChildren =
+const AppTokenisationRouteRouteChildren: AppTokenisationRouteRouteChildren = {
+  AppTokenisationTokensRouteRoute: AppTokenisationTokensRouteRouteWithChildren,
+  AppTokenisationDeploymentRoute: AppTokenisationDeploymentRoute,
+  AppTokenisationHoldersRoute: AppTokenisationHoldersRoute,
+  AppTokenisationIssuancesRoute: AppTokenisationIssuancesRoute,
+  AppTokenisationOverviewRoute: AppTokenisationOverviewRoute,
+  AppTokenisationIndexRoute: AppTokenisationIndexRoute,
+}
+
+const AppTokenisationRouteRouteWithChildren =
+  AppTokenisationRouteRoute._addFileChildren(AppTokenisationRouteRouteChildren)
+
+interface AppTreasuryAddressBookRouteRouteChildren {
+  AppTreasuryAddressBookIndexRoute: typeof AppTreasuryAddressBookIndexRoute
+}
+
+const AppTreasuryAddressBookRouteRouteChildren: AppTreasuryAddressBookRouteRouteChildren =
   {
-    AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute:
-      AppPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren,
+    AppTreasuryAddressBookIndexRoute: AppTreasuryAddressBookIndexRoute,
   }
 
-const AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren =
-  AppPoliciesTransactionsPolicyIdVersionsRouteRoute._addFileChildren(
-    AppPoliciesTransactionsPolicyIdVersionsRouteRouteChildren,
+const AppTreasuryAddressBookRouteRouteWithChildren =
+  AppTreasuryAddressBookRouteRoute._addFileChildren(
+    AppTreasuryAddressBookRouteRouteChildren,
   )
 
-interface AppPoliciesTransactionsPolicyIdRouteRouteChildren {
-  AppPoliciesTransactionsPolicyIdVersionsRouteRoute: typeof AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
-  AppPoliciesTransactionsPolicyIdIndexRoute: typeof AppPoliciesTransactionsPolicyIdIndexRoute
+interface AppTreasuryOperationsRouteRouteChildren {
+  AppTreasuryOperationsOperationIdRouteRoute: typeof AppTreasuryOperationsOperationIdRouteRoute
 }
 
-const AppPoliciesTransactionsPolicyIdRouteRouteChildren: AppPoliciesTransactionsPolicyIdRouteRouteChildren =
+const AppTreasuryOperationsRouteRouteChildren: AppTreasuryOperationsRouteRouteChildren =
   {
-    AppPoliciesTransactionsPolicyIdVersionsRouteRoute:
-      AppPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren,
-    AppPoliciesTransactionsPolicyIdIndexRoute:
-      AppPoliciesTransactionsPolicyIdIndexRoute,
+    AppTreasuryOperationsOperationIdRouteRoute:
+      AppTreasuryOperationsOperationIdRouteRoute,
   }
 
-const AppPoliciesTransactionsPolicyIdRouteRouteWithChildren =
-  AppPoliciesTransactionsPolicyIdRouteRoute._addFileChildren(
-    AppPoliciesTransactionsPolicyIdRouteRouteChildren,
+const AppTreasuryOperationsRouteRouteWithChildren =
+  AppTreasuryOperationsRouteRoute._addFileChildren(
+    AppTreasuryOperationsRouteRouteChildren,
   )
 
-interface AppPoliciesTransactionsRouteRouteChildren {
-  AppPoliciesTransactionsPolicyIdRouteRoute: typeof AppPoliciesTransactionsPolicyIdRouteRouteWithChildren
-  AppPoliciesTransactionsIndexRoute: typeof AppPoliciesTransactionsIndexRoute
+interface AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren {
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute
 }
 
-const AppPoliciesTransactionsRouteRouteChildren: AppPoliciesTransactionsRouteRouteChildren =
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren: AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren =
   {
-    AppPoliciesTransactionsPolicyIdRouteRoute:
-      AppPoliciesTransactionsPolicyIdRouteRouteWithChildren,
-    AppPoliciesTransactionsIndexRoute: AppPoliciesTransactionsIndexRoute,
+    AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute:
+      AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberIndexRoute,
   }
 
-const AppPoliciesTransactionsRouteRouteWithChildren =
-  AppPoliciesTransactionsRouteRoute._addFileChildren(
-    AppPoliciesTransactionsRouteRouteChildren,
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren =
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute._addFileChildren(
+    AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteChildren,
   )
 
-interface AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren {
-  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
+interface AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteChildren {
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren
 }
 
-const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren =
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteChildren: AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteChildren =
   {
-    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute:
-      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute,
+    AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRoute:
+      AppTreasuryPoliciesTransactionsPolicyIdVersionsVersionNumberRouteRouteWithChildren,
   }
 
-const AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren =
-  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute._addFileChildren(
-    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren,
+const AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren =
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute._addFileChildren(
+    AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteChildren,
   )
 
-interface AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren {
-  AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
+interface AppTreasuryPoliciesTransactionsPolicyIdRouteRouteChildren {
+  AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren
+  AppTreasuryPoliciesTransactionsPolicyIdIndexRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdIndexRoute
 }
 
-const AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren =
+const AppTreasuryPoliciesTransactionsPolicyIdRouteRouteChildren: AppTreasuryPoliciesTransactionsPolicyIdRouteRouteChildren =
   {
-    AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute:
-      AppPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren,
+    AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRoute:
+      AppTreasuryPoliciesTransactionsPolicyIdVersionsRouteRouteWithChildren,
+    AppTreasuryPoliciesTransactionsPolicyIdIndexRoute:
+      AppTreasuryPoliciesTransactionsPolicyIdIndexRoute,
   }
 
-const AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren =
-  AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute._addFileChildren(
-    AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren,
+const AppTreasuryPoliciesTransactionsPolicyIdRouteRouteWithChildren =
+  AppTreasuryPoliciesTransactionsPolicyIdRouteRoute._addFileChildren(
+    AppTreasuryPoliciesTransactionsPolicyIdRouteRouteChildren,
   )
 
-interface AppPoliciesWhitelistsWhitelistIdRouteRouteChildren {
-  AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
-  AppPoliciesWhitelistsWhitelistIdEditRoute: typeof AppPoliciesWhitelistsWhitelistIdEditRoute
-  AppPoliciesWhitelistsWhitelistIdIndexRoute: typeof AppPoliciesWhitelistsWhitelistIdIndexRoute
+interface AppTreasuryPoliciesTransactionsRouteRouteChildren {
+  AppTreasuryPoliciesTransactionsPolicyIdRouteRoute: typeof AppTreasuryPoliciesTransactionsPolicyIdRouteRouteWithChildren
+  AppTreasuryPoliciesTransactionsIndexRoute: typeof AppTreasuryPoliciesTransactionsIndexRoute
 }
 
-const AppPoliciesWhitelistsWhitelistIdRouteRouteChildren: AppPoliciesWhitelistsWhitelistIdRouteRouteChildren =
+const AppTreasuryPoliciesTransactionsRouteRouteChildren: AppTreasuryPoliciesTransactionsRouteRouteChildren =
   {
-    AppPoliciesWhitelistsWhitelistIdVersionsRouteRoute:
-      AppPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren,
-    AppPoliciesWhitelistsWhitelistIdEditRoute:
-      AppPoliciesWhitelistsWhitelistIdEditRoute,
-    AppPoliciesWhitelistsWhitelistIdIndexRoute:
-      AppPoliciesWhitelistsWhitelistIdIndexRoute,
+    AppTreasuryPoliciesTransactionsPolicyIdRouteRoute:
+      AppTreasuryPoliciesTransactionsPolicyIdRouteRouteWithChildren,
+    AppTreasuryPoliciesTransactionsIndexRoute:
+      AppTreasuryPoliciesTransactionsIndexRoute,
   }
 
-const AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren =
-  AppPoliciesWhitelistsWhitelistIdRouteRoute._addFileChildren(
-    AppPoliciesWhitelistsWhitelistIdRouteRouteChildren,
+const AppTreasuryPoliciesTransactionsRouteRouteWithChildren =
+  AppTreasuryPoliciesTransactionsRouteRoute._addFileChildren(
+    AppTreasuryPoliciesTransactionsRouteRouteChildren,
   )
 
-interface AppPoliciesWhitelistsRouteRouteChildren {
-  AppPoliciesWhitelistsWhitelistIdRouteRoute: typeof AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
-  AppPoliciesWhitelistsNewRoute: typeof AppPoliciesWhitelistsNewRoute
-  AppPoliciesWhitelistsIndexRoute: typeof AppPoliciesWhitelistsIndexRoute
+interface AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren {
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute
 }
 
-const AppPoliciesWhitelistsRouteRouteChildren: AppPoliciesWhitelistsRouteRouteChildren =
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren: AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren =
   {
-    AppPoliciesWhitelistsWhitelistIdRouteRoute:
-      AppPoliciesWhitelistsWhitelistIdRouteRouteWithChildren,
-    AppPoliciesWhitelistsNewRoute: AppPoliciesWhitelistsNewRoute,
-    AppPoliciesWhitelistsIndexRoute: AppPoliciesWhitelistsIndexRoute,
+    AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberIndexRoute,
   }
 
-const AppPoliciesWhitelistsRouteRouteWithChildren =
-  AppPoliciesWhitelistsRouteRoute._addFileChildren(
-    AppPoliciesWhitelistsRouteRouteChildren,
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren =
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute._addFileChildren(
+    AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteChildren,
   )
 
-interface AppPoliciesRouteRouteChildren {
-  AppPoliciesTransactionsRouteRoute: typeof AppPoliciesTransactionsRouteRouteWithChildren
-  AppPoliciesWhitelistsRouteRoute: typeof AppPoliciesWhitelistsRouteRouteWithChildren
+interface AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren {
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren
 }
 
-const AppPoliciesRouteRouteChildren: AppPoliciesRouteRouteChildren = {
-  AppPoliciesTransactionsRouteRoute:
-    AppPoliciesTransactionsRouteRouteWithChildren,
-  AppPoliciesWhitelistsRouteRoute: AppPoliciesWhitelistsRouteRouteWithChildren,
-}
-
-const AppPoliciesRouteRouteWithChildren =
-  AppPoliciesRouteRoute._addFileChildren(AppPoliciesRouteRouteChildren)
-
-interface AppSettingsTeamsRouteRouteChildren {
-  AppSettingsTeamsTeamIdRoute: typeof AppSettingsTeamsTeamIdRoute
-  AppSettingsTeamsIndexRoute: typeof AppSettingsTeamsIndexRoute
-}
-
-const AppSettingsTeamsRouteRouteChildren: AppSettingsTeamsRouteRouteChildren = {
-  AppSettingsTeamsTeamIdRoute: AppSettingsTeamsTeamIdRoute,
-  AppSettingsTeamsIndexRoute: AppSettingsTeamsIndexRoute,
-}
-
-const AppSettingsTeamsRouteRouteWithChildren =
-  AppSettingsTeamsRouteRoute._addFileChildren(
-    AppSettingsTeamsRouteRouteChildren,
-  )
-
-interface AppSettingsRouteRouteChildren {
-  AppSettingsTeamsRouteRoute: typeof AppSettingsTeamsRouteRouteWithChildren
-  AppSettingsAuditRoute: typeof AppSettingsAuditRoute
-  AppSettingsBackupsRoute: typeof AppSettingsBackupsRoute
-  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
-  AppSettingsMembersRoute: typeof AppSettingsMembersRoute
-  AppSettingsRolesRoute: typeof AppSettingsRolesRoute
-  AppSettingsWorkspacesRoute: typeof AppSettingsWorkspacesRoute
-  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
-  AppSettingsGovernancePendingRoute: typeof AppSettingsGovernancePendingRoute
-  AppSettingsGovernanceIndexRoute: typeof AppSettingsGovernanceIndexRoute
-}
-
-const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
-  AppSettingsTeamsRouteRoute: AppSettingsTeamsRouteRouteWithChildren,
-  AppSettingsAuditRoute: AppSettingsAuditRoute,
-  AppSettingsBackupsRoute: AppSettingsBackupsRoute,
-  AppSettingsBillingRoute: AppSettingsBillingRoute,
-  AppSettingsMembersRoute: AppSettingsMembersRoute,
-  AppSettingsRolesRoute: AppSettingsRolesRoute,
-  AppSettingsWorkspacesRoute: AppSettingsWorkspacesRoute,
-  AppSettingsIndexRoute: AppSettingsIndexRoute,
-  AppSettingsGovernancePendingRoute: AppSettingsGovernancePendingRoute,
-  AppSettingsGovernanceIndexRoute: AppSettingsGovernanceIndexRoute,
-}
-
-const AppSettingsRouteRouteWithChildren =
-  AppSettingsRouteRoute._addFileChildren(AppSettingsRouteRouteChildren)
-
-interface AppSignersSignerIdRouteRouteChildren {
-  AppSignersSignerIdIndexRoute: typeof AppSignersSignerIdIndexRoute
-}
-
-const AppSignersSignerIdRouteRouteChildren: AppSignersSignerIdRouteRouteChildren =
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren: AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren =
   {
-    AppSignersSignerIdIndexRoute: AppSignersSignerIdIndexRoute,
+    AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdVersionsVersionNumberRouteRouteWithChildren,
   }
 
-const AppSignersSignerIdRouteRouteWithChildren =
-  AppSignersSignerIdRouteRoute._addFileChildren(
-    AppSignersSignerIdRouteRouteChildren,
+const AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren =
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute._addFileChildren(
+    AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteChildren,
   )
 
-interface AppSignersRouteRouteChildren {
-  AppSignersSignerIdRouteRoute: typeof AppSignersSignerIdRouteRouteWithChildren
-  AppSignersNewRoute: typeof AppSignersNewRoute
-  AppSignersIndexRoute: typeof AppSignersIndexRoute
+interface AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteChildren {
+  AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren
+  AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute
+  AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute
 }
 
-const AppSignersRouteRouteChildren: AppSignersRouteRouteChildren = {
-  AppSignersSignerIdRouteRoute: AppSignersSignerIdRouteRouteWithChildren,
-  AppSignersNewRoute: AppSignersNewRoute,
-  AppSignersIndexRoute: AppSignersIndexRoute,
+const AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteChildren: AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteChildren =
+  {
+    AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdVersionsRouteRouteWithChildren,
+    AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdEditRoute,
+    AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdIndexRoute,
+  }
+
+const AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteWithChildren =
+  AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute._addFileChildren(
+    AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteChildren,
+  )
+
+interface AppTreasuryPoliciesWhitelistsRouteRouteChildren {
+  AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute: typeof AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteWithChildren
+  AppTreasuryPoliciesWhitelistsNewRoute: typeof AppTreasuryPoliciesWhitelistsNewRoute
+  AppTreasuryPoliciesWhitelistsIndexRoute: typeof AppTreasuryPoliciesWhitelistsIndexRoute
 }
 
-const AppSignersRouteRouteWithChildren = AppSignersRouteRoute._addFileChildren(
-  AppSignersRouteRouteChildren,
-)
+const AppTreasuryPoliciesWhitelistsRouteRouteChildren: AppTreasuryPoliciesWhitelistsRouteRouteChildren =
+  {
+    AppTreasuryPoliciesWhitelistsWhitelistIdRouteRoute:
+      AppTreasuryPoliciesWhitelistsWhitelistIdRouteRouteWithChildren,
+    AppTreasuryPoliciesWhitelistsNewRoute:
+      AppTreasuryPoliciesWhitelistsNewRoute,
+    AppTreasuryPoliciesWhitelistsIndexRoute:
+      AppTreasuryPoliciesWhitelistsIndexRoute,
+  }
+
+const AppTreasuryPoliciesWhitelistsRouteRouteWithChildren =
+  AppTreasuryPoliciesWhitelistsRouteRoute._addFileChildren(
+    AppTreasuryPoliciesWhitelistsRouteRouteChildren,
+  )
+
+interface AppTreasuryPoliciesRouteRouteChildren {
+  AppTreasuryPoliciesTransactionsRouteRoute: typeof AppTreasuryPoliciesTransactionsRouteRouteWithChildren
+  AppTreasuryPoliciesWhitelistsRouteRoute: typeof AppTreasuryPoliciesWhitelistsRouteRouteWithChildren
+}
+
+const AppTreasuryPoliciesRouteRouteChildren: AppTreasuryPoliciesRouteRouteChildren =
+  {
+    AppTreasuryPoliciesTransactionsRouteRoute:
+      AppTreasuryPoliciesTransactionsRouteRouteWithChildren,
+    AppTreasuryPoliciesWhitelistsRouteRoute:
+      AppTreasuryPoliciesWhitelistsRouteRouteWithChildren,
+  }
+
+const AppTreasuryPoliciesRouteRouteWithChildren =
+  AppTreasuryPoliciesRouteRoute._addFileChildren(
+    AppTreasuryPoliciesRouteRouteChildren,
+  )
+
+interface AppTreasurySignersSignerIdRouteRouteChildren {
+  AppTreasurySignersSignerIdIndexRoute: typeof AppTreasurySignersSignerIdIndexRoute
+}
+
+const AppTreasurySignersSignerIdRouteRouteChildren: AppTreasurySignersSignerIdRouteRouteChildren =
+  {
+    AppTreasurySignersSignerIdIndexRoute: AppTreasurySignersSignerIdIndexRoute,
+  }
+
+const AppTreasurySignersSignerIdRouteRouteWithChildren =
+  AppTreasurySignersSignerIdRouteRoute._addFileChildren(
+    AppTreasurySignersSignerIdRouteRouteChildren,
+  )
+
+interface AppTreasurySignersRouteRouteChildren {
+  AppTreasurySignersSignerIdRouteRoute: typeof AppTreasurySignersSignerIdRouteRouteWithChildren
+  AppTreasurySignersNewRoute: typeof AppTreasurySignersNewRoute
+  AppTreasurySignersIndexRoute: typeof AppTreasurySignersIndexRoute
+}
+
+const AppTreasurySignersRouteRouteChildren: AppTreasurySignersRouteRouteChildren =
+  {
+    AppTreasurySignersSignerIdRouteRoute:
+      AppTreasurySignersSignerIdRouteRouteWithChildren,
+    AppTreasurySignersNewRoute: AppTreasurySignersNewRoute,
+    AppTreasurySignersIndexRoute: AppTreasurySignersIndexRoute,
+  }
+
+const AppTreasurySignersRouteRouteWithChildren =
+  AppTreasurySignersRouteRoute._addFileChildren(
+    AppTreasurySignersRouteRouteChildren,
+  )
+
+interface AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteChildren {
+  AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute: typeof AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute
+}
+
+const AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteChildren: AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteChildren =
+  {
+    AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute:
+      AppTreasuryVaultsVaultIdAddressesAddressIdIndexRoute,
+  }
+
+const AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteWithChildren =
+  AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute._addFileChildren(
+    AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteChildren,
+  )
+
+interface AppTreasuryVaultsVaultIdAddressesRouteRouteChildren {
+  AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute: typeof AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
+  AppTreasuryVaultsVaultIdAddressesNewRoute: typeof AppTreasuryVaultsVaultIdAddressesNewRoute
+  AppTreasuryVaultsVaultIdAddressesIndexRoute: typeof AppTreasuryVaultsVaultIdAddressesIndexRoute
+}
+
+const AppTreasuryVaultsVaultIdAddressesRouteRouteChildren: AppTreasuryVaultsVaultIdAddressesRouteRouteChildren =
+  {
+    AppTreasuryVaultsVaultIdAddressesAddressIdRouteRoute:
+      AppTreasuryVaultsVaultIdAddressesAddressIdRouteRouteWithChildren,
+    AppTreasuryVaultsVaultIdAddressesNewRoute:
+      AppTreasuryVaultsVaultIdAddressesNewRoute,
+    AppTreasuryVaultsVaultIdAddressesIndexRoute:
+      AppTreasuryVaultsVaultIdAddressesIndexRoute,
+  }
+
+const AppTreasuryVaultsVaultIdAddressesRouteRouteWithChildren =
+  AppTreasuryVaultsVaultIdAddressesRouteRoute._addFileChildren(
+    AppTreasuryVaultsVaultIdAddressesRouteRouteChildren,
+  )
+
+interface AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteChildren {
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute
+}
+
+const AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteChildren: AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteChildren =
+  {
+    AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute:
+      AppTreasuryVaultsVaultIdChainChainAddressesAddressTransferRoute,
+    AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute:
+      AppTreasuryVaultsVaultIdChainChainAddressesAddressIndexRoute,
+  }
+
+const AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren =
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute._addFileChildren(
+    AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteChildren,
+  )
+
+interface AppTreasuryVaultsVaultIdRouteRouteChildren {
+  AppTreasuryVaultsVaultIdAddressesRouteRoute: typeof AppTreasuryVaultsVaultIdAddressesRouteRouteWithChildren
+  AppTreasuryVaultsVaultIdEditRoute: typeof AppTreasuryVaultsVaultIdEditRoute
+  AppTreasuryVaultsVaultIdIndexRoute: typeof AppTreasuryVaultsVaultIdIndexRoute
+  AppTreasuryVaultsVaultIdResharesReshareIdRoute: typeof AppTreasuryVaultsVaultIdResharesReshareIdRoute
+  AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute: typeof AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
+}
+
+const AppTreasuryVaultsVaultIdRouteRouteChildren: AppTreasuryVaultsVaultIdRouteRouteChildren =
+  {
+    AppTreasuryVaultsVaultIdAddressesRouteRoute:
+      AppTreasuryVaultsVaultIdAddressesRouteRouteWithChildren,
+    AppTreasuryVaultsVaultIdEditRoute: AppTreasuryVaultsVaultIdEditRoute,
+    AppTreasuryVaultsVaultIdIndexRoute: AppTreasuryVaultsVaultIdIndexRoute,
+    AppTreasuryVaultsVaultIdResharesReshareIdRoute:
+      AppTreasuryVaultsVaultIdResharesReshareIdRoute,
+    AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRoute:
+      AppTreasuryVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren,
+  }
+
+const AppTreasuryVaultsVaultIdRouteRouteWithChildren =
+  AppTreasuryVaultsVaultIdRouteRoute._addFileChildren(
+    AppTreasuryVaultsVaultIdRouteRouteChildren,
+  )
+
+interface AppTreasuryVaultsRouteRouteChildren {
+  AppTreasuryVaultsVaultIdRouteRoute: typeof AppTreasuryVaultsVaultIdRouteRouteWithChildren
+  AppTreasuryVaultsLayoutsRoute: typeof AppTreasuryVaultsLayoutsRoute
+  AppTreasuryVaultsNewRoute: typeof AppTreasuryVaultsNewRoute
+  AppTreasuryVaultsTabsRoute: typeof AppTreasuryVaultsTabsRoute
+  AppTreasuryVaultsIndexRoute: typeof AppTreasuryVaultsIndexRoute
+}
+
+const AppTreasuryVaultsRouteRouteChildren: AppTreasuryVaultsRouteRouteChildren =
+  {
+    AppTreasuryVaultsVaultIdRouteRoute:
+      AppTreasuryVaultsVaultIdRouteRouteWithChildren,
+    AppTreasuryVaultsLayoutsRoute: AppTreasuryVaultsLayoutsRoute,
+    AppTreasuryVaultsNewRoute: AppTreasuryVaultsNewRoute,
+    AppTreasuryVaultsTabsRoute: AppTreasuryVaultsTabsRoute,
+    AppTreasuryVaultsIndexRoute: AppTreasuryVaultsIndexRoute,
+  }
+
+const AppTreasuryVaultsRouteRouteWithChildren =
+  AppTreasuryVaultsRouteRoute._addFileChildren(
+    AppTreasuryVaultsRouteRouteChildren,
+  )
 
 interface AppTreasuryRouteRouteChildren {
+  AppTreasuryAddressBookRouteRoute: typeof AppTreasuryAddressBookRouteRouteWithChildren
+  AppTreasuryOperationsRouteRoute: typeof AppTreasuryOperationsRouteRouteWithChildren
+  AppTreasuryPoliciesRouteRoute: typeof AppTreasuryPoliciesRouteRouteWithChildren
+  AppTreasurySignersRouteRoute: typeof AppTreasurySignersRouteRouteWithChildren
+  AppTreasuryVaultsRouteRoute: typeof AppTreasuryVaultsRouteRouteWithChildren
   AppTreasuryOverviewRoute: typeof AppTreasuryOverviewRoute
   AppTreasuryIndexRoute: typeof AppTreasuryIndexRoute
 }
 
 const AppTreasuryRouteRouteChildren: AppTreasuryRouteRouteChildren = {
+  AppTreasuryAddressBookRouteRoute:
+    AppTreasuryAddressBookRouteRouteWithChildren,
+  AppTreasuryOperationsRouteRoute: AppTreasuryOperationsRouteRouteWithChildren,
+  AppTreasuryPoliciesRouteRoute: AppTreasuryPoliciesRouteRouteWithChildren,
+  AppTreasurySignersRouteRoute: AppTreasurySignersRouteRouteWithChildren,
+  AppTreasuryVaultsRouteRoute: AppTreasuryVaultsRouteRouteWithChildren,
   AppTreasuryOverviewRoute: AppTreasuryOverviewRoute,
   AppTreasuryIndexRoute: AppTreasuryIndexRoute,
 }
@@ -2337,131 +2854,35 @@ const AppTreasuryRouteRouteChildren: AppTreasuryRouteRouteChildren = {
 const AppTreasuryRouteRouteWithChildren =
   AppTreasuryRouteRoute._addFileChildren(AppTreasuryRouteRouteChildren)
 
-interface AppVaultsVaultIdAddressesAddressIdRouteRouteChildren {
-  AppVaultsVaultIdAddressesAddressIdIndexRoute: typeof AppVaultsVaultIdAddressesAddressIdIndexRoute
-}
-
-const AppVaultsVaultIdAddressesAddressIdRouteRouteChildren: AppVaultsVaultIdAddressesAddressIdRouteRouteChildren =
-  {
-    AppVaultsVaultIdAddressesAddressIdIndexRoute:
-      AppVaultsVaultIdAddressesAddressIdIndexRoute,
-  }
-
-const AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren =
-  AppVaultsVaultIdAddressesAddressIdRouteRoute._addFileChildren(
-    AppVaultsVaultIdAddressesAddressIdRouteRouteChildren,
-  )
-
-interface AppVaultsVaultIdAddressesRouteRouteChildren {
-  AppVaultsVaultIdAddressesAddressIdRouteRoute: typeof AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren
-  AppVaultsVaultIdAddressesNewRoute: typeof AppVaultsVaultIdAddressesNewRoute
-  AppVaultsVaultIdAddressesIndexRoute: typeof AppVaultsVaultIdAddressesIndexRoute
-}
-
-const AppVaultsVaultIdAddressesRouteRouteChildren: AppVaultsVaultIdAddressesRouteRouteChildren =
-  {
-    AppVaultsVaultIdAddressesAddressIdRouteRoute:
-      AppVaultsVaultIdAddressesAddressIdRouteRouteWithChildren,
-    AppVaultsVaultIdAddressesNewRoute: AppVaultsVaultIdAddressesNewRoute,
-    AppVaultsVaultIdAddressesIndexRoute: AppVaultsVaultIdAddressesIndexRoute,
-  }
-
-const AppVaultsVaultIdAddressesRouteRouteWithChildren =
-  AppVaultsVaultIdAddressesRouteRoute._addFileChildren(
-    AppVaultsVaultIdAddressesRouteRouteChildren,
-  )
-
-interface AppVaultsVaultIdChainChainAddressesAddressRouteRouteChildren {
-  AppVaultsVaultIdChainChainAddressesAddressTransferRoute: typeof AppVaultsVaultIdChainChainAddressesAddressTransferRoute
-  AppVaultsVaultIdChainChainAddressesAddressIndexRoute: typeof AppVaultsVaultIdChainChainAddressesAddressIndexRoute
-}
-
-const AppVaultsVaultIdChainChainAddressesAddressRouteRouteChildren: AppVaultsVaultIdChainChainAddressesAddressRouteRouteChildren =
-  {
-    AppVaultsVaultIdChainChainAddressesAddressTransferRoute:
-      AppVaultsVaultIdChainChainAddressesAddressTransferRoute,
-    AppVaultsVaultIdChainChainAddressesAddressIndexRoute:
-      AppVaultsVaultIdChainChainAddressesAddressIndexRoute,
-  }
-
-const AppVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren =
-  AppVaultsVaultIdChainChainAddressesAddressRouteRoute._addFileChildren(
-    AppVaultsVaultIdChainChainAddressesAddressRouteRouteChildren,
-  )
-
-interface AppVaultsVaultIdRouteRouteChildren {
-  AppVaultsVaultIdAddressesRouteRoute: typeof AppVaultsVaultIdAddressesRouteRouteWithChildren
-  AppVaultsVaultIdEditRoute: typeof AppVaultsVaultIdEditRoute
-  AppVaultsVaultIdIndexRoute: typeof AppVaultsVaultIdIndexRoute
-  AppVaultsVaultIdResharesReshareIdRoute: typeof AppVaultsVaultIdResharesReshareIdRoute
-  AppVaultsVaultIdChainChainAddressesAddressRouteRoute: typeof AppVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren
-}
-
-const AppVaultsVaultIdRouteRouteChildren: AppVaultsVaultIdRouteRouteChildren = {
-  AppVaultsVaultIdAddressesRouteRoute:
-    AppVaultsVaultIdAddressesRouteRouteWithChildren,
-  AppVaultsVaultIdEditRoute: AppVaultsVaultIdEditRoute,
-  AppVaultsVaultIdIndexRoute: AppVaultsVaultIdIndexRoute,
-  AppVaultsVaultIdResharesReshareIdRoute:
-    AppVaultsVaultIdResharesReshareIdRoute,
-  AppVaultsVaultIdChainChainAddressesAddressRouteRoute:
-    AppVaultsVaultIdChainChainAddressesAddressRouteRouteWithChildren,
-}
-
-const AppVaultsVaultIdRouteRouteWithChildren =
-  AppVaultsVaultIdRouteRoute._addFileChildren(
-    AppVaultsVaultIdRouteRouteChildren,
-  )
-
-interface AppVaultsRouteRouteChildren {
-  AppVaultsVaultIdRouteRoute: typeof AppVaultsVaultIdRouteRouteWithChildren
-  AppVaultsLayoutsRoute: typeof AppVaultsLayoutsRoute
-  AppVaultsNewRoute: typeof AppVaultsNewRoute
-  AppVaultsTabsRoute: typeof AppVaultsTabsRoute
-  AppVaultsIndexRoute: typeof AppVaultsIndexRoute
-}
-
-const AppVaultsRouteRouteChildren: AppVaultsRouteRouteChildren = {
-  AppVaultsVaultIdRouteRoute: AppVaultsVaultIdRouteRouteWithChildren,
-  AppVaultsLayoutsRoute: AppVaultsLayoutsRoute,
-  AppVaultsNewRoute: AppVaultsNewRoute,
-  AppVaultsTabsRoute: AppVaultsTabsRoute,
-  AppVaultsIndexRoute: AppVaultsIndexRoute,
-}
-
-const AppVaultsRouteRouteWithChildren = AppVaultsRouteRoute._addFileChildren(
-  AppVaultsRouteRouteChildren,
-)
-
 interface AppRouteChildren {
   AppAccountRouteRoute: typeof AppAccountRouteRouteWithChildren
-  AppAddressBookRouteRoute: typeof AppAddressBookRouteRouteWithChildren
   AppComplianceRouteRoute: typeof AppComplianceRouteRouteWithChildren
   AppGlobalRouteRoute: typeof AppGlobalRouteRouteWithChildren
-  AppIdentitiesRouteRoute: typeof AppIdentitiesRouteRouteWithChildren
-  AppOperationsRouteRoute: typeof AppOperationsRouteRouteWithChildren
-  AppPoliciesRouteRoute: typeof AppPoliciesRouteRouteWithChildren
-  AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
-  AppSignersRouteRoute: typeof AppSignersRouteRouteWithChildren
+  AppTokenisationRouteRoute: typeof AppTokenisationRouteRouteWithChildren
   AppTreasuryRouteRoute: typeof AppTreasuryRouteRouteWithChildren
-  AppVaultsRouteRoute: typeof AppVaultsRouteRouteWithChildren
-  AppOverviewRoute: typeof AppOverviewRoute
+  AppAddressBookRoute: typeof AppAddressBookRoute
+  AppIdentitiesRoute: typeof AppIdentitiesRoute
+  AppOperationsRoute: typeof AppOperationsRoute
+  AppPoliciesRoute: typeof AppPoliciesRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSignersRoute: typeof AppSignersRoute
+  AppVaultsRoute: typeof AppVaultsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountRouteRoute: AppAccountRouteRouteWithChildren,
-  AppAddressBookRouteRoute: AppAddressBookRouteRouteWithChildren,
   AppComplianceRouteRoute: AppComplianceRouteRouteWithChildren,
   AppGlobalRouteRoute: AppGlobalRouteRouteWithChildren,
-  AppIdentitiesRouteRoute: AppIdentitiesRouteRouteWithChildren,
-  AppOperationsRouteRoute: AppOperationsRouteRouteWithChildren,
-  AppPoliciesRouteRoute: AppPoliciesRouteRouteWithChildren,
-  AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
-  AppSignersRouteRoute: AppSignersRouteRouteWithChildren,
+  AppTokenisationRouteRoute: AppTokenisationRouteRouteWithChildren,
   AppTreasuryRouteRoute: AppTreasuryRouteRouteWithChildren,
-  AppVaultsRouteRoute: AppVaultsRouteRouteWithChildren,
-  AppOverviewRoute: AppOverviewRoute,
+  AppAddressBookRoute: AppAddressBookRoute,
+  AppIdentitiesRoute: AppIdentitiesRoute,
+  AppOperationsRoute: AppOperationsRoute,
+  AppPoliciesRoute: AppPoliciesRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSignersRoute: AppSignersRoute,
+  AppVaultsRoute: AppVaultsRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

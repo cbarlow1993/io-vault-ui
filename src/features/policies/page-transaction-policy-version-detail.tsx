@@ -256,7 +256,7 @@ const formatHour = (hour: number): string => {
 
 export const PageTransactionPolicyVersionDetail = () => {
   const { policyId, versionNumber } = useParams({
-    from: '/_app/policies/transactions/$policyId/versions/$versionNumber/',
+    from: '/_app/treasury/policies/transactions/$policyId/versions/$versionNumber/',
   });
   const policy = getPolicyById(policyId);
   const version = policy?.versions.find(
@@ -268,7 +268,10 @@ export const PageTransactionPolicyVersionDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Transaction Policies', href: '/policies/transactions' },
+            {
+              label: 'Transaction Policies',
+              href: '/treasury/policies/transactions',
+            },
             { label: policyId, href: `/policies/transactions/${policyId}` },
             { label: 'Version Not Found' },
           ]}
@@ -279,7 +282,7 @@ export const PageTransactionPolicyVersionDetail = () => {
               The requested version could not be found.
             </p>
             <Link
-              to="/policies/transactions/$policyId"
+              to="/treasury/policies/transactions/$policyId"
               params={{ policyId }}
               className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
@@ -331,7 +334,10 @@ export const PageTransactionPolicyVersionDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Transaction Policies', href: '/policies/transactions' },
+          {
+            label: 'Transaction Policies',
+            href: '/treasury/policies/transactions',
+          },
           {
             label: policy.name,
             href: `/policies/transactions/${policyId}`,

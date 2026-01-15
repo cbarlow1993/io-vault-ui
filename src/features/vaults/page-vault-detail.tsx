@@ -92,7 +92,7 @@ const getDeviceLabel = (deviceType: DeviceType) => {
 };
 
 export const PageVaultDetail = () => {
-  const { vaultId } = useParams({ from: '/_app/vaults/$vaultId' });
+  const { vaultId } = useParams({ from: '/_app/treasury/vaults/$vaultId' });
 
   const {
     data: vault,
@@ -143,7 +143,7 @@ export const PageVaultDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: 'Not Found' },
           ]}
         />
@@ -153,7 +153,7 @@ export const PageVaultDetail = () => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to vaults
@@ -168,7 +168,7 @@ export const PageVaultDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault.name },
         ]}
         status={
@@ -189,7 +189,10 @@ export const PageVaultDetail = () => {
                 variant="secondary"
                 className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
               >
-                <Link to="/vaults/$vaultId/edit" params={{ vaultId: vault.id }}>
+                <Link
+                  to="/treasury/vaults/$vaultId/edit"
+                  params={{ vaultId: vault.id }}
+                >
                   <RefreshCwIcon className="mr-1.5 size-3.5" />
                   Reshare
                 </Link>
@@ -350,7 +353,7 @@ export const PageVaultDetail = () => {
                 </h2>
               </div>
               <Link
-                to="/identities/$identityId"
+                to="/compliance/identities/$identityId"
                 params={{ identityId: linkedIdentity.id }}
                 className="flex items-center gap-3 p-4 hover:bg-neutral-50"
               >
@@ -475,7 +478,7 @@ export const PageVaultDetail = () => {
                       className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
                     >
                       <Link
-                        to="/vaults/$vaultId/addresses/new"
+                        to="/treasury/vaults/$vaultId/addresses/new"
                         params={{ vaultId }}
                       >
                         <PlusIcon className="mr-1.5 size-3.5" />
@@ -484,7 +487,7 @@ export const PageVaultDetail = () => {
                     </Button>
                     {vaultAddresses.length > 0 && (
                       <Link
-                        to="/vaults/$vaultId/addresses"
+                        to="/treasury/vaults/$vaultId/addresses"
                         params={{ vaultId }}
                         className="flex items-center gap-1 text-xs font-medium text-neutral-600 hover:text-neutral-900"
                       >
@@ -512,7 +515,7 @@ export const PageVaultDetail = () => {
                       return (
                         <Link
                           key={addr.id}
-                          to="/vaults/$vaultId/addresses/$addressId"
+                          to="/treasury/vaults/$vaultId/addresses/$addressId"
                           params={{ vaultId, addressId: addr.id }}
                           className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50"
                         >
@@ -558,7 +561,7 @@ export const PageVaultDetail = () => {
                     })}
                     {vaultAddresses.length > 5 && (
                       <Link
-                        to="/vaults/$vaultId/addresses"
+                        to="/treasury/vaults/$vaultId/addresses"
                         params={{ vaultId }}
                         className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                       >

@@ -180,7 +180,7 @@ export const PageTreasury6Identities = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/identities/new">
+            <Link to="/compliance/identities/new">
               <PlusIcon className="mr-1.5 size-3.5" />
               Add Identity
             </Link>
@@ -470,7 +470,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
     <tr className="cursor-pointer hover:bg-neutral-50">
       <td className="px-3 py-2">
         <Link
-          to="/identities/$identityId"
+          to="/compliance/identities/$identityId"
           params={{ identityId: identity.id }}
           className="block"
         >
@@ -508,7 +508,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
       </td>
       <td className="px-3 py-2">
         <Link
-          to="/identities/$identityId"
+          to="/compliance/identities/$identityId"
           params={{ identityId: identity.id }}
           className="block"
         >
@@ -524,7 +524,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
       </td>
       <td className="px-3 py-2">
         <Link
-          to="/identities/$identityId"
+          to="/compliance/identities/$identityId"
           params={{ identityId: identity.id }}
           className="block"
         >
@@ -540,7 +540,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
       </td>
       <td className="px-3 py-2">
         <Link
-          to="/identities/$identityId"
+          to="/compliance/identities/$identityId"
           params={{ identityId: identity.id }}
           className="block text-neutral-600 tabular-nums"
         >
@@ -549,7 +549,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
       </td>
       <td className="px-3 py-2">
         <Link
-          to="/identities/$identityId"
+          to="/compliance/identities/$identityId"
           params={{ identityId: identity.id }}
           className="block text-neutral-500 tabular-nums"
         >
@@ -573,7 +573,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
               className="cursor-pointer rounded-none text-xs"
             >
               <Link
-                to="/identities/$identityId"
+                to="/compliance/identities/$identityId"
                 params={{ identityId: identity.id }}
               >
                 View Details
@@ -584,7 +584,7 @@ const IdentityRow = ({ identity }: { identity: Identity }) => {
               className="cursor-pointer rounded-none text-xs"
             >
               <Link
-                to="/identities/$identityId/edit"
+                to="/compliance/identities/$identityId/edit"
                 params={{ identityId: identity.id }}
               >
                 Edit

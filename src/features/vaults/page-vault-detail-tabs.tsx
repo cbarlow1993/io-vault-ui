@@ -581,7 +581,7 @@ const AddressRow = ({
   chainId,
 }: AddressRowProps) => (
   <Link
-    to="/vaults/$vaultId/chain/$chain/addresses/$address"
+    to="/treasury/vaults/$vaultId/chain/$chain/addresses/$address"
     params={{ vaultId, chain: chainId, address: addr.address }}
     className="group flex cursor-pointer items-center gap-3 py-2 pr-4 pl-28 hover:bg-neutral-50"
   >
@@ -2030,7 +2030,7 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
               Reshares
             </span>
           </div>
-          <Link to="/vaults/$vaultId/edit" params={{ vaultId }}>
+          <Link to="/treasury/vaults/$vaultId/edit" params={{ vaultId }}>
             <Button
               type="button"
               className="h-7 rounded-none bg-brand-500 px-3 text-xs text-white hover:bg-brand-600"
@@ -2064,7 +2064,7 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
             {mockReshares.length}{' '}
             {mockReshares.length === 1 ? 'reshare' : 'reshares'}
           </span>
-          <Link to="/vaults/$vaultId/edit" params={{ vaultId }}>
+          <Link to="/treasury/vaults/$vaultId/edit" params={{ vaultId }}>
             <Button
               type="button"
               className="h-7 rounded-none bg-brand-500 px-3 text-xs text-white hover:bg-brand-600"
@@ -2100,7 +2100,7 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
           {paginatedReshares.map((reshare) => (
             <Link
               key={reshare.id}
-              to="/vaults/$vaultId/reshares/$reshareId"
+              to="/treasury/vaults/$vaultId/reshares/$reshareId"
               params={{ vaultId, reshareId: reshare.id }}
               className="contents"
             >
@@ -2564,7 +2564,7 @@ export const PageVaultDetailTabs = () => {
       <PageLayoutTopBar>
         <Breadcrumbs
           items={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: 'Vault Details' },
           ]}
         />

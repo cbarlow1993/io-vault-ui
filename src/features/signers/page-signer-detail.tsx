@@ -65,7 +65,7 @@ const getSignerTypeLabel = (type: SignerType) => {
 };
 
 export const PageSignerDetail = () => {
-  const { signerId } = useParams({ from: '/_app/signers/$signerId' });
+  const { signerId } = useParams({ from: '/_app/treasury/signers/$signerId' });
 
   // Fetch signers from API and filter by ID
   const {
@@ -108,7 +108,7 @@ export const PageSignerDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Signers', href: '/signers' },
+            { label: 'Signers', href: '/treasury/signers' },
             { label: 'Not Found' },
           ]}
         />
@@ -120,7 +120,7 @@ export const PageSignerDetail = () => {
                 : 'The requested signer could not be found.'}
             </p>
             <Link
-              to="/signers"
+              to="/treasury/signers"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to signers
@@ -135,7 +135,7 @@ export const PageSignerDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Signers', href: '/signers' },
+          { label: 'Signers', href: '/treasury/signers' },
           { label: signer.name },
         ]}
       />
@@ -263,7 +263,7 @@ export const PageSignerDetail = () => {
                     <tr key={vault.id} className="group hover:bg-neutral-50">
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="font-medium text-neutral-900 hover:underline"
                         >
@@ -293,7 +293,7 @@ export const PageSignerDetail = () => {
                       </td>
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="text-neutral-400 opacity-0 group-hover:opacity-100"
                         >
@@ -372,7 +372,7 @@ export const PageSignerDetail = () => {
                       </td>
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: sig.vaultId }}
                           className="text-neutral-600 hover:text-neutral-900 hover:underline"
                         >

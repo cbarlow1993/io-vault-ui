@@ -204,6 +204,12 @@
   --module-accent-hover: var(--color-indigo-600);
 }
 
+[data-module='tokenisation'] {
+  --module-accent: var(--color-terminal-500);
+  --module-accent-light: var(--color-terminal-50);
+  --module-accent-hover: var(--color-terminal-600);
+}
+
 .dark {
   color-scheme: dark;
 

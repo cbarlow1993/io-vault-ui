@@ -195,7 +195,7 @@ const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[1]!;
 
 export const PageWhitelistDetail = () => {
   const { whitelistId } = useParams({
-    from: '/_app/policies/whitelists/$whitelistId/',
+    from: '/_app/treasury/policies/whitelists/$whitelistId/',
   });
   const navigate = useNavigate();
   const whitelist = getWhitelistById(whitelistId);
@@ -289,7 +289,7 @@ export const PageWhitelistDetail = () => {
   const handleRevoke = () => {
     toast.success('Whitelist revoked successfully');
     setRevokeDialogOpen(false);
-    navigate({ to: '/policies/whitelists' });
+    navigate({ to: '/treasury/policies/whitelists' });
   };
 
   const handleDeleteEntry = () => {
@@ -315,7 +315,7 @@ export const PageWhitelistDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Whitelists', href: '/policies/whitelists' },
+            { label: 'Whitelists', href: '/treasury/policies/whitelists' },
             { label: 'Not Found' },
           ]}
         />
@@ -325,7 +325,7 @@ export const PageWhitelistDetail = () => {
               The requested whitelist could not be found.
             </p>
             <Link
-              to="/policies/whitelists"
+              to="/treasury/policies/whitelists"
               className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
               Back to Whitelists
@@ -340,7 +340,7 @@ export const PageWhitelistDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Whitelists', href: '/policies/whitelists' },
+          { label: 'Whitelists', href: '/treasury/policies/whitelists' },
           { label: whitelist.name },
         ]}
         status={
@@ -362,7 +362,7 @@ export const PageWhitelistDetail = () => {
               className="h-7 rounded-none px-3 text-xs font-medium"
             >
               <Link
-                to="/policies/whitelists/$whitelistId/edit"
+                to="/treasury/policies/whitelists/$whitelistId/edit"
                 params={{ whitelistId }}
               >
                 <EditIcon className="mr-1.5 size-3.5" />
@@ -427,7 +427,7 @@ export const PageWhitelistDetail = () => {
                 className="h-7 rounded-none border-brand-300 bg-white px-3 text-xs font-medium text-brand-700 hover:bg-brand-50"
               >
                 <Link
-                  to="/policies/whitelists/$whitelistId/versions/$versionNumber"
+                  to="/treasury/policies/whitelists/$whitelistId/versions/$versionNumber"
                   params={{
                     whitelistId,
                     versionNumber: String(draftVersion.version),
@@ -904,7 +904,7 @@ export const PageWhitelistDetail = () => {
                         return (
                           <Link
                             key={version.version}
-                            to="/policies/whitelists/$whitelistId/versions/$versionNumber"
+                            to="/treasury/policies/whitelists/$whitelistId/versions/$versionNumber"
                             params={{
                               whitelistId,
                               versionNumber: String(version.version),

@@ -220,7 +220,10 @@ const createSignerColumns = (
                 asChild
                 className="cursor-pointer rounded-none text-xs"
               >
-                <Link to="/signers/$signerId" params={{ signerId: signer.id }}>
+                <Link
+                  to="/treasury/signers/$signerId"
+                  params={{ signerId: signer.id }}
+                >
                   View Details
                 </Link>
               </DropdownMenuItem>
@@ -463,7 +466,7 @@ export const PageSigners = ({ initialModalOpen = false }: PageSignersProps) => {
             getRowId={(row) => row.id}
             onRowClick={(row) =>
               navigate({
-                to: '/signers/$signerId',
+                to: '/treasury/signers/$signerId',
                 params: { signerId: row.id },
               })
             }

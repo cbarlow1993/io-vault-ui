@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-  '/signers': {
+  '/treasury/signers': {
     parameters: {
       query?: never;
       header?: never;
@@ -36,7 +36,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{id}': {
+  '/treasury/vaults/{id}': {
     parameters: {
       query?: never;
       header?: never;
@@ -52,7 +52,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/reshares': {
+  '/treasury/vaults/{vaultId}/reshares': {
     parameters: {
       query?: never;
       header?: never;
@@ -68,7 +68,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/reshares/{id}': {
+  '/treasury/vaults/{vaultId}/reshares/{id}': {
     parameters: {
       query?: never;
       header?: never;
@@ -84,7 +84,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/reshares/{id}/votes': {
+  '/treasury/vaults/{vaultId}/reshares/{id}/votes': {
     parameters: {
       query?: never;
       header?: never;
@@ -101,7 +101,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/signatures/{id}': {
+  '/treasury/vaults/{vaultId}/signatures/{id}': {
     parameters: {
       query?: never;
       header?: never;
@@ -118,7 +118,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/signatures': {
+  '/treasury/vaults/{vaultId}/signatures': {
     parameters: {
       query?: never;
       header?: never;
@@ -135,7 +135,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/vaults/{vaultId}/signatures/{id}/votes': {
+  '/treasury/vaults/{vaultId}/signatures/{id}/votes': {
     parameters: {
       query?: never;
       header?: never;

@@ -270,7 +270,10 @@ export const NotificationButton = () => {
 
   const handleNavigateToOperation = (operationId: string) => {
     setIsOpen(false);
-    navigate({ to: '/operations/$operationId', params: { operationId } });
+    navigate({
+      to: '/treasury/operations/$operationId',
+      params: { operationId },
+    });
   };
 
   const markAsRead = (id: string) => {

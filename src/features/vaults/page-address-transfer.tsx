@@ -163,11 +163,11 @@ const formatFeeEstimate = (chainId: string, feeValue: number): string => {
 export const PageAddressTransfer = () => {
   const navigate = useNavigate();
   const { vaultId, chain, address } = useParams({
-    from: '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer',
+    from: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer',
   });
 
   const { asset: selectedAsset } = useSearch({
-    from: '/_app/vaults/$vaultId/chain/$chain/addresses/$address/transfer',
+    from: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer',
   });
 
   // Find the chain data
@@ -191,7 +191,7 @@ export const PageAddressTransfer = () => {
 
   const handleCancel = () => {
     navigate({
-      to: '/vaults/$vaultId/chain/$chain/addresses/$address',
+      to: '/treasury/vaults/$vaultId/chain/$chain/addresses/$address',
       params: { vaultId, chain, address },
     });
   };
@@ -205,7 +205,7 @@ export const PageAddressTransfer = () => {
       selectedAsset,
     });
     navigate({
-      to: '/vaults/$vaultId/chain/$chain/addresses/$address',
+      to: '/treasury/vaults/$vaultId/chain/$chain/addresses/$address',
       params: { vaultId, chain, address },
     });
   };
@@ -218,7 +218,7 @@ export const PageAddressTransfer = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
             { label: 'Chain Not Found' },
           ]}
@@ -236,7 +236,7 @@ export const PageAddressTransfer = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
           {
             label: 'Address',

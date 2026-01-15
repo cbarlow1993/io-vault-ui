@@ -547,7 +547,7 @@ const SignerCard = ({
 
 export const PageReshareDetail = () => {
   const { vaultId, reshareId } = useParams({
-    from: '/_app/vaults/$vaultId/reshares/$reshareId',
+    from: '/_app/treasury/vaults/$vaultId/reshares/$reshareId',
   });
   const reshare = getReshareById(reshareId);
   const vault = getVaultById(vaultId);
@@ -557,7 +557,7 @@ export const PageReshareDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
             { label: 'Reshare Not Found' },
           ]}
@@ -582,7 +582,7 @@ export const PageReshareDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
           { label: 'Reshare Operation' },
         ]}

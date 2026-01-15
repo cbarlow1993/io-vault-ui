@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-export type ModuleId = 'treasury' | 'compliance' | 'global';
+export type ModuleId = 'treasury' | 'compliance' | 'global' | 'tokenisation';
 
 export type NavItem = {
   label: string;
@@ -14,7 +14,7 @@ export type ModuleConfig = {
   id: ModuleId;
   name: string;
   icon: LucideIcon;
-  accent: 'blue' | 'emerald' | 'violet';
+  accent: 'blue' | 'emerald' | 'violet' | 'cyan';
   navItems: NavItem[];
   defaultPath: string;
   requiresWorkspace: boolean;

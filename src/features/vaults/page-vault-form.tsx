@@ -119,7 +119,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
       onSuccess: (data) => {
         toast.success('Vault created successfully');
         // Navigate to the newly created vault
-        navigate({ to: '/vaults/$vaultId', params: { vaultId: data.id } });
+        navigate({ to: '/treasury/vaults/$vaultId', params: { vaultId: data.id } });
       },
       onError: (error) => {
         toast.error(error.message || 'Failed to create vault');
@@ -134,7 +134,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
         toast.success('Reshare request submitted successfully');
         // Navigate to the reshare detail page
         navigate({
-          to: '/vaults/$vaultId/reshares/$reshareId',
+          to: '/treasury/vaults/$vaultId/reshares/$reshareId',
           params: { vaultId: data.vaultId, reshareId: data.id },
         });
       },
@@ -232,9 +232,9 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
 
   const handleCancel = () => {
     if (mode === 'edit' && vaultId) {
-      navigate({ to: '/vaults/$vaultId', params: { vaultId } });
+      navigate({ to: '/treasury/vaults/$vaultId', params: { vaultId } });
     } else {
-      navigate({ to: '/vaults' });
+      navigate({ to: '/treasury/vaults' });
     }
   };
 
@@ -248,7 +248,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -727,6 +727,8 @@ export const PageVaultCreate = () => {
 
 // Edit (reshare) vault page component
 export const PageVaultEdit = () => {
-  const { vaultId } = useParams({ from: '/_app/vaults/$vaultId/edit' });
+  const { vaultId } = useParams({
+    from: '/_app/treasury/vaults/$vaultId/edit',
+  });
   return <VaultFormContent mode="edit" vaultId={vaultId} />;
 };

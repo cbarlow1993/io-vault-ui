@@ -28,7 +28,7 @@ export const useRedirectAfterLogin = () => {
       // All authenticated users go to overview
       router.navigate({
         replace: true,
-        to: '/overview',
+        to: '/treasury/overview',
       });
     };
 

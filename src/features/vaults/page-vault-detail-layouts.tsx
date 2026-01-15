@@ -989,7 +989,7 @@ export const PageVaultDetailLayouts = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: mockVault.name },
         ]}
         status={<StatusBadge status={mockVault.status} />}
