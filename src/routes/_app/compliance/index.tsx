@@ -1,7 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-
-import { PageComplianceDashboard } from '@/features/compliance/pages/page-dashboard';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_app/compliance/')({
-  component: PageComplianceDashboard,
+  beforeLoad: () => {
+    throw redirect({ to: '/compliance/overview' });
+  },
 });
