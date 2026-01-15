@@ -11,9 +11,7 @@ import {
   LoaderIcon,
   PlusIcon,
   RefreshCwIcon,
-  ServerIcon,
   SettingsIcon,
-  SmartphoneIcon,
   UserIcon,
   WalletIcon,
   XCircleIcon,
@@ -40,6 +38,11 @@ import {
   type Identity,
   isCorporateIdentity,
 } from '@/features/identities/data/identities';
+import {
+  getDeviceIcon,
+  getDeviceLabel,
+} from '@/features/shared/lib/device-helpers';
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
 import { getStatusStyles } from '@/features/shared/lib/status-styles';
 import {
   PageLayout,
@@ -52,44 +55,8 @@ import {
   getAddressTotalBalance,
   getChainById,
 } from './data/addresses';
-import {
-  type DeviceType,
-  getPendingReshareByVaultId,
-  type Signature,
-} from './data/vaults';
+import { getPendingReshareByVaultId, type Signature } from './data/vaults';
 import type { Vault } from './schema';
-
-const getSignatureStatusIcon = (status: Signature['status']) => {
-  switch (status) {
-    case 'completed':
-      return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'pending':
-      return <ClockIcon className="size-4 text-warning-600" />;
-    case 'failed':
-      return <XCircleIcon className="size-4 text-negative-600" />;
-  }
-};
-
-const getDeviceIcon = (deviceType: DeviceType) => {
-  switch (deviceType) {
-    case 'virtual':
-      return <ServerIcon className="size-4 text-neutral-500" />;
-    case 'ios':
-    case 'android':
-      return <SmartphoneIcon className="size-4 text-neutral-500" />;
-  }
-};
-
-const getDeviceLabel = (deviceType: DeviceType) => {
-  switch (deviceType) {
-    case 'virtual':
-      return 'Virtual';
-    case 'ios':
-      return 'iOS';
-    case 'android':
-      return 'Android';
-  }
-};
 
 export const PageVaultDetail = () => {
   const { vaultId } = useParams({ from: '/_app/treasury/vaults/$vaultId' });
@@ -716,7 +683,9 @@ export const PageVaultDetail = () => {
                         <tr key={signer.id} className="hover:bg-neutral-50">
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-2">
-                              {getDeviceIcon(signer.deviceType)}
+                              {getDeviceIcon(signer.deviceType, {
+                                className: 'text-neutral-500',
+                              })}
                               <span className="text-neutral-600">
                                 {getDeviceLabel(signer.deviceType)}
                               </span>
@@ -793,7 +762,7 @@ export const PageVaultDetail = () => {
                         <tr key={sig.id} className="hover:bg-neutral-50">
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1.5">
-                              {getSignatureStatusIcon(sig.status)}
+                              {getStatusIcon(sig.status)}
                               <span className="text-neutral-600 capitalize">
                                 {sig.status}
                               </span>

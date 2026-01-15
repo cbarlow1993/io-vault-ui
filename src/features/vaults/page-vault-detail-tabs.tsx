@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import { formatDateTimeNumeric } from '@/lib/date/format';
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
@@ -55,6 +56,7 @@ import {
   FilterSelect,
   type FilterSelectOption,
 } from '@/features/shared/components/filter-select';
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
 import {
   Breadcrumbs,
   PageLayout,
@@ -424,30 +426,6 @@ const mockReshares: Reshare[] = [
 // =============================================================================
 // Helper Components
 // =============================================================================
-
-const getSignatureStatusIcon = (
-  status:
-    | 'voting'
-    | 'presigning'
-    | 'signing'
-    | 'completed'
-    | 'rejected'
-    | 'expired'
-    | 'failed'
-) => {
-  switch (status) {
-    case 'completed':
-      return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'voting':
-    case 'presigning':
-    case 'signing':
-      return <ClockIcon className="size-4 text-warning-600" />;
-    case 'failed':
-    case 'rejected':
-    case 'expired':
-      return <XCircleIcon className="size-4 text-negative-600" />;
-  }
-};
 
 const getReshareStatusIcon = (status: ReshareStatus) => {
   switch (status) {
@@ -1737,18 +1715,6 @@ const mapCoseAlgorithmToDisplay = (
   }
 };
 
-// Format date for display
-const formatSignatureDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 // Get description from signature content type
 const getSignatureDescription = (sig: SignatureItem): string => {
   if (sig.contentType === 'application/x-eip712+json') {
@@ -1900,7 +1866,7 @@ const SignaturesContent = ({ vaultId }: SignaturesContentProps) => {
             <tr key={sig.id} className="hover:bg-neutral-50">
               <td className="px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
-                  {getSignatureStatusIcon(sig.status)}
+                  {getStatusIcon(sig.status)}
                   <span className="text-neutral-600 capitalize">
                     {sig.status}
                   </span>
@@ -1933,7 +1899,7 @@ const SignaturesContent = ({ vaultId }: SignaturesContentProps) => {
                 </span>
               </td>
               <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
-                {formatSignatureDate(sig.createdAt)}
+                {formatDateTimeNumeric(sig.createdAt)}
               </td>
               <td className="px-4 py-2.5 text-neutral-600">{sig.createdBy}</td>
             </tr>

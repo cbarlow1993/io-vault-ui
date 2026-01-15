@@ -6,9 +6,7 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
   SearchIcon,
-  ServerIcon,
   SettingsIcon,
-  SmartphoneIcon,
   XIcon,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -27,6 +25,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { FilterSelect } from '@/features/shared/components/filter-select';
+import {
+  getDeviceIcon,
+  getDeviceLabel,
+} from '@/features/shared/lib/device-helpers';
 import {
   getHealthLabel,
   getHealthStyles,
@@ -69,27 +71,6 @@ const TYPE_OPTIONS: SelectOption[] = [
   { id: 'android', label: 'Android' },
   { id: 'virtual', label: 'Virtual' },
 ];
-
-const getTypeIcon = (type: SignerType) => {
-  switch (type) {
-    case 'ios':
-    case 'android':
-      return <SmartphoneIcon className="size-4" />;
-    case 'virtual':
-      return <ServerIcon className="size-4" />;
-  }
-};
-
-const getTypeLabel = (type: SignerType) => {
-  switch (type) {
-    case 'ios':
-      return 'iOS';
-    case 'android':
-      return 'Android';
-    case 'virtual':
-      return 'Virtual';
-  }
-};
 
 const HealthIndicator = ({ signer }: { signer: RegisteredSigner }) => {
   const health = getSignerHealthStatus(signer);
@@ -157,8 +138,10 @@ const createSignerColumns = (
       const signer = row.original;
       return (
         <div className="flex items-center gap-2">
-          <span className="text-neutral-400">{getTypeIcon(signer.type)}</span>
-          <span className="text-neutral-600">{getTypeLabel(signer.type)}</span>
+          <span className="text-neutral-400">{getDeviceIcon(signer.type)}</span>
+          <span className="text-neutral-600">
+            {getDeviceLabel(signer.type)}
+          </span>
         </div>
       );
     },

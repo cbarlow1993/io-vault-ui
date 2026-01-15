@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { formatDateTime } from '@/lib/date/format';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -153,28 +154,6 @@ const getChangeTypeStyles = (type: PolicyChangeType) => {
     default:
       return 'bg-neutral-100 text-neutral-600';
   }
-};
-
-const formatDateTime = (isoString: string) => {
-  const date = new Date(isoString);
-  return {
-    date: date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-    time: date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-    full: date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-  };
 };
 
 const formatChangeType = (type: PolicyChangeType): string => {

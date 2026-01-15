@@ -1,21 +1,22 @@
 import { Link } from '@tanstack/react-router';
 import {
-  CheckCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  ClockIcon,
   MinusIcon,
   PlusIcon,
   ShieldCheckIcon,
   UsersIcon,
-  XCircleIcon,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatDateTime } from '@/lib/date/format';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
+
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
+import { getStatusStyles } from '@/features/shared/lib/status-styles';
 
 import { SettingsLayout } from './components/settings-layout';
 import {
@@ -27,42 +28,6 @@ import {
   governanceRequests,
   type GovernedAction,
 } from './data/settings';
-
-const StatusIcon = ({
-  status,
-}: {
-  status: 'pending' | 'approved' | 'rejected';
-}) => {
-  switch (status) {
-    case 'approved':
-      return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'rejected':
-      return <XCircleIcon className="size-4 text-negative-600" />;
-    case 'pending':
-      return <ClockIcon className="size-4 text-warning-600" />;
-  }
-};
-
-const getStatusStyles = (status: 'pending' | 'approved' | 'rejected') => {
-  switch (status) {
-    case 'approved':
-      return 'bg-positive-50 text-positive-700';
-    case 'rejected':
-      return 'bg-negative-50 text-negative-700';
-    case 'pending':
-      return 'bg-warning-50 text-warning-700';
-  }
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
 
 // Initial values for change detection
 const initialEnabled = governanceConfig.enabled;
@@ -407,14 +372,14 @@ export const PageSettingsGovernance = () => {
                       className="flex items-center justify-between px-6 py-4"
                     >
                       <div className="flex items-center gap-4">
-                        <StatusIcon status={request.status} />
+                        {getStatusIcon(request.status)}
                         <div>
                           <p className="text-sm font-medium text-neutral-900">
                             {request.actionLabel}
                           </p>
                           <p className="mt-0.5 text-xs text-neutral-500">
                             Requested by {request.requestedByName} •{' '}
-                            {formatDate(request.requestedAt)}
+                            {formatDateTime(request.requestedAt).full}
                           </p>
                         </div>
                       </div>

@@ -1,20 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
-import {
-  CheckCircleIcon,
-  ChevronRightIcon,
-  ClockIcon,
-  CloudIcon,
-  CopyIcon,
-  KeyIcon,
-  LoaderIcon,
-  SmartphoneIcon,
-  XCircleIcon,
-} from 'lucide-react';
+import { ChevronRightIcon, CopyIcon, KeyIcon, LoaderIcon } from 'lucide-react';
 
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
+import { getDeviceIcon } from '@/features/shared/lib/device-helpers';
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
 import { getStatusStyles } from '@/features/shared/lib/status-styles';
 import {
   PageLayout,
@@ -31,27 +23,6 @@ import {
 import type { SignerType } from './schema';
 
 const getVaultStatusStyles = getStatusStyles;
-
-const getSignatureStatusIcon = (status: SignerSignatureActivity['status']) => {
-  switch (status) {
-    case 'completed':
-      return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'pending':
-      return <ClockIcon className="size-4 text-warning-600" />;
-    case 'failed':
-      return <XCircleIcon className="size-4 text-negative-600" />;
-  }
-};
-
-const getSignerTypeIcon = (type: SignerType) => {
-  switch (type) {
-    case 'virtual':
-      return <CloudIcon className="size-5 text-neutral-500" />;
-    case 'ios':
-    case 'android':
-      return <SmartphoneIcon className="size-5 text-neutral-500" />;
-  }
-};
 
 const getSignerTypeLabel = (type: SignerType) => {
   switch (type) {
@@ -148,7 +119,9 @@ export const PageSignerDetail = () => {
                 Type
               </p>
               <div className="mt-1 flex items-center gap-2">
-                {getSignerTypeIcon(signer.type)}
+                {getDeviceIcon(signer.type, {
+                  className: 'size-5 text-neutral-500',
+                })}
                 <span className="text-sm font-medium text-neutral-900">
                   {getSignerTypeLabel(signer.type)}
                 </span>
@@ -361,7 +334,7 @@ export const PageSignerDetail = () => {
                     <tr key={sig.id} className="hover:bg-neutral-50">
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-1.5">
-                          {getSignatureStatusIcon(sig.status)}
+                          {getStatusIcon(sig.status)}
                           <span className="text-neutral-600 capitalize">
                             {sig.status}
                           </span>

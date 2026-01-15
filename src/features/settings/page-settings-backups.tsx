@@ -12,6 +12,8 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatDateTimeLong } from '@/lib/date/format';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -27,17 +29,6 @@ import {
 
 import { SettingsLayout } from './components/settings-layout';
 import { type EncryptionKey, encryptionKey } from './data/settings';
-
-// Format date for display
-const formatDate = (isoDate: string): string => {
-  return new Date(isoDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
 
 export const PageSettingsBackups = () => {
   const [currentKey, setCurrentKey] = useState<EncryptionKey | null>(
@@ -188,7 +179,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...
                         Configured
                       </span>
                       <span className="text-xs text-neutral-900">
-                        {formatDate(currentKey.configuredAt)}
+                        {formatDateTimeLong(currentKey.configuredAt)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">

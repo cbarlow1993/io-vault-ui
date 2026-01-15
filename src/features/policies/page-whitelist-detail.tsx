@@ -31,6 +31,7 @@ import {
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatDateTime } from '@/lib/date/format';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -150,21 +151,6 @@ const getChangeTypeStyles = (type: WhitelistChangeType) => {
     default:
       return 'bg-neutral-100 text-neutral-600';
   }
-};
-
-const formatDateTime = (isoString: string) => {
-  const date = new Date(isoString);
-  return {
-    date: date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-    time: date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-  };
 };
 
 type SelectOption = { id: string; label: string };

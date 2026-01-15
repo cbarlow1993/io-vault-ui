@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { type ChargebeeCardElement, useChargebee } from '@/lib/chargebee';
+import { formatDate as formatDateBase } from '@/lib/date/format';
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
@@ -55,11 +56,7 @@ const formatCurrency = (amount: number, currencyCode: string = 'USD') => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  return formatDateBase(dateString);
 };
 
 const getInvoiceStatusStyles = (status: Invoice['status']) => {

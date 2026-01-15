@@ -11,6 +11,8 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatDate, formatTime } from '@/lib/date/format';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,6 +22,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
+
 import { SettingsLayout } from './components/settings-layout';
 import {
   type AuditActionCategory,
@@ -28,34 +32,6 @@ import {
   auditLog,
   type AuditLogEntry,
 } from './data/settings';
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
-
-const formatTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-const formatDateTime = (dateString: string) => {
-  return `${formatDate(dateString)} at ${formatTime(dateString)}`;
-};
-
-const getStatusIcon = (status: 'success' | 'failure') => {
-  if (status === 'success') {
-    return <CheckCircleIcon className="size-4 text-positive-600" />;
-  }
-  return <XCircleIcon className="size-4 text-negative-600" />;
-};
 
 const exportAuditLog = (entries: AuditLogEntry[]) => {
   const headers = [

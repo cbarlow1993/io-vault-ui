@@ -1,15 +1,9 @@
 import { Link } from '@tanstack/react-router';
-import {
-  ArrowLeftIcon,
-  CheckCircleIcon,
-  CheckIcon,
-  ClockIcon,
-  XCircleIcon,
-  XIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, CheckIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatRelativeTime } from '@/lib/date/format';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +17,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+import { getStatusIcon } from '@/features/shared/lib/status-icons';
+import { getStatusStyles } from '@/features/shared/lib/status-styles';
+
 import { SettingsLayout } from './components/settings-layout';
 import {
   governanceCategoryLabels,
@@ -32,53 +29,6 @@ import {
 } from './data/settings';
 
 type TabValue = 'pending' | 'approved' | 'rejected';
-
-const StatusIcon = ({ status }: { status: GovernanceRequestStatus }) => {
-  switch (status) {
-    case 'approved':
-      return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'rejected':
-      return <XCircleIcon className="size-4 text-negative-600" />;
-    case 'pending':
-      return <ClockIcon className="size-4 text-warning-600" />;
-  }
-};
-
-const getStatusStyles = (status: GovernanceRequestStatus) => {
-  switch (status) {
-    case 'approved':
-      return 'bg-positive-50 text-positive-700';
-    case 'rejected':
-      return 'bg-negative-50 text-negative-700';
-    case 'pending':
-      return 'bg-warning-50 text-warning-700';
-  }
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-const formatRelativeTime = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return formatDate(dateString);
-};
 
 const RequestCard = ({
   request,
@@ -95,7 +45,7 @@ const RequestCard = ({
       <div className="flex items-start justify-between border-b border-neutral-100 px-6 py-4">
         <div>
           <div className="flex items-center gap-2">
-            <StatusIcon status={request.status} />
+            {getStatusIcon(request.status)}
             <h3 className="text-sm font-semibold text-neutral-900">
               {request.actionLabel}
             </h3>
@@ -331,7 +281,7 @@ export const PageSettingsGovernancePending = () => {
         {/* Request List */}
         {currentRequests.length === 0 ? (
           <div className="border border-dashed border-neutral-200 py-12 text-center">
-            <StatusIcon status={activeTab} />
+            {getStatusIcon(activeTab)}
             <p className="mt-2 text-sm font-medium text-neutral-600">
               No {activeTab} requests
             </p>
