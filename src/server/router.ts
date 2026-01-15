@@ -4,6 +4,7 @@ import accountRouter from './routers/account';
 import billingRouter from './routers/billing';
 import configRouter from './routers/config';
 import signersRouter from './routers/signers';
+import vaultsRouter from './routers/vaults';
 
 // TODO: User router removed - was dependent on Prisma
 // Re-implement when vault API is integrated for user management
@@ -16,4 +17,5 @@ export const router = {
   billing: billingRouter,
   config: configRouter,
   signers: signersRouter,
+  vaults: vaultsRouter,
 };
