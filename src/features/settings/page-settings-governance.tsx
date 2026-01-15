@@ -387,7 +387,7 @@ export const PageSettingsGovernance = () => {
                   </p>
                 </div>
                 <Link
-                  to="/settings/governance/pending"
+                  to="/global/governance/pending"
                   className="text-xs font-medium text-brand-600 hover:text-brand-700"
                 >
                   View all →

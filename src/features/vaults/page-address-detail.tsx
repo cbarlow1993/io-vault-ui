@@ -272,7 +272,7 @@ const TransactionRow = ({
       {/* Link to signature for outbound */}
       {transaction.signatureId ? (
         <Link
-          to="/operations/$operationId"
+          to="/treasury/operations/$operationId"
           params={{ operationId: transaction.signatureId }}
           className="flex items-center gap-1 rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-[10px] font-medium text-neutral-600 hover:bg-neutral-100"
         >
@@ -288,7 +288,7 @@ const TransactionRow = ({
 
 export const PageAddressDetail = () => {
   const { vaultId, addressId } = useParams({
-    from: '/_app/vaults/$vaultId/addresses/$addressId',
+    from: '/_app/treasury/vaults/$vaultId/addresses/$addressId',
   });
 
   const address = getAddressById(addressId);
@@ -312,7 +312,7 @@ export const PageAddressDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: vaultId, href: `/vaults/${vaultId}` },
             { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
             { label: 'Not Found' },
@@ -324,7 +324,7 @@ export const PageAddressDetail = () => {
               The requested address could not be found.
             </p>
             <Link
-              to="/vaults/$vaultId/addresses"
+              to="/treasury/vaults/$vaultId/addresses"
               params={{ vaultId }}
               className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
@@ -375,7 +375,7 @@ export const PageAddressDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault.name, href: `/vaults/${vaultId}` },
           { label: 'Addresses', href: `/vaults/${vaultId}/addresses` },
           { label: address.alias ?? 'Address Details' },
@@ -469,7 +469,7 @@ export const PageAddressDetail = () => {
                   Vault
                 </p>
                 <Link
-                  to="/vaults/$vaultId"
+                  to="/treasury/vaults/$vaultId"
                   params={{ vaultId }}
                   className="mt-1 text-sm font-medium text-neutral-900 hover:underline"
                 >
@@ -505,7 +505,7 @@ export const PageAddressDetail = () => {
             {/* Linked identity */}
             {linkedIdentity && (
               <Link
-                to="/identities/$identityId"
+                to="/compliance/identities/$identityId"
                 params={{ identityId: linkedIdentity.id }}
                 className="flex items-center justify-between border-t border-neutral-200 px-6 py-3 hover:bg-neutral-50"
               >

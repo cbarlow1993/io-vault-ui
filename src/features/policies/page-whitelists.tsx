@@ -192,7 +192,7 @@ export const PageWhitelists = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/policies/whitelists/new">
+            <Link to="/treasury/policies/whitelists/new">
               <PlusIcon className="mr-1.5 size-3.5" />
               Create Whitelist
             </Link>
@@ -344,7 +344,7 @@ export const PageWhitelists = () => {
                       className="cursor-pointer hover:bg-neutral-50"
                       onClick={() =>
                         navigate({
-                          to: '/policies/whitelists/$whitelistId',
+                          to: '/treasury/policies/whitelists/$whitelistId',
                           params: { whitelistId: whitelist.id },
                         })
                       }
@@ -458,7 +458,7 @@ export const PageWhitelists = () => {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate({
-                                  to: '/policies/whitelists/$whitelistId',
+                                  to: '/treasury/policies/whitelists/$whitelistId',
                                   params: { whitelistId: whitelist.id },
                                 });
                               }}
@@ -472,7 +472,7 @@ export const PageWhitelists = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate({
-                                    to: '/policies/whitelists/$whitelistId/edit',
+                                    to: '/treasury/policies/whitelists/$whitelistId/edit',
                                     params: { whitelistId: whitelist.id },
                                   });
                                 }}

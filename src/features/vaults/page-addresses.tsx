@@ -77,7 +77,7 @@ const AddressRow = ({
 
   return (
     <Link
-      to="/vaults/$vaultId/addresses/$addressId"
+      to="/treasury/vaults/$vaultId/addresses/$addressId"
       params={{ vaultId, addressId: address.id }}
       className="flex items-center gap-4 border-b border-neutral-100 px-4 py-3 hover:bg-neutral-50"
     >
@@ -165,7 +165,9 @@ const AddressRow = ({
 };
 
 export const PageAddresses = () => {
-  const { vaultId } = useParams({ from: '/_app/vaults/$vaultId/addresses' });
+  const { vaultId } = useParams({
+    from: '/_app/treasury/vaults/$vaultId/addresses',
+  });
   const vault = getVaultById(vaultId);
   const addresses = getAddressesByVaultId(vaultId);
 
@@ -189,7 +191,7 @@ export const PageAddresses = () => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -221,7 +223,10 @@ export const PageAddresses = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/vaults/$vaultId/addresses/new" params={{ vaultId }}>
+            <Link
+              to="/treasury/vaults/$vaultId/addresses/new"
+              params={{ vaultId }}
+            >
               <PlusIcon className="mr-1.5 size-3.5" />
               New Address
             </Link>
@@ -346,7 +351,7 @@ export const PageAddresses = () => {
                   className="mt-4 h-8 rounded-none bg-brand-500 px-4 text-xs font-medium text-white hover:bg-brand-600"
                 >
                   <Link
-                    to="/vaults/$vaultId/addresses/new"
+                    to="/treasury/vaults/$vaultId/addresses/new"
                     params={{ vaultId }}
                   >
                     <PlusIcon className="mr-1.5 size-3.5" />

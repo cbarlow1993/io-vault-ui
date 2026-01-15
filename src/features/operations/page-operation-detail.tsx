@@ -29,7 +29,7 @@ import {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -39,8 +39,8 @@ const getDeviceIcon = (deviceType: DeviceType) => {
 
 const getDeviceLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
-      return 'Server';
+    case 'virtual':
+      return 'Virtual';
     case 'ios':
       return 'iOS';
     case 'android':
@@ -452,7 +452,9 @@ const ReshareContextSection = ({
 };
 
 export const PageOperationDetail = () => {
-  const { operationId } = useParams({ from: '/_app/operations/$operationId' });
+  const { operationId } = useParams({
+    from: '/_app/treasury/operations/$operationId',
+  });
   const operation = getPendingOperationById(operationId);
 
   if (!operation) {
@@ -460,7 +462,7 @@ export const PageOperationDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: 'Operation Not Found' },
           ]}
         />
@@ -470,7 +472,7 @@ export const PageOperationDetail = () => {
               The requested operation could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to vaults
@@ -488,7 +490,7 @@ export const PageOperationDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           {
             label: operation.vaultName,
             href: `/vaults/${operation.vaultId}`,

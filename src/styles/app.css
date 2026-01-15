@@ -179,6 +179,37 @@
   --sidebar-ring: var(--color-neutral-300);
 }
 
+/* Module accent theming */
+:root {
+  --module-accent: var(--color-brand-500);
+  --module-accent-light: var(--color-brand-50);
+  --module-accent-hover: var(--color-brand-600);
+}
+
+[data-module='treasury'] {
+  --module-accent: var(--color-brand-500);
+  --module-accent-light: var(--color-brand-50);
+  --module-accent-hover: var(--color-brand-600);
+}
+
+[data-module='compliance'] {
+  --module-accent: oklch(0.627 0.194 149.214);
+  --module-accent-light: oklch(0.982 0.018 155.826);
+  --module-accent-hover: oklch(0.527 0.154 150.069);
+}
+
+[data-module='global'] {
+  --module-accent: var(--color-indigo-500);
+  --module-accent-light: var(--color-indigo-50);
+  --module-accent-hover: var(--color-indigo-600);
+}
+
+[data-module='tokenisation'] {
+  --module-accent: var(--color-terminal-500);
+  --module-accent-light: var(--color-terminal-50);
+  --module-accent-hover: var(--color-terminal-600);
+}
+
 .dark {
   color-scheme: dark;
 
@@ -344,5 +375,28 @@
 
   .interactive-icon-button {
     @apply text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600;
+  }
+
+  /* Module-aware accent colors
+   * Uses CSS variables that change based on [data-module] attribute
+   */
+  .bg-module-accent {
+    background-color: var(--module-accent);
+  }
+
+  .bg-module-accent-light {
+    background-color: var(--module-accent-light);
+  }
+
+  .text-module-accent {
+    color: var(--module-accent);
+  }
+
+  .border-module-accent {
+    border-color: var(--module-accent);
+  }
+
+  .hover-module-accent:hover {
+    background-color: var(--module-accent-hover);
   }
 }

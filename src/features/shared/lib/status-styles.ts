@@ -135,12 +135,11 @@ export const getRoleStyles = (role: string): string => {
 // Device Type Labels
 // =============================================================================
 
-export type DeviceType = 'ios' | 'android' | 'server' | 'virtual';
+export type DeviceType = 'ios' | 'android' | 'virtual';
 
 const deviceLabelMap: Record<DeviceType, string> = {
   ios: 'iOS',
   android: 'Android',
-  server: 'Server',
   virtual: 'Virtual',
 };
 

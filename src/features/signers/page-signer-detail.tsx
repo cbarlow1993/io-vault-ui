@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
 import {
   CheckCircleIcon,
@@ -6,10 +7,12 @@ import {
   CloudIcon,
   CopyIcon,
   KeyIcon,
+  LoaderIcon,
   SmartphoneIcon,
   XCircleIcon,
 } from 'lucide-react';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { getStatusStyles } from '@/features/shared/lib/status-styles';
@@ -20,13 +23,12 @@ import {
 } from '@/layout/shell';
 
 import {
-  getSignerById,
   getSignerSignatureActivities,
   getSignerVaults,
   type SignerSignatureActivity,
-  type SignerType,
   type SignerVaultSummary,
 } from './data/signers';
+import type { SignerType } from './schema';
 
 const getVaultStatusStyles = getStatusStyles;
 
@@ -63,27 +65,62 @@ const getSignerTypeLabel = (type: SignerType) => {
 };
 
 export const PageSignerDetail = () => {
-  const { signerId } = useParams({ from: '/_app/signers/$signerId' });
-  const signer = getSignerById(signerId);
+  const { signerId } = useParams({ from: '/_app/treasury/signers/$signerId' });
+
+  // Fetch signers from API and filter by ID
+  const {
+    data: signersData,
+    isLoading,
+    isError,
+  } = useQuery(
+    orpc.signers.list.queryOptions({
+      limit: 100,
+    })
+  );
+
+  const signer = signersData?.data.find((s) => s.id === signerId);
   const signerVaults = getSignerVaults(signerId);
   const signatureActivities = getSignerSignatureActivities(signerId);
 
-  if (!signer) {
+  // Loading state
+  if (isLoading) {
     return (
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
             { label: 'Signers', href: '/signers' },
+            { label: 'Loading...' },
+          ]}
+        />
+        <PageLayoutContent containerClassName="py-8">
+          <div className="flex items-center justify-center gap-2 text-neutral-500">
+            <LoaderIcon className="size-4 animate-spin" />
+            <span>Loading signer details...</span>
+          </div>
+        </PageLayoutContent>
+      </PageLayout>
+    );
+  }
+
+  // Error or not found state
+  if (isError || !signer) {
+    return (
+      <PageLayout>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Signers', href: '/treasury/signers' },
             { label: 'Not Found' },
           ]}
         />
         <PageLayoutContent containerClassName="py-8">
           <div className="text-center">
             <p className="text-neutral-500">
-              The requested signer could not be found.
+              {isError
+                ? 'Failed to load signer details.'
+                : 'The requested signer could not be found.'}
             </p>
             <Link
-              to="/signers"
+              to="/treasury/signers"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to signers
@@ -98,7 +135,7 @@ export const PageSignerDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Signers', href: '/signers' },
+          { label: 'Signers', href: '/treasury/signers' },
           { label: signer.name },
         ]}
       />
@@ -226,7 +263,7 @@ export const PageSignerDetail = () => {
                     <tr key={vault.id} className="group hover:bg-neutral-50">
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="font-medium text-neutral-900 hover:underline"
                         >
@@ -256,7 +293,7 @@ export const PageSignerDetail = () => {
                       </td>
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="text-neutral-400 opacity-0 group-hover:opacity-100"
                         >
@@ -335,7 +372,7 @@ export const PageSignerDetail = () => {
                       </td>
                       <td className="px-4 py-2.5">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: sig.vaultId }}
                           className="text-neutral-600 hover:text-neutral-900 hover:underline"
                         >

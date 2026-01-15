@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
 import {
   BuildingIcon,
@@ -7,6 +8,7 @@ import {
   CopyIcon,
   HistoryIcon,
   KeyIcon,
+  LoaderIcon,
   PlusIcon,
   RefreshCwIcon,
   ServerIcon,
@@ -19,6 +21,7 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -34,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 
 import {
-  getIdentityById,
+  type Identity,
   isCorporateIdentity,
 } from '@/features/identities/data/identities';
 import { getStatusStyles } from '@/features/shared/lib/status-styles';
@@ -52,10 +55,9 @@ import {
 import {
   type DeviceType,
   getPendingReshareByVaultId,
-  getVaultById,
   type Signature,
-  type VaultStatus,
 } from './data/vaults';
+import type { Vault } from './schema';
 
 const getSignatureStatusIcon = (status: Signature['status']) => {
   switch (status) {
@@ -70,7 +72,7 @@ const getSignatureStatusIcon = (status: Signature['status']) => {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -80,8 +82,8 @@ const getDeviceIcon = (deviceType: DeviceType) => {
 
 const getDeviceLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
-      return 'Server';
+    case 'virtual':
+      return 'Virtual';
     case 'ios':
       return 'iOS';
     case 'android':
@@ -90,13 +92,21 @@ const getDeviceLabel = (deviceType: DeviceType) => {
 };
 
 export const PageVaultDetail = () => {
-  const { vaultId } = useParams({ from: '/_app/vaults/$vaultId' });
-  const vault = getVaultById(vaultId);
+  const { vaultId } = useParams({ from: '/_app/treasury/vaults/$vaultId' });
+
+  const {
+    data: vault,
+    isLoading,
+    isError,
+  } = useQuery(orpc.vaults.get.queryOptions({ input: { id: vaultId } }));
+
   const pendingReshare = getPendingReshareByVaultId(vaultId);
-  const linkedIdentity = vault?.identityId
-    ? getIdentityById(vault.identityId)
-    : undefined;
+  // TODO: Fetch linked identity from API when available
+  const linkedIdentity = undefined as Identity | undefined;
   const vaultAddresses = getAddressesByVaultId(vaultId);
+
+  // Placeholder signatures until API returns them
+  const signatures: Signature[] = [];
 
   // Tab state
   const [activeTab, setActiveTab] = useState<
@@ -113,12 +123,27 @@ export const PageVaultDetail = () => {
     toast.success('Reshare request cancelled successfully');
   };
 
-  if (!vault) {
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <PageLayoutTopBar
+          breadcrumbs={[{ label: 'Vaults', href: '/vaults' }, { label: '...' }]}
+        />
+        <PageLayoutContent containerClassName="py-8">
+          <div className="flex items-center justify-center">
+            <LoaderIcon className="size-6 animate-spin text-neutral-400" />
+          </div>
+        </PageLayoutContent>
+      </PageLayout>
+    );
+  }
+
+  if (isError || !vault) {
     return (
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: 'Not Found' },
           ]}
         />
@@ -128,7 +153,7 @@ export const PageVaultDetail = () => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to vaults
@@ -143,7 +168,7 @@ export const PageVaultDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault.name },
         ]}
         status={
@@ -164,7 +189,10 @@ export const PageVaultDetail = () => {
                 variant="secondary"
                 className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
               >
-                <Link to="/vaults/$vaultId/edit" params={{ vaultId: vault.id }}>
+                <Link
+                  to="/treasury/vaults/$vaultId/edit"
+                  params={{ vaultId: vault.id }}
+                >
                   <RefreshCwIcon className="mr-1.5 size-3.5" />
                   Reshare
                 </Link>
@@ -311,7 +339,7 @@ export const PageVaultDetail = () => {
                 Total Signatures
               </p>
               <p className="mt-1 text-sm font-medium text-neutral-900">
-                {vault.signatures.length}
+                {signatures.length}
               </p>
             </div>
           </div>
@@ -325,7 +353,7 @@ export const PageVaultDetail = () => {
                 </h2>
               </div>
               <Link
-                to="/identities/$identityId"
+                to="/compliance/identities/$identityId"
                 params={{ identityId: linkedIdentity.id }}
                 className="flex items-center gap-3 p-4 hover:bg-neutral-50"
               >
@@ -430,7 +458,7 @@ export const PageVaultDetail = () => {
                       : 'bg-neutral-100 text-neutral-600'
                   )}
                 >
-                  {vault.signatures.length}
+                  {signatures.length}
                 </span>
               </button>
             </div>
@@ -450,7 +478,7 @@ export const PageVaultDetail = () => {
                       className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
                     >
                       <Link
-                        to="/vaults/$vaultId/addresses/new"
+                        to="/treasury/vaults/$vaultId/addresses/new"
                         params={{ vaultId }}
                       >
                         <PlusIcon className="mr-1.5 size-3.5" />
@@ -459,7 +487,7 @@ export const PageVaultDetail = () => {
                     </Button>
                     {vaultAddresses.length > 0 && (
                       <Link
-                        to="/vaults/$vaultId/addresses"
+                        to="/treasury/vaults/$vaultId/addresses"
                         params={{ vaultId }}
                         className="flex items-center gap-1 text-xs font-medium text-neutral-600 hover:text-neutral-900"
                       >
@@ -487,7 +515,7 @@ export const PageVaultDetail = () => {
                       return (
                         <Link
                           key={addr.id}
-                          to="/vaults/$vaultId/addresses/$addressId"
+                          to="/treasury/vaults/$vaultId/addresses/$addressId"
                           params={{ vaultId, addressId: addr.id }}
                           className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50"
                         >
@@ -533,7 +561,7 @@ export const PageVaultDetail = () => {
                     })}
                     {vaultAddresses.length > 5 && (
                       <Link
-                        to="/vaults/$vaultId/addresses"
+                        to="/treasury/vaults/$vaultId/addresses"
                         params={{ vaultId }}
                         className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                       >
@@ -556,63 +584,94 @@ export const PageVaultDetail = () => {
                       Cryptographic Curves
                     </h3>
                     <p className="mt-0.5 text-[11px] text-neutral-500">
-                      This vault contains {vault.curves.length} key pairs for
-                      multi-chain signing
+                      {vault.status === 'draft'
+                        ? 'Key pairs will be generated after the initial reshare completes'
+                        : `This vault contains ${vault.curves.length} key pairs for multi-chain signing`}
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-px bg-neutral-200">
-                    {vault.curves.map((curve, index) => (
-                      <div key={index} className="bg-white p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-neutral-600">
-                              {curve.type}
-                            </span>
-                            <span className="font-mono text-xs text-neutral-600">
-                              {curve.curve}
+                  {vault.status === 'draft' ? (
+                    <div className="px-4 py-8 text-center">
+                      <ClockIcon className="mx-auto size-8 text-warning-400" />
+                      <p className="mt-2 text-sm font-medium text-neutral-700">
+                        Pending Key Generation
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        Cryptographic curves will be available once the initial
+                        reshare is complete and all signers have participated.
+                      </p>
+                      {pendingReshare && (
+                        <Button
+                          asChild
+                          className="mt-4 h-8 rounded-none bg-brand-500 px-4 text-xs font-medium text-white hover:bg-brand-600"
+                        >
+                          <Link
+                            to="/treasury/vaults/$vaultId/reshares/$reshareId"
+                            params={{
+                              vaultId: vault.id,
+                              reshareId: pendingReshare.id,
+                            }}
+                          >
+                            <RefreshCwIcon className="mr-1.5 size-3.5" />
+                            Go to Reshare
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-px bg-neutral-200">
+                      {vault.curves.map((curve, index) => (
+                        <div key={index} className="bg-white p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-neutral-600">
+                                {curve.type}
+                              </span>
+                              <span className="font-mono text-xs text-neutral-600">
+                                {curve.curve}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-neutral-400">
+                              Curve {index + 1}
                             </span>
                           </div>
-                          <span className="text-[10px] text-neutral-400">
-                            Curve {index + 1}
-                          </span>
-                        </div>
-                        <div className="mt-3 space-y-2">
-                          <div>
-                            <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                              Fingerprint
-                            </p>
-                            <div className="mt-0.5 flex items-center gap-1.5">
-                              <span className="font-mono text-xs text-neutral-900">
-                                {curve.fingerprint}
-                              </span>
-                              <button
-                                type="button"
-                                className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                              >
-                                <CopyIcon className="size-3" />
-                              </button>
+                          <div className="mt-3 space-y-2">
+                            <div>
+                              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                                Fingerprint
+                              </p>
+                              <div className="mt-0.5 flex items-center gap-1.5">
+                                <span className="font-mono text-xs text-neutral-900">
+                                  {curve.fingerprint}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                                >
+                                  <CopyIcon className="size-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                                Public Key
+                              </p>
+                              <div className="mt-0.5 flex items-center gap-1.5">
+                                <span className="max-w-[200px] truncate font-mono text-xs text-neutral-600">
+                                  {curve.publicKey}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                                >
+                                  <CopyIcon className="size-3" />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                              Public Key
-                            </p>
-                            <div className="mt-0.5 flex items-center gap-1.5">
-                              <span className="max-w-[200px] truncate font-mono text-xs text-neutral-600">
-                                {curve.publicKey}
-                              </span>
-                              <button
-                                type="button"
-                                className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                              >
-                                <CopyIcon className="size-3" />
-                              </button>
-                            </div>
-                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Signers Section */}
@@ -620,7 +679,7 @@ export const PageVaultDetail = () => {
                   <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-4 py-3">
                     <div>
                       <h3 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
-                        MPC Signers
+                        Signers
                       </h3>
                       <p className="mt-0.5 text-[11px] text-neutral-500">
                         Distributed key holders for threshold signing
@@ -647,9 +706,6 @@ export const PageVaultDetail = () => {
                         <th className="px-4 py-2 font-medium text-neutral-500">
                           Owner
                         </th>
-                        <th className="px-4 py-2 font-medium text-neutral-500">
-                          Version
-                        </th>
                         <th className="px-4 py-2 text-right font-medium text-neutral-500">
                           Voting Power
                         </th>
@@ -671,11 +727,6 @@ export const PageVaultDetail = () => {
                           </td>
                           <td className="px-4 py-2.5 text-neutral-600">
                             {signer.owner}
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <span className="font-mono text-neutral-500">
-                              {signer.version}
-                            </span>
                           </td>
                           <td className="px-4 py-2.5 text-right">
                             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-neutral-100 px-1.5 font-mono text-[10px] font-semibold text-neutral-700 tabular-nums">
@@ -699,11 +750,11 @@ export const PageVaultDetail = () => {
                     All cryptographic signatures produced by this vault
                   </p>
                   <span className="text-xs text-neutral-500 tabular-nums">
-                    {vault.signatures.length}{' '}
-                    {vault.signatures.length === 1 ? 'signature' : 'signatures'}
+                    {signatures.length}{' '}
+                    {signatures.length === 1 ? 'signature' : 'signatures'}
                   </span>
                 </div>
-                {vault.signatures.length === 0 ? (
+                {signatures.length === 0 ? (
                   <div className="px-4 py-8 text-center">
                     <HistoryIcon className="mx-auto size-8 text-neutral-300" />
                     <p className="mt-2 text-sm text-neutral-500">
@@ -738,7 +789,7 @@ export const PageVaultDetail = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-100">
-                      {vault.signatures.map((sig) => (
+                      {signatures.map((sig) => (
                         <tr key={sig.id} className="hover:bg-neutral-50">
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1.5">

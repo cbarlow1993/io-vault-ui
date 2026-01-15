@@ -92,7 +92,9 @@ const getKycEventIcon = (action: KycEvent['action']) => {
 };
 
 export const PageIdentityDetail = () => {
-  const { identityId } = useParams({ from: '/_app/identities/$identityId' });
+  const { identityId } = useParams({
+    from: '/_app/compliance/identities/$identityId',
+  });
   const identity = getIdentityById(identityId);
 
   // Tab state - accounts is the default/landing tab
@@ -120,7 +122,7 @@ export const PageIdentityDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Identities', href: '/identities' },
+            { label: 'Identities', href: '/compliance/identities' },
             { label: 'Not Found' },
           ]}
         />
@@ -130,7 +132,7 @@ export const PageIdentityDetail = () => {
               The requested identity could not be found.
             </p>
             <Link
-              to="/identities"
+              to="/compliance/identities"
               className="mt-4 inline-block text-sm text-neutral-900 hover:underline"
             >
               Return to identities
@@ -158,7 +160,7 @@ export const PageIdentityDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Identities', href: '/identities' },
+          { label: 'Identities', href: '/compliance/identities' },
           { label: displayName },
         ]}
         actions={
@@ -168,7 +170,7 @@ export const PageIdentityDetail = () => {
             className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
           >
             <Link
-              to="/identities/$identityId/edit"
+              to="/compliance/identities/$identityId/edit"
               params={{ identityId: identity.id }}
             >
               Edit
@@ -484,7 +486,7 @@ export const PageIdentityDetail = () => {
                     </h2>
                   </div>
                   <Link
-                    to="/identities/$identityId"
+                    to="/compliance/identities/$identityId"
                     params={{ identityId: linkedCorporate.id }}
                     className="flex items-center gap-3 p-4 hover:bg-neutral-50"
                   >
@@ -556,7 +558,7 @@ export const PageIdentityDetail = () => {
 const LinkedContactRow = ({ contact }: { contact: IndividualIdentity }) => {
   return (
     <Link
-      to="/identities/$identityId"
+      to="/compliance/identities/$identityId"
       params={{ identityId: contact.id }}
       className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
     >
@@ -589,7 +591,7 @@ const LinkedContactRow = ({ contact }: { contact: IndividualIdentity }) => {
 const LinkedVaultRow = ({ vault }: { vault: Vault }) => {
   return (
     <Link
-      to="/vaults/$vaultId"
+      to="/treasury/vaults/$vaultId"
       params={{ vaultId: vault.id }}
       className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
     >

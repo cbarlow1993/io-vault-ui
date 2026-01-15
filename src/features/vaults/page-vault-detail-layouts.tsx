@@ -50,7 +50,7 @@ const mockVault = {
     { type: 'EdDSA', curve: 'ed25519' },
   ],
   signers: [
-    { id: '1', name: 'Server-1', type: 'server', owner: 'System', power: 2 },
+    { id: '1', name: 'Server-1', type: 'virtual', owner: 'System', power: 2 },
     { id: '2', name: 'John Phone', type: 'ios', owner: 'J. Smith', power: 1 },
     {
       id: '3',
@@ -187,7 +187,7 @@ const SignatureStatusIcon = ({
 };
 
 const DeviceIcon = ({ type }: { type: string }) => {
-  if (type === 'server')
+  if (type === 'virtual')
     return <ServerIcon className="size-4 text-neutral-500" />;
   return <SmartphoneIcon className="size-4 text-neutral-500" />;
 };
@@ -944,7 +944,7 @@ const Layout9TabbedQuickStats = () => {
             <div className="px-4 py-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-[10px] font-semibold tracking-wider text-neutral-400 uppercase">
-                  MPC Signers
+                  Signers
                 </h3>
                 <span className="text-xs text-neutral-500">
                   Threshold: {mockVault.threshold}/{mockVault.totalSigners}
@@ -989,7 +989,7 @@ export const PageVaultDetailLayouts = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: mockVault.name },
         ]}
         status={<StatusBadge status={mockVault.status} />}

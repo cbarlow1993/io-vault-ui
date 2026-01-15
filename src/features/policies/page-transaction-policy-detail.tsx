@@ -197,7 +197,7 @@ const formatTimeRestriction = (
 
 export const PageTransactionPolicyDetail = () => {
   const { policyId } = useParams({
-    from: '/_app/policies/transactions/$policyId/',
+    from: '/_app/treasury/policies/transactions/$policyId/',
   });
   const navigate = useNavigate();
   const policy = getPolicyById(policyId);
@@ -232,7 +232,7 @@ export const PageTransactionPolicyDetail = () => {
   const handleDisable = () => {
     toast.success('Policy disabled successfully');
     setDisableDialogOpen(false);
-    navigate({ to: '/policies/transactions' });
+    navigate({ to: '/treasury/policies/transactions' });
   };
 
   if (!policy) {
@@ -240,7 +240,10 @@ export const PageTransactionPolicyDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Transaction Policies', href: '/policies/transactions' },
+            {
+              label: 'Transaction Policies',
+              href: '/treasury/policies/transactions',
+            },
             { label: 'Not Found' },
           ]}
         />
@@ -250,7 +253,7 @@ export const PageTransactionPolicyDetail = () => {
               The requested policy could not be found.
             </p>
             <Link
-              to="/policies/transactions"
+              to="/treasury/policies/transactions"
               className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
               Back to Policies
@@ -265,7 +268,10 @@ export const PageTransactionPolicyDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Transaction Policies', href: '/policies/transactions' },
+          {
+            label: 'Transaction Policies',
+            href: '/treasury/policies/transactions',
+          },
           { label: policy.name },
         ]}
         status={
@@ -287,7 +293,7 @@ export const PageTransactionPolicyDetail = () => {
               className="h-7 rounded-none px-3 text-xs font-medium"
             >
               <Link
-                to="/policies/transactions/$policyId/versions/$versionNumber"
+                to="/treasury/policies/transactions/$policyId/versions/$versionNumber"
                 params={{ policyId, versionNumber: 'new' }}
               >
                 <PlusIcon className="mr-1.5 size-3.5" />
@@ -352,7 +358,7 @@ export const PageTransactionPolicyDetail = () => {
                 className="h-7 rounded-none border-brand-300 bg-white px-3 text-xs font-medium text-brand-700 hover:bg-brand-50"
               >
                 <Link
-                  to="/policies/transactions/$policyId/versions/$versionNumber"
+                  to="/treasury/policies/transactions/$policyId/versions/$versionNumber"
                   params={{
                     policyId,
                     versionNumber: String(draftVersion.version),
@@ -759,7 +765,7 @@ export const PageTransactionPolicyDetail = () => {
                         return (
                           <Link
                             key={version.version}
-                            to="/policies/transactions/$policyId/versions/$versionNumber"
+                            to="/treasury/policies/transactions/$policyId/versions/$versionNumber"
                             params={{
                               policyId,
                               versionNumber: String(version.version),

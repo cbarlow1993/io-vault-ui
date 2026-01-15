@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import {
   ArrowLeftIcon,
@@ -13,7 +14,9 @@ import {
   XIcon,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -38,13 +41,7 @@ import {
   PageLayoutTopBarTitle,
 } from '@/layout/shell';
 
-import {
-  type AvailableSigner,
-  availableSigners,
-  type DeviceType,
-  getVaultById,
-  type Signer,
-} from './data/vaults';
+import { type DeviceType, getVaultById } from './data/vaults';
 
 type FormSigner = {
   id: string;
@@ -57,7 +54,7 @@ type FormSigner = {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -67,8 +64,8 @@ const getDeviceIcon = (deviceType: DeviceType) => {
 
 const getDeviceLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
-      return 'Server';
+    case 'virtual':
+      return 'Virtual';
     case 'ios':
       return 'iOS';
     case 'android':
@@ -108,11 +105,60 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
     ? getIdentityById(selectedIdentityId)
     : undefined;
 
+  // Fetch signers from API
+  const { data: signersData, isLoading: signersLoading } = useQuery(
+    orpc.signers.list.queryOptions({
+      status: 'active',
+      limit: 100,
+    })
+  );
+
+  // Create vault mutation
+  const createVaultMutation = useMutation(
+    orpc.vaults.create.mutationOptions({
+      onSuccess: (data) => {
+        toast.success('Vault created successfully');
+        // Navigate to the newly created vault
+        navigate({ to: '/treasury/vaults/$vaultId', params: { vaultId: data.id } });
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to create vault');
+      },
+    })
+  );
+
+  // Create reshare mutation (for edit mode)
+  const createReshareMutation = useMutation(
+    orpc.vaults.createReshare.mutationOptions({
+      onSuccess: (data) => {
+        toast.success('Reshare request submitted successfully');
+        // Navigate to the reshare detail page
+        navigate({
+          to: '/treasury/vaults/$vaultId/reshares/$reshareId',
+          params: { vaultId: data.vaultId, reshareId: data.id },
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to submit reshare request');
+      },
+    })
+  );
+
   // Available signers that aren't already selected
   const availableToAdd = useMemo(() => {
+    if (!signersData?.data) return [];
+
     const selectedIds = new Set(selectedSigners.map((s) => s.id));
-    return availableSigners.filter((s) => !selectedIds.has(s.id));
-  }, [selectedSigners]);
+    return signersData.data
+      .filter((s) => !selectedIds.has(s.id))
+      .map((signer) => ({
+        id: signer.id,
+        name: signer.name,
+        owner: signer.owner,
+        deviceType: signer.type,
+        version: signer.version,
+      }));
+  }, [signersData, selectedSigners]);
 
   // Calculate total voting power
   const totalVotingPower = useMemo(() => {
@@ -128,7 +174,13 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
     return true;
   }, [name, selectedSigners, threshold, totalVotingPower]);
 
-  const handleAddSigner = (signer: AvailableSigner) => {
+  const handleAddSigner = (signer: {
+    id: string;
+    name: string;
+    owner: string;
+    deviceType: DeviceType;
+    version: string;
+  }) => {
     setSelectedSigners((prev) => [
       ...prev,
       {
@@ -155,28 +207,34 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
   };
 
   const handleSubmit = () => {
-    // In a real app, this would submit to an API
-    console.log('Submitting vault:', {
-      name,
-      threshold,
-      signers: selectedSigners,
-      identityId: selectedIdentityId,
-      allowDerivedAddresses:
-        mode === 'create' ? allowDerivedAddresses : undefined,
-    });
-    // Navigate back to the vault list or detail page
-    if (mode === 'edit' && vaultId) {
-      navigate({ to: '/vaults/$vaultId', params: { vaultId } });
+    if (mode === 'create') {
+      // Submit to create vault API
+      createVaultMutation.mutate({
+        name,
+        threshold,
+        signers: selectedSigners.map((s) => ({
+          key: s.id,
+          weight: s.votingPower,
+        })),
+      });
     } else {
-      navigate({ to: '/vaults' });
+      // Edit mode - submit reshare request
+      createReshareMutation.mutate({
+        vaultId: vaultId!,
+        threshold,
+        signers: selectedSigners.map((s) => ({
+          signerKey: s.id,
+          signingPower: s.votingPower,
+        })),
+      });
     }
   };
 
   const handleCancel = () => {
     if (mode === 'edit' && vaultId) {
-      navigate({ to: '/vaults/$vaultId', params: { vaultId } });
+      navigate({ to: '/treasury/vaults/$vaultId', params: { vaultId } });
     } else {
-      navigate({ to: '/vaults' });
+      navigate({ to: '/treasury/vaults' });
     }
   };
 
@@ -190,7 +248,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -218,16 +276,28 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
             <Button
               type="button"
               onClick={handleSubmit}
-              disabled={!isValid}
+              disabled={
+                !isValid ||
+                createVaultMutation.isPending ||
+                createReshareMutation.isPending
+              }
               data-testid="vault-submit-button"
               className={cn(
                 'h-7 rounded-none px-3 text-xs font-medium',
-                isValid
+                isValid &&
+                  !createVaultMutation.isPending &&
+                  !createReshareMutation.isPending
                   ? 'bg-brand-500 text-white hover:bg-brand-600'
                   : 'cursor-not-allowed bg-neutral-200 text-neutral-400'
               )}
             >
-              {mode === 'create' ? 'Create Vault' : 'Request Reshare'}
+              {createVaultMutation.isPending
+                ? 'Creating...'
+                : createReshareMutation.isPending
+                  ? 'Submitting...'
+                  : mode === 'create'
+                    ? 'Create Vault'
+                    : 'Request Reshare'}
             </Button>
           </>
         }
@@ -476,7 +546,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
             <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
               <div>
                 <h2 className="text-xs font-semibold tracking-wider text-neutral-900 uppercase">
-                  MPC Signers
+                  Signers
                 </h2>
                 <p className="mt-0.5 text-[11px] text-neutral-500">
                   Select devices to participate in threshold signing
@@ -486,7 +556,7 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
-                    disabled={availableToAdd.length === 0}
+                    disabled={signersLoading || availableToAdd.length === 0}
                     data-testid="vault-add-signer-button"
                   >
                     <PlusIcon className="mr-1.5 size-3.5" />
@@ -497,30 +567,36 @@ const VaultFormContent = ({ mode, vaultId }: VaultFormProps) => {
                   align="end"
                   className="max-h-64 w-64 overflow-y-auto rounded-none p-0"
                 >
-                  {availableToAdd.map((signer) => (
-                    <DropdownMenuItem
-                      key={signer.id}
-                      onClick={() => handleAddSigner(signer)}
-                      className="cursor-pointer rounded-none px-3 py-2"
-                      data-testid={`vault-signer-option-${signer.id}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {getDeviceIcon(signer.deviceType)}
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-neutral-900">
-                            {signer.name}
-                          </p>
-                          <p className="text-[10px] text-neutral-500">
-                            {getDeviceLabel(signer.deviceType)} · {signer.owner}
-                          </p>
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                  {availableToAdd.length === 0 && (
+                  {signersLoading ? (
+                    <div className="px-3 py-4 text-center text-xs text-neutral-500">
+                      Loading signers...
+                    </div>
+                  ) : availableToAdd.length === 0 ? (
                     <div className="px-3 py-4 text-center text-xs text-neutral-500">
                       No more signers available
                     </div>
+                  ) : (
+                    availableToAdd.map((signer) => (
+                      <DropdownMenuItem
+                        key={signer.id}
+                        onClick={() => handleAddSigner(signer)}
+                        className="cursor-pointer rounded-none px-3 py-2"
+                        data-testid={`vault-signer-option-${signer.id}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {getDeviceIcon(signer.deviceType)}
+                          <div className="flex-1">
+                            <p className="text-xs font-medium text-neutral-900">
+                              {signer.name}
+                            </p>
+                            <p className="text-[10px] text-neutral-500">
+                              {getDeviceLabel(signer.deviceType)} ·{' '}
+                              {signer.owner}
+                            </p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -651,6 +727,8 @@ export const PageVaultCreate = () => {
 
 // Edit (reshare) vault page component
 export const PageVaultEdit = () => {
-  const { vaultId } = useParams({ from: '/_app/vaults/$vaultId/edit' });
+  const { vaultId } = useParams({
+    from: '/_app/treasury/vaults/$vaultId/edit',
+  });
   return <VaultFormContent mode="edit" vaultId={vaultId} />;
 };

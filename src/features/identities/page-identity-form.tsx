@@ -276,17 +276,23 @@ const IdentityFormContent = ({ mode, identityId }: IdentityFormProps) => {
     console.log('Submitting identity:', formData);
 
     if (mode === 'edit' && identityId) {
-      navigate({ to: '/identities/$identityId', params: { identityId } });
+      navigate({
+        to: '/compliance/identities/$identityId',
+        params: { identityId },
+      });
     } else {
-      navigate({ to: '/identities' });
+      navigate({ to: '/compliance/identities' });
     }
   };
 
   const handleCancel = () => {
     if (mode === 'edit' && identityId) {
-      navigate({ to: '/identities/$identityId', params: { identityId } });
+      navigate({
+        to: '/compliance/identities/$identityId',
+        params: { identityId },
+      });
     } else {
-      navigate({ to: '/identities' });
+      navigate({ to: '/compliance/identities' });
     }
   };
 
@@ -300,7 +306,7 @@ const IdentityFormContent = ({ mode, identityId }: IdentityFormProps) => {
               The requested identity could not be found.
             </p>
             <Link
-              to="/identities"
+              to="/compliance/identities"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -928,7 +934,7 @@ export const PageIdentityCreate = () => {
 // Edit identity page component
 export const PageIdentityEdit = () => {
   const { identityId } = useParams({
-    from: '/_app/identities/$identityId/edit',
+    from: '/_app/compliance/identities/$identityId/edit',
   });
   return <IdentityFormContent mode="edit" identityId={identityId} />;
 };

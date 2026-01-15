@@ -39,7 +39,7 @@ type AddressType = 'root' | 'derived';
 
 export const PageNewAddress = () => {
   const { vaultId } = useParams({
-    from: '/_app/vaults/$vaultId/addresses/new',
+    from: '/_app/treasury/vaults/$vaultId/addresses/new',
   });
   const navigate = useNavigate();
   const vault = getVaultById(vaultId);
@@ -63,7 +63,7 @@ export const PageNewAddress = () => {
               The requested vault could not be found.
             </p>
             <Link
-              to="/vaults"
+              to="/treasury/vaults"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -112,7 +112,10 @@ export const PageNewAddress = () => {
     );
 
     setIsSubmitting(false);
-    navigate({ to: '/vaults/$vaultId/addresses', params: { vaultId } });
+    navigate({
+      to: '/treasury/vaults/$vaultId/addresses',
+      params: { vaultId },
+    });
   };
 
   // Group chains by curve type
@@ -128,7 +131,7 @@ export const PageNewAddress = () => {
       <PageLayoutTopBar>
         <div className="flex items-center gap-3">
           <Link
-            to="/vaults/$vaultId/addresses"
+            to="/treasury/vaults/$vaultId/addresses"
             params={{ vaultId }}
             className="flex size-6 items-center justify-center text-neutral-400 hover:text-neutral-900"
           >
@@ -567,7 +570,10 @@ export const PageNewAddress = () => {
                   variant="secondary"
                   className="h-9 rounded-none border-neutral-200 px-4 text-xs font-medium"
                 >
-                  <Link to="/vaults/$vaultId/addresses" params={{ vaultId }}>
+                  <Link
+                    to="/treasury/vaults/$vaultId/addresses"
+                    params={{ vaultId }}
+                  >
                     Cancel
                   </Link>
                 </Button>

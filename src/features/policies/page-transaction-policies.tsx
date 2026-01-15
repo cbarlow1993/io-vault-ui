@@ -396,7 +396,7 @@ export const PageTransactionPolicies = () => {
                         className="group cursor-pointer hover:bg-neutral-50"
                         onClick={() => {
                           navigate({
-                            to: '/policies/transactions/$policyId',
+                            to: '/treasury/policies/transactions/$policyId',
                             params: { policyId: policy.id },
                           });
                         }}
@@ -542,7 +542,7 @@ export const PageTransactionPolicies = () => {
                                 className="cursor-pointer rounded-none text-xs"
                               >
                                 <Link
-                                  to="/policies/transactions/$policyId"
+                                  to="/treasury/policies/transactions/$policyId"
                                   params={{ policyId: policy.id }}
                                 >
                                   View Details
@@ -553,7 +553,7 @@ export const PageTransactionPolicies = () => {
                                 className="cursor-pointer rounded-none text-xs"
                               >
                                 <Link
-                                  to="/policies/transactions/$policyId/versions/$versionNumber"
+                                  to="/treasury/policies/transactions/$policyId/versions/$versionNumber"
                                   params={{
                                     policyId: policy.id,
                                     versionNumber: String(
@@ -575,7 +575,7 @@ export const PageTransactionPolicies = () => {
                                 className="cursor-pointer rounded-none text-xs"
                               >
                                 <Link
-                                  to="/policies/transactions/$policyId"
+                                  to="/treasury/policies/transactions/$policyId"
                                   params={{ policyId: policy.id }}
                                   search={{ tab: 'history' }}
                                 >

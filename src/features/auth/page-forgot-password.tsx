@@ -19,7 +19,7 @@ export default function PageForgotPassword() {
   // Redirect if already signed in
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      router.navigate({ to: '/overview', replace: true });
+      router.navigate({ to: '/treasury/overview', replace: true });
     }
   }, [isLoaded, isSignedIn, router]);
 

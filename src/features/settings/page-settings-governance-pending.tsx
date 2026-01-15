@@ -287,7 +287,7 @@ export const PageSettingsGovernancePending = () => {
       description="Review and vote on governance requests"
       actions={
         <Link
-          to="/settings/governance"
+          to="/global/governance"
           className="flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900"
         >
           <ArrowLeftIcon className="size-3.5" />

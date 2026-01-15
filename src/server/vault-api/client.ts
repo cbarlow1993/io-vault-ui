@@ -1,8 +1,8 @@
 import createClient from 'openapi-fetch';
 
-import { envServer } from '@/env/server';
-
 import type { paths } from '@/lib/api/vault-api';
+
+import { envServer } from '@/env/server';
 
 /**
  * Singleton openapi-fetch client for the Vault API.

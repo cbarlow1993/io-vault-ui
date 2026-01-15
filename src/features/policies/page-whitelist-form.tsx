@@ -206,22 +206,22 @@ const WhitelistFormContent = ({ mode, whitelistId }: WhitelistFormProps) => {
 
     if (mode === 'edit' && whitelistId) {
       navigate({
-        to: '/policies/whitelists/$whitelistId',
+        to: '/treasury/policies/whitelists/$whitelistId',
         params: { whitelistId },
       });
     } else {
-      navigate({ to: '/policies/whitelists' });
+      navigate({ to: '/treasury/policies/whitelists' });
     }
   };
 
   const handleCancel = () => {
     if (mode === 'edit' && whitelistId) {
       navigate({
-        to: '/policies/whitelists/$whitelistId',
+        to: '/treasury/policies/whitelists/$whitelistId',
         params: { whitelistId },
       });
     } else {
-      navigate({ to: '/policies/whitelists' });
+      navigate({ to: '/treasury/policies/whitelists' });
     }
   };
 
@@ -235,7 +235,7 @@ const WhitelistFormContent = ({ mode, whitelistId }: WhitelistFormProps) => {
               The requested whitelist could not be found.
             </p>
             <Link
-              to="/policies/whitelists"
+              to="/treasury/policies/whitelists"
               className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
             >
               <ArrowLeftIcon className="size-4" />
@@ -666,7 +666,7 @@ export const PageWhitelistCreate = () => {
 // Edit whitelist page component
 export const PageWhitelistEdit = () => {
   const { whitelistId } = useParams({
-    from: '/_app/policies/whitelists/$whitelistId/edit',
+    from: '/_app/treasury/policies/whitelists/$whitelistId/edit',
   });
   return <WhitelistFormContent mode="edit" whitelistId={whitelistId} />;
 };

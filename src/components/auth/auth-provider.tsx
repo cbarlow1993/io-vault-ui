@@ -3,8 +3,9 @@
 import { ClerkProvider } from '@clerk/tanstack-react-start';
 import { type ReactNode } from 'react';
 
-import { envClient } from '@/env/client';
 import { clerkAppearance } from '@/lib/clerk/appearance';
+
+import { envClient } from '@/env/client';
 
 interface AuthProviderProps {
   children: ReactNode;

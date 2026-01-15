@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
 import {
   CheckCircleIcon,
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
@@ -41,6 +43,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import {
   allIdentities,
@@ -60,6 +63,7 @@ import {
 } from '@/layout/shell';
 
 import type { DeviceType, Signature, Signer, VaultCurve } from './data/vaults';
+import type { ReshareStatus } from './schema';
 
 // =============================================================================
 // Pagination Types
@@ -383,7 +387,7 @@ const mockSigners: Signer[] = [
   {
     id: 'signer-3',
     name: 'Co-signer Server',
-    deviceType: 'server',
+    deviceType: 'virtual',
     owner: 'System',
     votingPower: 1,
     version: '3.1.0',
@@ -489,20 +493,23 @@ const getSignatureStatusIcon = (status: Signature['status']) => {
   }
 };
 
-const getReshareStatusIcon = (status: Reshare['status']) => {
+const getReshareStatusIcon = (status: ReshareStatus) => {
   switch (status) {
     case 'completed':
       return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'pending':
+    case 'voting':
+    case 'signing':
       return <ClockIcon className="size-4 text-warning-600" />;
     case 'failed':
+    case 'rejected':
+    case 'expired':
       return <XCircleIcon className="size-4 text-negative-600" />;
   }
 };
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -581,7 +588,7 @@ const AddressRow = ({
   chainId,
 }: AddressRowProps) => (
   <Link
-    to="/vaults/$vaultId/chain/$chain/addresses/$address"
+    to="/treasury/vaults/$vaultId/chain/$chain/addresses/$address"
     params={{ vaultId, chain: chainId, address: addr.address }}
     className="group flex cursor-pointer items-center gap-3 py-2 pr-4 pl-28 hover:bg-neutral-50"
   >
@@ -2004,15 +2011,23 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
     useState<FilterSelectOption | null>(DEFAULT_PAGE_SIZE);
   const pageSize = pageSizeOption ? Number(pageSizeOption.id) : 5;
 
+  const { data: resharesData, isLoading } = useQuery(
+    orpc.vaults.listReshares.queryOptions({
+      input: { vaultId },
+    })
+  );
+
+  const reshares = resharesData?.data ?? [];
+
   const totalPages = useMemo(
-    () => Math.ceil(mockReshares.length / pageSize),
-    [pageSize]
+    () => Math.ceil(reshares.length / pageSize),
+    [reshares.length, pageSize]
   );
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedReshares = useMemo(
-    () => mockReshares.slice(startIndex, endIndex),
-    [startIndex, endIndex]
+    () => reshares.slice(startIndex, endIndex),
+    [reshares, startIndex, endIndex]
   );
 
   const handlePageSizeChange = (value: FilterSelectOption) => {
@@ -2020,7 +2035,7 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
     setCurrentPage(1);
   };
 
-  if (mockReshares.length === 0) {
+  if (isLoading) {
     return (
       <div className="border border-neutral-200 bg-white">
         <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-4 py-2">
@@ -2030,7 +2045,25 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
               Reshares
             </span>
           </div>
-          <Link to="/vaults/$vaultId/edit" params={{ vaultId }}>
+        </div>
+        <div className="px-4 py-8 text-center">
+          <p className="text-sm text-neutral-500">Loading reshares...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (reshares.length === 0) {
+    return (
+      <div className="border border-neutral-200 bg-white">
+        <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-4 py-2">
+          <div className="flex items-center gap-2">
+            <HistoryIcon className="size-3.5 text-neutral-500" />
+            <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+              Reshares
+            </span>
+          </div>
+          <Link to="/treasury/vaults/$vaultId/edit" params={{ vaultId }}>
             <Button
               type="button"
               className="h-7 rounded-none bg-brand-500 px-3 text-xs text-white hover:bg-brand-600"
@@ -2061,10 +2094,9 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-neutral-500 tabular-nums">
-            {mockReshares.length}{' '}
-            {mockReshares.length === 1 ? 'reshare' : 'reshares'}
+            {reshares.length} {reshares.length === 1 ? 'reshare' : 'reshares'}
           </span>
-          <Link to="/vaults/$vaultId/edit" params={{ vaultId }}>
+          <Link to="/treasury/vaults/$vaultId/edit" params={{ vaultId }}>
             <Button
               type="button"
               className="h-7 rounded-none bg-brand-500 px-3 text-xs text-white hover:bg-brand-600"
@@ -2078,21 +2110,18 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
         <thead>
           <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
             <th className="px-4 py-2 font-medium text-neutral-500">Status</th>
-            <th className="px-4 py-2 font-medium text-neutral-500">Reason</th>
+            <th className="px-4 py-2 font-medium text-neutral-500">Memo</th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Threshold Change
+              Threshold
             </th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Participants
+              Created At
             </th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Initiated At
+              Expires At
             </th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Completed At
-            </th>
-            <th className="px-4 py-2 font-medium text-neutral-500">
-              Initiated By
+              Created By
             </th>
           </tr>
         </thead>
@@ -2100,7 +2129,7 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
           {paginatedReshares.map((reshare) => (
             <Link
               key={reshare.id}
-              to="/vaults/$vaultId/reshares/$reshareId"
+              to="/treasury/vaults/$vaultId/reshares/$reshareId"
               params={{ vaultId, reshareId: reshare.id }}
               className="contents"
             >
@@ -2114,32 +2143,21 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
                   </div>
                 </td>
                 <td className="px-4 py-2.5 font-medium text-neutral-900">
-                  {reshare.reason}
+                  {reshare.memo ?? '—'}
                 </td>
                 <td className="px-4 py-2.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-neutral-500 tabular-nums">
-                      {reshare.previousThreshold}
-                    </span>
-                    <span className="text-neutral-400">→</span>
-                    <span className="font-medium text-neutral-900 tabular-nums">
-                      {reshare.newThreshold}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-2.5">
-                  <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-neutral-600 tabular-nums">
-                    {reshare.participantsCount} signers
+                  <span className="font-medium text-neutral-900 tabular-nums">
+                    {reshare.threshold}
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
-                  {reshare.initiatedAt}
+                  {reshare.createdAt}
                 </td>
                 <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
-                  {reshare.completedAt ?? '—'}
+                  {reshare.expiresAt}
                 </td>
                 <td className="px-4 py-2.5 text-neutral-600">
-                  {reshare.initiatedBy}
+                  {reshare.createdBy}
                 </td>
               </tr>
             </Link>
@@ -2161,8 +2179,8 @@ const ResharesTable = ({ vaultId }: ResharesTableProps) => {
 
         <div className="flex items-center gap-1">
           <span className="mr-2 text-xs text-neutral-500">
-            {startIndex + 1}-{Math.min(endIndex, mockReshares.length)} of{' '}
-            {mockReshares.length}
+            {startIndex + 1}-{Math.min(endIndex, reshares.length)} of{' '}
+            {reshares.length}
           </span>
 
           {/* First page */}
@@ -2279,278 +2297,261 @@ type DetailsContentProps = {
   vaultId: string;
 };
 
-const DetailsContent = ({ vaultId }: DetailsContentProps) => (
-  <div className="flex flex-col gap-4 p-4">
-    {/* Top Row: 50/50 Grid */}
-    <div className="grid grid-cols-2 gap-4">
-      {/* Left Column: Threshold & Signers */}
-      <div className="flex flex-col gap-4">
-        {/* Threshold Card */}
-        <div className="border border-neutral-200 bg-white">
-          <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
-            <UsersIcon className="size-3.5 text-neutral-500" />
-            <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
-              Signing Threshold
-            </span>
-          </div>
-          <div className="flex items-center justify-center py-6">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-brand-600 tabular-nums">
-                {mockVaultConfig.threshold}
-              </div>
-              <p className="mt-1 text-xs text-neutral-500">
-                signing power required
-              </p>
-            </div>
-          </div>
-          <div className="border-t border-neutral-100 bg-neutral-50 px-4 py-2">
-            <div className="flex items-center justify-between text-[10px] text-neutral-400">
-              <span>Created: {mockVaultConfig.createdAt}</span>
-              <span>Last Activity: {mockVaultConfig.lastActivity}</span>
-            </div>
-          </div>
-        </div>
+const DetailsContent = ({ vaultId }: DetailsContentProps) => {
+  const { data: vault } = useQuery(
+    orpc.vaults.get.queryOptions({ input: { id: vaultId } })
+  );
 
-        {/* Derived Addresses Setting */}
-        <div className="border border-neutral-200 bg-white">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <KeyIcon className="size-3.5 text-neutral-500" />
-              <div>
-                <span className="text-xs font-medium text-neutral-900">
-                  Derived Addresses
-                </span>
-                <p className="text-[10px] text-neutral-500">
-                  Generate multiple addresses from this vault
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      {/* Top Row: 50/50 Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Left Column: Threshold & Signers */}
+        <div className="flex flex-col gap-4">
+          {/* Threshold Card */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
+              <UsersIcon className="size-3.5 text-neutral-500" />
+              <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+                Signing Threshold
+              </span>
+            </div>
+            <div className="flex items-center justify-center py-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-brand-600 tabular-nums">
+                  {vault?.threshold ?? '-'}
+                </div>
+                <p className="mt-1 text-xs text-neutral-500">
+                  signing power required
                 </p>
               </div>
             </div>
-            <div
-              className={cn(
-                'flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium',
-                mockVaultConfig.allowDerivedAddresses
-                  ? 'bg-positive-100 text-positive-700'
-                  : 'bg-neutral-100 text-neutral-500'
-              )}
-            >
-              {mockVaultConfig.allowDerivedAddresses ? (
-                <>
-                  <CheckIcon className="size-3" />
-                  <span>Enabled</span>
-                </>
-              ) : (
-                <>
-                  <XIcon className="size-3" />
-                  <span>Disabled</span>
-                </>
-              )}
+            <div className="border-t border-neutral-100 bg-neutral-50 px-4 py-2">
+              <div className="flex items-center justify-between text-[10px] text-neutral-400">
+                <span>Created: {vault?.createdAt ?? '-'}</span>
+                <span>Last Activity: {vault?.lastUsed ?? 'Never'}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Signers Card */}
-        <div className="border border-neutral-200 bg-white">
-          <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
-            <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
-              MPC Signers
-            </span>
-            <span className="ml-auto text-[10px] text-neutral-400 tabular-nums">
-              {mockSigners.length} signers
-            </span>
-          </div>
-          <div className="divide-y divide-neutral-100">
-            {mockSigners.map((signer) => (
-              <div
-                key={signer.id}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
-              >
-                <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100">
-                  {getDeviceIcon(signer.deviceType)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-neutral-900">
-                      {signer.name}
-                    </span>
-                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[9px] text-neutral-500">
-                      v{signer.version}
-                    </span>
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-[10px] text-neutral-500">
-                    <span>{signer.owner}</span>
-                    <span className="text-neutral-300">·</span>
-                    <span className="capitalize">{signer.deviceType}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-700 tabular-nums">
-                    {signer.votingPower} Signing Power
-                  </span>
-                </div>
+          {/* Signers Card */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
+              <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+                Signers
+              </span>
+              <span className="ml-auto text-[10px] text-neutral-400 tabular-nums">
+                {vault?.signers.length ?? 0} signers
+              </span>
+            </div>
+            {vault?.signers.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <UsersIcon className="mx-auto size-8 text-neutral-300" />
+                <p className="mt-2 text-sm text-neutral-500">No signers</p>
+                <p className="mt-1 text-xs text-neutral-400">
+                  Signers will be available after the vault is activated
+                </p>
               </div>
-            ))}
+            ) : (
+              <div className="divide-y divide-neutral-100">
+                {vault?.signers.map((signer) => (
+                  <div
+                    key={signer.id}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
+                  >
+                    <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100">
+                      {getDeviceIcon(signer.deviceType)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-neutral-900">
+                          {signer.name}
+                        </span>
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-2 text-[10px] text-neutral-500">
+                        <span>{signer.owner}</span>
+                        <span className="text-neutral-300">·</span>
+                        <span className="capitalize">{signer.deviceType}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-700 tabular-nums">
+                        {signer.votingPower} Signing Power
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Right Column: Curves Card */}
-      <div className="border border-neutral-200 bg-white">
-        <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
-          <KeyIcon className="size-3.5 text-neutral-500" />
-          <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
-            Cryptographic Curves
-          </span>
-          <span className="ml-auto text-[10px] text-neutral-400 tabular-nums">
-            {mockCurves.length} curves
-          </span>
-        </div>
-        <div className="divide-y divide-neutral-100">
-          {mockCurves.map((curve) => (
-            <div key={curve.fingerprint} className="px-4 py-3">
-              <div className="flex items-start justify-between">
+        {/* Right Column: Curves & Derived Addresses */}
+        <div className="flex flex-col gap-4">
+          {/* Curves Card */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50 px-4 py-2">
+              <KeyIcon className="size-3.5 text-neutral-500" />
+              <span className="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+                Cryptographic Curves
+              </span>
+              {vault?.status !== 'draft' && (
+                <span className="ml-auto text-[10px] text-neutral-400 tabular-nums">
+                  {vault?.curves.length ?? mockCurves.length} curves
+                </span>
+              )}
+            </div>
+            {vault?.status === 'draft' ? (
+              <div className="px-4 py-8 text-center">
+                <ClockIcon className="mx-auto size-8 text-warning-400" />
+                <p className="mt-2 text-sm font-medium text-neutral-700">
+                  Pending Key Generation
+                </p>
+                <p className="mt-1 text-xs text-neutral-500">
+                  Cryptographic curves will be available once the initial
+                  reshare is complete and all signers have participated.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-neutral-100">
+                {(vault?.curves ?? mockCurves).map((curve) => (
+                  <div key={curve.fingerprint} className="px-4 py-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                            {curve.type}
+                          </span>
+                          <span className="font-mono text-xs text-neutral-600">
+                            {curve.curve}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                      >
+                        <CopyIcon className="size-3.5" />
+                      </button>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2 rounded bg-neutral-50 px-2 py-1.5">
+                      <span className="text-[10px] text-neutral-400">
+                        Public Key:
+                      </span>
+                      <span className="flex-1 truncate font-mono text-[10px] text-neutral-600">
+                        {curve.publicKey}
+                      </span>
+                      <button
+                        type="button"
+                        className="shrink-0 rounded p-0.5 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-600"
+                      >
+                        <CopyIcon className="size-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Derived Addresses Setting */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-2">
+                <KeyIcon className="size-3.5 text-neutral-500" />
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      {curve.type}
-                    </span>
-                    <span className="font-mono text-xs text-neutral-600">
-                      {curve.curve}
-                    </span>
-                  </div>
+                  <span className="text-xs font-medium text-neutral-900">
+                    Derived Addresses
+                  </span>
+                  <p className="text-[10px] text-neutral-500">
+                    Generate multiple addresses from this vault
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
-                >
-                  <CopyIcon className="size-3.5" />
-                </button>
               </div>
-              <div className="mt-2 flex items-center gap-2 rounded bg-neutral-50 px-2 py-1.5">
-                <span className="text-[10px] text-neutral-400">
-                  Public Key:
-                </span>
-                <span className="flex-1 truncate font-mono text-[10px] text-neutral-600">
-                  {curve.publicKey}
-                </span>
-                <button
-                  type="button"
-                  className="shrink-0 rounded p-0.5 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-600"
-                >
-                  <CopyIcon className="size-3" />
-                </button>
+              <div
+                className={cn(
+                  'flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium',
+                  mockVaultConfig.allowDerivedAddresses
+                    ? 'bg-positive-100 text-positive-700'
+                    : 'bg-neutral-100 text-neutral-500'
+                )}
+              >
+                {mockVaultConfig.allowDerivedAddresses ? (
+                  <>
+                    <CheckIcon className="size-3" />
+                    <span>Enabled</span>
+                  </>
+                ) : (
+                  <>
+                    <XIcon className="size-3" />
+                    <span>Disabled</span>
+                  </>
+                )}
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
+
+      {/* Full Width: Reshares Table */}
+      <ResharesTable vaultId={vaultId} />
     </div>
+  );
+};
 
-    {/* Full Width: Reshares Table */}
-    <ResharesTable vaultId={vaultId} />
-  </div>
-);
+// =============================================================================
+// Vault Tabs
+// =============================================================================
 
-type TabContentProps = {
-  activeTab: TabType;
+type VaultTabsProps = {
   vaultId: string;
+  initialTab?: TabType;
 };
 
-const TabContent = ({ activeTab, vaultId }: TabContentProps) => {
-  switch (activeTab) {
-    case 'addresses':
-      return <AddressesTreeContent vaultId={vaultId} />;
-    case 'details':
-      return <DetailsContent vaultId={vaultId} />;
-    case 'signatures':
-      return <SignaturesContent />;
-  }
-};
-
-// =============================================================================
-// TAB DESIGN 1: Underline Tabs (matching whitelist detail page)
-// =============================================================================
-const TabDesign1PillTabs = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('addresses');
-  // Get vaultId from URL params, fallback to 'vault-1' for demo routes
-  const params = useParams({ strict: false }) as { vaultId?: string };
-  const vaultId = params.vaultId ?? 'vault-1';
+const VaultTabs = ({ vaultId, initialTab }: VaultTabsProps) => {
+  const [activeTab, setActiveTab] = useState<TabType>(
+    initialTab ?? 'addresses'
+  );
 
   return (
-    <div className="border border-neutral-200 bg-white">
-      {/* Underline Tabs */}
-      <div className="flex border-b border-neutral-200">
-        <button
-          type="button"
-          onClick={() => setActiveTab('addresses')}
-          className={cn(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors',
-            activeTab === 'addresses'
-              ? 'border-brand-500 text-brand-600'
-              : 'border-transparent text-neutral-500 hover:text-neutral-700'
-          )}
+    <Tabs
+      value={activeTab}
+      onValueChange={(value) => setActiveTab(value as TabType)}
+      className="border border-neutral-200 bg-white"
+    >
+      <TabsList>
+        <TabsTrigger
+          value="addresses"
+          icon={<ShieldCheckIcon className="size-4" />}
+          badge={getTotalAddresses()}
         >
-          <ShieldCheckIcon className="size-4" />
           Addresses Secured
-          <span
-            className={cn(
-              'rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
-              activeTab === 'addresses'
-                ? 'bg-brand-100 text-brand-700'
-                : 'bg-neutral-100 text-neutral-600'
-            )}
-          >
-            {getTotalAddresses()}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('signatures')}
-          className={cn(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors',
-            activeTab === 'signatures'
-              ? 'border-brand-500 text-brand-600'
-              : 'border-transparent text-neutral-500 hover:text-neutral-700'
-          )}
+        </TabsTrigger>
+        <TabsTrigger
+          value="signatures"
+          icon={<HistoryIcon className="size-4" />}
+          badge={mockSignatures.length}
         >
-          <HistoryIcon className="size-4" />
           Signatures
-          <span
-            className={cn(
-              'rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
-              activeTab === 'signatures'
-                ? 'bg-brand-100 text-brand-700'
-                : 'bg-neutral-100 text-neutral-600'
-            )}
-          >
-            {mockSignatures.length}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('details')}
-          className={cn(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-medium transition-colors',
-            activeTab === 'details'
-              ? 'border-brand-500 text-brand-600'
-              : 'border-transparent text-neutral-500 hover:text-neutral-700'
-          )}
+        </TabsTrigger>
+        <TabsTrigger
+          value="details"
+          icon={<InfoIcon className="size-4" />}
+          badge={mockSigners.length}
         >
-          <InfoIcon className="size-4" />
           Manage
-          <span
-            className={cn(
-              'rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
-              activeTab === 'details'
-                ? 'bg-brand-100 text-brand-700'
-                : 'bg-neutral-100 text-neutral-600'
-            )}
-          >
-            {mockSigners.length}
-          </span>
-        </button>
-      </div>
-      <TabContent activeTab={activeTab} vaultId={vaultId} />
-    </div>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="addresses">
+        <AddressesTreeContent vaultId={vaultId} />
+      </TabsContent>
+      <TabsContent value="signatures">
+        <SignaturesContent />
+      </TabsContent>
+      <TabsContent value="details">
+        <DetailsContent vaultId={vaultId} />
+      </TabsContent>
+    </Tabs>
   );
 };
 
@@ -2558,19 +2559,32 @@ const TabDesign1PillTabs = () => {
 // Main Page Component
 // =============================================================================
 
-export const PageVaultDetailTabs = () => {
+type PageVaultDetailTabsProps = {
+  initialTab?: TabType;
+};
+
+export const PageVaultDetailTabs = ({
+  initialTab,
+}: PageVaultDetailTabsProps) => {
+  const params = useParams({ strict: false }) as { vaultId?: string };
+  const vaultId = params.vaultId ?? 'vault-1';
+
+  const { data: vault } = useQuery(
+    orpc.vaults.get.queryOptions({ input: { id: vaultId } })
+  );
+
   return (
     <PageLayout>
       <PageLayoutTopBar>
         <Breadcrumbs
           items={[
-            { label: 'Vaults', href: '/vaults' },
-            { label: 'Vault Details' },
+            { label: 'Vaults', href: '/treasury/vaults' },
+            { label: vault?.name ?? 'Loading...' },
           ]}
         />
       </PageLayoutTopBar>
       <PageLayoutContent containerClassName="py-0">
-        <TabDesign1PillTabs />
+        <VaultTabs vaultId={vaultId} initialTab={initialTab} />
       </PageLayoutContent>
     </PageLayout>
   );

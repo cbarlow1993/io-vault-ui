@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-import { cn } from '@/lib/tailwind/utils';
 import { orpc } from '@/lib/orpc/client';
+import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -40,8 +40,8 @@ type SelectOption = { id: string; label: string };
 const STATUS_OPTIONS: SelectOption[] = [
   { id: 'all', label: 'All Status' },
   { id: 'active', label: 'Active' },
-  { id: 'pending', label: 'Pending' },
-  { id: 'revoked', label: 'Revoked' },
+  { id: 'draft', label: 'Draft' },
+  { id: 'archived', label: 'Archived' },
 ];
 
 const PAGE_SIZE_OPTIONS_SELECT: SelectOption[] = [
@@ -134,7 +134,7 @@ export const PageTreasury6Keys = () => {
             asChild
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
-            <Link to="/vaults/new" data-testid="vaults-create-button">
+            <Link to="/treasury/vaults/new" data-testid="vaults-create-button">
               <PlusIcon className="mr-1.5 size-3.5" />
               Create Vault
             </Link>
@@ -165,22 +165,22 @@ export const PageTreasury6Keys = () => {
             </div>
             <div className="bg-white p-3">
               <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Pending
+                Draft
               </p>
               <p className="mt-1 text-lg font-semibold text-warning-600 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allVaults.filter((v) => v.status === 'pending').length}
+                  : allVaults.filter((v) => v.status === 'draft').length}
               </p>
             </div>
             <div className="bg-white p-3">
               <p className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
-                Revoked
+                Archived
               </p>
               <p className="mt-1 text-lg font-semibold text-neutral-500 tabular-nums">
                 {isLoading
                   ? '—'
-                  : allVaults.filter((v) => v.status === 'revoked').length}
+                  : allVaults.filter((v) => v.status === 'archived').length}
               </p>
             </div>
           </div>
@@ -313,7 +313,7 @@ export const PageTreasury6Keys = () => {
                     >
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -327,7 +327,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -353,7 +353,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -369,7 +369,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block"
                         >
@@ -380,7 +380,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block text-neutral-600 tabular-nums"
                         >
@@ -389,7 +389,7 @@ export const PageTreasury6Keys = () => {
                       </td>
                       <td className="px-3 py-2">
                         <Link
-                          to="/vaults/$vaultId"
+                          to="/treasury/vaults/$vaultId"
                           params={{ vaultId: vault.id }}
                           className="block text-neutral-500"
                         >
@@ -416,7 +416,7 @@ export const PageTreasury6Keys = () => {
                               className="cursor-pointer rounded-none text-xs"
                             >
                               <Link
-                                to="/vaults/$vaultId"
+                                to="/treasury/vaults/$vaultId"
                                 params={{ vaultId: vault.id }}
                               >
                                 View Details

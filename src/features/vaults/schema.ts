@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 // Enums
-export const zVaultStatus = z.enum(['active', 'pending', 'revoked']);
+export const zVaultStatus = z.enum(['active', 'draft', 'archived']);
 export const zCurveType = z.enum(['ECDSA', 'EdDSA']);
-export const zDeviceType = z.enum(['server', 'ios', 'android']);
+export const zDeviceType = z.enum(['virtual', 'ios', 'android']);
 
 // Curve structure for UI display
 export const zVaultCurve = z.object({
@@ -51,12 +51,161 @@ export const zVaultListParams = z.object({
   search: z.string().optional(),
 });
 
+// Get vault by ID params
+export const zGetVaultParams = z.object({
+  id: z.string(),
+});
+
+// Create vault input
+export const zCreateVaultInput = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().nullable().optional(),
+  threshold: z.number().min(1, 'Threshold must be at least 1'),
+  signers: z
+    .array(
+      z.object({
+        key: z.string(), // Signer ID
+        weight: z.number().min(1), // Voting power
+      })
+    )
+    .min(1, 'At least one signer is required'),
+});
+
+// Create vault response (same as vault but from API)
+export const zCreateVaultResponse = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  threshold: z.number(),
+  status: z.enum(['draft', 'active', 'archived']),
+  reshareNonce: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+});
+
+// Create reshare input (for edit/reshare mode)
+export const zCreateReshareInput = z.object({
+  vaultId: z.string(),
+  threshold: z.number().min(1, 'Threshold must be at least 1'),
+  signers: z
+    .array(
+      z.object({
+        signerKey: z.string(), // Signer ID
+        signingPower: z.number().min(1), // Voting power
+      })
+    )
+    .min(1, 'At least one signer is required'),
+  expiresAt: z.string().nullable().optional(),
+  memo: z.string().nullable().optional(),
+});
+
+// Create reshare response
+export const zCreateReshareResponse = z.object({
+  id: z.string(),
+  vaultId: z.string(),
+  threshold: z.number(),
+  status: z.enum([
+    'voting',
+    'completed',
+    'failed',
+    'expired',
+    'signing',
+    'rejected',
+  ]),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  expiresAt: z.string(),
+  memo: z.string().nullable().optional(),
+});
+
+// Reshare status enum
+export const zReshareStatus = z.enum([
+  'voting',
+  'completed',
+  'failed',
+  'expired',
+  'signing',
+  'rejected',
+]);
+
+// Reshare item for list display
+export const zReshare = z.object({
+  id: z.string(),
+  vaultId: z.string(),
+  threshold: z.number(),
+  status: zReshareStatus,
+  memo: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  expiresAt: z.string(),
+});
+
+// Reshare list response
+export const zReshareListResponse = z.object({
+  data: z.array(zReshare),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+});
+
+// Reshare list params
+export const zReshareListParams = z.object({
+  vaultId: z.string(),
+  limit: z.number().optional(),
+  cursor: z.string().optional(),
+  status: zReshareStatus.optional(),
+});
+
+// Get reshare params
+export const zGetReshareParams = z.object({
+  vaultId: z.string(),
+  reshareId: z.string(),
+});
+
+// Reshare vote change type
+export const zReshareVoteChangeType = z.enum(['added', 'removed', 'kept']);
+
+// Reshare vote result
+export const zReshareVoteResult = z.enum(['approve', 'reject']);
+
+// Reshare vote item
+export const zReshareVote = z.object({
+  id: z.string(),
+  signerId: z.string(),
+  signerExternalId: z.string().nullable(),
+  reshareId: z.string(),
+  weight: z.number(),
+  oldWeight: z.number(),
+  changeType: zReshareVoteChangeType,
+  result: zReshareVoteResult,
+  votedAt: z.string(),
+  approvalSignature: z.string().nullable(),
+});
+
+// Reshare votes response (array of votes)
+export const zReshareVotesResponse = z.array(zReshareVote);
+
 // Type exports
 export type Vault = z.infer<typeof zVault>;
 export type VaultCurve = z.infer<typeof zVaultCurve>;
 export type VaultSigner = z.infer<typeof zVaultSigner>;
 export type VaultStatus = z.infer<typeof zVaultStatus>;
+export type CreateVaultInput = z.infer<typeof zCreateVaultInput>;
+export type CreateVaultResponse = z.infer<typeof zCreateVaultResponse>;
+export type CreateReshareInput = z.infer<typeof zCreateReshareInput>;
+export type CreateReshareResponse = z.infer<typeof zCreateReshareResponse>;
 export type CurveType = z.infer<typeof zCurveType>;
 export type DeviceType = z.infer<typeof zDeviceType>;
 export type VaultListResponse = z.infer<typeof zVaultListResponse>;
 export type VaultListParams = z.infer<typeof zVaultListParams>;
+export type Reshare = z.infer<typeof zReshare>;
+export type ReshareStatus = z.infer<typeof zReshareStatus>;
+export type ReshareListResponse = z.infer<typeof zReshareListResponse>;
+export type ReshareListParams = z.infer<typeof zReshareListParams>;
+export type GetReshareParams = z.infer<typeof zGetReshareParams>;
+export type ReshareVote = z.infer<typeof zReshareVote>;
+export type ReshareVoteChangeType = z.infer<typeof zReshareVoteChangeType>;
+export type ReshareVoteResult = z.infer<typeof zReshareVoteResult>;
+export type ReshareVotesResponse = z.infer<typeof zReshareVotesResponse>;

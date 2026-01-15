@@ -231,7 +231,7 @@ export const PageSettingsTeams = () => {
                             className="rounded-none text-xs"
                           >
                             <Link
-                              to="/settings/teams/$teamId"
+                              to="/global/teams/$teamId"
                               params={{ teamId: team.id }}
                             >
                               <PencilIcon className="mr-2 size-3.5" />
@@ -283,7 +283,7 @@ export const PageSettingsTeams = () => {
                     </div>
                   </div>
                   <Link
-                    to="/settings/teams/$teamId"
+                    to="/global/teams/$teamId"
                     params={{ teamId: team.id }}
                     className="flex items-center justify-between border-t border-neutral-100 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                   >
@@ -302,7 +302,7 @@ export const PageSettingsTeams = () => {
 
 // Team Detail Page
 export const PageSettingsTeamDetail = () => {
-  const { teamId } = useParams({ from: '/_app/settings/teams/$teamId' });
+  const { teamId } = useParams({ from: '/_app/global/teams/$teamId' });
   const team = getTeamById(teamId);
   const teamMembers = team ? getTeamMembers(teamId) : [];
 
@@ -345,7 +345,7 @@ export const PageSettingsTeamDetail = () => {
       >
         <div className="py-8 text-center">
           <Link
-            to="/settings/teams"
+            to="/global/teams"
             className="text-sm text-neutral-600 hover:text-neutral-900"
           >
             Back to Teams
@@ -433,7 +433,7 @@ export const PageSettingsTeamDetail = () => {
       {/* Breadcrumb */}
       <div className="mb-6">
         <Link
-          to="/settings/teams"
+          to="/global/teams"
           className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900"
         >
           <ArrowLeftIcon className="size-3.5" />

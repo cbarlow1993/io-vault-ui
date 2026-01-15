@@ -433,7 +433,7 @@ const AddressRow = ({ entry }: { entry: AddressBookEntry }) => {
                   className="cursor-pointer rounded-none text-xs"
                 >
                   <Link
-                    to="/identities/$identityId"
+                    to="/compliance/identities/$identityId"
                     params={{ identityId: entry.identity.id }}
                   >
                     View Identity

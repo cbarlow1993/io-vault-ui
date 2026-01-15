@@ -172,7 +172,7 @@ const formatChangeType = (type: WhitelistChangeType): string => {
 
 export const PageWhitelistVersionDetail = () => {
   const { whitelistId, versionNumber } = useParams({
-    from: '/_app/policies/whitelists/$whitelistId/versions/$versionNumber/',
+    from: '/_app/treasury/policies/whitelists/$whitelistId/versions/$versionNumber/',
   });
   const whitelist = getWhitelistById(whitelistId);
   const version = whitelist?.versions.find(
@@ -184,7 +184,7 @@ export const PageWhitelistVersionDetail = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Whitelists', href: '/policies/whitelists' },
+            { label: 'Whitelists', href: '/treasury/policies/whitelists' },
             {
               label: whitelistId,
               href: `/policies/whitelists/${whitelistId}`,
@@ -198,7 +198,7 @@ export const PageWhitelistVersionDetail = () => {
               The requested version could not be found.
             </p>
             <Link
-              to="/policies/whitelists/$whitelistId"
+              to="/treasury/policies/whitelists/$whitelistId"
               params={{ whitelistId }}
               className="mt-4 inline-block text-sm text-brand-500 hover:underline"
             >
@@ -246,7 +246,7 @@ export const PageWhitelistVersionDetail = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Whitelists', href: '/policies/whitelists' },
+          { label: 'Whitelists', href: '/treasury/policies/whitelists' },
           {
             label: whitelist.name,
             href: `/policies/whitelists/${whitelistId}`,

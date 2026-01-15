@@ -452,7 +452,7 @@ const AssetRow = ({
           className="h-7 rounded-none px-2.5 text-xs font-medium"
         >
           <Link
-            to="/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
+            to="/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
             params={{ vaultId, chain, address }}
             search={{ asset: asset.symbol }}
           >
@@ -644,7 +644,7 @@ const TransactionRow = ({
       <td className="px-3 py-2">
         {!isInbound && transaction.signatureId ? (
           <Link
-            to="/operations/$operationId"
+            to="/treasury/operations/$operationId"
             params={{ operationId: transaction.signatureId }}
             className="font-medium text-brand-600 hover:text-brand-700 hover:underline"
           >
@@ -729,7 +729,7 @@ const SignatureRow = ({ signature }: SignatureRowProps) => {
       <td className="px-3 py-2">
         <div className="flex items-center gap-1">
           <Link
-            to="/operations/$operationId"
+            to="/treasury/operations/$operationId"
             params={{ operationId: signature.id }}
             className="font-mono text-brand-600 hover:text-brand-700 hover:underline"
           >
@@ -751,7 +751,7 @@ const SignatureRow = ({ signature }: SignatureRowProps) => {
       {/* Action */}
       <td className="px-3 py-2">
         <Link
-          to="/operations/$operationId"
+          to="/treasury/operations/$operationId"
           params={{ operationId: signature.id }}
           className="font-medium text-brand-600 hover:text-brand-700 hover:underline"
         >
@@ -770,7 +770,7 @@ type FilterType = 'all' | 'visible' | 'spam' | 'hidden';
 
 export const PageAddressAssets = () => {
   const { vaultId, chain, address } = useParams({
-    from: '/_app/vaults/$vaultId/chain/$chain/addresses/$address',
+    from: '/_app/treasury/vaults/$vaultId/chain/$chain/addresses/$address',
   });
 
   const [filter, setFilter] = useState<FilterType>('visible');
@@ -794,7 +794,7 @@ export const PageAddressAssets = () => {
       <PageLayout>
         <PageLayoutTopBar
           breadcrumbs={[
-            { label: 'Vaults', href: '/vaults' },
+            { label: 'Vaults', href: '/treasury/vaults' },
             { label: 'Vault', href: `/vaults/${vaultId}` },
             { label: 'Chain Not Found' },
           ]}
@@ -887,7 +887,7 @@ export const PageAddressAssets = () => {
     <PageLayout>
       <PageLayoutTopBar
         breadcrumbs={[
-          { label: 'Vaults', href: '/vaults' },
+          { label: 'Vaults', href: '/treasury/vaults' },
           { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
           { label: 'Assets' },
         ]}
@@ -897,7 +897,7 @@ export const PageAddressAssets = () => {
             className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600"
           >
             <Link
-              to="/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
+              to="/treasury/vaults/$vaultId/chain/$chain/addresses/$address/transfer"
               params={{ vaultId, chain, address }}
             >
               <PlusIcon className="mr-1.5 size-3.5" />
