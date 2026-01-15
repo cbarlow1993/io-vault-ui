@@ -7,7 +7,7 @@ import {
   SearchIcon,
   XIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/tailwind/utils';
@@ -61,12 +61,35 @@ export const PageSettingsMembers = () => {
   const { organization, memberships, invitations } = useOrganization({
     memberships: {
       infinite: true,
+      keepPreviousData: true,
     },
     invitations: {
       infinite: true,
+      keepPreviousData: true,
       status: ['pending'],
     },
   });
+
+  // Auto-fetch all pages when component mounts
+  useEffect(() => {
+    if (memberships?.hasNextPage && !memberships?.isFetching) {
+      memberships.fetchNext();
+    }
+  }, [
+    memberships?.hasNextPage,
+    memberships?.isFetching,
+    memberships?.fetchNext,
+  ]);
+
+  useEffect(() => {
+    if (invitations?.hasNextPage && !invitations?.isFetching) {
+      invitations.fetchNext();
+    }
+  }, [
+    invitations?.hasNextPage,
+    invitations?.isFetching,
+    invitations?.fetchNext,
+  ]);
 
   // Derive members from Clerk data
   const members = useMemo(() => {
@@ -75,7 +98,7 @@ export const PageSettingsMembers = () => {
     return [...activeMembers, ...pendingMembers];
   }, [memberships?.data, invitations?.data]);
 
-  const isLoading = !memberships?.data;
+  const isLoading = !memberships?.data || memberships?.isFetching;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<MemberStatus | 'all'>('all');
