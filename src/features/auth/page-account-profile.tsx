@@ -13,7 +13,8 @@ import { clearSessionCache, useSession } from '@/hooks/use-session';
 import { AccountLayout } from './components/account-layout';
 
 const profileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().optional(),
   email: z.string().email('Please enter a valid email address'),
 });
 
@@ -28,20 +29,22 @@ export default function PageAccountProfile() {
     mode: 'onSubmit',
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
     },
   });
 
   // Update form with session data when available
   useEffect(() => {
-    if (session?.user) {
+    if (clerkUser) {
       form.reset({
-        name: session.user.name || '',
-        email: session.user.email || '',
+        firstName: clerkUser.firstName || '',
+        lastName: clerkUser.lastName || '',
+        email: clerkUser.primaryEmailAddress?.emailAddress || '',
       });
     }
-  }, [session, form]);
+  }, [clerkUser, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
@@ -49,8 +52,8 @@ export default function PageAccountProfile() {
         throw new Error('User not found');
       }
       await clerkUser.update({
-        firstName: data.name.split(' ')[0] || data.name,
-        lastName: data.name.split(' ').slice(1).join(' ') || undefined,
+        firstName: data.firstName,
+        lastName: data.lastName || undefined,
       });
       return { success: true };
     },
@@ -135,32 +138,62 @@ export default function PageAccountProfile() {
           </div>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6">
             <div className="max-w-md space-y-4">
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="name"
-                  className="text-xs font-medium text-neutral-700"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="Your name"
-                  className={cn(
-                    'h-10 w-full border bg-white px-3 text-sm text-neutral-900 transition-colors outline-none',
-                    'placeholder:text-neutral-400',
-                    'focus:border-neutral-400',
-                    form.formState.errors.name
-                      ? 'border-negative-500'
-                      : 'border-neutral-200'
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="firstName"
+                    className="text-xs font-medium text-neutral-700"
+                  >
+                    First Name
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    placeholder="First name"
+                    className={cn(
+                      'h-10 w-full border bg-white px-3 text-sm text-neutral-900 transition-colors outline-none',
+                      'placeholder:text-neutral-400',
+                      'focus:border-neutral-400',
+                      form.formState.errors.firstName
+                        ? 'border-negative-500'
+                        : 'border-neutral-200'
+                    )}
+                    {...form.register('firstName')}
+                  />
+                  {form.formState.errors.firstName && (
+                    <p className="text-xs text-negative-600">
+                      {form.formState.errors.firstName.message}
+                    </p>
                   )}
-                  {...form.register('name')}
-                />
-                {form.formState.errors.name && (
-                  <p className="text-xs text-negative-600">
-                    {form.formState.errors.name.message}
-                  </p>
-                )}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="lastName"
+                    className="text-xs font-medium text-neutral-700"
+                  >
+                    Last Name
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    placeholder="Last name"
+                    className={cn(
+                      'h-10 w-full border bg-white px-3 text-sm text-neutral-900 transition-colors outline-none',
+                      'placeholder:text-neutral-400',
+                      'focus:border-neutral-400',
+                      form.formState.errors.lastName
+                        ? 'border-negative-500'
+                        : 'border-neutral-200'
+                    )}
+                    {...form.register('lastName')}
+                  />
+                  {form.formState.errors.lastName && (
+                    <p className="text-xs text-negative-600">
+                      {form.formState.errors.lastName.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
