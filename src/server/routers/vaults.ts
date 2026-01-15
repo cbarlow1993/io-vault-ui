@@ -8,6 +8,8 @@ import {
   zCreateVaultInput,
   zCreateVaultResponse,
   zGetVaultParams,
+  zReshareListParams,
+  zReshareListResponse,
   zVault,
   zVaultListParams,
   zVaultListResponse,
@@ -265,6 +267,72 @@ export default {
         createdBy: result.createdBy,
         expiresAt: result.expiresAt,
         memo: result.memo,
+      };
+    }),
+
+  listReshares: protectedProcedure({ permission: null })
+    .route({
+      method: 'GET',
+      path: '/vaults/{vaultId}/reshares',
+      tags,
+    })
+    .input(zReshareListParams)
+    .output(zReshareListResponse)
+    .handler(async ({ context, input }) => {
+      context.logger.info(`Fetching reshares for vault: ${input.vaultId}`);
+
+      // Get auth token for vault API
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+
+      if (!token) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token available',
+        });
+      }
+
+      const reshareRepo = new ReshareRepository(token);
+      // Note: Type assertion needed due to OpenAPI path mismatch in generated types
+      const result = (await reshareRepo.list(input.vaultId, {
+        limit: input.limit,
+        cursor: input.cursor,
+        status: input.status,
+      })) as {
+        data: Array<{
+          id: string;
+          vaultId: string;
+          threshold: number;
+          status:
+            | 'voting'
+            | 'completed'
+            | 'failed'
+            | 'expired'
+            | 'signing'
+            | 'rejected';
+          memo?: string | null;
+          createdAt: string;
+          updatedAt: string;
+          createdBy: string;
+          expiresAt: string;
+        }>;
+        nextCursor?: string | null;
+        hasMore: boolean;
+      };
+
+      return {
+        data: result.data.map((reshare) => ({
+          id: reshare.id,
+          vaultId: reshare.vaultId,
+          threshold: reshare.threshold,
+          status: reshare.status,
+          memo: reshare.memo ?? null,
+          createdAt: reshare.createdAt,
+          updatedAt: reshare.updatedAt,
+          createdBy: reshare.createdBy,
+          expiresAt: reshare.expiresAt,
+        })),
+        nextCursor: result.nextCursor ?? null,
+        hasMore: result.hasMore,
       };
     }),
 };

@@ -584,12 +584,12 @@ export const PageVaultDetail = () => {
                       Cryptographic Curves
                     </h3>
                     <p className="mt-0.5 text-[11px] text-neutral-500">
-                      {vault.curves.length > 0
-                        ? `This vault contains ${vault.curves.length} key pairs for multi-chain signing`
-                        : 'Key pairs will be generated after the initial reshare completes'}
+                      {vault.status === 'draft'
+                        ? 'Key pairs will be generated after the initial reshare completes'
+                        : `This vault contains ${vault.curves.length} key pairs for multi-chain signing`}
                     </p>
                   </div>
-                  {vault.status === 'draft' && !vault.curves.length ? (
+                  {vault.status === 'draft' ? (
                     <div className="px-4 py-8 text-center">
                       <ClockIcon className="mx-auto size-8 text-warning-400" />
                       <p className="mt-2 text-sm font-medium text-neutral-700">
@@ -605,7 +605,7 @@ export const PageVaultDetail = () => {
                           className="mt-4 h-8 rounded-none bg-brand-500 px-4 text-xs font-medium text-white hover:bg-brand-600"
                         >
                           <Link
-                            to="/vaults/$vaultId/reshares/$reshareId"
+                            to="/treasury/vaults/$vaultId/reshares/$reshareId"
                             params={{
                               vaultId: vault.id,
                               reshareId: pendingReshare.id,

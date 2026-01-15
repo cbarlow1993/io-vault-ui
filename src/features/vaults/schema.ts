@@ -120,6 +120,44 @@ export const zCreateReshareResponse = z.object({
   memo: z.string().nullable().optional(),
 });
 
+// Reshare status enum
+export const zReshareStatus = z.enum([
+  'voting',
+  'completed',
+  'failed',
+  'expired',
+  'signing',
+  'rejected',
+]);
+
+// Reshare item for list display
+export const zReshare = z.object({
+  id: z.string(),
+  vaultId: z.string(),
+  threshold: z.number(),
+  status: zReshareStatus,
+  memo: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdBy: z.string(),
+  expiresAt: z.string(),
+});
+
+// Reshare list response
+export const zReshareListResponse = z.object({
+  data: z.array(zReshare),
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+});
+
+// Reshare list params
+export const zReshareListParams = z.object({
+  vaultId: z.string(),
+  limit: z.number().optional(),
+  cursor: z.string().optional(),
+  status: zReshareStatus.optional(),
+});
+
 // Type exports
 export type Vault = z.infer<typeof zVault>;
 export type VaultCurve = z.infer<typeof zVaultCurve>;
@@ -133,3 +171,7 @@ export type CurveType = z.infer<typeof zCurveType>;
 export type DeviceType = z.infer<typeof zDeviceType>;
 export type VaultListResponse = z.infer<typeof zVaultListResponse>;
 export type VaultListParams = z.infer<typeof zVaultListParams>;
+export type Reshare = z.infer<typeof zReshare>;
+export type ReshareStatus = z.infer<typeof zReshareStatus>;
+export type ReshareListResponse = z.infer<typeof zReshareListResponse>;
+export type ReshareListParams = z.infer<typeof zReshareListParams>;
