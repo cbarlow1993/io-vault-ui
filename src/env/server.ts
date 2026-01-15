@@ -11,6 +11,9 @@ export const envServer = createEnv({
     // Vault API
     VAULT_API_URL: z.url(),
 
+    // Core API (multi-chain)
+    CORE_API_URL: z.url(),
+
     // Clerk authentication
     CLERK_SECRET_KEY: zOptionalWithReplaceMe(),
     CLERK_PUBLISHABLE_KEY: zOptionalWithReplaceMe(),

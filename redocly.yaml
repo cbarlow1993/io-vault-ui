@@ -2,6 +2,10 @@
 # See: https://openapi-ts.dev/cli#redocly-config
 apis:
   vault:
-    root: ./apiSpec.json
+    root: ./docs/apis/signerSpec.json
     x-openapi-ts:
       output: ./src/lib/api/vault-api.d.ts
+  core:
+    root: ./docs/apis/cryptoSpec.json
+    x-openapi-ts:
+      output: ./src/lib/api/core-api.d.ts

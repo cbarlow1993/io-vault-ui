@@ -1,0 +1,10 @@
+export { AddressRepository } from './address.repository';
+export { BalanceRepository } from './balance.repository';
+export { ChainRepository } from './chain.repository';
+export { ModuleRepository } from './module.repository';
+export { OrganisationRepository } from './organisation.repository';
+export { ReconciliationRepository } from './reconciliation.repository';
+export { SpamOverrideRepository } from './spam-override.repository';
+export { TransactionRepository } from './transaction.repository';
+export { VaultRepository } from './vault.repository';
+export { WorkflowRepository } from './workflow.repository';

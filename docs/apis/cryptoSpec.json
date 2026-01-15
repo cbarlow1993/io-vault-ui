@@ -1,0 +1,5850 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "io-vault Multi-Chain Core API",
+    "version": "1.0.0",
+    "description": "Core service for multi-chain vault management"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/v2/chains/": {
+      "get": {
+        "summary": "List all supported chains",
+        "tags": ["Chains"],
+        "description": "List supported chains and the supported features",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "query",
+            "name": "ecosystem",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "query",
+            "name": "chainAlias",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "chainId",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "in": "query",
+            "name": "includeTestnets",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "in": "query",
+            "name": "asV1",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/modules/": {
+      "get": {
+        "summary": "List available modules",
+        "tags": ["Modules"],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "modules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "display_name": {
+                            "type": "string"
+                          },
+                          "is_active": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["id", "name", "display_name", "is_active"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["modules"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/modules/{moduleId}/roles": {
+      "get": {
+        "summary": "List roles for a module",
+        "tags": ["Modules"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "moduleId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "display_name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name", "display_name"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["roles"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/modules/{moduleId}/actions": {
+      "get": {
+        "summary": "List actions for a module",
+        "tags": ["Modules"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "moduleId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "display_name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["id", "name", "display_name"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["actions"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/addresses/": {
+      "get": {
+        "summary": "List addresses for a vault",
+        "tags": ["Addresses"],
+        "description": "Retrieves a paginated list of addresses for the specified vault. By default, returns both monitored and unmonitored addresses. Use the monitored query parameter to filter by monitoring status.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "in": "query",
+            "name": "monitored",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "chainAlias": {
+                            "type": "string"
+                          },
+                          "vaultId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          },
+                          "derivationPath": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^m(\\/\\d+)+$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "subscriptionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "monitored": {
+                            "type": "boolean"
+                          },
+                          "monitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "unmonitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          },
+                          "alias": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "lastReconciledBlock": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "address",
+                          "chainAlias",
+                          "vaultId",
+                          "workspaceId",
+                          "subscriptionId",
+                          "monitored",
+                          "updatedAt",
+                          "alias",
+                          "lastReconciledBlock"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "nextCursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Generate address for vault",
+        "tags": ["Addresses"],
+        "description": "Generates an address from the vault curves and saves it to the database. If a derivation path is provided, generates an HD address at that path. Optionally starts monitoring the address for transactions.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chainAlias": {
+                    "type": "string",
+                    "enum": [
+                      "arbitrum",
+                      "avalanche-c",
+                      "base",
+                      "bsc",
+                      "eth",
+                      "eth-sepolia",
+                      "fantom",
+                      "optimism",
+                      "polygon",
+                      "bitcoin",
+                      "solana",
+                      "ripple",
+                      "tron"
+                    ]
+                  },
+                  "derivationPath": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^m(\\/\\d+)+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "monitor": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "alias": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["chainAlias"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^m(\\/\\d+)+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "subscriptionId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "monitored": {
+                      "type": "boolean"
+                    },
+                    "monitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "unmonitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "alias": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastReconciledBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contractAddress": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["contractAddress", "symbol"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "chainAlias",
+                    "vaultId",
+                    "workspaceId",
+                    "subscriptionId",
+                    "monitored",
+                    "updatedAt",
+                    "alias",
+                    "lastReconciledBlock",
+                    "tokens"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chainAlias}": {
+      "get": {
+        "summary": "List addresses for a vault and chain",
+        "tags": ["Addresses"],
+        "description": "Retrieves a paginated list of addresses for the specified vault and chain. By default, returns both monitored and unmonitored addresses. Use the monitored query parameter to filter by monitoring status.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "in": "query",
+            "name": "monitored",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "chainAlias": {
+                            "type": "string"
+                          },
+                          "vaultId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          },
+                          "derivationPath": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^m(\\/\\d+)+$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "subscriptionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "monitored": {
+                            "type": "boolean"
+                          },
+                          "monitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "unmonitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          },
+                          "alias": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "lastReconciledBlock": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "address",
+                          "chainAlias",
+                          "vaultId",
+                          "workspaceId",
+                          "subscriptionId",
+                          "monitored",
+                          "updatedAt",
+                          "alias",
+                          "lastReconciledBlock"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "nextCursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create address for vault",
+        "tags": ["Addresses"],
+        "description": "Create address for vault. By default, the address will not be monitored for transactions. Set monitor: true in the request body to monitor the address for transactions immediately.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "derivationPath": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^m(\\/\\d+)+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "monitor": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "alias": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["address"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^m(\\/\\d+)+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "subscriptionId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "monitored": {
+                      "type": "boolean"
+                    },
+                    "monitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "unmonitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "alias": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastReconciledBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contractAddress": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["contractAddress", "symbol"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "chainAlias",
+                    "vaultId",
+                    "workspaceId",
+                    "subscriptionId",
+                    "monitored",
+                    "updatedAt",
+                    "alias",
+                    "lastReconciledBlock",
+                    "tokens"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^m(\\/\\d+)+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "subscriptionId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "monitored": {
+                      "type": "boolean"
+                    },
+                    "monitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "unmonitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "alias": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastReconciledBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contractAddress": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["contractAddress", "symbol"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "chainAlias",
+                    "vaultId",
+                    "workspaceId",
+                    "subscriptionId",
+                    "monitored",
+                    "updatedAt",
+                    "alias",
+                    "lastReconciledBlock",
+                    "tokens"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}": {
+      "get": {
+        "summary": "Get registered address",
+        "tags": ["Addresses"],
+        "description": "Retrieves details of an address registered for monitoring in the specified vault.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^m(\\/\\d+)+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "subscriptionId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "monitored": {
+                      "type": "boolean"
+                    },
+                    "monitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "unmonitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "alias": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastReconciledBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contractAddress": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["contractAddress", "symbol"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "chainAlias",
+                    "vaultId",
+                    "workspaceId",
+                    "subscriptionId",
+                    "monitored",
+                    "updatedAt",
+                    "alias",
+                    "lastReconciledBlock",
+                    "tokens"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update address",
+        "tags": ["Addresses"],
+        "description": "Updates the hidden assets and/or alias for registered address.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "addToHiddenAssets": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "removeFromHiddenAssets": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "alias": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}/monitoring": {
+      "post": {
+        "summary": "Start monitoring an address for transactions",
+        "tags": ["Addresses"],
+        "description": "Start monitoring an existing address. If the address is already monitored, this operation is idempotent. If the address does not exist, returns 404.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^m(\\/\\d+)+$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "subscriptionId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "monitored": {
+                      "type": "boolean"
+                    },
+                    "monitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "unmonitoredAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "alias": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastReconciledBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contractAddress": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["contractAddress", "symbol"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "chainAlias",
+                    "vaultId",
+                    "workspaceId",
+                    "subscriptionId",
+                    "monitored",
+                    "updatedAt",
+                    "alias",
+                    "lastReconciledBlock",
+                    "tokens"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop monitoring an address",
+        "tags": ["Addresses"],
+        "description": "Stop transaction monitoring for an address. The address will be marked as unmonitored but will remain associated with the vault.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/addresses/ecosystem/{ecosystem}/chain/{chainAlias}/hd-addresses": {
+      "post": {
+        "summary": "Create HD address",
+        "tags": ["Addresses"],
+        "description": "Create an HD (Hierarchical Deterministic) address for the vault. If no derivation path is provided, the next sequential index will be used automatically.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "derivationPath": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string",
+                      "enum": [
+                        "arbitrum",
+                        "avalanche-c",
+                        "base",
+                        "bsc",
+                        "eth",
+                        "eth-sepolia",
+                        "fantom",
+                        "optimism",
+                        "polygon",
+                        "bitcoin",
+                        "solana",
+                        "ripple",
+                        "tron"
+                      ]
+                    },
+                    "vaultId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "derivationPath": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ecosystem": {
+                      "type": "string",
+                      "enum": [
+                        "cosmos",
+                        "evm",
+                        "svm",
+                        "tvm",
+                        "utxo",
+                        "xrp",
+                        "substrate"
+                      ]
+                    }
+                  },
+                  "required": ["address", "chainAlias", "vaultId", "ecosystem"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List HD addresses",
+        "tags": ["Addresses"],
+        "description": "Retrieves a paginated list of HD addresses for the specified vault and chain.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "in": "query",
+            "name": "monitored",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "chainAlias": {
+                            "type": "string"
+                          },
+                          "vaultId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          },
+                          "derivationPath": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^m(\\/\\d+)+$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "subscriptionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "monitored": {
+                            "type": "boolean"
+                          },
+                          "monitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "unmonitoredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          },
+                          "alias": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "lastReconciledBlock": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "address",
+                          "chainAlias",
+                          "vaultId",
+                          "workspaceId",
+                          "subscriptionId",
+                          "monitored",
+                          "updatedAt",
+                          "alias",
+                          "lastReconciledBlock"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "nextCursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/addresses/ecosystem/{ecosystem}/chain/{chainAlias}/validate": {
+      "post": {
+        "summary": "Validate address format",
+        "tags": ["Addresses"],
+        "description": "Validates whether an address is correctly formatted for the specified blockchain. Does not verify ownership or existence on-chain.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["address"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "valid": {
+                      "type": "boolean"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "ecosystem": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["valid", "address", "chainAlias", "ecosystem"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/balances/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}/native": {
+      "get": {
+        "summary": "Get native balance for an address",
+        "tags": ["Balances"],
+        "description": "Retrieves the native token balance (ETH, SOL, BTC, etc.) for a specific address on a given chain. Includes USD value conversion and token metadata.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "balance": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "logo": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "usdValue": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "lastUpdated": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "balance",
+                    "symbol",
+                    "name",
+                    "logo",
+                    "usdValue",
+                    "lastUpdated"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/balances/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}/tokens": {
+      "get": {
+        "summary": "Get token balances for an address",
+        "tags": ["Balances"],
+        "description": "Retrieves all token balances (ERC-20, SPL tokens, etc.) for a specific address on a given chain. Hidden tokens are filtered by default unless showHiddenTokens=true is provided.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["true"]
+                },
+                {
+                  "type": "string",
+                  "enum": ["false"]
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "showHiddenTokens",
+            "required": false
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["true"]
+                },
+                {
+                  "type": "string",
+                  "enum": ["false"]
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "showSpam",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": "usdValue",
+              "type": "string",
+              "enum": ["balance", "usdValue", "symbol"]
+            },
+            "in": "query",
+            "name": "sortBy",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": "desc",
+              "type": "string",
+              "enum": ["asc", "desc"]
+            },
+            "in": "query",
+            "name": "sortOrder",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "balance": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "decimals": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "logo": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "usdValue": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isSpam": {
+                            "type": "boolean"
+                          },
+                          "userSpamOverride": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": ["trusted", "spam"]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "effectiveSpamStatus": {
+                            "type": "string",
+                            "enum": ["spam", "trusted", "unknown"]
+                          }
+                        },
+                        "required": [
+                          "address",
+                          "balance",
+                          "symbol",
+                          "decimals",
+                          "name",
+                          "logo",
+                          "usdValue",
+                          "isSpam",
+                          "userSpamOverride",
+                          "effectiveSpamStatus"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "lastUpdated": {
+                      "type": "string"
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "nextCursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "lastUpdated", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}": {
+      "get": {
+        "summary": "List transactions for an address",
+        "tags": ["Transactions"],
+        "description": "Retrieves a paginated list of transactions for the specified address on the given chain. Requires treasury:view_transactions permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": "desc",
+              "type": "string",
+              "enum": ["asc", "desc"]
+            },
+            "in": "query",
+            "name": "sort",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "direction",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "includeTransfers",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "chainAlias": {
+                            "type": "string"
+                          },
+                          "txHash": {
+                            "type": "string"
+                          },
+                          "blockNumber": {
+                            "type": "string"
+                          },
+                          "blockHash": {
+                            "type": "string"
+                          },
+                          "txIndex": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "fromAddress": {
+                            "type": "string"
+                          },
+                          "toAddress": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "fee": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": ["success", "failed", "pending"]
+                          },
+                          "timestamp": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "classificationType": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "classificationLabel": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "direction": {
+                            "type": "string",
+                            "enum": ["in", "out", "neutral"]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "transfers": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "transferType": {
+                                  "type": "string",
+                                  "enum": ["native", "token"]
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": ["in", "out"]
+                                },
+                                "fromAddress": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "toAddress": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "tokenAddress": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "formattedAmount": {
+                                  "type": "string"
+                                },
+                                "displayAmount": {
+                                  "type": "string"
+                                },
+                                "asset": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "symbol": {
+                                      "type": "string"
+                                    },
+                                    "decimals": {
+                                      "type": "number"
+                                    },
+                                    "logoUri": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "coingeckoId": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "isVerified": {
+                                      "type": "boolean"
+                                    },
+                                    "isSpam": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "symbol",
+                                    "decimals",
+                                    "logoUri",
+                                    "coingeckoId",
+                                    "isVerified",
+                                    "isSpam"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transferType",
+                                "direction",
+                                "fromAddress",
+                                "toAddress",
+                                "tokenAddress",
+                                "amount",
+                                "formattedAmount",
+                                "displayAmount",
+                                "asset"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chainAlias",
+                          "txHash",
+                          "blockNumber",
+                          "blockHash",
+                          "txIndex",
+                          "fromAddress",
+                          "toAddress",
+                          "value",
+                          "fee",
+                          "status",
+                          "timestamp",
+                          "classificationType",
+                          "classificationLabel",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "nextCursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": ["nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/scan-transaction": {
+      "post": {
+        "summary": "Scan transaction for security threats",
+        "tags": ["Transactions"],
+        "description": "Scans an EVM or SVM transaction for potential security threats using Blockaid.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "options": {
+                    "default": ["simulation", "validation"],
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["validation", "simulation"]
+                    }
+                  },
+                  "marshalledHex": {
+                    "type": "string",
+                    "minLength": 4
+                  },
+                  "metadata": {
+                    "default": {
+                      "url": null
+                    },
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "default": null,
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "overrides": {
+                    "anyOf": [
+                      {
+                        "default": {},
+                        "type": "object",
+                        "properties": {
+                          "evm": {
+                            "type": "object",
+                            "properties": {
+                              "simulate_with_estimated_gas": {
+                                "default": false,
+                                "type": "boolean"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["marshalledHex"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["evm", "svm"]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "abstract",
+                "arbitrum",
+                "arbitrum-nova",
+                "astar",
+                "avalanche-c",
+                "base",
+                "berachain",
+                "blast",
+                "bsc",
+                "celo",
+                "coqnet",
+                "cronos",
+                "degen",
+                "dfk",
+                "dfk-testnet",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "flame",
+                "flow-evm",
+                "fluent-devnet",
+                "fraxtal",
+                "fuse",
+                "gnosis",
+                "ink",
+                "lamina1",
+                "lightlink",
+                "linea",
+                "lukso",
+                "manta-pacific",
+                "mantle",
+                "matchain",
+                "metal",
+                "metis",
+                "mint-sepolia",
+                "mode",
+                "monad-testnet",
+                "moonriver",
+                "morph",
+                "morph-holesky-testnet",
+                "optimism",
+                "orderly-network",
+                "perennial",
+                "plume-devnet",
+                "polygon",
+                "polygon-zkevm",
+                "pulsechain",
+                "quai",
+                "rari",
+                "ronin",
+                "scroll",
+                "shimmer-evm",
+                "sonic",
+                "sophon-testnet",
+                "superposition-testnet",
+                "superseed-sepolia",
+                "xai",
+                "xdc",
+                "zksync-era",
+                "zora",
+                "solana",
+                "solana-testnet"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "scan": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    }
+                  },
+                  "required": ["scan"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/address/{address}/transaction/{transactionHash}": {
+      "get": {
+        "summary": "Get transaction details (v2)",
+        "tags": ["Transactions"],
+        "description": "Retrieves detailed information about a specific transaction from PostgreSQL including classification data, native transfers, and token transfers. Requires treasury:view_transactions permission.",
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["operation"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "include",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "null"
+            },
+            "in": "query",
+            "name": "type"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "transactionHash",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "txHash": {
+                      "type": "string"
+                    },
+                    "blockNumber": {
+                      "type": "string"
+                    },
+                    "blockHash": {
+                      "type": "string"
+                    },
+                    "txIndex": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "fromAddress": {
+                      "type": "string"
+                    },
+                    "toAddress": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "fee": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["success", "failed", "pending"]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "classificationType": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "classificationLabel": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": ["in", "out", "neutral"]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "transfers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "transferType": {
+                            "type": "string",
+                            "enum": ["native", "token"]
+                          },
+                          "direction": {
+                            "type": "string",
+                            "enum": ["in", "out"]
+                          },
+                          "fromAddress": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "toAddress": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "tokenAddress": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "formattedAmount": {
+                            "type": "string"
+                          },
+                          "displayAmount": {
+                            "type": "string"
+                          },
+                          "asset": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "symbol": {
+                                "type": "string"
+                              },
+                              "decimals": {
+                                "type": "number"
+                              },
+                              "logoUri": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "coingeckoId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "isVerified": {
+                                "type": "boolean"
+                              },
+                              "isSpam": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "symbol",
+                              "decimals",
+                              "logoUri",
+                              "coingeckoId",
+                              "isVerified",
+                              "isSpam"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "transferType",
+                          "direction",
+                          "fromAddress",
+                          "toAddress",
+                          "tokenAddress",
+                          "amount",
+                          "formattedAmount",
+                          "displayAmount",
+                          "asset"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "operationId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chainAlias",
+                    "txHash",
+                    "blockNumber",
+                    "blockHash",
+                    "txIndex",
+                    "fromAddress",
+                    "toAddress",
+                    "value",
+                    "fee",
+                    "status",
+                    "timestamp",
+                    "classificationType",
+                    "classificationLabel",
+                    "createdAt",
+                    "updatedAt",
+                    "transfers",
+                    "operationId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/build-native-transaction": {
+      "post": {
+        "summary": "Build native currency transaction",
+        "tags": ["Build Transactions"],
+        "description": "Builds an unsigned transaction for native currency transfer (ETH, SOL, BTC, etc.). Requires treasury:initiate_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "derivationPath": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^m(\\/\\d+)+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gasPrice": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gasLimit": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "data": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nonce": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["legacy", "eip1559"]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "maxFeePerGas": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "maxPriorityFeePerGas": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nonceAccount": {
+                    "type": "string"
+                  },
+                  "feeRate": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "tag": {
+                    "type": "string"
+                  }
+                },
+                "required": ["amount", "to"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "marshalledHex": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type", "value"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["marshalledHex", "details"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/build-token-transaction": {
+      "post": {
+        "summary": "Build token transaction",
+        "tags": ["Build Transactions"],
+        "description": "Builds an unsigned transaction for token transfer (ERC20, SPL, TRC20). Requires treasury:initiate_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "derivationPath": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^m(\\/\\d+)+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gasPrice": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "gasLimit": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "data": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nonce": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["legacy", "eip1559"]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "maxFeePerGas": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "maxPriorityFeePerGas": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nonceAccount": {
+                    "type": "string"
+                  },
+                  "feeRate": {
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "tag": {
+                    "type": "string"
+                  },
+                  "tokenAddress": {
+                    "type": "string"
+                  },
+                  "decimals": {
+                    "type": "number"
+                  }
+                },
+                "required": ["amount", "to", "tokenAddress"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "marshalledHex": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type", "value"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["marshalledHex", "details"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/transactions/ecosystem/svm/chain/solana/build-durable-nonce-transaction": {
+      "post": {
+        "summary": "Build durable nonce account creation transaction",
+        "tags": ["Build Transactions"],
+        "description": "Builds a transaction to create a Solana durable nonce account. Requires treasury:initiate_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "derivationPath": {
+                        "type": "string",
+                        "pattern": "^m(\\/\\d+)+$"
+                      }
+                    },
+                    "required": ["derivationPath"]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "marshalledHex": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type", "value"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["marshalledHex", "details"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/transactions/ecosystem/svm/chain/solana/durable-nonce": {
+      "get": {
+        "summary": "Get durable nonce account info",
+        "tags": ["Build Transactions"],
+        "description": "Retrieves information about the Solana durable nonce account. Requires treasury:initiate_transfer permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^m(\\/\\d+)+$"
+            },
+            "in": "query",
+            "name": "derivationPath",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nonceAccount": {
+                      "type": "string"
+                    },
+                    "nonce": {
+                      "type": "string"
+                    },
+                    "authority": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["nonceAccount", "nonce", "authority"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/{vaultId}/transactions/ecosystem/{ecosystem}/chain/{chainAlias}/transaction": {
+      "post": {
+        "summary": "Create transaction from hex",
+        "tags": ["Transactions"],
+        "description": "Creates a transaction record for signing using a pre-built transaction hex, scoped to a specific ecosystem and chain. Requires treasury:initiate_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "marshalledHex": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "memo": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "broadcast": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "expiryTimestamp": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["marshalledHex"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "vaultId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cosmos",
+                "evm",
+                "svm",
+                "tvm",
+                "utxo",
+                "xrp",
+                "substrate"
+              ]
+            },
+            "in": "path",
+            "name": "ecosystem",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "arbitrum",
+                "avalanche-c",
+                "base",
+                "bsc",
+                "eth",
+                "eth-sepolia",
+                "fantom",
+                "optimism",
+                "polygon",
+                "bitcoin",
+                "solana",
+                "ripple",
+                "tron"
+              ]
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/reconciliation/addresses/{address}/chain/{chainAlias}/reconcile": {
+      "post": {
+        "summary": "Initiate transaction reconciliation",
+        "tags": ["Reconciliation"],
+        "description": "Creates a new reconciliation job that compares on-chain transaction data with locally stored records to identify discrepancies, missing transactions, and data integrity issues.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mode": {
+                    "default": "partial",
+                    "type": "string",
+                    "enum": ["full", "partial"]
+                  },
+                  "fromBlock": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "toBlock": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "fromTimestamp": {
+                    "type": "number"
+                  },
+                  "toTimestamp": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobId": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "running",
+                        "paused",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": ["full", "partial"]
+                    },
+                    "fromBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "toBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "jobId",
+                    "status",
+                    "mode",
+                    "fromBlock",
+                    "toBlock",
+                    "createdAt",
+                    "address",
+                    "chainAlias"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/reconciliation/reconciliation-jobs/{jobId}": {
+      "get": {
+        "summary": "Get reconciliation job details",
+        "tags": ["Reconciliation"],
+        "description": "Retrieves detailed information about a specific reconciliation job including its status, summary statistics, timing information, and audit log.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "jobId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobId": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "running",
+                        "paused",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": ["full", "partial"]
+                    },
+                    "fromBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "toBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "finalBlock": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "chainAlias": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "transactionsProcessed": {
+                          "type": "number"
+                        },
+                        "transactionsAdded": {
+                          "type": "number"
+                        },
+                        "transactionsSoftDeleted": {
+                          "type": "number"
+                        },
+                        "discrepanciesFlagged": {
+                          "type": "number"
+                        },
+                        "errors": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "transactionsProcessed",
+                        "transactionsAdded",
+                        "transactionsSoftDeleted",
+                        "discrepanciesFlagged",
+                        "errors"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "timing": {
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "type": "string"
+                        },
+                        "startedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "completedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "durationMs": {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "createdAt",
+                        "startedAt",
+                        "completedAt",
+                        "durationMs"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "auditLog": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "added",
+                              "soft_deleted",
+                              "discrepancy",
+                              "error"
+                            ]
+                          },
+                          "transactionHash": {
+                            "type": "string"
+                          },
+                          "beforeSnapshot": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {}
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "afterSnapshot": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {}
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "discrepancyFields": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "errorMessage": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "transactionHash",
+                          "beforeSnapshot",
+                          "afterSnapshot",
+                          "discrepancyFields",
+                          "errorMessage"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "jobId",
+                    "status",
+                    "mode",
+                    "fromBlock",
+                    "toBlock",
+                    "finalBlock",
+                    "address",
+                    "chainAlias",
+                    "provider",
+                    "summary",
+                    "timing",
+                    "auditLog"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/reconciliation/addresses/{address}/chain/{chainAlias}/reconciliation-jobs": {
+      "get": {
+        "summary": "List reconciliation jobs",
+        "tags": ["Reconciliation"],
+        "description": "Retrieves a paginated list of reconciliation jobs for the specified address on the given chain.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 50,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 0,
+              "type": "number",
+              "minimum": 0
+            },
+            "in": "query",
+            "name": "offset",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "address",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "chainAlias",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "jobId": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "running",
+                              "paused",
+                              "completed",
+                              "failed"
+                            ]
+                          },
+                          "address": {
+                            "type": "string"
+                          },
+                          "chainAlias": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "jobId",
+                          "status",
+                          "address",
+                          "chainAlias",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "limit": {
+                          "type": "number"
+                        },
+                        "offset": {
+                          "type": "number"
+                        },
+                        "hasMore": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["total", "limit", "offset", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/vaults/": {
+      "post": {
+        "summary": "Create a vault with curves",
+        "tags": ["Vaults"],
+        "description": "Creates a new vault with the specified elliptic curves for HD wallet derivation. Requires treasury:manage_vaults permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "curves": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "algorithm": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "curve": {
+                          "type": "string",
+                          "enum": ["secp256k1", "ed25519"]
+                        },
+                        "publicKey": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "xpub": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["algorithm", "curve", "publicKey"]
+                    }
+                  }
+                },
+                "required": ["id", "workspaceId", "curves"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "organisationId": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "curves": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "algorithm": {
+                            "type": "string"
+                          },
+                          "curve": {
+                            "type": "string",
+                            "enum": ["secp256k1", "ed25519"]
+                          },
+                          "publicKey": {
+                            "type": "string"
+                          },
+                          "xpub": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "algorithm",
+                          "curve",
+                          "publicKey",
+                          "xpub",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "organisationId",
+                    "createdAt",
+                    "curves"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/addresses/{addressId}/tokens/{tokenAddress}/spam-override": {
+      "patch": {
+        "summary": "Set spam override for a token",
+        "tags": ["Spam"],
+        "description": "Marks a token as trusted or spam, overriding the automatic classification. Use \"native\" as tokenAddress for the native token.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "override": {
+                    "type": "string",
+                    "enum": ["trusted", "spam"]
+                  }
+                },
+                "required": ["override"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "addressId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(native|0x[a-fA-F0-9]{40})$"
+            },
+            "in": "path",
+            "name": "tokenAddress",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tokenAddress": {
+                      "type": "string"
+                    },
+                    "userOverride": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["trusted", "spam"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["tokenAddress", "userOverride", "updatedAt"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": ["code", "message", "path"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["error", "message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["error", "message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove spam override for a token",
+        "tags": ["Spam"],
+        "description": "Removes the user spam override, resetting the token to use the global classification. Use \"native\" as tokenAddress for the native token.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "addressId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(native|0x[a-fA-F0-9]{40})$"
+            },
+            "in": "path",
+            "name": "tokenAddress",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tokenAddress": {
+                      "type": "string"
+                    },
+                    "userOverride": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["trusted", "spam"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["tokenAddress", "userOverride", "updatedAt"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": ["code", "message", "path"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["error", "message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["error", "message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/addresses/{addressId}/tokens/spam-overrides": {
+      "patch": {
+        "summary": "Set multiple spam overrides",
+        "tags": ["Spam"],
+        "description": "Sets spam overrides for multiple tokens at once (max 100). Tokens not found will be silently skipped. Use \"native\" as tokenAddress for the native token.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "overrides": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "tokenAddress": {
+                          "type": "string",
+                          "pattern": "^(native|0x[a-fA-F0-9]{40})$"
+                        },
+                        "override": {
+                          "type": "string",
+                          "enum": ["trusted", "spam"]
+                        }
+                      },
+                      "required": ["tokenAddress", "override"]
+                    }
+                  }
+                },
+                "required": ["overrides"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "addressId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updated": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tokenAddress": {
+                            "type": "string"
+                          },
+                          "userOverride": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": ["trusted", "spam"]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "tokenAddress",
+                          "userOverride",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["updated"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "required": ["code", "message", "path"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["error", "message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/workflows/": {
+      "post": {
+        "summary": "Create a new transaction workflow",
+        "tags": ["Workflows"],
+        "description": "Creates a new transaction workflow. Requires treasury:initiate_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vaultId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "chainAlias": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50
+                  },
+                  "marshalledHex": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(0x)?[a-fA-F0-9]+$"
+                  },
+                  "skipReview": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": ["vaultId", "chainAlias", "marshalledHex"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}/confirm": {
+      "post": {
+        "summary": "Confirm transaction review",
+        "tags": ["Workflows"],
+        "description": "Confirms transaction review. Requires treasury:approve_transfer permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}/review": {
+      "put": {
+        "summary": "Review pending transfer",
+        "tags": ["Workflows"],
+        "description": "Reviews a pending transfer workflow. Requires treasury:review_transfer permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}/approve": {
+      "post": {
+        "summary": "Approve transaction",
+        "tags": ["Workflows"],
+        "description": "Approves a transaction. Requires treasury:approve_transfer permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}/reject": {
+      "post": {
+        "summary": "Reject transaction",
+        "tags": ["Workflows"],
+        "description": "Rejects a transaction. Requires treasury:approve_transfer permission.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": ["reason"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}": {
+      "get": {
+        "summary": "Get workflow status",
+        "tags": ["Workflows"],
+        "description": "Gets workflow status. Requires treasury:view_transactions permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/workflows/{id}/history": {
+      "get": {
+        "summary": "Get workflow event history",
+        "tags": ["Workflows"],
+        "description": "Gets workflow event history. Requires treasury:view_transactions permission.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 50,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/webhooks/signature": {
+      "post": {
+        "summary": "Receive signature completion webhook",
+        "tags": ["Webhooks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workflowId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "signature": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                },
+                "required": ["workflowId", "requestId", "success"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/organisations/{orgId}/users/{userId}/global-role": {
+      "put": {
+        "summary": "Assign global role to user",
+        "tags": ["Roles"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": ["owner", "billing", "admin"]
+                  }
+                },
+                "required": ["role"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "orgId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    },
+                    "organisation_id": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": ["owner", "billing", "admin"]
+                    },
+                    "created_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "user_id",
+                    "organisation_id",
+                    "role",
+                    "created_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove global role from user",
+        "tags": ["Roles"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "orgId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/organisations/{orgId}/users/{userId}/module-roles": {
+      "post": {
+        "summary": "Assign module role to user",
+        "tags": ["Roles"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "module_id": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "resource_scope": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "vault_ids": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["module_id", "role"]
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "orgId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "user_id": {
+                      "type": "string"
+                    },
+                    "module": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "resource_scope": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "vault_ids": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "granted_by": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "user_id",
+                    "module",
+                    "role",
+                    "resource_scope",
+                    "granted_by",
+                    "created_at"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/organisations/{orgId}/users/{userId}/module-roles/{moduleId}": {
+      "delete": {
+        "summary": "Remove module role from user",
+        "tags": ["Roles"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "orgId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "moduleId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v2/organisations/{orgId}/users/{userId}/roles": {
+      "get": {
+        "summary": "Get user roles",
+        "tags": ["Roles"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "orgId",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "string"
+                    },
+                    "organisation_id": {
+                      "type": "string"
+                    },
+                    "global_role": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["owner", "billing", "admin"]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "module_roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "module": {
+                            "type": "string"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "resource_scope": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "vault_ids": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": ["module", "role", "resource_scope"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "user_id",
+                    "organisation_id",
+                    "global_role",
+                    "module_roles"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4001",
+      "description": "Local"
+    },
+    {
+      "url": "https://api.dev.iodevnet.com",
+      "description": "Development"
+    },
+    {
+      "url": "https://api.staging.iodevnet.com",
+      "description": "Staging"
+    },
+    {
+      "url": "https://api.iofinnet.com",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
