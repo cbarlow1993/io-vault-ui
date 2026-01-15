@@ -1,4 +1,5 @@
 import { type RiskLevel } from '@/features/compliance';
+
 import { type Chain } from '../constants';
 
 export interface WatchedAddress {

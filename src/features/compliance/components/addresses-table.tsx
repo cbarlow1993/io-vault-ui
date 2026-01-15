@@ -3,9 +3,8 @@ import { EyeIcon } from 'lucide-react';
 
 import { CHAIN_LABELS } from '@/features/compliance';
 
-import type { WatchedAddress } from '../data/mock-addresses';
-
 import { RiskBadge } from './risk-badge';
+import type { WatchedAddress } from '../data/mock-addresses';
 
 interface AddressesTableProps {
   addresses: WatchedAddress[];
@@ -13,7 +12,7 @@ interface AddressesTableProps {
 
 export const AddressesTable = ({ addresses }: AddressesTableProps) => {
   return (
-    <div className="border border-neutral-200 bg-white">
+    <div className="border-card">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-neutral-100 bg-neutral-50 text-left">
@@ -34,10 +33,7 @@ export const AddressesTable = ({ addresses }: AddressesTableProps) => {
         </thead>
         <tbody className="divide-y divide-neutral-100">
           {addresses.map((address) => (
-            <tr
-              key={address.address}
-              className="cursor-pointer hover:bg-neutral-50"
-            >
+            <tr key={address.address} className="interactive-row">
               <td className="px-3 py-2">
                 <div className="flex items-center gap-2">
                   {address.isWatchlisted && (

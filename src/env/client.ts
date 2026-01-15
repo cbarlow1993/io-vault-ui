@@ -30,6 +30,14 @@ export const envClient = createEnv({
       .optional()
       .prefault('false')
       .transform((v) => v === 'true'),
+
+    // Auth mode: always 'clerk' (better-auth removed)
+    // TODO: Remove this field when all references are cleaned up
+    VITE_AUTH_MODE: z.enum(['clerk']).optional().prefault('clerk'),
+
+    // Clerk publishable key (required for authentication)
+    VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+
     VITE_ENV_NAME: z
       .string()
       .optional()
@@ -42,6 +50,15 @@ export const envClient = createEnv({
       .string()
       .optional()
       .transform((value) => value ?? (isDev ? 'gold' : 'plum')),
+
+    // Chargebee billing (optional - feature flagged)
+    VITE_ENABLE_CHARGEBEE_BILLING: z
+      .enum(['true', 'false'])
+      .optional()
+      .prefault('false')
+      .transform((v) => v === 'true'),
+    VITE_CHARGEBEE_SITE: z.string().optional(),
+    VITE_CHARGEBEE_PUBLISHABLE_KEY: z.string().optional(),
   },
   runtimeEnv: {
     ...envMetaOrProcess,

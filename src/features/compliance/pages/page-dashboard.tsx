@@ -4,15 +4,15 @@ import {
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 import { DashboardMetrics } from '../components/dashboard-metrics';
 import { RecentActivity } from '../components/recent-activity';
 import { RequiresAttention } from '../components/requires-attention';
 import {
+  mockAttentionItems,
   mockDashboardMetrics,
   mockRecentActivities,
-  mockAttentionItems,
 } from '../data/mock-dashboard';
 
 export const PageComplianceDashboard = () => {

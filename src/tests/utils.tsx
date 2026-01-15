@@ -1,11 +1,42 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { userEvent } from '@vitest/browser/context';
+import { ThemeProvider } from 'next-themes';
 import { ReactElement } from 'react';
 import { ComponentRenderOptions, render } from 'vitest-browser-react';
 
-import { Providers } from '@/providers';
+import '@/lib/dayjs/config';
+
+/**
+ * Test-specific providers that exclude AuthProvider (ClerkProvider)
+ * because Clerk requires RouterProvider context which isn't available
+ * in isolated component tests.
+ *
+ * This is intentional - component tests focus on UI behavior,
+ * not auth integration (which is covered by E2E tests).
+ */
+const testQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+});
+
+const TestProviders = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ThemeProvider
+      attribute="class"
+      storageKey="theme"
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={testQueryClient}>
+        {children}
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
 
 const WithProviders = ({ children }: { children: React.ReactNode }) => {
-  return <Providers>{children}</Providers>;
+  return <TestProviders>{children}</TestProviders>;
 };
 
 const customRender = (

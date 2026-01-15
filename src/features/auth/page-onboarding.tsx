@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
+import { useSession } from '@/hooks/use-session';
 
 import {
   Form,
@@ -15,7 +16,6 @@ import {
 } from '@/components/form';
 import { Button } from '@/components/ui/button';
 
-import { authClient } from '@/features/auth/client';
 import { ConfirmSignOut } from '@/features/auth/confirm-signout';
 import { LayoutLogin } from '@/features/auth/layout-login';
 import { useMascot } from '@/features/auth/mascot';
@@ -23,7 +23,7 @@ import { zFormFieldsOnboarding } from '@/features/auth/schema';
 
 export const PageOnboarding = () => {
   const { t } = useTranslation(['auth']);
-  const session = authClient.useSession();
+  const { data: session, refetch } = useSession();
 
   const submitOnboarding = useMutation(
     orpc.account.submitOnboarding.mutationOptions({
@@ -31,7 +31,7 @@ export const PageOnboarding = () => {
         toast.success(
           t('auth:pageOnboarding.successMessage', { name: variables.name })
         );
-        session.refetch();
+        refetch();
       },
       onError: () => {
         toast.error(t('auth:pageOnboarding.errorMessage'));
@@ -43,7 +43,7 @@ export const PageOnboarding = () => {
     mode: 'onSubmit',
     resolver: zodResolver(zFormFieldsOnboarding()),
     values: {
-      name: session.data?.user.name ?? '',
+      name: session?.user.name ?? '',
     },
   });
 
@@ -56,7 +56,7 @@ export const PageOnboarding = () => {
         <div className="flex flex-col items-center justify-center text-center">
           <p className="pt-8 text-xs text-balance break-words text-muted-foreground">
             {t('auth:pageOnboarding.loggedWith', {
-              email: session.data?.user.email,
+              email: session?.user.email,
             })}
           </p>
           <ConfirmSignOut>

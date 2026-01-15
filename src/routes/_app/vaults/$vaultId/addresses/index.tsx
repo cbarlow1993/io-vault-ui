@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { PageAddresses } from '@/features/treasury-6-demo/page-addresses';
+import { PageAddresses } from '@/features/vaults/page-addresses';
 
 export const Route = createFileRoute('/_app/vaults/$vaultId/addresses/')({
   component: PageAddresses,

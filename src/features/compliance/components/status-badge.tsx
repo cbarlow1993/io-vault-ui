@@ -1,8 +1,8 @@
 import { cn } from '@/lib/tailwind/utils';
 
 import {
-  type TransactionStatus,
   TRANSACTION_STATUS_LABELS,
+  type TransactionStatus,
 } from '@/features/compliance';
 
 interface StatusBadgeProps {

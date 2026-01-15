@@ -1,6 +1,6 @@
 import {
-  type ProviderAssessment,
   PROVIDER_LABELS,
+  type ProviderAssessment,
 } from '@/features/compliance';
 
 import { RiskBadge } from './risk-badge';

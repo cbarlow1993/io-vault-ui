@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✓ File modified. Remember: Run pnpm lint before committing.'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '⚠️  Before marking complete, verify: pnpm lint && pnpm test:ci && pnpm build'"
+          }
+        ]
+      }
+    ]
+  }
+}

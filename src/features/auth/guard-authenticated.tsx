@@ -1,11 +1,16 @@
 import { useRouter } from '@tanstack/react-router';
 import { ReactNode } from 'react';
 
+import { useSession } from '@/hooks/use-session';
+
 import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
-import { authClient } from '@/features/auth/client';
-import { Permission, Role } from '@/features/auth/permissions';
+import {
+  checkRolePermission,
+  type Permission,
+  type Role,
+} from '@/lib/auth/permissions';
 
 export const GuardAuthenticated = ({
   children,
@@ -14,18 +19,18 @@ export const GuardAuthenticated = ({
   children?: ReactNode;
   permissionApps?: Permission['apps'];
 }) => {
-  const session = authClient.useSession();
+  const { data: session, isPending, error } = useSession();
   const router = useRouter();
 
-  if (session.isPending) {
+  if (isPending) {
     return <Spinner full className="opacity-60" />;
   }
 
-  if (session.error && session.error.status > 0) {
+  if (error) {
     return <PageError type="unknown-auth-error" />;
   }
 
-  if (!session.data?.user) {
+  if (!session?.user) {
     router.navigate({
       to: '/login',
       replace: true,
@@ -42,12 +47,7 @@ export const GuardAuthenticated = ({
   // Unauthorized if the user permission do not match
   if (
     permissionApps &&
-    !authClient.admin.checkRolePermission({
-      role: session.data.user.role as Role,
-      permission: {
-        apps: permissionApps,
-      },
-    })
+    !checkRolePermission(session.user.role as Role, { apps: permissionApps })
   ) {
     return <PageError type="403" />;
   }

@@ -1,7 +1,37 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import { auth } from '@clerk/tanstack-react-start/server';
 
-import { PageSettingsBilling } from '@/features/treasury-6-demo/page-settings-billing';
+import { envClient } from '@/env/client';
+import { PageSettingsBilling } from '@/features/settings/page-settings-billing';
+import { ChargebeeProvider } from '@/lib/chargebee';
+
+// Server function to get auth state - auth() only works server-side
+const getAuthState = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId } = await auth();
+  return { userId, isAuthenticated: !!userId };
+});
+
+function BillingPageWithProvider() {
+  return (
+    <ChargebeeProvider>
+      <PageSettingsBilling />
+    </ChargebeeProvider>
+  );
+}
 
 export const Route = createFileRoute('/_app/settings/billing')({
-  component: PageSettingsBilling,
+  beforeLoad: ({ context }) => {
+    console.log('context', context);
+
+    if (!envClient.VITE_ENABLE_CHARGEBEE_BILLING) {
+      throw redirect({ to: '/settings/members' });
+    }
+  },
+  component: BillingPageWithProvider,
+  loader: async () => {
+    const { isAuthenticated, userId } = await getAuthState();
+    console.log('isAuthenticated', isAuthenticated);
+    console.log('userId', userId);
+  },
 });

@@ -1,6 +1,6 @@
 import {
-  type ProviderAssessment,
   type ComplianceTransaction,
+  type ProviderAssessment,
 } from '@/features/compliance';
 
 import type { WatchedAddress } from './mock-addresses';

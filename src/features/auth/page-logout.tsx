@@ -1,33 +1,44 @@
+import { useAuth } from '@clerk/tanstack-react-start';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+import { clearSessionCache } from '@/hooks/use-session';
 
 import { PageError } from '@/components/errors/page-error';
 import { Spinner } from '@/components/ui/spinner';
 
-import { authClient } from '@/features/auth/client';
-
+/**
+ * Logout page - Clerk only mode.
+ * Signs the user out using Clerk and redirects to home.
+ */
 export const PageLogout = () => {
   const navigate = useNavigate();
-  const session = authClient.useSession();
+  const { isLoaded: clerkLoaded, signOut: clerkSignOut } = useAuth();
+  const hasTriggered = useRef(false);
+
   const { mutate, error } = useMutation({
+    mutationKey: ['logout'],
     mutationFn: async () => {
-      const response = await authClient.signOut();
-      if (response.error) {
-        throw response.error;
-      }
-      await session.refetch();
+      await clerkSignOut();
+      clearSessionCache();
     },
     onSuccess: () => {
       navigate({
         to: '/',
+        replace: true,
       });
     },
   });
 
   useEffect(() => {
+    // Only trigger once and ensure Clerk is loaded
+    if (hasTriggered.current) return;
+    if (!clerkLoaded) return;
+
+    hasTriggered.current = true;
     mutate();
-  }, [mutate]);
+  }, [clerkLoaded, mutate]);
 
   if (error) {
     return <PageError type="unknown-auth-error" />;

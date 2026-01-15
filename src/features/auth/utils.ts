@@ -1,17 +1,17 @@
 import { useRouter, useSearch } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
-import { authClient } from '@/features/auth/client';
+import { useSession } from '@/hooks/use-session';
 
 export const useRedirectAfterLogin = () => {
   const search = useSearch({ strict: false });
   const router = useRouter();
-  const session = authClient.useSession();
+  const { data: session, isPending } = useSession();
   const searchRedirect = search.redirect;
 
   useEffect(() => {
-    const exec = () => {
-      if (session.isPending || !session.data) {
+    const runRedirect = () => {
+      if (isPending || !session) {
         return;
       }
 
@@ -32,6 +32,6 @@ export const useRedirectAfterLogin = () => {
       });
     };
 
-    exec();
-  }, [searchRedirect, session.isPending, session.data, router]);
+    runRedirect();
+  }, [searchRedirect, isPending, session, router]);
 };

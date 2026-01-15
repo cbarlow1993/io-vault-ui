@@ -10,7 +10,7 @@ import {
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 import { RiskBadge } from '../components/risk-badge';
 

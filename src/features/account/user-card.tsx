@@ -1,6 +1,8 @@
 import { LogOutIcon, PenLineIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { useSession } from '@/hooks/use-session';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,29 +10,25 @@ import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { AccountCardRow } from '@/features/account/account-card-row';
 import { ChangeNameDrawer } from '@/features/account/change-name-drawer';
-import { authClient } from '@/features/auth/client';
 import { ConfirmSignOut } from '@/features/auth/confirm-signout';
 
 export const UserCard = () => {
   const { t } = useTranslation(['auth', 'account']);
-  const session = authClient.useSession();
+  const { data: session } = useSession();
   return (
     <Card className="gap-0 p-0">
       <CardHeader className="gap-y-0 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar>
             <AvatarImage
-              src={session.data?.user.image ?? undefined}
-              alt={session.data?.user.name ?? ''}
+              src={session?.user.image ?? undefined}
+              alt={session?.user.name ?? ''}
             />
-            <AvatarFallback
-              variant="boring"
-              name={session.data?.user.name ?? ''}
-            />
+            <AvatarFallback variant="boring" name={session?.user.name ?? ''} />
           </Avatar>
           <div className="flex min-w-0 flex-col gap-0.5">
             <CardTitle className="truncate">
-              {session.data?.user.name || session.data?.user.email || (
+              {session?.user.name || session?.user.email || (
                 <span className="text-xs text-muted-foreground">--</span>
               )}
             </CardTitle>
@@ -49,7 +47,7 @@ export const UserCard = () => {
       <AccountCardRow label={t('account:userCard.name.label')}>
         <div className="flex gap-1">
           <p className="truncate underline-offset-4">
-            {session.data?.user.name || (
+            {session?.user.name || (
               <span className="text-xs text-muted-foreground">--</span>
             )}
           </p>
@@ -75,12 +73,12 @@ export const UserCard = () => {
       </AccountCardRow>
       <AccountCardRow label={t('account:userCard.email.label')}>
         <p className="flex-1 truncate underline-offset-4">
-          {!session.data?.user.emailVerified && (
+          {!session?.user.emailVerified && (
             <Badge size="sm" variant="warning" className="me-2">
               {t('account:userCard.email.notVerified')}
             </Badge>
           )}
-          {session.data?.user.email || (
+          {session?.user.email || (
             <span className="text-xs text-muted-foreground">--</span>
           )}
         </p>

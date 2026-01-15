@@ -129,7 +129,11 @@ export const zEmailForm = () =>
     .string()
     .email('Invalid email format')
     .transform((val) => Email.create(val))
-    .or(z.instanceof(Email).transform((email) => email.toString()));
+    .or(
+      z
+        .custom<Email>((val) => val instanceof Email)
+        .transform((email) => email.toString())
+    );
 
 /**
  * Or use a union type for form values:
@@ -140,7 +144,7 @@ export const zEmailFormUnion = () =>
       .string()
       .email()
       .transform((val) => Email.create(val)),
-    z.instanceof(Email),
+    z.custom<Email>((val) => val instanceof Email),
   ]);
 
 // ============================================================================

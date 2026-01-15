@@ -8,23 +8,12 @@ const isProd = process.env.NODE_ENV
 
 export const envServer = createEnv({
   server: {
-    DATABASE_URL: z.url(),
-    AUTH_SECRET: z.string(),
-    AUTH_SESSION_EXPIRATION_IN_SECONDS: z.coerce
-      .number()
-      .int()
-      .prefault(2592000), // 30 days by default
-    AUTH_SESSION_UPDATE_AGE_IN_SECONDS: z.coerce.number().int().prefault(86400), // 1 day by default
-    AUTH_TRUSTED_ORIGINS: z
-      .string()
-      .optional()
-      .transform((stringValue) => stringValue?.split(',').map((v) => v.trim())),
+    // Vault API
+    VAULT_API_URL: z.url(),
 
-    GITHUB_CLIENT_ID: zOptionalWithReplaceMe(),
-    GITHUB_CLIENT_SECRET: zOptionalWithReplaceMe(),
-
-    EMAIL_SERVER: z.url(),
-    EMAIL_FROM: z.string(),
+    // Clerk authentication
+    CLERK_SECRET_KEY: zOptionalWithReplaceMe(),
+    CLERK_PUBLISHABLE_KEY: zOptionalWithReplaceMe(),
 
     LOGGER_LEVEL: z
       .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
@@ -33,6 +22,26 @@ export const envServer = createEnv({
       .enum(['true', 'false'])
       .prefault(isProd ? 'false' : 'true')
       .transform((value) => value === 'true'),
+
+    // Chargebee billing (optional - feature flagged)
+    ENABLE_CHARGEBEE_BILLING: z
+      .enum(['true', 'false'])
+      .optional()
+      .prefault('false')
+      .transform((v) => v === 'true'),
+    CHARGEBEE_SITE: zOptionalWithReplaceMe(),
+    CHARGEBEE_API_KEY: zOptionalWithReplaceMe(),
+    CHARGEBEE_WEBHOOK_SECRET: zOptionalWithReplaceMe(),
+    // Comma-separated list of plan IDs to show in pricing grid (3-5 plans)
+    CHARGEBEE_PLAN_IDS: z
+      .string()
+      .optional()
+      .transform((v) =>
+        v
+          ?.split(',')
+          .map((id) => id.trim())
+          .filter(Boolean)
+      ),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

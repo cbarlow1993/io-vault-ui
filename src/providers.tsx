@@ -14,6 +14,7 @@ import '@fontsource/ibm-plex-mono/600.css';
 
 import { QueryClientProvider } from '@/lib/tanstack-query/provider';
 
+import { AuthProvider } from '@/components/auth/auth-provider';
 import { Sonner } from '@/components/ui/sonner';
 
 import { envClient } from '@/env/client';
@@ -30,11 +31,13 @@ export const Providers = (props: { children: ReactNode }) => {
       storageKey="theme"
       disableTransitionOnChange
     >
-      <QueryClientProvider>
-        {props.children}
-        {!isDemoModeDrawerVisible && <Sonner />}
-        {envClient.VITE_IS_DEMO && <DemoModeDrawer />}
-      </QueryClientProvider>
+      <AuthProvider>
+        <QueryClientProvider>
+          {props.children}
+          {!isDemoModeDrawerVisible && <Sonner />}
+          {envClient.VITE_IS_DEMO && <DemoModeDrawer />}
+        </QueryClientProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

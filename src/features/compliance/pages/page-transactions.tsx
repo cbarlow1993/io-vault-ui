@@ -10,13 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
 import {
   NotificationButton,
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
-} from '@/layout/treasury-6';
+} from '@/layout/shell';
 
 import { TransactionsTable } from '../components/transactions-table';
 import { mockTransactions } from '../data/mock-transactions';

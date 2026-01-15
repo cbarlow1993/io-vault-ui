@@ -1,20 +1,14 @@
-import { expect, Page } from '@playwright/test';
+import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { Page } from '@playwright/test';
 import { CustomFixture } from 'e2e/utils/types';
 
-import { DEFAULT_LANGUAGE_KEY } from '@/lib/i18n/constants';
-
-import {
-  AUTH_EMAIL_OTP_MOCKED,
-  AUTH_SIGNUP_ENABLED,
-} from '@/features/auth/config';
-import locales from '@/locales';
 import { FileRouteTypes } from '@/routeTree.gen';
 
 interface PageUtils {
   /**
-   * Utility used to authenticate a user on the app
+   * Utility used to authenticate a user on the app using Clerk
    */
-  login: (input: { email: string; code?: string }) => Promise<void>;
+  login: (input: { email: string; password: string }) => Promise<void>;
 
   /**
    * Override of the `page.goto` method with typed routes from the app
@@ -31,33 +25,23 @@ export const pageWithUtils: CustomFixture<Page & PageUtils> = async (
   { page },
   apply
 ) => {
-  page.login = async function login(input: { email: string; code?: string }) {
-    const routeLogin = '/login' satisfies FileRouteTypes['to'];
-    const routeLoginVerify = '/login/verify' satisfies FileRouteTypes['to'];
-    await page.waitForURL(`**${routeLogin}**`);
+  page.login = async function login(input: {
+    email: string;
+    password: string;
+  }) {
+    // Setup Clerk testing token to bypass bot detection
+    await setupClerkTestingToken({ page });
 
-    await expect(
-      page.getByText(
-        locales[DEFAULT_LANGUAGE_KEY].auth.pageLoginWithSignUp.title
-      )
-    ).toBeVisible();
+    // Navigate to sign-in page
+    await page.goto('/login');
 
-    await page
-      .getByPlaceholder(locales[DEFAULT_LANGUAGE_KEY].auth.common.email.label)
-      .fill(input.email);
+    // Fill email and continue
+    await page.getByLabel('Email address').fill(input.email);
+    await page.getByRole('button', { name: /continue/i }).click();
 
-    await page
-      .getByRole('button', {
-        name: locales[DEFAULT_LANGUAGE_KEY].auth[
-          AUTH_SIGNUP_ENABLED ? 'pageLoginWithSignUp' : 'pageLogin'
-        ].loginWithEmail,
-      })
-      .click();
-
-    await page.waitForURL(`**${routeLoginVerify}**`);
-    await page
-      .getByText(locales[DEFAULT_LANGUAGE_KEY].auth.common.otp.label)
-      .fill(input.code ?? AUTH_EMAIL_OTP_MOCKED);
+    // Fill password and submit
+    await page.getByLabel('Password', { exact: true }).fill(input.password);
+    await page.getByRole('button', { name: /continue/i }).click();
   };
 
   page.to = page.goto;

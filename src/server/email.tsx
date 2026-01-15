@@ -6,10 +6,23 @@ import { ReactElement } from 'react';
 import { DEFAULT_LANGUAGE_KEY } from '@/lib/i18n/constants';
 
 import { envClient } from '@/env/client';
-import { envServer } from '@/env/server';
 
-// eslint-disable-next-line sonarjs/no-clear-text-protocols
-const transport = nodemailer.createTransport(envServer.EMAIL_SERVER);
+// Lazy-initialized transport - only created when email is actually sent
+let transport: ReturnType<typeof nodemailer.createTransport> | null = null;
+
+function getTransport() {
+  if (!transport) {
+    const emailServer = process.env.EMAIL_SERVER;
+    if (!emailServer) {
+      throw new Error(
+        'EMAIL_SERVER environment variable is not configured. Email functionality is disabled.'
+      );
+    }
+    // eslint-disable-next-line sonarjs/no-clear-text-protocols
+    transport = nodemailer.createTransport(emailServer);
+  }
+  return transport;
+}
 
 export const sendEmail = async ({
   template,
@@ -20,9 +33,16 @@ export const sendEmail = async ({
     return;
   }
 
+  const emailFrom = process.env.EMAIL_FROM;
+  if (!emailFrom) {
+    throw new Error(
+      'EMAIL_FROM environment variable is not configured. Email functionality is disabled.'
+    );
+  }
+
   const html = await render(template);
-  return transport.sendMail({
-    from: envServer.EMAIL_FROM,
+  return getTransport().sendMail({
+    from: emailFrom,
     html,
     ...options,
   });
