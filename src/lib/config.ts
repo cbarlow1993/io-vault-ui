@@ -129,6 +129,11 @@ const configSchema = z.object({
       .transform((val) => val?.split(',').map((id) => id.trim()).filter(Boolean) ?? []),
   }),
 
+  opa: z.object({
+    url: z.string().default('http://localhost:8181'),
+    enabled: booleanFromString.default(false),
+  }),
+
   webhooks: z.object({
     signingService: z.object({
       secret: z.string().optional(),
@@ -228,6 +233,10 @@ function loadConfig() {
     auth: {
       jwksUrl: process.env.AUTH_JWKS_URL,
       allowedClientIds: process.env.AUTH_ALLOWED_CLIENT_IDS,
+    },
+    opa: {
+      url: process.env.OPA_URL,
+      enabled: process.env.OPA_ENABLED,
     },
     webhooks: {
       signingService: {

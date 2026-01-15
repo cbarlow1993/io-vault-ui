@@ -1,4 +1,20 @@
 services:
+  opa-sidecar:
+    image: openpolicyagent/opa:latest
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "--config-file=/config/opa.yaml"
+      - "/policies"
+    volumes:
+      - ./opa-config.yaml:/config/opa.yaml
+      - ./policies:/policies
+    ports:
+      - "8181:8181"
+    networks:
+      - app-network
+
   postgres:
     image: postgres:18-alpine
     container_name: postgres
@@ -48,3 +64,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

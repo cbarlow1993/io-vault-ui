@@ -1,0 +1,15 @@
+# opa-config.yaml
+services:
+  bundle-server:
+    url: http://bundle-server:8080
+
+bundles:
+  rbac:
+    service: bundle-server
+    resource: /bundles/rbac.tar.gz
+    polling:
+      min_delay_seconds: 30
+      max_delay_seconds: 60
+
+decision_logs:
+  console: true
