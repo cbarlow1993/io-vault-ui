@@ -1,16 +1,15 @@
 import { useRouter } from '@tanstack/react-router';
 import { ReactNode } from 'react';
 
-import { useSession } from '@/hooks/use-session';
-
-import { PageError } from '@/components/errors/page-error';
-import { Spinner } from '@/components/ui/spinner';
-
 import {
   checkRolePermission,
   type Permission,
   type Role,
 } from '@/lib/auth/permissions';
+import { useSession } from '@/hooks/use-session';
+
+import { PageError } from '@/components/errors/page-error';
+import { Spinner } from '@/components/ui/spinner';
 
 export const GuardAuthenticated = ({
   children,

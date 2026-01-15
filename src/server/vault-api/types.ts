@@ -3,7 +3,7 @@
  */
 
 // Re-export generated types
-export type { paths, operations } from '@/lib/api/vault-api';
+export type { operations, paths } from '@/lib/api/vault-api';
 
 // Type helpers for extracting response/request types from operations
 import type { operations } from '@/lib/api/vault-api';

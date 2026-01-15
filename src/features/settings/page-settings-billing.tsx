@@ -12,7 +12,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useChargebee, type ChargebeeCardElement } from '@/lib/chargebee';
+import { type ChargebeeCardElement, useChargebee } from '@/lib/chargebee';
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 

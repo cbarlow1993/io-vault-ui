@@ -1,9 +1,8 @@
 import { t } from 'i18next';
 import { z } from 'zod';
 
-import { zu } from '@/lib/zod/zod-utils';
-
 import { zRole } from '@/lib/auth/permissions';
+import { zu } from '@/lib/zod/zod-utils';
 
 export type User = z.infer<ReturnType<typeof zUser>>;
 export const zUser = () =>

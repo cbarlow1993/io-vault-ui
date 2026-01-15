@@ -84,7 +84,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -110,7 +110,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -174,7 +174,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -200,7 +200,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -252,7 +252,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -266,7 +266,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's5',
           name: "Dave's Server",
           owner: 'Dave Wilson',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 1,
         },
       ],
@@ -278,7 +278,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -322,7 +322,7 @@ const mockReshareDetails: Record<string, ReshareDetail> = {
           id: 's1',
           name: 'Main Server',
           owner: 'Operations',
-          deviceType: 'server',
+          deviceType: 'virtual',
           votingPower: 2,
         },
         {
@@ -363,7 +363,7 @@ const getReshareById = (id: string): ReshareDetail | undefined => {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -373,8 +373,8 @@ const getDeviceIcon = (deviceType: DeviceType) => {
 
 const getDeviceLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
-      return 'Server';
+    case 'virtual':
+      return 'Virtual';
     case 'ios':
       return 'iOS';
     case 'android':

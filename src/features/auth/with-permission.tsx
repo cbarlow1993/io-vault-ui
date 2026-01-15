@@ -1,12 +1,11 @@
 import { ReactNode } from 'react';
 
-import { useSession } from '@/hooks/use-session';
-
 import {
   checkRolePermission,
   type Permission,
   type Role,
 } from '@/lib/auth/permissions';
+import { useSession } from '@/hooks/use-session';
 
 export const WithPermissions = (props: {
   permissions: Permission[];

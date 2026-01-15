@@ -29,7 +29,7 @@ import {
 
 const getDeviceIcon = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
+    case 'virtual':
       return <ServerIcon className="size-4 text-neutral-500" />;
     case 'ios':
     case 'android':
@@ -39,8 +39,8 @@ const getDeviceIcon = (deviceType: DeviceType) => {
 
 const getDeviceLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'server':
-      return 'Server';
+    case 'virtual':
+      return 'Virtual';
     case 'ios':
       return 'iOS';
     case 'android':

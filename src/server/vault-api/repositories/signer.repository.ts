@@ -1,8 +1,8 @@
 import { vaultApiClient } from '../client';
 import {
   VaultApiError,
-  VaultApiUnauthorizedError,
   VaultApiForbiddenError,
+  VaultApiUnauthorizedError,
   VaultApiValidationError,
 } from '../errors';
 import type { RegisterSignerInput, SignerListParams } from '../types';

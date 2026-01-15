@@ -1,8 +1,8 @@
 import { vaultApiClient } from '../client';
 import {
   VaultApiError,
-  VaultApiUnauthorizedError,
   VaultApiForbiddenError,
+  VaultApiUnauthorizedError,
   VaultApiValidationError,
   VaultNotFoundError,
 } from '../errors';
