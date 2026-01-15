@@ -62,8 +62,8 @@ import {
   PageLayoutTopBar,
 } from '@/layout/shell';
 
-import type { DeviceType, Signature, Signer, VaultCurve } from './data/vaults';
-import type { ReshareStatus } from './schema';
+import type { DeviceType, Signer, VaultCurve } from './data/vaults';
+import type { ReshareStatus, SignatureItem } from './schema';
 
 // =============================================================================
 // Pagination Types
@@ -309,63 +309,6 @@ const mockChains: ChainDerivation[] = [
   },
 ];
 
-const mockSignatures: Signature[] = [
-  {
-    id: 'sig1',
-    status: 'completed',
-    description: 'ETH Transfer to 0x742d...3a21',
-    hash: '0xabc123def456789...',
-    curveUsed: 'ECDSA',
-    signedAt: '2024-03-10 14:32',
-    signedBy: 'Alice',
-  },
-  {
-    id: 'sig2',
-    status: 'pending',
-    description: 'USDC Approval for Uniswap',
-    hash: '0xdef456abc789012...',
-    curveUsed: 'ECDSA',
-    signedAt: '2024-03-09 09:15',
-    signedBy: 'Bob',
-  },
-  {
-    id: 'sig3',
-    status: 'completed',
-    description: 'SOL Stake Delegation',
-    hash: '0xghi789jkl012345...',
-    curveUsed: 'EdDSA',
-    signedAt: '2024-03-08 16:45',
-    signedBy: 'Alice',
-  },
-  {
-    id: 'sig4',
-    status: 'failed',
-    description: 'BTC Transfer (timeout)',
-    hash: '0xjkl012mno345678...',
-    curveUsed: 'ECDSA',
-    signedAt: '2024-03-07 11:20',
-    signedBy: 'Bob',
-  },
-  {
-    id: 'sig5',
-    status: 'completed',
-    description: 'NFT Mint on Polygon',
-    hash: '0xmno345pqr678901...',
-    curveUsed: 'ECDSA',
-    signedAt: '2024-03-06 08:00',
-    signedBy: 'Alice',
-  },
-  {
-    id: 'sig6',
-    status: 'pending',
-    description: 'Contract Interaction',
-    hash: '0xpqr678stu901234...',
-    curveUsed: 'ECDSA',
-    signedAt: '2024-03-05 17:30',
-    signedBy: 'Bob',
-  },
-];
-
 // Mock data for vault details
 const mockSigners: Signer[] = [
   {
@@ -482,13 +425,26 @@ const mockReshares: Reshare[] = [
 // Helper Components
 // =============================================================================
 
-const getSignatureStatusIcon = (status: Signature['status']) => {
+const getSignatureStatusIcon = (
+  status:
+    | 'voting'
+    | 'presigning'
+    | 'signing'
+    | 'completed'
+    | 'rejected'
+    | 'expired'
+    | 'failed'
+) => {
   switch (status) {
     case 'completed':
       return <CheckCircleIcon className="size-4 text-positive-600" />;
-    case 'pending':
+    case 'voting':
+    case 'presigning':
+    case 'signing':
       return <ClockIcon className="size-4 text-warning-600" />;
     case 'failed':
+    case 'rejected':
+    case 'expired':
       return <XCircleIcon className="size-4 text-negative-600" />;
   }
 };
@@ -558,9 +514,6 @@ const getTotalBalance = () => {
   );
   return `$${total.toLocaleString()}`;
 };
-
-const getPendingSignatures = () =>
-  mockSignatures.filter((s) => s.status === 'pending').length;
 
 type TabType = 'addresses' | 'details' | 'signatures';
 
@@ -1770,21 +1723,90 @@ const PAGE_SIZE_OPTIONS: FilterSelectOption[] = [
 
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0]!;
 
-const SignaturesContent = () => {
+// Map API coseAlgorithm to display-friendly name
+const mapCoseAlgorithmToDisplay = (
+  algorithm: SignatureItem['coseAlgorithm']
+): string => {
+  switch (algorithm) {
+    case 'eddsa':
+    case 'eddsa_blake2b':
+      return 'EdDSA';
+    case 'es256k':
+    case 'eskec256':
+      return 'ECDSA';
+  }
+};
+
+// Format date for display
+const formatSignatureDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+// Get description from signature content type
+const getSignatureDescription = (sig: SignatureItem): string => {
+  if (sig.contentType === 'application/x-eip712+json') {
+    return 'EIP-712 Typed Data';
+  }
+  if (sig.contentType === 'text/plain') {
+    return 'Plain Text Message';
+  }
+  if (sig.chainId) {
+    return `Chain ${sig.chainId} Transaction`;
+  }
+  return 'Raw Data Signature';
+};
+
+// Truncate data hash for display
+const truncateDataHash = (
+  data: string[],
+  signature: string[] | null
+): string => {
+  // Prefer showing the signature if available, otherwise show the data
+  const hashToShow = signature?.[0] ?? data[0] ?? '';
+  if (!hashToShow) return '—';
+  if (hashToShow.length <= 20) return hashToShow;
+  return `${hashToShow.slice(0, 10)}...${hashToShow.slice(-8)}`;
+};
+
+type SignaturesContentProps = {
+  vaultId: string;
+};
+
+const SignaturesContent = ({ vaultId }: SignaturesContentProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSizeOption, setPageSizeOption] =
     useState<FilterSelectOption | null>(DEFAULT_PAGE_SIZE);
   const pageSize = pageSizeOption ? Number(pageSizeOption.id) : 5;
 
+  // Fetch signatures from API
+  const {
+    data: signaturesData,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.vaults.listSignatures.queryOptions({
+      input: { vaultId, limit: 100 },
+    })
+  );
+
+  const signatures = signaturesData?.data ?? [];
+
   const totalPages = useMemo(
-    () => Math.ceil(mockSignatures.length / pageSize),
-    [pageSize]
+    () => Math.ceil(signatures.length / pageSize),
+    [signatures.length, pageSize]
   );
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedSignatures = useMemo(
-    () => mockSignatures.slice(startIndex, endIndex),
-    [startIndex, endIndex]
+    () => signatures.slice(startIndex, endIndex),
+    [signatures, startIndex, endIndex]
   );
 
   const handlePageSizeChange = (value: FilterSelectOption) => {
@@ -1792,7 +1814,46 @@ const SignaturesContent = () => {
     setCurrentPage(1);
   };
 
-  if (mockSignatures.length === 0) {
+  if (isLoading) {
+    return (
+      <div className="px-4 py-8 text-center">
+        <div className="mx-auto size-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-500" />
+        <p className="mt-2 text-sm text-neutral-500">Loading signatures...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    // Check if this is a "vault not active" error
+    const errorData = (error as { data?: { errorCode?: string } })?.data;
+    const isVaultNotActive = errorData?.errorCode === 'VAULT_NOT_ACTIVE';
+
+    if (isVaultNotActive) {
+      return (
+        <div className="px-4 py-8 text-center">
+          <HistoryIcon className="mx-auto size-8 text-neutral-300" />
+          <p className="mt-2 text-sm text-neutral-500">No signatures yet</p>
+          <p className="mt-1 text-xs text-neutral-400">
+            Signatures will be available once the vault is active
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4 py-8 text-center">
+        <XCircleIcon className="mx-auto size-8 text-negative-300" />
+        <p className="mt-2 text-sm text-negative-500">
+          Failed to load signatures
+        </p>
+        <p className="mt-1 text-xs text-neutral-400">
+          {error.message || 'Please try again later'}
+        </p>
+      </div>
+    );
+  }
+
+  if (signatures.length === 0) {
     return (
       <div className="px-4 py-8 text-center">
         <HistoryIcon className="mx-auto size-8 text-neutral-300" />
@@ -1811,8 +1872,8 @@ const SignaturesContent = () => {
           All cryptographic signatures produced by this vault
         </p>
         <span className="text-xs text-neutral-500 tabular-nums">
-          {mockSignatures.length}{' '}
-          {mockSignatures.length === 1 ? 'signature' : 'signatures'}
+          {signatures.length}{' '}
+          {signatures.length === 1 ? 'signature' : 'signatures'}
         </span>
       </div>
       <table className="w-full text-xs">
@@ -1822,13 +1883,15 @@ const SignaturesContent = () => {
             <th className="px-4 py-2 font-medium text-neutral-500">
               Description
             </th>
-            <th className="px-4 py-2 font-medium text-neutral-500">Hash</th>
-            <th className="px-4 py-2 font-medium text-neutral-500">Curve</th>
+            <th className="px-4 py-2 font-medium text-neutral-500">Data</th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Signed At
+              Algorithm
             </th>
             <th className="px-4 py-2 font-medium text-neutral-500">
-              Signed By
+              Created At
+            </th>
+            <th className="px-4 py-2 font-medium text-neutral-500">
+              Created By
             </th>
           </tr>
         </thead>
@@ -1844,16 +1907,21 @@ const SignaturesContent = () => {
                 </div>
               </td>
               <td className="px-4 py-2.5 font-medium text-neutral-900">
-                {sig.description}
+                {getSignatureDescription(sig)}
               </td>
               <td className="px-4 py-2.5">
                 <div className="flex items-center gap-1.5">
                   <span className="max-w-[120px] truncate font-mono text-neutral-600">
-                    {sig.hash}
+                    {truncateDataHash(sig.data, sig.signature)}
                   </span>
                   <button
                     type="button"
                     className="rounded p-0.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+                    onClick={() => {
+                      const dataToCopy =
+                        sig.signature?.[0] ?? sig.data[0] ?? '';
+                      navigator.clipboard.writeText(dataToCopy);
+                    }}
                   >
                     <CopyIcon className="size-3" />
                   </button>
@@ -1861,13 +1929,13 @@ const SignaturesContent = () => {
               </td>
               <td className="px-4 py-2.5">
                 <span className="inline-block rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-neutral-600">
-                  {sig.curveUsed}
+                  {mapCoseAlgorithmToDisplay(sig.coseAlgorithm)}
                 </span>
               </td>
               <td className="px-4 py-2.5 text-neutral-600 tabular-nums">
-                {sig.signedAt}
+                {formatSignatureDate(sig.createdAt)}
               </td>
-              <td className="px-4 py-2.5 text-neutral-600">{sig.signedBy}</td>
+              <td className="px-4 py-2.5 text-neutral-600">{sig.createdBy}</td>
             </tr>
           ))}
         </tbody>
@@ -1887,8 +1955,8 @@ const SignaturesContent = () => {
 
         <div className="flex items-center gap-1">
           <span className="mr-2 text-xs text-neutral-500">
-            {startIndex + 1}-{Math.min(endIndex, mockSignatures.length)} of{' '}
-            {mockSignatures.length}
+            {startIndex + 1}-{Math.min(endIndex, signatures.length)} of{' '}
+            {signatures.length}
           </span>
 
           {/* First page */}
@@ -2513,6 +2581,14 @@ const VaultTabs = ({ vaultId, initialTab }: VaultTabsProps) => {
     initialTab ?? 'addresses'
   );
 
+  // Fetch signatures count for badge (uses same query as SignaturesContent for deduplication)
+  const { data: signaturesData } = useQuery(
+    orpc.vaults.listSignatures.queryOptions({
+      input: { vaultId, limit: 100 },
+    })
+  );
+  const signaturesCount = signaturesData?.data?.length ?? 0;
+
   // Sync tab state when URL search param changes
   useEffect(() => {
     if (initialTab) {
@@ -2537,7 +2613,7 @@ const VaultTabs = ({ vaultId, initialTab }: VaultTabsProps) => {
         <TabsTrigger
           value="signatures"
           icon={<HistoryIcon className="size-4" />}
-          badge={mockSignatures.length}
+          badge={signaturesCount}
         >
           Signatures
         </TabsTrigger>
@@ -2553,7 +2629,7 @@ const VaultTabs = ({ vaultId, initialTab }: VaultTabsProps) => {
         <AddressesTreeContent vaultId={vaultId} />
       </TabsContent>
       <TabsContent value="signatures">
-        <SignaturesContent />
+        <SignaturesContent vaultId={vaultId} />
       </TabsContent>
       <TabsContent value="details">
         <DetailsContent vaultId={vaultId} />

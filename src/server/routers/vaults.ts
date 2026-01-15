@@ -8,11 +8,15 @@ import {
   zCreateVaultInput,
   zCreateVaultResponse,
   zGetReshareParams,
+  zGetSignatureParams,
   zGetVaultParams,
   zReshare,
   zReshareListParams,
   zReshareListResponse,
   zReshareVotesResponse,
+  zSignatureItem,
+  zSignatureListParams,
+  zSignatureListResponse,
   zVault,
   zVaultListParams,
   zVaultListResponse,
@@ -20,6 +24,7 @@ import {
 import { protectedProcedure } from '@/server/orpc';
 import {
   ReshareRepository,
+  SignatureRepository,
   VaultRepository,
 } from '@/server/vault-api/repositories';
 
@@ -451,5 +456,153 @@ export default {
         votedAt: vote.votedAt,
         approvalSignature: vote.approvalSignature,
       }));
+    }),
+
+  listSignatures: protectedProcedure({ permission: null })
+    .route({
+      method: 'GET',
+      path: '/vaults/{vaultId}/signatures',
+      tags,
+    })
+    .input(zSignatureListParams)
+    .output(zSignatureListResponse)
+    .handler(async ({ context, input }) => {
+      context.logger.info(`Fetching signatures for vault: ${input.vaultId}`);
+
+      // Get auth token for vault API
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+
+      if (!token) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token available',
+        });
+      }
+
+      const signatureRepo = new SignatureRepository(token);
+      // Note: Type assertion needed due to OpenAPI path mismatch in generated types
+      const result = (await signatureRepo.list(input.vaultId, {
+        limit: input.limit,
+        cursor: input.cursor,
+        order: input.order,
+        status: input.status,
+      })) as {
+        data: Array<{
+          id: string;
+          vaultId: string;
+          status:
+            | 'voting'
+            | 'presigning'
+            | 'signing'
+            | 'completed'
+            | 'rejected'
+            | 'expired'
+            | 'failed';
+          data: string[];
+          chainId: number | null;
+          coseAlgorithm: 'eddsa' | 'eddsa_blake2b' | 'es256k' | 'eskec256';
+          derivationPath: string | null;
+          contentType:
+            | 'application/octet-stream+hex'
+            | 'application/octet-stream+base64'
+            | 'text/plain'
+            | 'application/x-eip712+json';
+          signature: string[] | null;
+          createdAt: string;
+          updatedAt: string;
+          createdBy: string;
+        }>;
+        nextCursor?: string | null;
+        hasMore: boolean;
+      };
+
+      return {
+        data: result.data.map((sig) => ({
+          id: sig.id,
+          vaultId: sig.vaultId,
+          status: sig.status,
+          data: sig.data,
+          chainId: sig.chainId,
+          coseAlgorithm: sig.coseAlgorithm,
+          derivationPath: sig.derivationPath,
+          contentType: sig.contentType,
+          signature: sig.signature,
+          createdAt: sig.createdAt,
+          updatedAt: sig.updatedAt,
+          createdBy: sig.createdBy,
+        })),
+        nextCursor: result.nextCursor ?? null,
+        hasMore: result.hasMore,
+      };
+    }),
+
+  getSignature: protectedProcedure({ permission: null })
+    .route({
+      method: 'GET',
+      path: '/vaults/{vaultId}/signatures/{signatureId}',
+      tags,
+    })
+    .input(zGetSignatureParams)
+    .output(zSignatureItem)
+    .handler(async ({ context, input }) => {
+      context.logger.info(
+        `Fetching signature ${input.signatureId} for vault ${input.vaultId}`
+      );
+
+      // Get auth token for vault API
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+
+      if (!token) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token available',
+        });
+      }
+
+      const signatureRepo = new SignatureRepository(token);
+      // Note: Type assertion needed due to OpenAPI path mismatch in generated types
+      const result = (await signatureRepo.get(
+        input.vaultId,
+        input.signatureId
+      )) as {
+        id: string;
+        vaultId: string;
+        status:
+          | 'voting'
+          | 'presigning'
+          | 'signing'
+          | 'completed'
+          | 'rejected'
+          | 'expired'
+          | 'failed';
+        data: string[];
+        chainId: number | null;
+        coseAlgorithm: 'eddsa' | 'eddsa_blake2b' | 'es256k' | 'eskec256';
+        derivationPath: string | null;
+        contentType:
+          | 'application/octet-stream+hex'
+          | 'application/octet-stream+base64'
+          | 'text/plain'
+          | 'application/x-eip712+json';
+        signature: string[] | null;
+        createdAt: string;
+        updatedAt: string;
+        createdBy: string;
+      };
+
+      return {
+        id: result.id,
+        vaultId: result.vaultId,
+        status: result.status,
+        data: result.data,
+        chainId: result.chainId,
+        coseAlgorithm: result.coseAlgorithm,
+        derivationPath: result.derivationPath,
+        contentType: result.contentType,
+        signature: result.signature,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        createdBy: result.createdBy,
+      };
     }),
 };
