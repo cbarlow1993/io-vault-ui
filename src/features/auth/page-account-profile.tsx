@@ -2,7 +2,7 @@ import { useUser } from '@clerk/tanstack-react-start';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2Icon } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -35,14 +35,18 @@ export default function PageAccountProfile() {
     },
   });
 
-  // Update form with session data when available
+  // Track if form has been initialized to avoid resetting on every clerkUser change
+  const isInitialized = useRef(false);
+
+  // Initialize form with user data only once
   useEffect(() => {
-    if (clerkUser) {
+    if (clerkUser && !isInitialized.current) {
       form.reset({
         firstName: clerkUser.firstName || '',
         lastName: clerkUser.lastName || '',
         email: clerkUser.primaryEmailAddress?.emailAddress || '',
       });
+      isInitialized.current = true;
     }
   }, [clerkUser, form]);
 
@@ -61,6 +65,8 @@ export default function PageAccountProfile() {
     },
     onSuccess: () => {
       toast.success('Profile updated successfully');
+      // Allow form to re-initialize with fresh data
+      isInitialized.current = false;
       clearSessionCache();
       queryClient.invalidateQueries({ queryKey: ['session'] });
     },
