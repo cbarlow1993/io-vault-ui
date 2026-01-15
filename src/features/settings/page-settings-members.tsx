@@ -279,30 +279,6 @@ export const PageSettingsMembers = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-neutral-700">
-                  Add to Workspaces{' '}
-                  <span className="font-normal text-neutral-400">
-                    (optional)
-                  </span>
-                </label>
-                <div className="max-h-32 space-y-1 overflow-y-auto border border-neutral-200 p-2">
-                  {workspaces
-                    .filter((ws) => ws.status === 'active')
-                    .map((workspace) => (
-                      <label
-                        key={workspace.id}
-                        className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-50"
-                      >
-                        <input
-                          type="checkbox"
-                          className="rounded border-neutral-300"
-                        />
-                        {workspace.name}
-                      </label>
-                    ))}
-                </div>
-              </div>
               <DialogFooter className="mt-6">
                 <DialogClose asChild>
                   <Button
