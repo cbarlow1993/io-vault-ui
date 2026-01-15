@@ -67,6 +67,7 @@ export interface RbacRepository {
   getUserWithRoles(userId: string, organisationId: string): Promise<UserWithRoles>;
   getModuleRolePermissions(moduleName: string, roleName: string): Promise<string[]>;
   getAllRolePermissions(): Promise<Map<string, string[]>>;
+  findModuleById(id: string): Promise<{ id: string; name: string } | null>;
   findModuleByName(name: string): Promise<{ id: string; name: string } | null>;
   findModuleRoleByName(moduleId: string, roleName: string): Promise<{ id: string; name: string } | null>;
   assignGlobalRole(userId: string, organisationId: string, role: GlobalRole, grantedBy: string): Promise<void>;
@@ -165,6 +166,20 @@ export class PostgresRbacRepository implements RbacRepository {
     }
 
     return permissionsMap;
+  }
+
+  /**
+   * Find a module by ID
+   */
+  async findModuleById(id: string): Promise<{ id: string; name: string } | null> {
+    const result = await this.db
+      .selectFrom('modules')
+      .select(['id', 'name'])
+      .where('id', '=', id)
+      .where('is_active', '=', true)
+      .executeTakeFirst();
+
+    return result ?? null;
   }
 
   /**

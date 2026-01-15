@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import addressRoutes from '@/src/routes/addresses/index.js';
 import balanceRoutes from '@/src/routes/balances/index.js';
 import chainRoutes from '@/src/routes/chains/index.js';
+import moduleRoutes from '@/src/routes/modules/index.js';
 import reconciliationRoutes from '@/src/routes/reconciliation/index.js';
 import spamRoutes from '@/src/routes/spam/index.js';
 import transactionRoutes, { transactionRoutesV2, vaultTransactionRoutes } from '@/src/routes/transactions/index.js';
@@ -13,6 +14,7 @@ import { signatureWebhookRoutes } from '@/src/routes/webhooks/signature.js';
 export async function routes(fastify: FastifyInstance) {
   // Public routes (no auth required)
   fastify.register(chainRoutes, { prefix: '/v2/chains' });
+  fastify.register(moduleRoutes, { prefix: '/v2/modules' });
 
   // Protected routes
   fastify.register(addressRoutes, { prefix: '/v2/vaults/:vaultId/addresses' });
