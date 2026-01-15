@@ -65,4 +65,25 @@ describe('OpaPolicyService', () => {
     // Should still work because owner bypasses checks
     expect(result.allowed).toBe(true);
   });
+
+  it('should deny non-owner when OPA is unavailable', async () => {
+    vi.mocked(mockRepository.getUserWithRoles).mockResolvedValue({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      globalRole: null,  // not an owner
+      moduleRoles: [{ module: 'treasury', role: 'admin', resourceScope: null }],
+    });
+
+    vi.mocked(mockOpaClient.evaluate).mockRejectedValue(new Error('Connection refused'));
+
+    const result = await service.checkAccess({
+      userId: 'user-1',
+      organisationId: 'org-1',
+      module: 'treasury',
+      action: 'view_balances',
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('Policy evaluation unavailable, please retry');
+  });
 });
