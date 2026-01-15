@@ -604,3 +604,6 @@ export const signerVaultMappings: Record<string, SignerVaultSummary[]> = {
 export const getSignerVaults = (signerId: string): SignerVaultSummary[] => {
   return signerVaultMappings[signerId] || [];
 };
+
+// Re-export for compatibility with existing components
+export type { Signer as ApiSigner } from '../schema';
