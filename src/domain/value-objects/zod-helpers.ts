@@ -38,22 +38,23 @@ export function createValueObjectSchema<T extends Serializable>(
   createFn: (value: string) => T,
   validationFn?: (value: string) => string | null
 ) {
-  let schema = z.string();
+  const baseSchema = z.string();
 
   if (validationFn) {
-    schema = schema.refine(
-      (val) => {
+    return baseSchema
+      .superRefine((val, ctx) => {
         const error = validationFn(val);
-        return error === null;
-      },
-      (val) => {
-        const error = validationFn(val);
-        return { message: error ?? 'Validation failed' };
-      }
-    ) as z.ZodString;
+        if (error !== null) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error,
+          });
+        }
+      })
+      .transform((val) => createFn(val.trim()));
   }
 
-  return schema.transform((val) => createFn(val.trim()));
+  return baseSchema.transform((val) => createFn(val.trim()));
 }
 
 /**
@@ -65,18 +66,18 @@ export function createValueObjectSchema<T extends Serializable>(
  */
 export function createBidirectionalValueObjectSchema<T extends Serializable>(
   createFn: (value: string) => T,
-  toStringFn: (vo: T) => string = (vo) => vo.toString()
+  _toStringFn: (vo: T) => string = (vo) => vo.toString()
 ) {
   return z
     .union([
       z.string().transform((val) => createFn(val)),
-      z.instanceof(Object as new () => T).transform((vo) => vo),
+      z.custom<T>((val) => val !== null && typeof val === 'object'),
     ])
     .transform((val) => {
       if (typeof val === 'string') {
         return createFn(val);
       }
-      return val;
+      return val as T;
     });
 }
 
@@ -99,11 +100,11 @@ export function nullableValueObject<T extends Serializable>(
 }
 
 /**
- * Helper to create nullish value object schemas
+ * Helper to create nullish value object schemas (optional or null)
  */
 export function nullishValueObject<T extends Serializable>(
   schema: z.ZodType<T>
-): z.ZodNullish<z.ZodType<T>> {
+) {
   return schema.nullish();
 }
 
