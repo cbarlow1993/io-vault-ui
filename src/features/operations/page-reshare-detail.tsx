@@ -1,21 +1,21 @@
-import { Link, useParams } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from '@tanstack/react-router';
 import {
   CheckCircleIcon,
   ClockIcon,
   MinusIcon,
   PlusIcon,
-  RefreshCwIcon,
   ServerIcon,
   SmartphoneIcon,
   XCircleIcon,
 } from 'lucide-react';
 
+import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
 
 import { Button } from '@/components/ui/button';
 
 import type { DeviceType } from '@/features/vaults/data/vaults';
-import { getVaultById } from '@/features/vaults/data/vaults';
 import {
   PageLayout,
   PageLayoutContent,
@@ -26,7 +26,14 @@ import {
 // Types
 // =============================================================================
 
-type ReshareStatus = 'completed' | 'pending' | 'failed';
+// Use API status values directly
+type ReshareStatus =
+  | 'voting'
+  | 'signing'
+  | 'completed'
+  | 'failed'
+  | 'expired'
+  | 'rejected';
 
 type ReshareSignerState = {
   id: string;
@@ -69,286 +76,87 @@ type ReshareDetail = {
 // =============================================================================
 
 const mockReshareDetails: Record<string, ReshareDetail> = {
-  'reshare-1': {
-    id: 'reshare-1',
-    status: 'completed',
-    initiatedAt: '2024-03-01 09:00',
-    completedAt: '2024-03-01 09:15',
-    initiatedBy: 'Alice Johnson',
-    reason: 'Add new signer for enhanced security',
-    threshold: 3,
-    beforeState: {
-      threshold: 4,
-      signers: [
-        {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
-          deviceType: 'virtual',
-          votingPower: 2,
-        },
-        {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-        {
-          id: 's3',
-          name: "Bob's Android",
-          owner: 'Bob Smith',
-          deviceType: 'android',
-          votingPower: 1,
-        },
-      ],
-    },
-    afterState: {
-      threshold: 5,
-      signers: [
-        {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
-          deviceType: 'virtual',
-          votingPower: 2,
-        },
-        {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-        {
-          id: 's3',
-          name: "Bob's Android",
-          owner: 'Bob Smith',
-          deviceType: 'android',
-          votingPower: 1,
-        },
-        {
-          id: 's4',
-          name: "Carol's iPhone",
-          owner: 'Carol Davis',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-      ],
-    },
-    addedSigners: ['s4'],
-    removedSigners: [],
-    approvals: [
-      {
-        signerId: 's1',
-        signerName: 'Main Server',
-        approved: true,
-        approvedAt: '2024-03-01 09:05',
-      },
-      {
-        signerId: 's2',
-        signerName: "Alice's iPhone",
-        approved: true,
-        approvedAt: '2024-03-01 09:10',
-      },
-      {
-        signerId: 's3',
-        signerName: "Bob's Android",
-        approved: true,
-        approvedAt: '2024-03-01 09:15',
-      },
-    ],
-  },
-  'reshare-2': {
-    id: 'reshare-2',
-    status: 'pending',
-    initiatedAt: '2024-02-15 14:30',
+  // Real reshare ID for testing
+  '019bc346-6d4f-7129-ab41-8f82cea7a562': {
+    id: '019bc346-6d4f-7129-ab41-8f82cea7a562',
+    status: 'voting',
+    initiatedAt: '2025-01-14 10:00:00',
     completedAt: null,
-    initiatedBy: 'Bob Smith',
-    reason: 'Update threshold for compliance requirements',
+    initiatedBy: 'M. Smith',
+    reason:
+      'Adding new team member and adjusting threshold for faster operations',
     threshold: 3,
     beforeState: {
       threshold: 3,
       signers: [
         {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
+          id: 'signer-004',
+          name: 'Treasury Server',
+          owner: 'M. Smith',
           deviceType: 'virtual',
           votingPower: 2,
         },
         {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
+          id: 'signer-005',
+          name: "Mike's iPad",
+          owner: 'M. Smith',
           deviceType: 'ios',
           votingPower: 1,
         },
         {
-          id: 's3',
-          name: "Bob's Android",
-          owner: 'Bob Smith',
+          id: 'signer-006',
+          name: "John's Pixel",
+          owner: 'J. Doe',
           deviceType: 'android',
           votingPower: 1,
         },
-      ],
-    },
-    afterState: {
-      threshold: 4,
-      signers: [
         {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
-          deviceType: 'virtual',
-          votingPower: 2,
-        },
-        {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-        {
-          id: 's3',
-          name: "Bob's Android",
-          owner: 'Bob Smith',
-          deviceType: 'android',
-          votingPower: 1,
-        },
-      ],
-    },
-    addedSigners: [],
-    removedSigners: [],
-    approvals: [
-      {
-        signerId: 's1',
-        signerName: 'Main Server',
-        approved: true,
-        approvedAt: '2024-02-15 14:35',
-      },
-      { signerId: 's2', signerName: "Alice's iPhone", approved: false },
-      {
-        signerId: 's3',
-        signerName: "Bob's Android",
-        approved: true,
-        approvedAt: '2024-02-15 14:40',
-      },
-    ],
-  },
-  'reshare-3': {
-    id: 'reshare-3',
-    status: 'failed',
-    initiatedAt: '2024-01-20 11:00',
-    completedAt: '2024-01-20 11:30',
-    initiatedBy: 'Carol Davis',
-    reason: 'Remove inactive signer',
-    threshold: 2,
-    beforeState: {
-      threshold: 3,
-      signers: [
-        {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
-          deviceType: 'virtual',
-          votingPower: 2,
-        },
-        {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-        {
-          id: 's5',
-          name: "Dave's Server",
-          owner: 'Dave Wilson',
+          id: 'signer-007',
+          name: 'Backup HSM',
+          owner: 'A. Kumar',
           deviceType: 'virtual',
           votingPower: 1,
         },
       ],
     },
     afterState: {
-      threshold: 3,
+      threshold: 2,
       signers: [
         {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
+          id: 'signer-004',
+          name: 'Treasury Server',
+          owner: 'M. Smith',
           deviceType: 'virtual',
           votingPower: 2,
         },
         {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
+          id: 'signer-005',
+          name: "Mike's iPad",
+          owner: 'M. Smith',
+          deviceType: 'ios',
+          votingPower: 1,
+        },
+        {
+          id: 'signer-new-001',
+          name: "Sarah's iPhone",
+          owner: 'S. Chen',
           deviceType: 'ios',
           votingPower: 1,
         },
       ],
     },
-    addedSigners: [],
-    removedSigners: ['s5'],
+    addedSigners: ['signer-new-001'],
+    removedSigners: ['signer-006', 'signer-007'],
     approvals: [
       {
-        signerId: 's1',
-        signerName: 'Main Server',
+        signerId: 'signer-004',
+        signerName: 'Treasury Server',
         approved: true,
-        approvedAt: '2024-01-20 11:05',
+        approvedAt: '2025-01-14 10:15:00',
       },
-      { signerId: 's2', signerName: "Alice's iPhone", approved: false },
-      { signerId: 's5', signerName: "Dave's Server", approved: false },
-    ],
-  },
-  'reshare-4': {
-    id: 'reshare-4',
-    status: 'completed',
-    initiatedAt: '2023-12-10 16:00',
-    completedAt: '2023-12-10 16:20',
-    initiatedBy: 'Operations',
-    reason: 'Initial vault configuration',
-    threshold: 3,
-    beforeState: {
-      threshold: 0,
-      signers: [],
-    },
-    afterState: {
-      threshold: 3,
-      signers: [
-        {
-          id: 's1',
-          name: 'Main Server',
-          owner: 'Operations',
-          deviceType: 'virtual',
-          votingPower: 2,
-        },
-        {
-          id: 's2',
-          name: "Alice's iPhone",
-          owner: 'Alice Johnson',
-          deviceType: 'ios',
-          votingPower: 1,
-        },
-      ],
-    },
-    addedSigners: ['s1', 's2'],
-    removedSigners: [],
-    approvals: [
-      {
-        signerId: 's1',
-        signerName: 'Main Server',
-        approved: true,
-        approvedAt: '2023-12-10 16:10',
-      },
-      {
-        signerId: 's2',
-        signerName: "Alice's iPhone",
-        approved: true,
-        approvedAt: '2023-12-10 16:20',
-      },
+      { signerId: 'signer-005', signerName: "Mike's iPad", approved: false },
+      { signerId: 'signer-006', signerName: "John's Pixel", approved: false },
+      { signerId: 'signer-007', signerName: 'Backup HSM', approved: false },
     ],
   },
 };
@@ -386,9 +194,12 @@ const getStatusIcon = (status: ReshareStatus) => {
   switch (status) {
     case 'completed':
       return <CheckCircleIcon className="size-5 text-positive-600" />;
-    case 'pending':
+    case 'voting':
+    case 'signing':
       return <ClockIcon className="size-5 text-warning-600" />;
     case 'failed':
+    case 'rejected':
+    case 'expired':
       return <XCircleIcon className="size-5 text-negative-600" />;
   }
 };
@@ -397,10 +208,16 @@ const getStatusLabel = (status: ReshareStatus) => {
   switch (status) {
     case 'completed':
       return 'Completed';
-    case 'pending':
+    case 'voting':
       return 'Pending Approval';
+    case 'signing':
+      return 'Signing in Progress';
     case 'failed':
       return 'Failed';
+    case 'rejected':
+      return 'Rejected';
+    case 'expired':
+      return 'Expired';
   }
 };
 
@@ -408,9 +225,12 @@ const getStatusColor = (status: ReshareStatus) => {
   switch (status) {
     case 'completed':
       return 'bg-positive-100 text-positive-700';
-    case 'pending':
+    case 'voting':
+    case 'signing':
       return 'bg-warning-100 text-warning-700';
     case 'failed':
+    case 'rejected':
+    case 'expired':
       return 'bg-negative-100 text-negative-700';
   }
 };
@@ -438,7 +258,7 @@ const ProgressBar = ({
         <div
           className={cn(
             'h-full transition-all duration-500',
-            isComplete ? 'bg-positive-500' : 'bg-brand-500'
+            isComplete ? 'bg-emerald-500' : 'bg-brand-500'
           )}
           style={{ width: `${percentage}%` }}
         />
@@ -463,11 +283,11 @@ const ApprovalItem = ({
         <div
           className={cn(
             'flex size-8 items-center justify-center',
-            approved ? 'bg-positive-100' : 'bg-neutral-100'
+            approved ? 'bg-emerald-100' : 'bg-neutral-100'
           )}
         >
           {approved ? (
-            <CheckCircleIcon className="size-4 text-positive-600" />
+            <CheckCircleIcon className="text-emerald-600 size-4" />
           ) : (
             <ClockIcon className="size-4 text-neutral-400" />
           )}
@@ -477,7 +297,7 @@ const ApprovalItem = ({
       <div className="text-right">
         {approved ? (
           <div>
-            <span className="text-xs font-medium text-positive-600">
+            <span className="text-emerald-600 text-xs font-medium">
               Approved
             </span>
             {approvedAt && (
@@ -506,8 +326,8 @@ const SignerCard = ({
     <div
       className={cn(
         'flex items-center gap-3 border p-3',
-        status === 'added' && 'border-positive-200 bg-positive-50/50',
-        status === 'removed' && 'border-negative-200 bg-negative-50/50',
+        status === 'added' && 'border-emerald-200 bg-emerald-50/50',
+        status === 'removed' && 'border-red-200 bg-red-50/50',
         status === 'unchanged' && 'border-neutral-200 bg-white'
       )}
     >
@@ -527,12 +347,12 @@ const SignerCard = ({
           Power: {signer.votingPower}
         </span>
         {status === 'added' && (
-          <span className="flex items-center gap-0.5 bg-positive-100 px-1.5 py-0.5 text-[10px] font-medium text-positive-600">
+          <span className="text-emerald-600 bg-emerald-100 flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium">
             <PlusIcon className="size-3" /> Added
           </span>
         )}
         {status === 'removed' && (
-          <span className="flex items-center gap-0.5 bg-negative-100 px-1.5 py-0.5 text-[10px] font-medium text-negative-600">
+          <span className="text-red-600 bg-red-100 flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium">
             <MinusIcon className="size-3" /> Removed
           </span>
         )}
@@ -549,8 +369,102 @@ export const PageReshareDetail = () => {
   const { vaultId, reshareId } = useParams({
     from: '/_app/treasury/vaults/$vaultId/reshares/$reshareId',
   });
-  const reshare = getReshareById(reshareId);
-  const vault = getVaultById(vaultId);
+
+  // Fetch vault data from API
+  const { data: vault } = useQuery(
+    orpc.vaults.get.queryOptions({ input: { id: vaultId } })
+  );
+
+  // Fetch reshare data from API
+  const { data: apiReshare, isLoading: isLoadingReshare } = useQuery(
+    orpc.vaults.getReshare.queryOptions({
+      input: { vaultId, reshareId },
+    })
+  );
+
+  // Fetch votes data from API
+  const { data: votes, isLoading: isLoadingVotes } = useQuery(
+    orpc.vaults.getReshareVotes.queryOptions({
+      input: { vaultId, reshareId },
+    })
+  );
+
+  // Get stubbed data for fields not available from API
+  const stubbedReshare = getReshareById(reshareId);
+
+  // Merge API data with stubbed data for unavailable fields
+  const reshare: ReshareDetail | undefined = apiReshare
+    ? {
+        id: apiReshare.id,
+        status: apiReshare.status,
+        threshold: apiReshare.threshold,
+        initiatedAt: apiReshare.createdAt,
+        initiatedBy: apiReshare.createdBy,
+        reason:
+          apiReshare.memo ?? stubbedReshare?.reason ?? 'No reason provided',
+        // Keep stubbed data for fields not in API
+        completedAt: stubbedReshare?.completedAt ?? null,
+        beforeState: stubbedReshare?.beforeState ?? {
+          threshold: 0,
+          signers: [],
+        },
+        afterState: stubbedReshare?.afterState ?? {
+          threshold: apiReshare.threshold,
+          signers: [],
+        },
+        addedSigners: stubbedReshare?.addedSigners ?? [],
+        removedSigners: stubbedReshare?.removedSigners ?? [],
+        // Merge API votes with stubbed approvals to show all signers
+        approvals: (() => {
+          const baseApprovals = stubbedReshare?.approvals ?? [];
+          if (!votes || votes.length === 0) return baseApprovals;
+
+          // Create a map of API votes by signerId
+          const voteMap = new Map(
+            votes.map((vote) => [
+              vote.signerId,
+              {
+                signerId: vote.signerId,
+                signerName: vote.signerExternalId ?? vote.signerId,
+                approved: vote.result === 'approve',
+                approvedAt:
+                  vote.result === 'approve' ? vote.votedAt : undefined,
+              },
+            ])
+          );
+
+          // Update stubbed approvals with API vote data, keep pending ones
+          return baseApprovals.map((approval) => {
+            const apiVote = voteMap.get(approval.signerId);
+            return apiVote ?? approval;
+          });
+        })(),
+      }
+    : stubbedReshare;
+
+  const isLoading = isLoadingReshare || isLoadingVotes;
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <PageLayoutTopBar
+          breadcrumbs={[
+            { label: 'Vaults', href: '/treasury/vaults' },
+            {
+              label: vault?.name ?? 'Vault',
+              href: `/treasury/vaults/${vaultId}`,
+            },
+            { label: 'Loading...' },
+          ]}
+        />
+        <PageLayoutContent containerClassName="py-8">
+          <div className="text-center text-neutral-500">
+            <p className="text-sm">Loading reshare details...</p>
+          </div>
+        </PageLayoutContent>
+      </PageLayout>
+    );
+  }
 
   if (!reshare) {
     return (
@@ -558,7 +472,10 @@ export const PageReshareDetail = () => {
         <PageLayoutTopBar
           breadcrumbs={[
             { label: 'Vaults', href: '/treasury/vaults' },
-            { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
+            {
+              label: vault?.name ?? 'Vault',
+              href: `/treasury/vaults/${vaultId}`,
+            },
             { label: 'Reshare Not Found' },
           ]}
         />
@@ -574,7 +491,6 @@ export const PageReshareDetail = () => {
   }
 
   const approvedCount = reshare.approvals.filter((a) => a.approved).length;
-  const isReady = approvedCount >= reshare.threshold;
   const thresholdChanged =
     reshare.beforeState.threshold !== reshare.afterState.threshold;
 
@@ -583,60 +499,100 @@ export const PageReshareDetail = () => {
       <PageLayoutTopBar
         breadcrumbs={[
           { label: 'Vaults', href: '/treasury/vaults' },
-          { label: vault?.name ?? 'Vault', href: `/vaults/${vaultId}` },
-          { label: 'Reshare Operation' },
+          {
+            label: vault?.name ?? 'Vault',
+            href: `/treasury/vaults/${vaultId}`,
+          },
+          { label: 'Reshare Request' },
         ]}
         actions={
-          reshare.status === 'pending' ? (
-            <>
-              <Button
-                variant="secondary"
-                className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
-              >
-                Cancel Request
-              </Button>
-              {isReady && (
-                <Button className="h-7 rounded-none bg-brand-500 px-3 text-xs font-medium text-white hover:bg-brand-600">
-                  Execute Reshare
-                </Button>
-              )}
-            </>
+          reshare.status === 'voting' || reshare.status === 'signing' ? (
+            <Button
+              variant="secondary"
+              className="h-7 rounded-none border-neutral-300 px-3 text-xs font-medium"
+            >
+              Cancel Request
+            </Button>
           ) : undefined
         }
       />
+
       <PageLayoutContent containerClassName="py-4">
-        <div className="mx-auto max-w-4xl space-y-6">
-          {/* Status Card */}
+        <div className="mx-auto max-w-4xl space-y-4">
+          {/* Request info */}
           <div className="border border-neutral-200 bg-white">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                {getStatusIcon(reshare.status)}
+            <div className="border-b border-neutral-200 px-4 py-2.5">
+              <h3 className="text-xs font-semibold text-neutral-900">
+                Request Information
+              </h3>
+            </div>
+            <div className="grid grid-cols-4 gap-4 px-4 py-3">
+              <div>
+                <p className="mb-0.5 text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                  Status
+                </p>
+                <span
+                  className={cn(
+                    'inline-block px-2 py-0.5 text-xs font-medium',
+                    getStatusColor(reshare.status)
+                  )}
+                >
+                  {getStatusLabel(reshare.status)}
+                </span>
+              </div>
+              <div>
+                <p className="mb-0.5 text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                  Requested By
+                </p>
+                <p className="text-sm text-neutral-900">
+                  {reshare.initiatedBy}
+                </p>
+              </div>
+              <div>
+                <p className="mb-0.5 text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                  Requested At
+                </p>
+                <p className="text-sm text-neutral-900">
+                  {reshare.initiatedAt}
+                </p>
+              </div>
+              {apiReshare?.expiresAt && (
                 <div>
-                  <h2 className="text-lg font-semibold text-neutral-900">
-                    {getStatusLabel(reshare.status)}
-                  </h2>
-                  <p className="text-sm text-neutral-500">
-                    Initiated by {reshare.initiatedBy} on {reshare.initiatedAt}
+                  <p className="mb-0.5 text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
+                    Expires At
+                  </p>
+                  <p className="text-sm text-neutral-900">
+                    {apiReshare.expiresAt}
                   </p>
                 </div>
-              </div>
-              <span
-                className={cn(
-                  'px-3 py-1 text-xs font-medium capitalize',
-                  getStatusColor(reshare.status)
-                )}
-              >
-                {reshare.status}
+              )}
+            </div>
+          </div>
+
+          {/* Approvals Section */}
+          <div className="border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-2.5">
+              <h3 className="text-xs font-semibold text-neutral-900">
+                Approvals
+              </h3>
+              <span className="text-[10px] text-neutral-500">
+                {approvedCount} of {reshare.threshold} required (
+                {reshare.approvals.length} total signers)
               </span>
             </div>
-            {reshare.status === 'pending' && (
-              <div className="border-t border-neutral-100 px-4 py-3">
-                <ProgressBar
-                  current={approvedCount}
-                  total={reshare.threshold}
-                />
+            <div className="px-4 py-3">
+              <ProgressBar current={approvedCount} total={reshare.threshold} />
+              <div className="mt-3">
+                {reshare.approvals.map((approval) => (
+                  <ApprovalItem
+                    key={approval.signerId}
+                    signerName={approval.signerName}
+                    approved={approval.approved}
+                    approvedAt={approval.approvedAt}
+                  />
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Reshare Details */}
@@ -668,13 +624,13 @@ export const PageReshareDetail = () => {
                     </span>
                   )}
                   {reshare.addedSigners.length > 0 && (
-                    <span className="bg-positive-100 px-2 py-1 text-xs text-positive-700">
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 text-xs">
                       +{reshare.addedSigners.length} signer
                       {reshare.addedSigners.length > 1 ? 's' : ''}
                     </span>
                   )}
                   {reshare.removedSigners.length > 0 && (
-                    <span className="bg-negative-100 px-2 py-1 text-xs text-negative-700">
+                    <span className="bg-red-100 text-red-700 px-2 py-1 text-xs">
                       -{reshare.removedSigners.length} signer
                       {reshare.removedSigners.length > 1 ? 's' : ''}
                     </span>
@@ -743,102 +699,6 @@ export const PageReshareDetail = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Approvals Card */}
-          <div className="border border-neutral-200 bg-white">
-            <div className="border-b border-neutral-200 px-4 py-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-neutral-900">
-                  Approvals
-                </h3>
-                <span className="text-xs text-neutral-500">
-                  {approvedCount} of {reshare.approvals.length} signers approved
-                </span>
-              </div>
-            </div>
-            <div className="px-4">
-              {reshare.approvals.map((approval) => (
-                <ApprovalItem
-                  key={approval.signerId}
-                  signerName={approval.signerName}
-                  approved={approval.approved}
-                  approvedAt={approval.approvedAt}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Timeline */}
-          <div className="border border-neutral-200 bg-white">
-            <div className="border-b border-neutral-200 px-4 py-3">
-              <h3 className="text-sm font-semibold text-neutral-900">
-                Timeline
-              </h3>
-            </div>
-            <div className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex size-6 shrink-0 items-center justify-center bg-neutral-100">
-                    <RefreshCwIcon className="size-3 text-neutral-500" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-900">
-                      Reshare initiated
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {reshare.initiatedAt} by {reshare.initiatedBy}
-                    </p>
-                  </div>
-                </div>
-                {reshare.approvals
-                  .filter((a) => a.approved)
-                  .map((approval) => (
-                    <div
-                      key={approval.signerId}
-                      className="flex items-start gap-3"
-                    >
-                      <div className="flex size-6 shrink-0 items-center justify-center bg-positive-100">
-                        <CheckCircleIcon className="size-3 text-positive-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-neutral-900">
-                          Approved by {approval.signerName}
-                        </p>
-                        <p className="text-xs text-neutral-500">
-                          {approval.approvedAt}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                {reshare.completedAt && (
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        'flex size-6 shrink-0 items-center justify-center',
-                        reshare.status === 'completed'
-                          ? 'bg-positive-100'
-                          : 'bg-negative-100'
-                      )}
-                    >
-                      {reshare.status === 'completed' ? (
-                        <CheckCircleIcon className="size-3 text-positive-600" />
-                      ) : (
-                        <XCircleIcon className="size-3 text-negative-600" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm text-neutral-900">
-                        Reshare {reshare.status}
-                      </p>
-                      <p className="text-xs text-neutral-500">
-                        {reshare.completedAt}
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>

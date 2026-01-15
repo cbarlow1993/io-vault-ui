@@ -7,9 +7,12 @@ import {
   zCreateReshareResponse,
   zCreateVaultInput,
   zCreateVaultResponse,
+  zGetReshareParams,
   zGetVaultParams,
+  zReshare,
   zReshareListParams,
   zReshareListResponse,
+  zReshareVotesResponse,
   zVault,
   zVaultListParams,
   zVaultListResponse,
@@ -334,5 +337,119 @@ export default {
         nextCursor: result.nextCursor ?? null,
         hasMore: result.hasMore,
       };
+    }),
+
+  getReshare: protectedProcedure({ permission: null })
+    .route({
+      method: 'GET',
+      path: '/vaults/{vaultId}/reshares/{reshareId}',
+      tags,
+    })
+    .input(zGetReshareParams)
+    .output(zReshare)
+    .handler(async ({ context, input }) => {
+      context.logger.info(
+        `Fetching reshare ${input.reshareId} for vault ${input.vaultId}`
+      );
+
+      // Get auth token for vault API
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+
+      if (!token) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token available',
+        });
+      }
+
+      const reshareRepo = new ReshareRepository(token);
+      // Note: Type assertion needed due to OpenAPI path mismatch in generated types
+      const result = (await reshareRepo.get(
+        input.vaultId,
+        input.reshareId
+      )) as {
+        id: string;
+        vaultId: string;
+        threshold: number;
+        status:
+          | 'voting'
+          | 'completed'
+          | 'failed'
+          | 'expired'
+          | 'signing'
+          | 'rejected';
+        memo?: string | null;
+        createdAt: string;
+        updatedAt: string;
+        createdBy: string;
+        expiresAt: string;
+      };
+
+      return {
+        id: result.id,
+        vaultId: result.vaultId,
+        threshold: result.threshold,
+        status: result.status,
+        memo: result.memo ?? null,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        createdBy: result.createdBy,
+        expiresAt: result.expiresAt,
+      };
+    }),
+
+  getReshareVotes: protectedProcedure({ permission: null })
+    .route({
+      method: 'GET',
+      path: '/vaults/{vaultId}/reshares/{reshareId}/votes',
+      tags,
+    })
+    .input(zGetReshareParams)
+    .output(zReshareVotesResponse)
+    .handler(async ({ context, input }) => {
+      context.logger.info(
+        `Fetching votes for reshare ${input.reshareId} in vault ${input.vaultId}`
+      );
+
+      // Get auth token for vault API
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+
+      if (!token) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token available',
+        });
+      }
+
+      const reshareRepo = new ReshareRepository(token);
+      // Note: Type assertion needed due to OpenAPI path mismatch in generated types
+      const result = (await reshareRepo.getVotes(
+        input.vaultId,
+        input.reshareId
+      )) as Array<{
+        id: string;
+        signerId: string;
+        signerExternalId: string | null;
+        reshareId: string;
+        weight: number;
+        oldWeight: number;
+        changeType: 'added' | 'removed' | 'kept';
+        result: 'approve' | 'reject';
+        votedAt: string;
+        approvalSignature: string | null;
+      }>;
+
+      return result.map((vote) => ({
+        id: vote.id,
+        signerId: vote.signerId,
+        signerExternalId: vote.signerExternalId,
+        reshareId: vote.reshareId,
+        weight: vote.weight,
+        oldWeight: vote.oldWeight,
+        changeType: vote.changeType,
+        result: vote.result,
+        votedAt: vote.votedAt,
+        approvalSignature: vote.approvalSignature,
+      }));
     }),
 };

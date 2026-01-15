@@ -158,6 +158,35 @@ export const zReshareListParams = z.object({
   status: zReshareStatus.optional(),
 });
 
+// Get reshare params
+export const zGetReshareParams = z.object({
+  vaultId: z.string(),
+  reshareId: z.string(),
+});
+
+// Reshare vote change type
+export const zReshareVoteChangeType = z.enum(['added', 'removed', 'kept']);
+
+// Reshare vote result
+export const zReshareVoteResult = z.enum(['approve', 'reject']);
+
+// Reshare vote item
+export const zReshareVote = z.object({
+  id: z.string(),
+  signerId: z.string(),
+  signerExternalId: z.string().nullable(),
+  reshareId: z.string(),
+  weight: z.number(),
+  oldWeight: z.number(),
+  changeType: zReshareVoteChangeType,
+  result: zReshareVoteResult,
+  votedAt: z.string(),
+  approvalSignature: z.string().nullable(),
+});
+
+// Reshare votes response (array of votes)
+export const zReshareVotesResponse = z.array(zReshareVote);
+
 // Type exports
 export type Vault = z.infer<typeof zVault>;
 export type VaultCurve = z.infer<typeof zVaultCurve>;
@@ -175,3 +204,8 @@ export type Reshare = z.infer<typeof zReshare>;
 export type ReshareStatus = z.infer<typeof zReshareStatus>;
 export type ReshareListResponse = z.infer<typeof zReshareListResponse>;
 export type ReshareListParams = z.infer<typeof zReshareListParams>;
+export type GetReshareParams = z.infer<typeof zGetReshareParams>;
+export type ReshareVote = z.infer<typeof zReshareVote>;
+export type ReshareVoteChangeType = z.infer<typeof zReshareVoteChangeType>;
+export type ReshareVoteResult = z.infer<typeof zReshareVoteResult>;
+export type ReshareVotesResponse = z.infer<typeof zReshareVotesResponse>;
