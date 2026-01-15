@@ -54,6 +54,83 @@ export type InsertableVaultCurve = Insertable<VaultCurveTable>;
 export type TagRow = Selectable<TagTable>;
 export type TagAssignmentRow = Selectable<TagAssignmentTable>;
 
+// RBAC Module tables
+export interface ModuleTable {
+  id: Generated<string>;
+  name: string;
+  display_name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: Generated<Date>;
+}
+
+export interface ModuleActionTable {
+  id: Generated<string>;
+  module_id: string;
+  name: string;
+  display_name: string;
+  description: string | null;
+  created_at: Generated<Date>;
+}
+
+export interface ModuleRoleTable {
+  id: Generated<string>;
+  module_id: string;
+  name: string;
+  display_name: string;
+  description: string | null;
+  created_at: Generated<Date>;
+}
+
+export interface ModuleRolePermissionTable {
+  id: Generated<string>;
+  module_role_id: string;
+  action_id: string;
+  created_at: Generated<Date>;
+}
+
+export type GlobalRole = 'owner' | 'billing' | 'admin';
+
+export interface UserGlobalRoleTable {
+  id: Generated<string>;
+  user_id: string;
+  organisation_id: string;
+  role: GlobalRole;
+  created_at: Generated<Date>;
+  granted_by: string | null;
+}
+
+export interface ResourceScope {
+  vault_ids?: string[];
+}
+
+export interface UserModuleRoleTable {
+  id: Generated<string>;
+  user_id: string;
+  organisation_id: string;
+  module_id: string;
+  module_role_id: string;
+  resource_scope: ColumnType<ResourceScope | null, string | null, string | null>;
+  created_at: Generated<Date>;
+  granted_by: string;
+}
+
+export interface PolicyDecisionTable {
+  id: Generated<string>;
+  organisation_id: string;
+  user_id: string;
+  module: string;
+  action: string;
+  resource: ColumnType<Record<string, unknown> | null, string | null, string | null>;
+  decision: 'allow' | 'deny';
+  reason: string | null;
+  matched_role: string | null;
+  request_id: string | null;
+  endpoint: string | null;
+  evaluation_time_ms: number | null;
+  created_at: Generated<Date>;
+}
+
 export interface Database {
   addresses: AddressTable;
   address_tokens: AddressTokenTable;
@@ -69,6 +146,13 @@ export interface Database {
   reconciliation_audit_log: ReconciliationAuditLogTable;
   transaction_workflows: TransactionWorkflowTable;
   transaction_workflow_events: TransactionWorkflowEventTable;
+  modules: ModuleTable;
+  module_actions: ModuleActionTable;
+  module_roles: ModuleRoleTable;
+  module_role_permissions: ModuleRolePermissionTable;
+  user_global_roles: UserGlobalRoleTable;
+  user_module_roles: UserModuleRoleTable;
+  policy_decisions: PolicyDecisionTable;
 }
 
 export interface AddressTable {
@@ -385,3 +469,19 @@ export type TransactionWorkflowUpdate = Updateable<TransactionWorkflowTable>;
 
 export type TransactionWorkflowEvent = Selectable<TransactionWorkflowEventTable>;
 export type NewTransactionWorkflowEvent = Insertable<TransactionWorkflowEventTable>;
+
+// RBAC type helpers
+export type Module = Selectable<ModuleTable>;
+export type NewModule = Insertable<ModuleTable>;
+export type ModuleAction = Selectable<ModuleActionTable>;
+export type NewModuleAction = Insertable<ModuleActionTable>;
+export type ModuleRole = Selectable<ModuleRoleTable>;
+export type NewModuleRole = Insertable<ModuleRoleTable>;
+export type ModuleRolePermission = Selectable<ModuleRolePermissionTable>;
+export type NewModuleRolePermission = Insertable<ModuleRolePermissionTable>;
+export type UserGlobalRole = Selectable<UserGlobalRoleTable>;
+export type NewUserGlobalRole = Insertable<UserGlobalRoleTable>;
+export type UserModuleRole = Selectable<UserModuleRoleTable>;
+export type NewUserModuleRole = Insertable<UserModuleRoleTable>;
+export type PolicyDecision = Selectable<PolicyDecisionTable>;
+export type NewPolicyDecision = Insertable<PolicyDecisionTable>;
