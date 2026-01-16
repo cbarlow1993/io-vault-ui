@@ -50,6 +50,7 @@ import { Route as AppGlobalWorkspacesRouteImport } from './routes/_app/global/wo
 import { Route as AppGlobalUsersRouteImport } from './routes/_app/global/users'
 import { Route as AppGlobalRolesRouteImport } from './routes/_app/global/roles'
 import { Route as AppGlobalOrganizationRouteImport } from './routes/_app/global/organization'
+import { Route as AppGlobalModuleAccessRouteImport } from './routes/_app/global/module-access'
 import { Route as AppGlobalBillingRouteImport } from './routes/_app/global/billing'
 import { Route as AppGlobalBackupsRouteImport } from './routes/_app/global/backups'
 import { Route as AppGlobalAuditRouteImport } from './routes/_app/global/audit'
@@ -330,6 +331,11 @@ const AppGlobalRolesRoute = AppGlobalRolesRouteImport.update({
 const AppGlobalOrganizationRoute = AppGlobalOrganizationRouteImport.update({
   id: '/organization',
   path: '/organization',
+  getParentRoute: () => AppGlobalRouteRoute,
+} as any)
+const AppGlobalModuleAccessRoute = AppGlobalModuleAccessRouteImport.update({
+  id: '/module-access',
+  path: '/module-access',
   getParentRoute: () => AppGlobalRouteRoute,
 } as any)
 const AppGlobalBillingRoute = AppGlobalBillingRouteImport.update({
@@ -816,6 +822,7 @@ export interface FileRoutesByFullPath {
   '/global/audit': typeof AppGlobalAuditRoute
   '/global/backups': typeof AppGlobalBackupsRoute
   '/global/billing': typeof AppGlobalBillingRoute
+  '/global/module-access': typeof AppGlobalModuleAccessRoute
   '/global/organization': typeof AppGlobalOrganizationRoute
   '/global/roles': typeof AppGlobalRolesRoute
   '/global/users': typeof AppGlobalUsersRoute
@@ -917,6 +924,7 @@ export interface FileRoutesByTo {
   '/global/audit': typeof AppGlobalAuditRoute
   '/global/backups': typeof AppGlobalBackupsRoute
   '/global/billing': typeof AppGlobalBillingRoute
+  '/global/module-access': typeof AppGlobalModuleAccessRoute
   '/global/organization': typeof AppGlobalOrganizationRoute
   '/global/roles': typeof AppGlobalRolesRoute
   '/global/users': typeof AppGlobalUsersRoute
@@ -1023,6 +1031,7 @@ export interface FileRoutesById {
   '/_app/global/audit': typeof AppGlobalAuditRoute
   '/_app/global/backups': typeof AppGlobalBackupsRoute
   '/_app/global/billing': typeof AppGlobalBillingRoute
+  '/_app/global/module-access': typeof AppGlobalModuleAccessRoute
   '/_app/global/organization': typeof AppGlobalOrganizationRoute
   '/_app/global/roles': typeof AppGlobalRolesRoute
   '/_app/global/users': typeof AppGlobalUsersRoute
@@ -1142,6 +1151,7 @@ export interface FileRouteTypes {
     | '/global/audit'
     | '/global/backups'
     | '/global/billing'
+    | '/global/module-access'
     | '/global/organization'
     | '/global/roles'
     | '/global/users'
@@ -1243,6 +1253,7 @@ export interface FileRouteTypes {
     | '/global/audit'
     | '/global/backups'
     | '/global/billing'
+    | '/global/module-access'
     | '/global/organization'
     | '/global/roles'
     | '/global/users'
@@ -1348,6 +1359,7 @@ export interface FileRouteTypes {
     | '/_app/global/audit'
     | '/_app/global/backups'
     | '/_app/global/billing'
+    | '/_app/global/module-access'
     | '/_app/global/organization'
     | '/_app/global/roles'
     | '/_app/global/users'
@@ -1728,6 +1740,13 @@ declare module '@tanstack/react-router' {
       path: '/organization'
       fullPath: '/global/organization'
       preLoaderRoute: typeof AppGlobalOrganizationRouteImport
+      parentRoute: typeof AppGlobalRouteRoute
+    }
+    '/_app/global/module-access': {
+      id: '/_app/global/module-access'
+      path: '/module-access'
+      fullPath: '/global/module-access'
+      preLoaderRoute: typeof AppGlobalModuleAccessRouteImport
       parentRoute: typeof AppGlobalRouteRoute
     }
     '/_app/global/billing': {
@@ -2424,6 +2443,7 @@ interface AppGlobalRouteRouteChildren {
   AppGlobalAuditRoute: typeof AppGlobalAuditRoute
   AppGlobalBackupsRoute: typeof AppGlobalBackupsRoute
   AppGlobalBillingRoute: typeof AppGlobalBillingRoute
+  AppGlobalModuleAccessRoute: typeof AppGlobalModuleAccessRoute
   AppGlobalOrganizationRoute: typeof AppGlobalOrganizationRoute
   AppGlobalRolesRoute: typeof AppGlobalRolesRoute
   AppGlobalUsersRoute: typeof AppGlobalUsersRoute
@@ -2438,6 +2458,7 @@ const AppGlobalRouteRouteChildren: AppGlobalRouteRouteChildren = {
   AppGlobalAuditRoute: AppGlobalAuditRoute,
   AppGlobalBackupsRoute: AppGlobalBackupsRoute,
   AppGlobalBillingRoute: AppGlobalBillingRoute,
+  AppGlobalModuleAccessRoute: AppGlobalModuleAccessRoute,
   AppGlobalOrganizationRoute: AppGlobalOrganizationRoute,
   AppGlobalRolesRoute: AppGlobalRolesRoute,
   AppGlobalUsersRoute: AppGlobalUsersRoute,
@@ -2915,13 +2936,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
