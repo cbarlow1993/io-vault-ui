@@ -53,3 +53,27 @@ export const zRemoveModuleRoleInput = z.object({
 });
 
 export type RemoveModuleRoleInput = z.infer<typeof zRemoveModuleRoleInput>;
+
+// User with roles response from /v2/organisations/{orgId}/roles/users
+export const zUserModuleRoleInfo = z.object({
+  role: z.string(),
+  resource_scope: z
+    .object({
+      vault_ids: z.array(z.string()).optional(),
+    })
+    .nullable(),
+});
+
+export const zUserWithRoles = z.object({
+  user_id: z.string(),
+  global_role: z.enum(['owner', 'billing', 'admin']),
+  module_roles: z.record(z.string(), zUserModuleRoleInfo),
+});
+
+export type UserWithRoles = z.infer<typeof zUserWithRoles>;
+
+export const zUsersWithRolesResponse = z.object({
+  users: z.array(zUserWithRoles),
+});
+
+export type UsersWithRolesResponse = z.infer<typeof zUsersWithRolesResponse>;

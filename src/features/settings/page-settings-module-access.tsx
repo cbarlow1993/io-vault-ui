@@ -16,7 +16,7 @@ import {
   mapInvitation,
   mapMembership,
 } from './lib/clerk-members';
-import type { Module, ModuleRole } from './schema';
+import type { Module, ModuleRole, UserWithRoles } from './schema';
 
 export function PageSettingsModuleAccess() {
   const { memberships, invitations } = useOrganization({
@@ -48,6 +48,22 @@ export function PageSettingsModuleAccess() {
   const { data: modulesData, isLoading: isLoadingModules } = useQuery(
     orpc.modules.list.queryOptions({})
   );
+
+  // Fetch users with their module roles from Core API
+  const {
+    data: usersWithRolesData,
+    isLoading: isLoadingUsersWithRoles,
+    refetch: refetchUsersWithRoles,
+  } = useQuery(orpc.modules.getUsersWithRoles.queryOptions({}));
+
+  // Build a lookup map from user_id to their module roles
+  const userRolesMap = useMemo(() => {
+    const map = new Map<string, UserWithRoles>();
+    for (const user of usersWithRolesData?.users ?? []) {
+      map.set(user.user_id, user);
+    }
+    return map;
+  }, [usersWithRolesData?.users]);
 
   // Wrap modules in useMemo to prevent dependency changes on every render
   const modules = useMemo<Module[]>(
@@ -92,10 +108,22 @@ export function PageSettingsModuleAccess() {
     moduleId: string;
   } | null>(null);
 
-  // Map Clerk members to our format
+  // Map Clerk members to our format, merging with Core API module roles
   const members = useMemo(() => {
     const activeMembers = (memberships?.data ?? []).map((m) => {
       const mapped = mapMembership(m);
+      const userRoles = userRolesMap.get(mapped.id);
+
+      // Convert module_roles object to moduleAssignments format (moduleId -> role name)
+      const moduleAssignments: Record<string, string> = {};
+      if (userRoles?.module_roles) {
+        for (const [moduleId, roleInfo] of Object.entries(
+          userRoles.module_roles
+        )) {
+          moduleAssignments[moduleId] = roleInfo.role;
+        }
+      }
+
       return {
         id: mapped.id,
         name: mapped.name,
@@ -103,13 +131,13 @@ export function PageSettingsModuleAccess() {
         avatarUrl: mapped.avatarUrl,
         globalRole: mapClerkRole(m.role),
         status: 'active' as const,
-        // Module assignments will be fetched from API in a future enhancement
-        moduleAssignments: {} as Record<string, string>,
+        moduleAssignments,
       };
     });
 
     const pendingMembers = (invitations?.data ?? []).map((inv) => {
       const mapped = mapInvitation(inv);
+      // Pending invitations won't have module assignments yet
       return {
         id: mapped.id,
         name: mapped.name,
@@ -121,10 +149,13 @@ export function PageSettingsModuleAccess() {
     });
 
     return [...activeMembers, ...pendingMembers];
-  }, [memberships?.data, invitations?.data]);
+  }, [memberships?.data, invitations?.data, userRolesMap]);
 
   const isLoading =
-    isLoadingModules || !memberships?.data || memberships?.isFetching;
+    isLoadingModules ||
+    isLoadingUsersWithRoles ||
+    !memberships?.data ||
+    memberships?.isFetching;
 
   // Filter members
   const filteredMembers = useMemo(() => {
@@ -146,6 +177,7 @@ export function PageSettingsModuleAccess() {
     orpc.modules.assignRole.mutationOptions({
       onSuccess: () => {
         toast.success('Module access updated');
+        refetchUsersWithRoles();
       },
       onError: () => {
         toast.error('Failed to update module access');
@@ -157,6 +189,7 @@ export function PageSettingsModuleAccess() {
     orpc.modules.removeRole.mutationOptions({
       onSuccess: () => {
         toast.success('Module access removed');
+        refetchUsersWithRoles();
       },
       onError: () => {
         toast.error('Failed to remove module access');

@@ -2993,6 +2993,61 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v2/organisations/{orgId}/roles/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all users with their roles
+     * @description Returns all users in the organisation with their global role and module roles. Only accessible by owner or admin.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          orgId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Default Response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              users: {
+                user_id: string;
+                /** @enum {string} */
+                global_role: 'owner' | 'billing' | 'admin';
+                module_roles: {
+                  [key: string]: {
+                    role: string;
+                    resource_scope: {
+                      vault_ids?: string[];
+                    } | null;
+                  };
+                };
+              }[];
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {

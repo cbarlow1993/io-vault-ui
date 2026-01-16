@@ -7,6 +7,7 @@ import {
   zModuleRolesResponse,
   zModulesListResponse,
   zRemoveModuleRoleInput,
+  zUsersWithRolesResponse,
 } from '@/features/settings/schema';
 import { ModuleRepository } from '@/server/core-api/repositories/module.repository';
 import { OrganisationRepository } from '@/server/core-api/repositories/organisation.repository';
@@ -55,6 +56,26 @@ export default {
 
       const moduleRepo = new ModuleRepository(token);
       return await moduleRepo.getRoles(input.moduleId);
+    }),
+
+  getUsersWithRoles: protectedProcedure({ permission: null })
+    .route({ method: 'GET', path: '/modules/users-with-roles', tags })
+    .output(zUsersWithRolesResponse)
+    .handler(async ({ context }) => {
+      context.logger.info('Fetching users with their module roles');
+
+      const authState = await clerkAuth();
+      const token = await authState.getToken();
+      const orgId = authState.orgId;
+
+      if (!token || !orgId) {
+        throw new ORPCError('UNAUTHORIZED', {
+          message: 'No authentication token or organization available',
+        });
+      }
+
+      const orgRepo = new OrganisationRepository(token);
+      return await orgRepo.getUsersWithRoles(orgId);
     }),
 
   assignRole: protectedProcedure({ permission: null })

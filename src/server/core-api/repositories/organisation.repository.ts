@@ -19,6 +19,22 @@ export class OrganisationRepository {
     return { Authorization: `Bearer ${this.token}` };
   }
 
+  async getUsersWithRoles(orgId: string) {
+    const { data, response } = await coreApiClient.GET(
+      '/v2/organisations/{orgId}/roles/users',
+      {
+        headers: this.headers,
+        params: { path: { orgId } },
+      }
+    );
+
+    if (!response.ok) {
+      throw this.handleError(response);
+    }
+
+    return data!;
+  }
+
   async getUserRoles(orgId: string, userId: string) {
     const { data, response } = await coreApiClient.GET(
       '/v2/organisations/{orgId}/users/{userId}/roles',
