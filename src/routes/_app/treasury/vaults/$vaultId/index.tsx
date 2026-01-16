@@ -1,5 +1,5 @@
-import { zodValidator } from '@tanstack/zod-adapter';
 import { createFileRoute } from '@tanstack/react-router';
+import { zodValidator } from '@tanstack/zod-adapter';
 import { z } from 'zod';
 
 import { PageVaultDetailTabs } from '@/features/vaults/page-vault-detail-tabs';

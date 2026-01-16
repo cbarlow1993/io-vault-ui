@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   formatDate,
   formatDateLong,
-  formatTime,
   formatDateTime,
   formatDateTimeLong,
   formatDateTimeNumeric,
   formatRelativeTime,
+  formatTime,
 } from './format';
 
 describe('date formatting utilities', () => {

@@ -9,8 +9,8 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/tailwind/utils';
 
 import {
-  getStatusStyles,
   type CommonStatus,
+  getStatusStyles,
 } from '@/features/shared/lib/status-styles';
 
 export type StatusBadgeProps = {

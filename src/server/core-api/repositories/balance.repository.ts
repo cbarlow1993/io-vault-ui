@@ -1,10 +1,10 @@
 import { coreApiClient } from '../client';
 import {
+  AddressNotFoundError,
   CoreApiError,
   CoreApiForbiddenError,
   CoreApiUnauthorizedError,
   CoreApiValidationError,
-  AddressNotFoundError,
 } from '../errors';
 import type { ChainAlias, Ecosystem } from '../types';
 

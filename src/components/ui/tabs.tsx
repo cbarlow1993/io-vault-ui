@@ -14,7 +14,7 @@ type TabsContextValue = {
 const TabsContext = React.createContext<TabsContextValue | null>(null);
 
 function useTabsContext() {
-  const context = React.useContext(TabsContext);
+  const context = React.use(TabsContext);
   if (!context) {
     throw new Error('Tabs components must be used within a Tabs provider');
   }
@@ -34,11 +34,11 @@ type TabsProps = {
 
 function Tabs({ value, onValueChange, children, className }: TabsProps) {
   return (
-    <TabsContext.Provider value={{ value, onValueChange }}>
+    <TabsContext value={{ value, onValueChange }}>
       <div data-slot="tabs" className={cn('w-full', className)}>
         {children}
       </div>
-    </TabsContext.Provider>
+    </TabsContext>
   );
 }
 
@@ -147,4 +147,4 @@ function TabsContent({ value, children, className }: TabsContentProps) {
   );
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };

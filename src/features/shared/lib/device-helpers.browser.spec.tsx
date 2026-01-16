@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { page, render } from '@/tests/utils';
 
-import { getDeviceIcon, type DeviceType } from './device-helpers';
+import { type DeviceType, getDeviceIcon } from './device-helpers';
 
 describe('device helpers', () => {
   describe('getDeviceIcon', () => {
