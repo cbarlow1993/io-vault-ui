@@ -155,6 +155,12 @@ export const moduleConfig: Record<ModuleId, ModuleConfig> = {
         testId: 'nav-global-roles',
       },
       {
+        label: 'Module Access',
+        path: '/global/module-access',
+        icon: ShieldCheckIcon,
+        testId: 'nav-global-module-access',
+      },
+      {
         label: 'Teams',
         path: '/global/teams',
         icon: Users2Icon,
