@@ -3,6 +3,7 @@ import { InferRouterInputs, InferRouterOutputs } from '@orpc/server';
 import accountRouter from './routers/account';
 import billingRouter from './routers/billing';
 import configRouter from './routers/config';
+import modulesRouter from './routers/modules';
 import signersRouter from './routers/signers';
 import vaultsRouter from './routers/vaults';
 
@@ -16,6 +17,7 @@ export const router = {
   account: accountRouter,
   billing: billingRouter,
   config: configRouter,
+  modules: modulesRouter,
   signers: signersRouter,
   vaults: vaultsRouter,
 };
