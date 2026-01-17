@@ -3,6 +3,7 @@ import {
   ReshareNotFoundError,
   VaultApiError,
   VaultApiForbiddenError,
+  VaultApiSessionExpiredError,
   VaultApiUnauthorizedError,
   VaultApiValidationError,
 } from '../errors';
@@ -94,6 +95,9 @@ export class ReshareRepository {
     }
     if (status === 403) {
       throw new VaultApiForbiddenError(statusText);
+    }
+    if (status === 419) {
+      throw new VaultApiSessionExpiredError(statusText);
     }
     if (status === 400) {
       throw new VaultApiValidationError(statusText);

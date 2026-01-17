@@ -57,6 +57,12 @@ export class CoreApiForbiddenError extends CoreApiError {
   }
 }
 
+export class CoreApiSessionExpiredError extends CoreApiError {
+  constructor(message = 'Session expired') {
+    super(message, 'SESSION_EXPIRED', 419);
+  }
+}
+
 // Validation errors
 export class CoreApiValidationError extends CoreApiError {
   constructor(message: string, details?: unknown) {

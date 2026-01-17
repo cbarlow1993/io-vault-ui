@@ -2,6 +2,7 @@ import { coreApiClient } from '../client';
 import {
   CoreApiError,
   CoreApiForbiddenError,
+  CoreApiSessionExpiredError,
   CoreApiUnauthorizedError,
   CoreApiValidationError,
 } from '../errors';
@@ -40,6 +41,9 @@ export class VaultRepository {
     }
     if (status === 403) {
       throw new CoreApiForbiddenError(statusText);
+    }
+    if (status === 419) {
+      throw new CoreApiSessionExpiredError(statusText);
     }
     if (status === 400) {
       throw new CoreApiValidationError(statusText);

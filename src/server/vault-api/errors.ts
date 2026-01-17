@@ -56,6 +56,12 @@ export class VaultApiForbiddenError extends VaultApiError {
   }
 }
 
+export class VaultApiSessionExpiredError extends VaultApiError {
+  constructor(message = 'Session expired') {
+    super(message, 'SESSION_EXPIRED', 419);
+  }
+}
+
 // Validation errors
 export class VaultApiValidationError extends VaultApiError {
   constructor(message: string, details?: unknown) {
