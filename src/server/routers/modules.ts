@@ -60,9 +60,16 @@ export default {
 
   getUsersWithRoles: protectedProcedure({ permission: null })
     .route({ method: 'GET', path: '/modules/users-with-roles', tags })
+    .input(z.object({ userIds: z.array(z.string()) }).optional())
     .output(zUsersWithRolesResponse)
-    .handler(async ({ context }) => {
-      context.logger.info('Fetching users with their module roles');
+    .handler(async ({ context, input }) => {
+      context.logger.info(
+        {
+          userIds: input?.userIds?.slice(0, 3),
+          userCount: input?.userIds?.length,
+        },
+        'Fetching users with their module roles'
+      );
 
       const authState = await clerkAuth();
       const token = await authState.getToken();
@@ -75,7 +82,11 @@ export default {
       }
 
       const orgRepo = new OrganisationRepository(token);
-      return await orgRepo.getUsersWithRoles(orgId);
+      const result = await orgRepo.getUsersWithRoles(orgId, input?.userIds);
+
+      context.logger.info(result, 'Returning users with roles');
+
+      return result;
     }),
 
   assignRole: protectedProcedure({ permission: null })

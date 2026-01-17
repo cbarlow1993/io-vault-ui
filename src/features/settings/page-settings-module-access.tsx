@@ -1,14 +1,18 @@
 import { useOrganization } from '@clerk/tanstack-react-start';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import { SearchIcon, XIcon } from 'lucide-react';
+import { CheckIcon, SearchIcon, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { DataTable } from '@/components/ui/data-table';
 import { orpc } from '@/lib/orpc/client';
 import { cn } from '@/lib/tailwind/utils';
-
-import { DataTable } from '@/components/ui/data-table';
 
 import { ModuleSummaryCards } from './components/module-summary-cards';
 import { SettingsLayout } from './components/settings-layout';
@@ -17,43 +21,52 @@ import {
   mapInvitation,
   mapMembership,
 } from './lib/clerk-members';
-import type { Module, ModuleRole, UserWithRoles } from './schema';
+import type { Module, ModuleRole } from './schema';
 
-// Member type for the table
-type ModuleAccessMember = {
+// ============================================================================
+// Types
+// ============================================================================
+
+type MemberRow = {
   id: string;
   name: string;
   email: string;
   avatarUrl?: string;
   globalRole: string;
   status: 'active' | 'pending';
-  moduleAssignments: Record<string, string>; // moduleId -> role name
+  moduleRoles: Record<string, string>; // moduleId -> role name
 };
 
-// Cell component for module role assignment
-function ModuleRoleCell({
-  member,
+// ============================================================================
+// Role Cell Component
+// ============================================================================
+
+function RoleCell({
+  userId,
   moduleId,
-  roles,
   currentRole,
-  isLoading,
-  onAssignRole,
+  availableRoles,
+  isUpdating,
+  onChangeRole,
 }: {
-  member: ModuleAccessMember;
+  userId: string;
   moduleId: string;
-  roles: ModuleRole[];
   currentRole: string | null;
-  isLoading: boolean;
-  onAssignRole: (userId: string, moduleId: string, role: string | null) => void;
+  availableRoles: ModuleRole[];
+  isUpdating: boolean;
+  onChangeRole: (userId: string, moduleId: string, role: string | null) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const currentRoleDisplay = currentRole
-    ? (roles.find((r) => r.name === currentRole)?.display_name ?? currentRole)
+  const displayName = currentRole
+    ? (availableRoles.find((r) => r.name === currentRole)?.display_name ??
+      currentRole)
     : null;
 
   const handleSelect = (role: string | null) => {
-    onAssignRole(member.id, moduleId, role);
+    if (role !== currentRole) {
+      onChangeRole(userId, moduleId, role);
+    }
     setIsOpen(false);
   };
 
@@ -62,15 +75,16 @@ function ModuleRoleCell({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        disabled={isLoading}
+        disabled={isUpdating}
         className={cn(
-          'flex h-7 min-w-[100px] items-center justify-between gap-2 px-2 text-xs',
-          currentRole ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-400',
-          'hover:bg-neutral-100',
-          isLoading && 'opacity-50'
+          'flex h-7 min-w-[100px] items-center gap-2 px-2 text-xs',
+          currentRole
+            ? 'bg-neutral-100 text-neutral-900'
+            : 'text-neutral-400 hover:bg-neutral-50',
+          isUpdating && 'opacity-50'
         )}
       >
-        <span>{isLoading ? '...' : (currentRoleDisplay ?? '—')}</span>
+        {isUpdating ? '...' : (displayName ?? '—')}
       </button>
 
       {isOpen && (
@@ -79,30 +93,38 @@ function ModuleRoleCell({
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 z-20 mt-1 w-40 border border-neutral-200 bg-white py-1 shadow-lg">
+          <div className="absolute top-full left-0 z-20 mt-1 w-44 border border-neutral-200 bg-white py-1 shadow-lg">
             <button
               type="button"
               onClick={() => handleSelect(null)}
               className={cn(
-                'flex w-full items-center px-3 py-1.5 text-left text-xs',
+                'flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs',
                 'hover:bg-neutral-50',
-                currentRole === null && 'bg-neutral-50 font-medium'
+                !currentRole && 'font-medium'
               )}
             >
+              <span className="w-4">
+                {!currentRole && <CheckIcon className="size-3" />}
+              </span>
               No Access
             </button>
             <div className="my-1 border-t border-neutral-100" />
-            {roles.map((role) => (
+            {availableRoles.map((role) => (
               <button
                 key={role.id}
                 type="button"
                 onClick={() => handleSelect(role.name)}
                 className={cn(
-                  'flex w-full items-center px-3 py-1.5 text-left text-xs',
+                  'flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs',
                   'hover:bg-neutral-50',
-                  currentRole === role.name && 'bg-neutral-50 font-medium'
+                  currentRole === role.name && 'font-medium'
                 )}
               >
+                <span className="w-4">
+                  {currentRole === role.name && (
+                    <CheckIcon className="size-3" />
+                  )}
+                </span>
                 {role.display_name}
               </button>
             ))}
@@ -113,12 +135,19 @@ function ModuleRoleCell({
   );
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export function PageSettingsModuleAccess() {
+  const queryClient = useQueryClient();
+
+  // ---------------------------------------------------------------------------
+  // Clerk Data: Organization Members
+  // ---------------------------------------------------------------------------
+
   const { memberships, invitations } = useOrganization({
-    memberships: {
-      infinite: true,
-      keepPreviousData: true,
-    },
+    memberships: { infinite: true, keepPreviousData: true },
     invitations: {
       infinite: true,
       keepPreviousData: true,
@@ -126,7 +155,7 @@ export function PageSettingsModuleAccess() {
     },
   });
 
-  // Auto-fetch all pages when component mounts
+  // Auto-fetch all pages
   useEffect(() => {
     if (memberships?.hasNextPage && !memberships?.isFetching) {
       memberships.fetchNext();
@@ -139,50 +168,43 @@ export function PageSettingsModuleAccess() {
     }
   }, [invitations]);
 
-  // Fetch modules
+  const clerkUserIds = useMemo(() => {
+    return (memberships?.data ?? [])
+      .map((m) => m.publicUserData?.userId)
+      .filter((id): id is string => !!id);
+  }, [memberships?.data]);
+
+  // ---------------------------------------------------------------------------
+  // Core API Data: Modules
+  // ---------------------------------------------------------------------------
+
   const { data: modulesData, isLoading: isLoadingModules } = useQuery(
     orpc.modules.list.queryOptions({})
   );
 
-  // Fetch users with their module roles from Core API
-  const {
-    data: usersWithRolesData,
-    isLoading: isLoadingUsersWithRoles,
-    refetch: refetchUsersWithRoles,
-  } = useQuery(orpc.modules.getUsersWithRoles.queryOptions({}));
-
-  // Build a lookup map from user_id to their module roles
-  const userRolesMap = useMemo(() => {
-    const map = new Map<string, UserWithRoles>();
-    for (const user of usersWithRolesData?.users ?? []) {
-      map.set(user.user_id, user);
-    }
-    return map;
-  }, [usersWithRolesData?.users]);
-
-  // Wrap modules in useMemo to prevent dependency changes on every render
   const modules = useMemo<Module[]>(
     () => modulesData?.modules ?? [],
     [modulesData?.modules]
   );
 
-  // Assignable modules (exclude global)
   const assignableModules = useMemo(
-    () => modules.filter((m) => m.id !== 'global'),
+    () => modules.filter((m) => m.name !== 'global'),
     [modules]
   );
 
-  // State for module roles (fetched on demand)
-  const [moduleRoles, setModuleRoles] = useState<Record<string, ModuleRole[]>>(
-    {}
-  );
+  // ---------------------------------------------------------------------------
+  // Core API Data: Module Roles (cached per module)
+  // ---------------------------------------------------------------------------
 
-  // Fetch roles for each module when modules are loaded
+  const [moduleRolesMap, setModuleRolesMap] = useState<
+    Record<string, ModuleRole[]>
+  >({});
+
   useEffect(() => {
-    const fetchRoles = async () => {
+    const fetchAllRoles = async () => {
       const rolesMap: Record<string, ModuleRole[]> = {};
-      for (const module of modules) {
-        if (module.id !== 'global') {
+      await Promise.all(
+        assignableModules.map(async (module) => {
           try {
             const response = await orpc.modules.getRoles.call({
               moduleId: module.id,
@@ -191,38 +213,49 @@ export function PageSettingsModuleAccess() {
           } catch {
             rolesMap[module.id] = [];
           }
+        })
+      );
+      setModuleRolesMap(rolesMap);
+    };
+
+    if (assignableModules.length > 0) {
+      fetchAllRoles();
+    }
+  }, [assignableModules]);
+
+  // ---------------------------------------------------------------------------
+  // Core API Data: User Role Assignments
+  // ---------------------------------------------------------------------------
+
+  const { data: usersWithRolesData, isLoading: isLoadingRoles } = useQuery({
+    ...orpc.modules.getUsersWithRoles.queryOptions({ userIds: clerkUserIds }),
+    enabled: clerkUserIds.length > 0,
+    placeholderData: keepPreviousData, // Prevent table reset during refetch
+  });
+
+  // Build lookup: user_id -> { moduleId -> roleName }
+  const userRolesLookup = useMemo(() => {
+    const lookup = new Map<string, Record<string, string>>();
+    for (const user of usersWithRolesData?.users ?? []) {
+      const roles: Record<string, string> = {};
+      if (user.module_roles && typeof user.module_roles === 'object') {
+        for (const [moduleId, roleInfo] of Object.entries(user.module_roles)) {
+          roles[moduleId] = roleInfo.role;
         }
       }
-      setModuleRoles(rolesMap);
-    };
-    if (modules.length > 0) {
-      fetchRoles();
+      lookup.set(user.user_id, roles);
     }
-  }, [modules]);
+    return lookup;
+  }, [usersWithRolesData?.users]);
 
-  // UI state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedModule, setSelectedModule] = useState<string | null>(null);
-  const [loadingCell, setLoadingCell] = useState<{
-    userId: string;
-    moduleId: string;
-  } | null>(null);
+  // ---------------------------------------------------------------------------
+  // Combined Data: Members with Roles
+  // ---------------------------------------------------------------------------
 
-  // Map Clerk members to our format, merging with Core API module roles
-  const members = useMemo<ModuleAccessMember[]>(() => {
+  const members = useMemo<MemberRow[]>(() => {
     const activeMembers = (memberships?.data ?? []).map((m) => {
       const mapped = mapMembership(m);
-      const userRoles = userRolesMap.get(mapped.id);
-
-      // Convert module_roles object to moduleAssignments format (moduleId -> role name)
-      const moduleAssignments: Record<string, string> = {};
-      if (userRoles?.module_roles) {
-        for (const [moduleId, roleInfo] of Object.entries(
-          userRoles.module_roles
-        )) {
-          moduleAssignments[moduleId] = roleInfo.role;
-        }
-      }
+      const moduleRoles = userRolesLookup.get(mapped.id) ?? {};
 
       return {
         id: mapped.id,
@@ -231,7 +264,7 @@ export function PageSettingsModuleAccess() {
         avatarUrl: mapped.avatarUrl,
         globalRole: mapClerkRole(m.role),
         status: 'active' as const,
-        moduleAssignments,
+        moduleRoles,
       };
     });
 
@@ -243,63 +276,83 @@ export function PageSettingsModuleAccess() {
         email: mapped.email,
         globalRole: mapClerkRole(inv.role ?? 'org:member'),
         status: 'pending' as const,
-        moduleAssignments: {} as Record<string, string>,
+        moduleRoles: {},
       };
     });
 
     return [...activeMembers, ...pendingMembers];
-  }, [memberships?.data, invitations?.data, userRolesMap]);
+  }, [memberships?.data, invitations?.data, userRolesLookup]);
 
-  const isLoading =
-    isLoadingModules ||
-    isLoadingUsersWithRoles ||
-    !memberships?.data ||
-    memberships?.isFetching;
+  // ---------------------------------------------------------------------------
+  // UI State
+  // ---------------------------------------------------------------------------
 
-  // Filter members
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
+  const [updatingCell, setUpdatingCell] = useState<string | null>(null); // "userId:moduleId"
+
+  // ---------------------------------------------------------------------------
+  // Filtered Data
+  // ---------------------------------------------------------------------------
+
   const filteredMembers = useMemo(() => {
     return members.filter((member) => {
-      const matchesSearch =
-        !searchQuery ||
-        member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchQuery.toLowerCase());
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (
+          !member.name.toLowerCase().includes(query) &&
+          !member.email.toLowerCase().includes(query)
+        ) {
+          return false;
+        }
+      }
 
-      const matchesModule =
-        !selectedModule || member.moduleAssignments[selectedModule];
+      // Module filter
+      if (selectedModule && !member.moduleRoles[selectedModule]) {
+        return false;
+      }
 
-      return matchesSearch && matchesModule;
+      return true;
     });
   }, [members, searchQuery, selectedModule]);
 
+  // ---------------------------------------------------------------------------
   // Mutations
+  // ---------------------------------------------------------------------------
+
+  const queryKey = orpc.modules.getUsersWithRoles.queryOptions({
+    userIds: clerkUserIds,
+  }).queryKey;
+
   const { mutateAsync: assignRole } = useMutation(
     orpc.modules.assignRole.mutationOptions({
-      onSuccess: () => {
-        toast.success('Module access updated');
-        refetchUsersWithRoles();
+      onSuccess: async () => {
+        toast.success('Role updated');
+        await queryClient.invalidateQueries({ queryKey });
       },
       onError: () => {
-        toast.error('Failed to update module access');
+        toast.error('Failed to update role');
       },
     })
   );
 
   const { mutateAsync: removeRole } = useMutation(
     orpc.modules.removeRole.mutationOptions({
-      onSuccess: () => {
-        toast.success('Module access removed');
-        refetchUsersWithRoles();
+      onSuccess: async () => {
+        toast.success('Access removed');
+        await queryClient.invalidateQueries({ queryKey });
       },
       onError: () => {
-        toast.error('Failed to remove module access');
+        toast.error('Failed to remove access');
       },
     })
   );
 
-  // Handle role assignment
-  const handleAssignRole = useCallback(
+  const handleChangeRole = useCallback(
     async (userId: string, moduleId: string, role: string | null) => {
-      setLoadingCell({ userId, moduleId });
+      const cellKey = `${userId}:${moduleId}`;
+      setUpdatingCell(cellKey);
 
       try {
         if (role === null) {
@@ -308,18 +361,21 @@ export function PageSettingsModuleAccess() {
           await assignRole({ userId, moduleId, role });
         }
       } finally {
-        setLoadingCell(null);
+        setUpdatingCell(null);
       }
     },
     [assignRole, removeRole]
   );
 
-  // Calculate counts for summary cards
+  // ---------------------------------------------------------------------------
+  // Summary Card Data
+  // ---------------------------------------------------------------------------
+
   const userCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const module of modules) {
       counts[module.id] = members.filter(
-        (m) => m.moduleAssignments[module.id]
+        (m) => m.moduleRoles[module.id]
       ).length;
     }
     return counts;
@@ -328,42 +384,42 @@ export function PageSettingsModuleAccess() {
   const roleCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const module of modules) {
-      counts[module.id] = moduleRoles[module.id]?.length ?? 0;
+      counts[module.id] = moduleRolesMap[module.id]?.length ?? 0;
     }
     return counts;
-  }, [modules, moduleRoles]);
+  }, [modules, moduleRolesMap]);
 
-  // Define columns for DataTable
-  const columns = useMemo<ColumnDef<ModuleAccessMember, unknown>[]>(() => {
-    const baseColumns: ColumnDef<ModuleAccessMember, unknown>[] = [
+  // ---------------------------------------------------------------------------
+  // Table Columns
+  // ---------------------------------------------------------------------------
+
+  const columns = useMemo<ColumnDef<MemberRow>[]>(() => {
+    const baseColumns: ColumnDef<MemberRow>[] = [
       {
         accessorKey: 'name',
         header: 'User',
-        cell: ({ row }) => {
-          const member = row.original;
-          return (
-            <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium">
-                {member.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-neutral-900">
-                    {member.name}
+        cell: ({ row }) => (
+          <div className="flex items-center gap-3">
+            <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium">
+              {row.original.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-neutral-900">
+                  {row.original.name}
+                </span>
+                {row.original.status === 'pending' && (
+                  <span className="bg-amber-100 text-amber-700 rounded px-1.5 py-0.5 text-[10px]">
+                    Pending
                   </span>
-                  {member.status === 'pending' && (
-                    <span className="bg-amber-100 text-amber-700 rounded px-1.5 py-0.5 text-[10px]">
-                      Pending
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-neutral-500">
-                  {member.email}
-                </div>
+                )}
+              </div>
+              <div className="text-[10px] text-neutral-500">
+                {row.original.email}
               </div>
             </div>
-          );
-        },
+          </div>
+        ),
       },
       {
         accessorKey: 'globalRole',
@@ -376,34 +432,45 @@ export function PageSettingsModuleAccess() {
       },
     ];
 
-    // Add a column for each assignable module
-    const moduleColumns: ColumnDef<ModuleAccessMember, unknown>[] =
-      assignableModules.map((module) => ({
+    const moduleColumns: ColumnDef<MemberRow>[] = assignableModules.map(
+      (module) => ({
         id: `module_${module.id}`,
         header: module.display_name,
         cell: ({ row }) => {
           const member = row.original;
-          const currentRole = member.moduleAssignments[module.id] ?? null;
-          const roles = moduleRoles[module.id] ?? [];
-          const isCellLoading =
-            loadingCell?.userId === member.id &&
-            loadingCell?.moduleId === module.id;
+          const currentRole = member.moduleRoles[module.id] ?? null;
+          const cellKey = `${member.id}:${module.id}`;
 
           return (
-            <ModuleRoleCell
-              member={member}
+            <RoleCell
+              userId={member.id}
               moduleId={module.id}
-              roles={roles}
               currentRole={currentRole}
-              isLoading={isCellLoading}
-              onAssignRole={handleAssignRole}
+              availableRoles={moduleRolesMap[module.id] ?? []}
+              isUpdating={updatingCell === cellKey}
+              onChangeRole={handleChangeRole}
             />
           );
         },
-      }));
+      })
+    );
 
     return [...baseColumns, ...moduleColumns];
-  }, [assignableModules, moduleRoles, loadingCell, handleAssignRole]);
+  }, [assignableModules, moduleRolesMap, updatingCell, handleChangeRole]);
+
+  // ---------------------------------------------------------------------------
+  // Loading State
+  // ---------------------------------------------------------------------------
+
+  const isLoading =
+    isLoadingModules ||
+    isLoadingRoles ||
+    !memberships?.data ||
+    memberships?.isFetching;
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
 
   return (
     <SettingsLayout
@@ -411,6 +478,7 @@ export function PageSettingsModuleAccess() {
       description="Manage user access to modules. Assign users to Treasury, Compliance, or Tokenisation with specific roles."
     >
       <div className="space-y-6">
+        {/* Summary Cards */}
         <ModuleSummaryCards
           modules={assignableModules}
           userCounts={userCounts}
@@ -429,7 +497,7 @@ export function PageSettingsModuleAccess() {
                 placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-7 w-48 border border-neutral-200 bg-neutral-50 pr-2 pl-7 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+                className="h-7 w-48 border-input pr-2 pl-7 text-xs placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
               />
               {searchQuery && (
                 <button

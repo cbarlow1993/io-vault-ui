@@ -116,6 +116,7 @@ export function DataTable<TData>({
     data,
     columns,
     pageCount: isServerSide ? Math.ceil(rowCount / safePageSize) : undefined,
+    autoResetPageIndex: false, // Preserve page when data changes
     state: {
       pagination,
       sorting,
